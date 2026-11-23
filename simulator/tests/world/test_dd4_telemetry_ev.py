@@ -87,13 +87,15 @@ def test_e1_the_world_pack_admits_sessions_past_two_in_order_and_v1_still_refuse
 # --- roster in, the depot manager --------------------------------------------------------------------------------
 
 def test_e2_kasarani_every_bus_gets_its_required_energy_inside_the_limits() -> None:
-    r = run("EV-KAS", "2026-10-14", "2026-10-15")
+    r = EvSiteRun(f_site("EV-KAS"), books("EV-KAS"), "2026-10-14", "2026-10-15")
+    for _ in r.days:  # the run keeps the current day's charger draw only (DD4b run 5): read it each day
+        r.advance_day()
+        draw = r.charger_draw()
+        assert draw and all(kw <= 50 for kw in draw.values()), r.days[r.advanced - 1]
     night = [d for d in r.departures() if d["service_day"] == "2026-10-14"]
     assert len(night) == 8 and all(d["delivered_kwh"] == Fraction(150) for d in night)
     for minute, depot in r.import_by_minute().items():
         assert depot <= 250
-    for (charger, minute), kw in r.charger_draw().items():
-        assert kw <= 50, (charger, minute)
     imports = rows_of(r, "site-meter", "import")
     assert imports and all(row[5] == "kW" for row in imports)
 

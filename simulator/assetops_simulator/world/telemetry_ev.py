@@ -528,6 +528,7 @@ class EvSiteRun:
             self._spans = {s: [] for s in self.slots}
         self._docs = [[] for _ in self.chargers]
         self._events = [[] for _ in self.chargers]
+        self._charger_draw = {}  # the current day's only (DD4b run 5)
         day = self.days[self.advanced]
         day_start = self._utc(day)
         day_end = min(day_start + timedelta(days=1), self.end)  # the span's end instant (D-DD.103)
@@ -572,6 +573,10 @@ class EvSiteRun:
 
     def assignments(self, night: str) -> list[tuple[datetime, str, str]]:
         return [(t, bus, asset) for t, bus, asset, n in self._plugs if n == night]
+
+    def release_day(self, day: date) -> None:
+        """Drop a day's rows once the frame has written them (DD4b run 5: one day held at a time)."""
+        self._records.pop(day, None)
 
     @property
     def end_local(self) -> datetime:
@@ -630,6 +635,7 @@ class EvSiteRun:
         return dict(self._import)
 
     def charger_draw(self) -> dict[tuple[str, datetime], Fraction]:
+        """The last advanced day's (charger, minute) draw, non-zero minutes only."""
         return dict(self._charger_draw)
 
 

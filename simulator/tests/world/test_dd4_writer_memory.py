@@ -71,3 +71,19 @@ def test_w3_the_ev_run_keeps_the_current_days_charger_draw_only() -> None:
     r.advance_day()
     second = r.charger_draw()
     assert second and all(local("2026-10-15T00:00:00") <= t < local("2026-10-16T00:00:00") for _, t in second)
+
+
+def test_w4_the_cli_sink_writes_as_it_goes_and_a_refusal_leaves_nothing(tmp_path) -> None:
+    import importlib.util
+
+    from .conftest import CLI
+
+    spec = importlib.util.spec_from_file_location("world_history_cli", CLI)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sink = module.FileSink(tmp_path)
+    sink("metro-bus/telemetry/EV-KAS.2026-11-01.readings.json", b"a")
+    assert (tmp_path / "metro-bus/telemetry/EV-KAS.2026-11-01.readings.json").read_bytes() == b"a"  # on disk now
+    sink("metro-bus/telemetry/EV-KAS.2026-11-02.readings.json", b"b")
+    sink.undo()
+    assert list(tmp_path.iterdir()) == []

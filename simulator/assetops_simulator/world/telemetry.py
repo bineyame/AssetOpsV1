@@ -747,11 +747,14 @@ def supported(site: dict) -> bool:
 
 
 def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str, end: str,
-                    only: tuple[str, ...] | None = None) -> TelemetryResult:
+                    only: tuple[str, ...] | None = None, sink=None) -> TelemetryResult:
     """`view` the allowlisted manifest view, `sites` the `F` file, `decided_books` per Site code (see `books_for`).
-    `start` is the first local day; `end` the last local day (whole) or a local end instant (D-DD.103)."""
+    `start` is the first local day; `end` the last local day (whole) or a local end instant (D-DD.103).
+    `sink(name, data)`, when given, receives each file as it is made and the result holds none (DD4b run 5: the CLI
+    writes and drops each day file); without it the files are collected and returned, in the same order."""
     refuse_oracle(sites)
     files, manifests = [], []
+    emit = sink if sink is not None else (lambda name, data: files.append((name, data)))
     by_tenant: dict[str, list[SiteRun]] = {}
     for site in sites["sites"]:
         code = site["code"]
@@ -759,8 +762,7 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
             continue
         family = pack_family(site)
         if family in VERTICAL_PACKS:
-            written, vertical_run = _vertical(site, family, decided_books[code], start, end, manifests)
-            files += written
+            vertical_run = _vertical(site, family, decided_books[code], start, end, manifests, emit)
             by_tenant.setdefault(site["tenant"], []).append(vertical_run)
             continue
         if family != "mini-grid" or not supported(site):
@@ -771,25 +773,27 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
         digests: dict[str, "hashlib._Hash"] = {}
         for day in run.days:
             data = day_file(site, run.advance_day(), run.day_records(day))
-            files.append((f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data))
+            emit(f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data)
             digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
         by_tenant.setdefault(site["tenant"], []).append(run)
         manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", site_manifest(
             site, run, decided_books[code], {m: d.hexdigest() for m, d in sorted(digests.items())})))
     for slug, runs in sorted(by_tenant.items()):
-        files.append((f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs))))
+        emit(f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs)))
     return TelemetryResult(tuple(files), tuple(manifests))
 
 
-def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> tuple[list, object]:
-    """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time."""
+def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list, emit) -> object:
+    """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time. Each
+    day file goes to `emit` and the run's rows of that day are released once written (DD4b run 5)."""
     run = _vertical_runs()[family](site, books, start, end)
     binding = VerticalBinding(site)
-    files, digests = [], {}
+    digests = {}
     for day in run.days:
         run.advance_day()
         data = day_file(site, day, binding.rows(run.day_records(day)))
-        files.append((f"{site['tenant']}/telemetry/{site['code']}.{day.isoformat()}.readings.json", data))
+        run.release_day(day)
+        emit(f"{site['tenant']}/telemetry/{site['code']}.{day.isoformat()}.readings.json", data)
         digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
     model, version = VERTICAL_PACKS[family]
     manifests.append((f"{site['tenant']}/telemetry/{site['code']}.manifest.json", {
@@ -799,7 +803,7 @@ def _vertical(site: dict, family: str, books: dict, start: str, end: str, manife
                  "to": run.end.astimezone(_zone(site)).isoformat()},
         "private_parameters": run.private_parameters(), "conditions": run.conditions(),
         "mappings": binding.mappings(), "golden_digests": {m: d.hexdigest() for m, d in sorted(digests.items())}}))
-    return files, _measured_view(run)
+    return _measured_view(run)
 
 
 def _measured_view(run) -> object:

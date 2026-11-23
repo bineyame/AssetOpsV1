@@ -196,10 +196,35 @@ def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
     return 0
 
 
+class FileSink:
+    """`build_telemetry`'s sink for the CLI (DD4b run 5): each file is written as it is made, so no day file is held;
+    `undo()` removes what was written (a refused run leaves the directory as it found it)."""
+
+    def __init__(self, target: Path) -> None:
+        self.target, self.paths = target, []
+
+    def __call__(self, name: str, data: bytes) -> None:
+        path = self.target / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        self.paths.append(path)
+
+    def undo(self) -> None:
+        for path in reversed(self.paths):
+            path.unlink()
+        for folder in sorted({p.parent for p in self.paths}, key=lambda d: -len(d.parts)):
+            while folder != self.target and folder.is_dir() and not any(folder.iterdir()):
+                folder.rmdir()
+                folder = folder.parent
+        self.paths = []
+
+
 def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str,
                only: tuple[str, ...] | None) -> int:
+    sink = None
     try:
         target = _out_dir(out)
+        sink = FileSink(target)
         view = load_view(manifest)
         history = generate_history(view)
         expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8")
@@ -220,13 +245,12 @@ def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, 
                    **cold_writer.cold_books_for(view, history, records, ledgers=ledgers),
                    **ev_writer.ev_books_for(view, rosters)}
         result = telemetry_writer.build_telemetry(
-            view, site_doc, decided, start=start, end=end, only=only)
+            view, site_doc, decided, start=start, end=end, only=only, sink=sink)
     except telemetry_writer.TelemetryRefused as error:
+        if sink is not None:
+            sink.undo()  # a refused run leaves no files, as before the sink (DD4b run 5)
         print(error, file=sys.stderr)
         return 3
-    for name, data in result.files:
-        (target / name).parent.mkdir(parents=True, exist_ok=True)
-        (target / name).write_bytes(data)
     for name, document in result.manifests:
         (target / name).parent.mkdir(parents=True, exist_ok=True)
         write_canonical_file(document, target / name)

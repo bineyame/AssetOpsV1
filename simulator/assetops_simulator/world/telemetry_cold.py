@@ -233,6 +233,10 @@ class ColdSiteRun:
         start = r.interval_start if r.measurement == "INTERVAL_MEAN" else r.source_time
         return (r.device_id, r.signal_id, start, r.source_time, r.value, r.unit, None)
 
+    def release_day(self, day: date) -> None:
+        """Drop a day's rows once the frame has written them (DD4b run 5: one day held at a time)."""
+        self._records.pop(day, None)
+
     def day_records(self, day: date) -> list[tuple]:
         """The day's pack rows `(device_id, signal_id, start, end, value, unit, event)`, UTC instants, exact values;
         `event` is the event's fields (D-DD.91) or None for a measurement."""
