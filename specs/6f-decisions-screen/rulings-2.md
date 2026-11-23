@@ -1,4 +1,4 @@
-# 6f rulings, part 2 (D-P6.88 to D-P6.93): the 6f1 U1 review's questions
+# 6f rulings, part 2 (D-P6.88 to D-P6.98): the 6f1 U1 reviews' questions
 
 Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-6f1-U1.md` at `ef2a81039`
 (`task/6f1-decisions`), `decisions/evaluate.py` and `structure/difference.py` on main `93ed567d7`, the mock's `uxDecisionSlots`
@@ -61,13 +61,14 @@ Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-
     not the best raises a named `ValueError`. New `why_answer` BOUNDS "The limits for this decision are not checked yet"
     (outcome `BOUNDS_NOT_CHECKED`). NONE becomes "Rejected or deferred: {rejected}" (the mock's fact, singular-safe;
     the baseline not counted, D-P6.82 (a): F6-B "Rejected or deferred: 13 of 13 options").
-- **`can_choose` (M4).** Shown only with a run, no choice and no recommendation (6a H2, H3). Amends §3.3: F6-A and a kept
+- **`can_choose` (M4; extended by D-P6.94).** Shown only with a run, no choice and no recommendation (6a H2, H3). Amends §3.3: F6-A and a kept
   decision lose it; `NOTHING_ADMITTED` keeps `NONE_ONLY`.
 - **INCOMPLETE notes.** Setting: "No option is recommended until every setting that passes the service checks has a
   value. No value yet: {unvalued}." Option twin: "No option is recommended until every option has a value. No value
   yet: {unvalued}." (a named option has no service checks).
-- **Plants.** `boundsnone` (BOUNDS with none valued) fails Ruiru; `stillchoose` (`can_choose` after a choice) fails
-  F6-H; `nearopt` (margin words on OPTION) fails F6-N.
+- **Plants.** `boundsnone` (BOUNDS with none valued) fails Ruiru; `stillchoose` (`can_choose` after a choice) fails the kept
+  `NO_ACTION_BEST` test (corrected by D-P6.97: F6-H has a recommendation, so it never has the note); `nearopt` (margin words
+  on OPTION) fails F6-N.
 
 ## D-P6.91 Every figure on the page carries its evidence words (Q4; accepted, as one form)
 
@@ -119,3 +120,144 @@ Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-
 - **Units.** U1 2.5 → **2.75** (one evaluator branch, the served form, new variants); U2 1.25, U3 1.5 stand. 6f1 **5.5 u** (cap 6).
 - **Owner.** Told, no decision asked: every figure on the decision page shows its evidence word, also when all agree.
 - **Reverse:** per item, the text it amends.
+
+# D-P6.94 to D-P6.98: the U1 re-review's questions
+
+Architect (Claude), 2026-11-23. Read: `review-6f1-U1-2.md`, the view, `records.py`, `evaluate.py`, `models.py`, `run.py` at `0c7f11e40`
+(`task/6f1-decisions`), the mock's `uxDecisionSlots` (`loop-ux.js:699-774`). Spec rev 5 is `spec.md` §16.
+
+**Model coverage (checked first).** What a run reads that a person can restate after it: a one-off (every option of all ten levers:
+mini-grid 4, cold 3, EV 3) and a document (the `RECORD` leaves of eight named levers; none on `generator_stop_reserve` and
+`charging_schedule`). The study, the admission, the dawn readings and the effects are the run's own rows; settings never change.
+The run names its one-off (`option_evaluation.one_off_id`, stored for every option, valued or not). It does not name its
+documents, but `difference` stores an effect row for every changed leaf, and that row has a change only when a document was read.
+
+## D-P6.94 The page shows the cost its figures rest on; a newer one is named as not in them (Q1, N1; the default changed)
+
+- **Ruling.** Once a run exists, the cost shown (card, `all` row, `rec.cost`, the cost answer, the cost row) is **the one-off that
+  run read**, by its id. A newer one-off never replaces it: the words say one exists and is not in the result, and its amount is
+  printed once only, in the option's cost row, as what it is. No run: the latest one-off, as built. Nothing is recomputed.
+- **Why not the review's default** (keep the latest cost, add a sentence). It leaves "+$1,670.00" and "costs $5,000.00" together,
+  and a reader subtracts. One model-computed figure per quantity: the result is the model's, so the cost beside it must be the one the
+  model took off. Why not recompute: a run is a dated act of a named person, and the ranking would move with it.
+- **Newer, defined.** `newer` is true when an option that is neither the baseline nor `REJECTED` has a latest one-off whose id is not
+  its evaluation's `one_off_id`, or a latest document declared after `run_at`. A `REJECTED` option's cost cannot move anything (R1);
+  its own cost words still say it. A new run clears it. Clock: a document stamped between the run's clock read and its read of the
+  records (milliseconds) reads as newer; the error is on the safe side.
+- **Read (6a's, additive).** `DecisionBundle.run_one_offs` (by option id: the rows the run's evaluations name; both stores; their
+  people join `names`). `OptionView` gains `run_one_off: OneOffView | None`, `newer_one_off: bool`, and `newer_records:
+  tuple[str, ...]` (factor ids, `changes` order) in place of 6f1's own `records` (D-P6.77 Q6). `one_off` stays the latest: the
+  `state_one_off` command reads it. No migration; `EVALUATOR_VERSION` unchanged.
+- **Source line.** `*_STATED` when an effect row of a `RECORD` leaf of any option has a change (the run read a document), never by what
+  exists now and never by date: a document restated after the run would otherwise hide the older one the run did read.
+- **Words.**
+
+  | Statement | New variant | Text |
+  |---|---|---|
+  | `one_off` | `STATED_BEFORE` | "costs {amount}; a newer cost is not in this result" |
+  | | `NIL_BEFORE` | "no one-off cost; a newer cost is not in this result" |
+  | | `MISSING_BEFORE` | "one-off cost stated, not in this result yet" |
+  | `one_off_detail` | `STATED_BEFORE` | "{amount} one-off, stated by {person} on {day}: {basis}; not in these figures: {newer}, stated by {newer_person} on {newer_day}: {newer_basis}" |
+  | | `MISSING_BEFORE` | "Not in these figures: {newer}, stated by {newer_person} on {newer_day}: {newer_basis}" |
+  | `cost_answer` | `STATED_BEFORE` | "{amount} one-off, stated by {person}; a newer cost is not in this result" |
+  | | `NIL_BEFORE` | "No one-off cost; a newer cost is not in this result" |
+  | `missing` | `STATED_SINCE` | "Not available yet: what it needs was stated after the options were worked out" |
+  | `newer_inputs` (new) | `COST` | "A one-off cost was stated after these figures were worked out; they do not include it." |
+  | | `DOCUMENT` | "A document was stated after these figures were worked out; they do not include it." |
+  | | `COST_AND_DOCUMENT` | "A one-off cost and a document were stated after these figures were worked out; they do not include them." |
+  | `at_stake` | `VALUE_BEFORE` | "{value} over {horizon}, to be worked out again" |
+  | | `AGAIN` | "To be worked out again: a newer cost or document is stated" |
+  | `rec_figure` | `BEFORE` | "{value} over {horizon}, against doing nothing; to be worked out again" |
+  | `eyebrow` | `REC_BEFORE` | "Recommended earlier" |
+
+  - A missing entry is "stated since" when it is `ONE_OFF` or `ONE_OFF_CURRENCY` and the option has a newer one-off, or names a
+    factor in `newer_records`. A result, an effect row and `first_missing` show the first entry that is **not** stated since;
+    `STATED_SINCE` when none is left. So a page never asks for what a person has already given.
+  - `newer_inputs` is drawn while `newer`, in every state: in `rec.notes` before `can_choose`, and in the evidence lines after
+    `valued_by`.
+  - `VALUE_BEFORE`, `BEFORE`, `REC_BEFORE` and `AGAIN` only while `newer` and no choice is recorded (after a choice nothing is owed).
+    `AGAIN` replaces `LOSS`, `TIE`, `MIXED` and their twins; `BOUNDS*`, `NONE_ADMITTED` and the missing sentences stay true.
+    The qualifier is in the figure's own text because the list row and the sticky bar draw it with no note beside it.
+- **What a person may still do.** Choosing is not blocked: 6a's H rules are unchanged, the system proposes and a person chooses, and the
+  choice names the run it was made on. `can_choose` is shown with a run, no choice, and **no recommendation or `newer`**, in its
+  words as they are: a person is not held to a recommendation that a newer cost is not in. 6f2's dialog repeats `newer_inputs`
+  (spec §11 gains it). The analyst values again to bring the cost in.
+- **Sweep (W6).** Everything the page reads as latest while the figures are the run's: one-offs, documents (both here), the choice's
+  run (`_STALE`, built). Nothing else. Reach: all three Site types by one path, the list and the page.
+- **Tests.** Whole Pages: F6-N with its one-off restated; Kasarani K2 the same (EV, no recommendation, `BOUNDS`); a Kisiwa document stated
+  after a run that read none; Thika's one-off stated after the run. Plain: F6-C with a one-off restated (grid; H1's figure,
+  `VALUE_BEFORE`); F6-N with a document restated keeps `*_STATED`; only a `REJECTED` option's cost newer is not `newer`; a restatement after
+  a choice; `NO_ACTION_BEST` reads `AGAIN`; a second run clears all. Postgres 7l/7m: `run_one_offs` after a restatement. Plants
+  `latestcost` (the cost shown is the latest), `nonewer` (`newer` always false), `docnow` (source by `newer_records` or existence).
+- **Reverse:** the review's default sentence beside the latest cost.
+
+## D-P6.95 N3, N5, N6: words true of every option and every Site type
+
+- **N3.** `change_answer` takes `kind`: `OPTION` "The option changes {factors}" (one option but the baseline: `storage_contract`,
+  `productive_demand`, `fuel_reconciliation`), `OPTIONS` "Between them, the options change {factors}". "The options change", as the review
+  proposed, is false for the three levers with one option.
+- **N5 (amends D-P6.82 (c)).** `effects_option` is the first standing option in **display order**, so the caption and the cards agree
+  and a valued option's rows are shown before "Not available yet" ones. The texts stand: "the list" is the cards, drawn first.
+- **N6 (a), limits.** The four service checks are judged only on a replay of settings (`runs.admission`); no named option has them, at any
+  Site type. The mock lists one limits line per option (`loop-ux.js` `limitsBody`, and the card's "Limits"). For a named lever:
+  `limits` `columns` are OPTION and `LIMITS` "Limits", each row one cell (`check_cell` `NOT_CHECKED`), `dawn` null; `all`
+  `columns` are OPTION, RESULT, COST, `LIMITS`, STANDING; a named option's `checks` (card and row) is new `LIMITS` "Limits not
+  checked yet" (the baseline stays "The baseline"); `limits_answer` `NO_CHECKS` becomes "Not checked yet: limits are checked when
+  bounds are set" (the old text spoke of "these options" for one, and said no check exists, which is not known). A setting grid is
+  unchanged. MD-6F-6 (D1, 6b) covers it. Sweep: `limits`, `all`, the card; a dawn column was on cold and EV pages too.
+- **N6 (b), why (amends D-P6.90).** Outcome `RANKING_INCOMPLETE`: `why_answer` new `INCOMPLETE` "Not every option has a value yet". "Rejected
+  or deferred: 1 of 2 options" is not why. `NONE` stays for `NO_ACTION_BEST` and `NOTHING_ADMITTED`; the count stays in "All
+  options". F6-B moves. MD-6F-14 (D2).
+- **U3** draws a `limits` and an `all` table by the served columns; the dawn cell only when `columns` is six.
+- **Reverse:** per item, the words it amends.
+
+## D-P6.96 A figure's word is never stronger than a part of it (open point 8; N2)
+
+- **Ruling.** (a) A stated one-off reads "Declared" (confirmed: D-SC1F.1, a value a person states with its basis; a quote is not a
+  system of record). (b) No result or effect may carry a stronger evidence **class** than anything it is made of, a cost included.
+  With D-P6.96 (c) it holds for every lever: a valued grid option is `MODELLED`; a valued named option has every leaf change
+  known, so it is `DECLARED` or weaker; the one-off is `DECLARED`. So the one-off need not enter the fold (it would
+  raise a `MODELLED` row with no value to `DECLARED`). One test holds it: over every `LEVERS` option valued with a one-off, the stored class
+  ranks `DECLARED` or weaker.
+- **(c) The model fault the sweep found.** A named option's change is the document's level **minus the month's own level**, and
+  `stated_changes` (`decisions/models.py`) carries only the document's evidence and origin. An estimated or simulated month under an
+  observed document can read as observed. Fix: `LeafChange` evidence `weakest(("DECLARED", level.evidence))`, origins
+  `_origin_union((record.origin,), level.origins)` (exported, or `ORIGIN_ORDER` applied there). An option-only neutral has no class and no
+  origin, so it adds nothing. No value, change or rank moves; tried on main: 6h (six files with parity) and 6c pure, 180 passed
+  before and after. Tests: a fuel investigation over an `ESTIMATED` level stores `ESTIMATED`; a `demo-simulated` level under
+  `observed-financial` stores `SIMULATED`. Plant `levelev` (the old line).
+- **N2: fix now, in the model, same function.** When the document and the month's own level each have a currency and they differ, the
+  change is missing `("CURRENCY_MISMATCH", "STRUCTURE")`, so the effect and the result say "the month's figures are in different
+  currencies" and no cross-currency difference is stored. Why not a raise: a person stating a quote in another currency is
+  not a code defect. No lever reaches it today (same parity run). One test: base 0.15 USD, record 23.00 KES.
+- **(d) The words.** "Simulated" and "Emulated" are not stronger than "Declared": they say what the figure may not be taken for
+  (D-5C.19). "Modelled" and "Estimated" are weaker. So every demo Site's page conforms (its records are simulated or emulated).
+  One cell breaks the rule: a named option on a Site whose records are real reads "Recorded" over a "Declared" cost.
+- **(e) D-P6.77 Q8 stands for U1 and is a Known Deviation in that one cell** (`source_class` `RECORDED`, a class that is not
+  `MODELLED` or `ESTIMATED`). Which word it takes is D-P6.98, the owner's. It must be closed before a valued decision of a Site on real records is shown to anyone.
+- **Reach.** Cold, EV and mini-grid named levers; values and the grid lever unchanged. **Reverse:** (c) the old line; N2 a raise.
+
+## D-P6.97 N4, N7, `stillchoose`; the fix round; units
+
+- **N4: fix now.** Three short cases put `TIE_OPTION`, `MIXED_OPTION` and `RANKING_INCOMPLETE_OPTION` through the view (the review's `twins.py` worlds):
+  the test's name claims them. **N7: at merge**, coordinator or merge preparation (one index line; code merges cleanly).
+- **`stillchoose`** (D-P6.90 corrected in place): it fails the kept `NO_ACTION_BEST` test, not F6-H.
+- **Fix round 2, in order:** (1) merge main (these rulings; `index-4.md` line renumbered); (2) tests first and failing: D-P6.94's, D-P6.96's
+  and N4's; (3) model: `stated_changes` (D-P6.96 (c), N2); (4) read: `run_one_offs`, `run_one_off`, `newer_one_off`, `newer_records`
+  in both stores; (5) view and words of D-P6.94; (6) D-P6.95's words, columns, effects option; (7) whole Pages and
+  `--write-fixtures`; (8) plants; packet: every moved literal, point 8 closed, D-P6.96 (e) as the one Known Deviation.
+- **Re-review:** verification of N1 to N6, with discovery on `records.py`, the Postgres read and `stated_changes` (W5: money). This is
+  U1's second fix round; a third triggers W7's readiness pass.
+- **Units.** U1 2.75 -> **3.25**; U2 1.25 and U3 1.5 stand. 6f1 **6.0 u**, at the cap: nothing more
+  enters U1. If it grows, D-P6.95's N6 (a) moves to U3's branch as a served-words part, and the Architect is told.
+
+## D-P6.98 OWNER: the word on an option's expected value at a Site with real records (Q2; not decided)
+
+- **Recommended:** "Estimated" for a named option's result and effects at a Site on real records. It is about the months to come, so
+  nothing recorded it; it rests on a stated cost, so it may not read stronger than "Declared" (D-P6.96); and "Declared" on a worked-out
+  $1,670.00 would say a person stated that figure. "Modelled" stays for simulated settings; "Simulated" and "Emulated" stay. The demo does not change.
+- **Words for the owner:** "On a Site with its own real records, the value we expect from an option (for example '+$1,670.00 over 4 months') is marked
+  'Recorded' today, because it is built from recorded figures and a document. But it is about the future, so nothing has been recorded
+  yet. We suggest 'Estimated'. A cost a person stated stays 'Declared', and the demo Sites stay 'Simulated' or 'Emulated', so nothing changes in the demo.
+  Is 'Estimated' right?"
+- **If yes:** one branch in `_Page.evidence`, F6-N's and F6-T's literals; a fast-lane change after U1, before the first pilot Site. Until then D-P6.96 (e).
