@@ -792,6 +792,9 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
 
 **Lane-wide pre-flight (D-DD.117 to D-DD.142, `preflight-remaining.md`).** Every remaining part is ruled there: DD3c parts 3-5 (D-DD.117, D-DD.118), DD4a's runs (D-DD.119 to D-DD.122), DD4b with new DD4.5 (D-DD.123 to D-DD.125), DD3b in three parts DD3b1-DD3b3 (D-DD.126 to D-DD.132), DD5 split into DD5a and DD5b (D-DD.138 to D-DD.141), DD6 (D-DD.133 to D-DD.137). Order and shared files: `preflight-remaining.md` §3 (amends the order above and §8.2). Sizes: D-DD.142.
 
+**Build cards (`.ai/ROLE_CONFIG.md` fourth audit (a)).** `cards/DD5a.md`, `cards/DD5b.md`, `cards/DD6.md`: the spec
+lines and rulings each part needs, with tests, plants, reach set and merge order. A builder reads its card and the code.
+
 ### DD1: three operators (4.5 u, D-DD.44; `task/DD1-three-operators`)
 
 - **DD1.1 Onboarding of every vertical (1.0).**
