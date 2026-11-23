@@ -40,13 +40,17 @@ main simulator fix (world tests 526/526 on 23 Nov after DD3d-a).
 
 In flight (branch, what is left):
 - DD3d-b `task/DD3d-b-fuel-cost`: see section 4 item 4.
-- 6f1 `task/6f1-decisions`: U1 reviewed REJECT (`review-6f1-U1.md`, 4 High); fix round under way (Sixth session
-  in `6f1-handoff.md`), then re-review (named findings, plus discovery on `evaluate.py` and named options), then
-  merge. Spec rev 4, rulings D-P6.42-93. Open point 8: a stated one-off shows "Declared" (builder default).
+- 6f1 `task/6f1-decisions` (0d5c788ac): U1 fix round done, re-review running (`review-6f1-U1-2.md`); then merge main
+  (state line 220 needs the next free number), merge. Spec rev 4, rulings D-P6.42-93. For the Architect with the
+  re-review's questions: open point 8 (a stated one-off shows "Declared"), a named result net of it reading
+  "Recorded", and D-P6.90's claim that plant `stillchoose` fails F6-H (it cannot).
 - `fix/main-4d-litre` (e009a72a8): NOT merged on its own (it makes `sitesList.test.tsx` "World A, October" fail).
   DD3d-b takes it in; 3 points to judge there: iap tests 6/8 need a Site below target; a 5c accounts input moved
   5,100 to 2,100; 3b1 t1 / 3b3 t6 replace the manifest's dispatch version before comparing.
-- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix): shell frontend tests failing on main, some flaky.
+- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix): shell frontend tests failing on main; review found the
+  flake not gone (`review-main-shellfix.md` M1), fix round running, then re-review.
+- `test_0k4b_properties` p6 fails on main (run 23 Nov): DD3b2's `pv-array-share` property is a catalogue message that
+  the test's `NAMES` does not list. Goes into the next DD3d-b run.
 - Main's known failing ids: `.agent/main-baseline/b27f7c32c.md` (partial; on disk only).
 
 ## 4. Remaining work, in order (units)
