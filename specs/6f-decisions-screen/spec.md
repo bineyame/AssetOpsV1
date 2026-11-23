@@ -1,13 +1,13 @@
 # 6f: the Decisions screen (implementer spec, with its reviewer guide)
 
-**Status: rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b; 6f1 4.25 u). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
+**Status: rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; 6f1 5.25 u; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
 Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
 **Rulings:** `rulings.md` (this folder), D-P6.42 to D-P6.58 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
 **Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **3.75 units** in
-three units (4.25 u from rev 2, D-P6.79). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
+three units (5.25 u from rev 3, D-P6.87). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
 6d specs, so their bounds and Action carrier fold in (D-P6.42). Each part is under the 6-unit cap.
 
 **Read first (by section):** this spec; `rulings.md`; 6a `spec.md` §2, §3.5; 6c `spec.md` §3.4, §3.5, §12; IA-P
@@ -333,7 +333,7 @@ against doing nothing, unsigned for a one-off.
 
 ## 4. Unit 2: the list on the records (0.5 unit; gate G-6h)
 
-### 4.1 E0 counts the records waiting (`estate/portfolio.py`; D-P6.44 as amended by D-P6.52)
+### 4.1 WITHDRAWN by §14 (D-P6.84): E0 counts the records waiting (`estate/portfolio.py`; D-P6.44 as amended by D-P6.52)
 
 - A port `DecisionWaiting` beside E0: `waiting(tenant_id, period_from, period_to) -> Mapping[str, int]` (records in
   `NOT_VALUED` or `WAITING`, by `site_code`), from `DecisionService.for_tenant` over the same months; composed in
@@ -343,7 +343,7 @@ against doing nothing, unsigned for a one-off.
 - Tests (`backend/tests/test_6f_e0_records.py`, pure): two waiting records on two Sites and one `CHOSEN` give 2 and
   `{A: 1, B: 1}`; a fault gives `null`; port `None` gives `null`.
 
-### 4.2 The client (`estate/decisionsClient.ts`, `estate/estateReadCache.tsx`)
+### 4.2 REPLACED by §14 (D-P6.84): the client (`estate/decisionsClient.ts`, `estate/estateReadCache.tsx`)
 
 - `createDecisionsClient(fetch)`: `list({from, to})` and `one(decisionId)`, each `EstateResult`-shaped (`loaded` |
   `refused {code, text}`), with the §3.3 types (`DecisionListRow`, `DecisionPage`).
@@ -619,3 +619,45 @@ U2 → U3, each reviewed before the next builds on shared code) → 6f2 after 6b
 The choice and any write (6f2); bounds rows (6b; `CONDITIONAL` is rendered, never decided, here); applying and verifying (6d, 6e); plan value and
 plan items (7a, 7c; tile 4 stays "Not available yet"); levers for every Site type (6h); sensitivity; 0K4f's
 study (Kobo's values arrive with it, no 6f change needed).
+
+## 14. Rev 3 amendments: main after IA-P3 (D-P6.82 to D-P6.87; binding over §2a to §9)
+
+Appended here so the line numbers above hold. The rulings carry the reasons; this section says what each part becomes.
+
+- **§3 (U1 fix round, D-P6.82, D-P6.83).** §3.3: `chip_title` = the `source` text when `chip` is set; `sticky.title` =
+  the H1's text; an option count in a sentence leaves the baseline out. §3.4: `horizon_basis` `MONTH`; `rec_heading`
+  `PART`; `change_caption` `FIRST_OPTION`, `NOT_VALUED`; `option_label`'s percent slots optional; the margin is
+  `DECLARED`. §6.1/§6.2: N, T, S worlds, `decisions_list.json`'s seven rows and ten page files as D-P6.83.
+- **§4.1 withdrawn (D-P6.84).** No E0 port; `summary.waiting_count` and `waiting_by_site` leave the estate portfolio
+  body. Test 3 (`test_6f_e0_records.py`) becomes: the served summary holds neither key.
+- **§4.2 (D-P6.84).** `estate/decisionsListClient.ts`: `DecisionListRow` (§3.3), `fetchDecisions(days)` →
+  `EstateResult<{rows, total_count}>` (a `{code, text}` refusal is `{status: "refused", httpStatus, code, copy: text}`;
+  a network failure or another body shape: `DECISIONS_UNAVAILABLE` with "Decisions cannot be read right now.").
+  `EstateClient.decisions?`; `EstateReadKind` `"decisions"` (`AllPages` with `truncated: false`); `queryFromParams().days`;
+  cache keys with the whole range's days.
+- **§4.3 (D-P6.85).** `DecisionItem` has no `row` field. Facets State, Heading; sorts "Newest first", "Site"; `keep`
+  waiting; `text` = title, Site, state word, at stake, heading; `total` = `total_count`; empty "No decisions in this
+  range."; no `EstateCutoffLine`; the `known_at` note. `useDecisionItems(reads, query)` returns `{items, state, refused}`;
+  the waiting total is `waitingForAChoice(items)`.
+- **§4.4 (D-P6.84, D-P6.85).** The expected hits of `grep -rn "decisionItems(" frontend/src` on main `558b32f32`,
+  non-test: `estate/homeLists.tsx:86` (the definition), `:368` (`DecisionsListPage`), `:396` (Findings join), `:465`
+  (`DecisionsRows`); `shell/WaitingForYou.tsx:53` (`:6` is its comment); `shell/SearchPalette.tsx:163`. The
+  packet-IA-P3 §8.1 line numbers (`:77`, `:339`, `:367`, `:430`) are of an earlier head, and it predates search. The waiting
+  readers are swept too: `estate/sitesList.tsx:202-206` (`useWaiting`), `:277-291` (`OutcomesSites`),
+  `estate/EstatePortfolio.tsx:581`.
+- **§5 (D-P6.86).** Who pays line; the Finding line's five states; "Show {n} more options"; the shared parts; no card
+  marked for `KEPT_AS_IS`.
+- **§5.6 chrome words** become: "Decisions", "Show {n} more options", "Show fewer", "Evidence and records", "How this
+  works", "The Actions", "See the Actions", "Close", "Loading the decision…", "Decision not available", "Back to
+  Decisions", "Try again", "Valued decisions cannot be read right now.", the Finding line's sentences (D-P6.86), "Who
+  pays for each change: not available yet.", "Change a month", "Heading", "Factor".
+- **§6.3 plants.** `swap`, `nocover`, `tailfirst`, `e0` are withdrawn (they tested the union and the port). The
+  cards list the plants that stand.
+- **§9 gains** MD-6F-10 (D2, U2): the list's facets State and Heading in place of the mock's State and Due; "Newest
+  first" in place of "Priority" and "Due date" (no due date, no priority on a record; Due facet with 7a). MD-6F-11 (D1,
+  U3): who pays, on the cards and in "Cost and who pays": no payer is recorded · not scheduled. MD-6F-2's button text
+  as D-P6.86. MD-IAP-2 (R782) narrows to Due.
+- **§10 Done 2** reads: do the tile, the inbox badge, the Sites column's sum and the Outcomes column's sum give one
+  number on the records fixture (4), on a range of one month and of three?
+- **§12 R1** is answered: IA-P3 landed first, so U2 runs the sweep.
+- **Size:** U1 2.5 + U2 1.25 + U3 1.5 = **5.25 u**. Order: U1 → (U2 and U3 in parallel) → U3 merges → U2 merges.
