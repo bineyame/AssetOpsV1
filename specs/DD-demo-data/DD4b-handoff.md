@@ -55,8 +55,12 @@ Packet `packet-DD4b.md`.
   the meter) differ; the measured cold bill is unchanged. Hash lists `/opt/assetecon/evidence/DD4b/before.sha`, `after.sha`.
 
 ## Next
-1. DD4.6 rest: doc sweep (a subagent was sweeping worked-portfolios, domain-and-decision-models, economic-metric...,
-   etc. against `/opt/assetecon/evidence/DD4b/cm46-sweep-todo.log`; check its commit), then re-base check_manifest H8,
+1. DD4.6 rest: doc sweep DONE `2d7fa12a1` (9 layer4 docs + design .html, walkthroughs.md 3 figures the checker named,
+   go-to-market commercial-plan/website-content + .html because the checker reads them; log `cm46-sweep.log`: only H8,
+   H10, H9, K8, 3 K13 + main's 6 left). Packet points from the sweep: derived k rounds to 0.06 so MWEA-AGG energy is
+   `rec`-tagged (49.86); new figures worked in domain-and-decision-models §4.5 (repair break-even 56 % recovery, replace
+   payback 68 months, Mwea break-even rate 0.048) need a reviewer glance; Thika's negative control swapped to occupancy
+   (line 150); 52.01 (excess vs model) and -51.92 (vs plan) both appear. Next: re-base check_manifest H8,
    H10, K8, K13 (sites, portfolio, history) with a dated note as run 6 did, until 6 FAIL = main's 6
    (main 2bedbecf2: `cm46-main.log`).
 2. Then the slice end: 6h parity (test_6h_parity unedited; cold keys in golden/6h_parity.json: one `cold_room` hit,
