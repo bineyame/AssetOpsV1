@@ -271,6 +271,17 @@ def test_every_mini_grid_bridge_in_m_has_the_three_fuel_lines_and_closes(code: s
 
 
 @pytest.mark.parametrize("code", sorted(MINI))
+def test_the_fuel_leaves_record_was_run_on_the_live_world(code: str) -> None:
+    """DD3b review H1 (D-DD.164): the record is only a record of the run if the run's inputs are today's. The
+    notes run's inputs (the Site's `/2` kit, the books from the live history, the notes file's notes) are hashed
+    when `--leaves --write` records the ledger; a world that moved under the record fails here, without a rerun."""
+    record = next(s for s in json.loads(FUEL_LEAVES.read_text(encoding="utf-8"))["sites"] if s["site_code"] == code)
+    notes = next(s for s in json.loads(NOTES_FILE.read_text(encoding="utf-8"))["sites"] if s["site_code"] == code)
+    first, last = record["span"]
+    assert record["inputs_sha256"] == tool.run_inputs_sha256(code, notes["notes"], first, last)
+
+
+@pytest.mark.parametrize("code", sorted(MINI))
 def test_m_october_fuel_leaves_equal_the_tool_output(code: str) -> None:
     """D-DD.131 (D-DD.93): `M`'s October fuel leaves are the tool's output on the notes run's October ledger."""
     record = next(s for s in json.loads(FUEL_LEAVES.read_text(encoding="utf-8"))["sites"] if s["site_code"] == code)
