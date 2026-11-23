@@ -114,6 +114,7 @@ from assetops_backend.evidence.public_provenance import (
 from assetops_backend.financials.fuel_cost import iso
 from assetops_backend.outcomes.catalogue import COLD, EV
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM, UNMAPPED, categories_for, finding_signal_key
+from assetops_backend.sites import unit_roles
 from assetops_backend.sites.binding_roles import EV_ROLES_1, ROLE_SET_COLD_1, ROLE_SET_EV_1
 from assetops_backend.sites.binding_service import v4_mapping_profile
 
@@ -218,6 +219,21 @@ def _property(content: dict[str, Any], component_type: str, key: str) -> dict[st
             if item.get("property_key") == key:
                 return item
     return None
+
+
+def _lead_policy_property(content: dict[str, Any], key: str) -> dict[str, Any] | None:
+    """A Site policy property (D-DD.43): the lead GENERATOR's (`unit_roles.lead_policy`, D-DD.118). One unit: that
+    unit's, as `_property`. Raises `UnitRolesRefused` when a non-lead unit holds a policy key."""
+    return unit_roles.lead_policy(content.get("components") or ()).get(key)
+
+
+def _fuel_balance_foundation_ids(terms: dict[str, Any]) -> list[str]:
+    """The Foundation revisions a fuel-balance window cites: accuracy, SFC and no-load, and above one unit every
+    unit's SFC and no-load (`terms.units`, D-DD.117); one unit reads the top-level keys only, as before."""
+    keys = ("sfc_revision_id", "no_load_revision_id")
+    ids = [terms.get("accuracy_revision_id"), *(terms.get(k) for k in keys),
+           *(u.get(k) for u in terms.get("units") or () for k in keys)]
+    return sorted({str(x) for x in ids if x is not None})
 
 
 def _minutes(item: dict[str, Any]) -> str | None:
@@ -325,9 +341,15 @@ class PostgresAssessmentStore:
                                              f"{reserve.get('source')} v{reserve.get('source_version')}"))
             else:
                 limits.append(f"Foundation v{version} has no battery reserve control")
-            runtime = _property(content, "GENERATOR", "minimum-runtime")
+            # D-DD.118: the lead unit's policy. A non-lead unit holding one is refused (D-DD.43); D-DD.108 Q6 maps the
+            # refusal to the existing minimum-runtime limit line naming that unit, not a failed (retried) job
+            # (the one existing line, so no new text: `runtime` then carries only the refused unit's id)
+            try:
+                runtime = _lead_policy_property(content, "minimum-runtime")
+                minutes = None if runtime is None else _minutes(runtime)
+            except unit_roles.UnitRolesRefused as refused:
+                runtime, minutes = {"unit": refused.unit}, None
             if runtime is not None:
-                minutes = _minutes(runtime)
                 if minutes is None:
                     limits.append(f"Foundation v{version} minimum-runtime unit {runtime.get('unit')!r} not mapped")
                 else:
@@ -1640,8 +1662,7 @@ class PostgresAssessmentStore:
         if held is not None:
             return {"revision_id": held[0], "run_id": held[1], "basis": window.input_sha256}
         terms = window.terms
-        foundation = sorted({str(x) for x in (terms.get("accuracy_revision_id"), terms.get("sfc_revision_id"),
-                                              terms.get("no_load_revision_id")) if x is not None})
+        foundation = _fuel_balance_foundation_ids(terms)
         evidence_ids = sorted(str(e) for e in window.evidence_ids)
         revision_id = uuid4()
         reused = c.execute(text(

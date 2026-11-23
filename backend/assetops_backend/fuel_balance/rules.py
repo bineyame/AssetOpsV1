@@ -90,6 +90,15 @@ class WindowResult:
     terms: dict[str, Any] = field(hash=False)
 
 
+@dataclass(frozen=True)
+class GeneratorUnit:
+    """One GENERATOR unit of the Site with its declared SFC and no-load rate in force over the window (D-DD.117)."""
+
+    asset_id: str
+    sfc: Declared | None
+    no_load: Declared | None
+
+
 # --- window ------------------------------------------------------------------------------------------------------
 
 
@@ -122,12 +131,14 @@ def night_window(night_date: date, tz_name: str | None) -> tuple[datetime, datet
 
 
 def relevant_readings(readings: Iterable[Reading], tank_asset_id: str,
-                      generator_asset_id: str) -> tuple[Reading, ...]:
-    """The tank's `fuel_level` and the generator's power and state readings; any other asset's are ignored."""
-    tank, gen = str(tank_asset_id), str(generator_asset_id)
+                      generator_asset_id: str | Sequence[str]) -> tuple[Reading, ...]:
+    """The tank's `fuel_level` and every generator unit's power and state readings (one id or every unit's,
+    D-DD.117); any other asset's are ignored."""
+    tank = str(tank_asset_id)
+    gens = {str(generator_asset_id)} if isinstance(generator_asset_id, str) else {str(g) for g in generator_asset_id}
     return tuple(r for r in readings
                  if (r.role == FUEL_LEVEL and r.asset_id == tank)
-                 or (r.role in (GENERATOR_POWER, GENERATOR_STATE) and r.asset_id == gen))
+                 or (r.role in (GENERATOR_POWER, GENERATOR_STATE) and r.asset_id in gens))
 
 
 def accepted_levels(readings: Iterable[Reading], tank_asset_id: str) -> list[tuple[datetime, Fraction, str]]:
@@ -282,38 +293,69 @@ def iso(value: datetime | None) -> str | None:
     return None if value is None else value.astimezone(timezone.utc).isoformat()
 
 
-def assess(*, start: datetime, end: datetime, tank_asset_id: str, generator_asset_id: str,
-           readings: Iterable[Reading], records: Sequence[FuelRecord], accuracy: Declared | None,
-           sfc: Declared | None, no_load: Declared | None) -> WindowResult:
-    """One night. `records` are the tank's fuel records occurring in `[start, end)`; `accuracy`, `sfc` and `no_load`
-    are the values in force over the window (None when missing). Reasons in `model.REASONS` precedence."""
-    readings = relevant_readings(readings, tank_asset_id, generator_asset_id)
+def _unit_use(start: datetime, end: datetime, readings: Sequence[Reading], unit: GeneratorUnit) -> dict[str, Any]:
+    """One unit on its own curve (D-DD.117, D-DD.113's shape): its kWh and idle time from A2's slot rule, its loaded
+    litres on its own SFC and its idle litres on its own no-load rate (None when any input is unknown)."""
+    use = use_from_readings(start, end, readings, unit.asset_id)
+    kwh, idle_s = use["generator_kwh"], use["idle_seconds"]
+    loaded = None if kwh is None or unit.sfc is None else unit.sfc.value * kwh
+    idle_l = None if idle_s is None or unit.no_load is None else Fraction(idle_s, 3600) * unit.no_load.value
+    return {**use, "loaded": loaded, "idle_litres": idle_l}
+
+
+def _sum(values: Iterable[Fraction | int | None]) -> Any:
+    """The Site value: the sum of the units' values; any unit unknown makes it unknown (D-DD.41, no imputation)."""
+    values = list(values)
+    return None if any(v is None for v in values) else sum(values[1:], values[0])
+
+
+def _declared_terms(sfc: Declared | None, no_load: Declared | None) -> dict[str, Any]:
+    return {"sfc_l_per_kwh": fmt(sfc and sfc.value), "sfc_revision_id": sfc and sfc.revision_id,
+            "no_load_l_per_h": fmt(no_load and no_load.value), "no_load_basis": no_load and no_load.basis,
+            "no_load_revision_id": no_load and no_load.revision_id}
+
+
+def assess(*, start: datetime, end: datetime, tank_asset_id: str, units: Sequence[GeneratorUnit],
+           readings: Iterable[Reading], records: Sequence[FuelRecord], accuracy: Declared | None) -> WindowResult:
+    """One night. `units` are the Site's GENERATOR units in declared Foundation order (the lead first, D-DD.117),
+    each with the SFC and no-load rate in force over the window (None when missing); `records` are the tank's fuel
+    records occurring in `[start, end)`; `accuracy` likewise. Reasons in `model.REASONS` precedence. Model-implied
+    litres are the sum of each unit's burn on its own SFC and no-load rate; one unit reads exactly as v1."""
+    readings = relevant_readings(readings, tank_asset_id, [u.asset_id for u in units])
     levels = accepted_levels(readings, tank_asset_id)
     opening, closing, conflict = opening_closing(levels, start, end)
-    use = use_from_readings(start, end, readings, generator_asset_id)
+    uses = [_unit_use(start, end, readings, u) for u in units]
     gap_minutes, spans = reporting_gap((t for t, _, _ in levels), start, end)
     deliveries = [Fraction(r.quantity_l) for r in records if r.kind == DELIVERY]
     d = sum(deliveries, Fraction(0))
 
-    kwh, idle_s = use["generator_kwh"], use["idle_seconds"]
-    loaded = None if kwh is None or sfc is None else sfc.value * kwh
+    kwh, idle_s = _sum(u["generator_kwh"] for u in uses), _sum(u["idle_seconds"] for u in uses)
+    loaded = _sum(u["loaded"] for u in uses)
+    idle_l = _sum(u["idle_litres"] for u in uses)
     use_low = None if loaded is None else USE_LOW_FACTOR * loaded
-    use_high = (None if loaded is None or idle_s is None or no_load is None
-                else USE_HIGH_FACTOR * (loaded + Fraction(idle_s, 3600) * no_load.value))
+    use_high = (None if loaded is None or idle_l is None
+                else USE_HIGH_FACTOR * (loaded + idle_l))
 
-    checks = {"NO_SENSOR_ACCURACY": accuracy is None, "SFC_MISSING": sfc is None,
-              "NO_LOAD_RATE_MISSING": no_load is None, "MISSING_OPENING": opening is None,
+    checks = {"NO_SENSOR_ACCURACY": accuracy is None, "SFC_MISSING": any(u.sfc is None for u in units),
+              "NO_LOAD_RATE_MISSING": any(u.no_load is None for u in units), "MISSING_OPENING": opening is None,
               "MISSING_CLOSING": closing is None, "FUEL_LEVEL_CONFLICT": conflict,
-              "GENERATOR_KWH_UNKNOWN": use["kwh_unknown"], "IDLE_SECONDS_UNKNOWN": use["state_unknown"]}
+              "GENERATOR_KWH_UNKNOWN": any(u["kwh_unknown"] for u in uses),
+              "IDLE_SECONDS_UNKNOWN": any(u["state_unknown"] for u in uses)}
     reason = next((code for code in REASONS if checks[code]), None)
     state, low, high = "NOT_ASSESSED", None, None
     if reason is None:
+        # One unit: F0's band with the unit's own idle hours and rate, exactly. Several: the idle litres are the
+        # units' sum, carried as one hour at that rate (the same exact product).
+        one = len(units) == 1
         band = balance(opening=opening[1], closing=closing[1], deliveries=deliveries, loaded_litres=loaded,
-                       idle_hours=Fraction(idle_s, 3600), accuracy_l=accuracy.value,
-                       no_load_l_per_h=no_load.value)
+                       idle_hours=Fraction(idle_s, 3600) if one else Fraction(1),
+                       accuracy_l=accuracy.value, no_load_l_per_h=units[0].no_load.value if one else idle_l)
         state, low, high = band["state"], band["residual_low"], band["residual_high"]
         use_low, use_high = band["use_low"], band["use_high"]
 
+    lead = units[0]
+    declared = (_declared_terms(lead.sfc, lead.no_load) if len(units) == 1
+                else _declared_terms(None, None))  # several units: each unit's declared values are in `units`
     terms = {
         "opening_l": fmt(None if opening is None else opening[1]), "opening_at": iso(opening and opening[0]),
         "closing_l": fmt(None if closing is None else closing[1]), "closing_at": iso(closing and closing[0]),
@@ -322,11 +364,14 @@ def assess(*, start: datetime, end: datetime, tank_asset_id: str, generator_asse
         "use_low": fmt(use_low), "use_high": fmt(use_high),
         "accuracy_l": fmt(accuracy and accuracy.value), "accuracy_basis": accuracy and accuracy.basis,
         "accuracy_revision_id": accuracy and accuracy.revision_id,
-        "sfc_l_per_kwh": fmt(sfc and sfc.value), "sfc_revision_id": sfc and sfc.revision_id,
-        "no_load_l_per_h": fmt(no_load and no_load.value), "no_load_basis": no_load and no_load.basis,
-        "no_load_revision_id": no_load and no_load.revision_id,
-        "unknown_slots": use["unknown_slots"],
+        **declared,
+        "unknown_slots": sum(u["unknown_slots"] for u in uses),
     }
+    if len(units) > 1:
+        terms["units"] = [{"asset_id": str(unit.asset_id), "generator_kwh": fmt(u["generator_kwh"]),
+                           "idle_seconds": u["idle_seconds"], "loaded_litres": fmt(u["loaded"]),
+                           "unknown_slots": u["unknown_slots"], **_declared_terms(unit.sfc, unit.no_load)}
+                          for unit, u in zip(units, uses)]
     lims = limitations(gap_minutes=gap_minutes, levels=levels, records=records,
                        accuracy_l=None if accuracy is None else accuracy.value, end=end)
     return WindowResult(state=state, reason=reason, residual_low=low, residual_high=high, gap_minutes=gap_minutes,
@@ -339,14 +384,21 @@ def _declared(value: Declared | None, with_basis: bool) -> list[Any] | None:
     return [fmt(value.value), value.basis, value.revision_id] if with_basis else [fmt(value.value), value.revision_id]
 
 
-def input_sha256(*, night_date: date, start: datetime, end: datetime, tank_asset_id: str, generator_asset_id: str,
-                 accuracy: Declared | None, sfc: Declared | None, no_load: Declared | None,
-                 evidence_ids: Iterable[str], records: Iterable[FuelRecord]) -> str:
-    """§9d.4: the digest of everything the result is a function of; equal digests mean an equal result."""
-    return sha256_canonical({
+def input_sha256(*, night_date: date, start: datetime, end: datetime, tank_asset_id: str,
+                 units: Sequence[GeneratorUnit], accuracy: Declared | None, evidence_ids: Iterable[str],
+                 records: Iterable[FuelRecord]) -> str:
+    """§9d.4: the digest of everything the result is a function of; equal digests mean an equal result. The lead
+    unit keys it as v1 did; above one unit, `generator_asset_ids` (declared order) and every unit's declared values
+    are added (D-DD.117), so a one-unit digest is unchanged."""
+    lead = units[0]
+    body = {
         "parameter_version": PARAMETER_VERSION, "night_date": night_date.isoformat(),
         "window": [iso(start), iso(end)], "tank_asset_id": str(tank_asset_id),
-        "generator_asset_id": str(generator_asset_id), "accuracy": _declared(accuracy, True),
-        "sfc": _declared(sfc, False), "no_load": _declared(no_load, True),
+        "generator_asset_id": str(lead.asset_id), "accuracy": _declared(accuracy, True),
+        "sfc": _declared(lead.sfc, False), "no_load": _declared(lead.no_load, True),
         "evidence_ids": sorted(str(i) for i in evidence_ids),
-        "records": sorted([r.root_id, r.head_id, iso(r.recorded_at)] for r in records)})
+        "records": sorted([r.root_id, r.head_id, iso(r.recorded_at)] for r in records)}
+    if len(units) > 1:
+        body["generator_asset_ids"] = [str(u.asset_id) for u in units]
+        body["unit_declared"] = [[_declared(u.sfc, False), _declared(u.no_load, True)] for u in units]
+    return sha256_canonical(body)

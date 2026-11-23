@@ -43,6 +43,17 @@ function LocationProbe() {
 
 const where = () => document.querySelector("[data-location]")?.textContent ?? "";
 
+/** The distinct requests in order (the page's and the shell's inbox read are the same request). */
+function distinct<T>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const k = JSON.stringify(r);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 function estate(): EstateClient & { calls: EstatePortfolioQuery[] } {
   const base = fakeClient((lens) => loaded(findingsBody(lens)));
   const client = {
@@ -190,10 +201,11 @@ describe("SR-1 withRange and the rail search", () => {
   });
 
   it("an address with no range leaves the rail links bare", async () => {
-    renderApp("/sites");
+    // IA-P P4b (spec §6 "Range pages"): /sites now fills its range on entry; /incidents keeps its own default.
+    renderApp("/incidents");
     await settledScreen();
     expect(railHref("Findings")).toBe("/findings");
-    expect(where()).toBe("/sites");
+    expect(where()).toBe("/incidents");
   });
 });
 
@@ -206,7 +218,8 @@ describe("SR-1 filling in the address on entry", () => {
     await settledScreen();
     expect(where()).toBe(`/portfolio/outcomes?${WEEK}`);
     // The page reads once, for the range now in the address (the same request it made before SR-1).
-    expect(client.calls.map((q) => [q.from, q.to])).toEqual([["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"]]);
+    // IA-P P6: the shell's "Waiting for you" reads the same range too (`distinct`).
+    expect(distinct(client.calls.map((q) => [q.from, q.to]))).toEqual([["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"]]);
   });
 
   it("IA-P2 P3b: /portfolio with no range opens on last month, whole days", async () => {
@@ -223,11 +236,11 @@ describe("SR-1 filling in the address on entry", () => {
   });
 
   it("fills only the estate pages in SR-1; Work and Site pages keep their own default until SR-2", () => {
-    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials"]) {
-      // IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials", "/sites"]) {
+      // IA-P P4b: /sites is a range page (spec §6 "Range pages"). IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
       expect(fillsRangeOnEntry(path)).toBe(true);
     }
-    for (const path of ["/sites", "/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
+    for (const path of ["/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
       expect(fillsRangeOnEntry(path)).toBe(false);
     }
   });
@@ -371,17 +384,16 @@ describe("SR-1 the shared range bar", () => {
 
 describe("SR-1 review notes closed in SR-2", () => {
   it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
-    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records", "/sites"]) {
       expect(readsSharedRange(path)).toBe(true);
     }
-    for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {
+    for (const path of ["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {
       expect(readsSharedRange(path)).toBe(false);
     }
     const withRange = new URLSearchParams(WEEK);
     for (const path of ["/sites/KISIWA-001/findings", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/performance/service"]) {
       expect(readsSharedRange(path, withRange)).toBe(true);
     }
-    expect(readsSharedRange("/sites", withRange)).toBe(false);
     expect(readsSharedRange("/findings/f-1", withRange)).toBe(false);
   });
 
@@ -446,7 +458,8 @@ describe("SR-1 the Portfolio reads the shared range", () => {
     // IA-P2 P3b: the Overview reads E2 (not the estate client), so the estate request is pinned on the Outcomes tab.
     renderApp("/portfolio/outcomes?from=2026-10-06&to=2026-10-06", client);
     await settledScreen();
-    expect(client.calls.map((q) => [q.from, q.to, q.known_at, q.lens])).toEqual([
+    // IA-P P6: the shell's "Waiting for you" makes the same request (`distinct`).
+    expect(distinct(client.calls.map((q) => [q.from, q.to, q.known_at, q.lens]))).toEqual([
       ["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", null, "all"],
     ]);
     expect(rangeButton().getAttribute("aria-label")).toBe("Date range for every page: Yesterday, 6 Oct 2026. Change");
@@ -456,7 +469,7 @@ describe("SR-1 the Portfolio reads the shared range", () => {
       fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Apply" }));
     });
     await settledScreen();
-    expect(client.calls.map((q) => [q.from, q.to])).toEqual([
+    expect(distinct(client.calls.map((q) => [q.from, q.to]))).toEqual([
       ["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z"],
       ["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"],
     ]);

@@ -49,7 +49,8 @@ def _raw(*, old_asset: UUID, rows_asset: UUID, pinned_asset: UUID):
     rows = [_row(old_b, "pv_power", rows_asset, at), _row(old_b, "pv_power", rows_asset, at + timedelta(minutes=5))]
     raw = HourRows(
         timezone=TZ, foundations=[(FOUNDATION, EARLY, None, {"components": []})],
-        binding_sets=[(pinned_set, SPLIT, None)], bindings=[pinned[:5]], assets=[("pv-inverter", pinned_asset)],
+        binding_sets=[(pinned_set, SPLIT, None, "minigrid-roles-4")], bindings=[pinned[:5]],
+        assets=[("pv-inverter", pinned_asset)],
         accepted=rows, prior_supply=[], row_foundations={FOUNDATION: (FOUNDATION, EARLY, None, {"components": []})},
         row_bindings={old_b: old},
     )
@@ -126,7 +127,7 @@ def test_read_hour_rows_returns_as_accepted_binding_of_a_superseded_set(store, e
                      f"WHERE id = '{installed.binding_set.id}'")
     with engine.connect() as c:
         raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, RECEIVED,
-                             role_set="minigrid-roles-4", roles=mini_inputs.QUERY_ROLES, supply_role="site_supply_state")
+                             role_sets=("minigrid-roles-4",), roles=mini_inputs.QUERY_ROLES, supply_role="site_supply_state")
     assert raw.binding_sets == [] and raw.bindings == []  # the set is no longer known at the cutoff
     used = {r[13] for r in raw.accepted}
     assert used and set(raw.row_bindings) == used  # non-empty: every row's own binding is read by id

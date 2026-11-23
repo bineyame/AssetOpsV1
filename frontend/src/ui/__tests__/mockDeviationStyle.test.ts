@@ -14,7 +14,8 @@ describe("mock-deviation line styling is not owned by a Mini page stylesheet", (
   });
 
   it("is imported by every component that renders a data-mock-deviation line of this class", async () => {
-    for (const file of ["src/shell/SiteAnalyticsFrames.tsx", "src/sites/SiteActionVerification.tsx"]) {
+    // IA-P P5 (spec §2.3): R383's line left shell/SiteAnalyticsFrames.tsx, so only the remaining renderer is checked.
+    for (const file of ["src/sites/SiteActionVerification.tsx"]) {
       const source = await readDisk(file);
       expect(source).toContain('className="mock-deviation-line"');
       expect(source).toContain('import "../ui/mock-deviation.css";');

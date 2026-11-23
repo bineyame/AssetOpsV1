@@ -285,7 +285,7 @@ class HourRows:
 
     timezone: str | None
     foundations: Sequence[Any]  # (id, valid_from, valid_to, content) known at the cutoff, overlapping the hour
-    binding_sets: Sequence[Any]  # (id, valid_from, valid_to)
+    binding_sets: Sequence[Any]  # (id, valid_from, valid_to, role_set)
     bindings: Sequence[Any]  # (id, role, asset_id, valid_from, valid_to) of the single set, else empty
     assets: Sequence[Any]  # (asset_code, id)
     accepted: Sequence[Any]
@@ -297,7 +297,8 @@ class HourRows:
 
 
 def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: datetime, window_end: datetime,
-                   knowledge_cutoff: datetime, *, role_set: str, roles: Sequence[str], supply_role: str) -> HourRows:
+                   knowledge_cutoff: datetime, *, role_sets: Sequence[str], roles: Sequence[str],
+                   supply_role: str) -> HourRows:
     """SELECT only. The caller owns the (REPEATABLE READ) transaction; `knowledge_cutoff` is used unchanged."""
     p = {"t": tenant_id, "s": site_id, "k": knowledge_cutoff, "lo": window_start, "hi": window_end}
     tz = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"), p).scalar_one_or_none()
@@ -305,8 +306,8 @@ def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: 
         f"SELECT id, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
         f"AND {_KNOWN} AND {_OVERLAPS}"), p).all()
     sets = c.execute(text(
-        f"SELECT id, valid_from, valid_to FROM signal_binding_set_revision WHERE tenant_id = :t AND site_id = :s "
-        f"AND role_set = :rs AND {_KNOWN} AND {_OVERLAPS}"), {**p, "rs": role_set}).all()
+        f"SELECT id, valid_from, valid_to, role_set FROM signal_binding_set_revision WHERE tenant_id = :t "
+        f"AND site_id = :s AND role_set = ANY(:rs) AND {_KNOWN} AND {_OVERLAPS}"), {**p, "rs": list(role_sets)}).all()
     bindings = c.execute(text(
         "SELECT id, role, asset_id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t "
         "AND site_id = :s AND binding_set_revision_id = :b ORDER BY id"), {**p, "b": sets[0][0]}).all()         if len(sets) == 1 else []
@@ -332,7 +333,7 @@ NOON_HOURS: tuple[int, ...] = (12,)
 _PV_BOUND = (
     "SELECT 1 FROM signal_binding_revision b JOIN signal_binding_set_revision s "
     "ON s.tenant_id = b.tenant_id AND s.site_id = b.site_id AND s.id = b.binding_set_revision_id "
-    "WHERE b.tenant_id = :t AND b.site_id = :s AND b.role = :role AND s.role_set = :rs "
+    "WHERE b.tenant_id = :t AND b.site_id = :s AND b.role = :role AND s.role_set = ANY(:rs) "
     "AND s.recorded_at <= :k AND (s.superseded_at IS NULL OR s.superseded_at > :k) "
     "AND b.recorded_at <= :k AND (b.superseded_at IS NULL OR b.superseded_at > :k) "
     "AND b.valid_from < :hi AND (b.valid_to IS NULL OR b.valid_to > :lo) LIMIT 1")
@@ -373,7 +374,7 @@ def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, kno
     from assetops_backend.chain.grading import period_bounds
     from assetops_backend.chain.policy import PERIOD_OPERATING_HOURS
     from assetops_backend.mini_depth import rules
-    from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
+    from assetops_backend.sites.binding_roles import MINI_DEPTH_ROLE_SETS
 
     code, tz_name = c.execute(text("SELECT site_code, timezone FROM site WHERE tenant_id = :t AND id = :s"),
                               {"t": tenant_id, "s": site_id}).one()
@@ -383,7 +384,7 @@ def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, kno
         return DaylightHours((), (), True)
     lo, hi = bounds
     p = {"t": tenant_id, "s": site_id, "k": knowledge_cutoff, "lo": lo, "hi": hi}
-    if c.execute(text(_PV_BOUND), {**p, "role": rules.PV_AVAILABLE, "rs": ROLE_SET_MINIGRID_4}).first() is None:
+    if c.execute(text(_PV_BOUND), {**p, "role": rules.PV_AVAILABLE, "rs": list(MINI_DEPTH_ROLE_SETS)}).first() is None:
         return NO_PV_BINDING
     windows: list[tuple[int, Any]] = []
     at = lo

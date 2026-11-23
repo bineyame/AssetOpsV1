@@ -44,6 +44,11 @@ THIKA_EVENTS = [{"kind": "GRID_LOSS", "at": "2026-10-06T19:11:00+03:00", "source
 def _sites(operator: str, codes: tuple[str, ...]) -> dict:
     onboarding = json.loads((ON1 / f"{operator}.onboarding.json").read_text(encoding="utf-8"))
     bindings = {c: json.loads((BINDINGS / f"{c}-bindings.json").read_text(encoding="utf-8")) for c in codes}
+    if "KOBO-001" in bindings:
+        # D-DD.114: Kobo's conversion moved to roles-5 after this golden was written from main (roles-4); the role-set
+        # name is the only change in the file and enters the bytes, so the golden is checked on main's label.
+        assert bindings["KOBO-001"]["role_set"] == "minigrid-roles-5"
+        bindings["KOBO-001"] = {**bindings["KOBO-001"], "role_set": "minigrid-roles-4"}
     return tel.site_inputs(onboarding, bindings)
 
 

@@ -483,7 +483,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
  * W4-03 unit 6b ("Unit-5..12 rulings (u5)" 6b; "Unit-6 rulings (u6)" 1-6): the canonical mini Finding row is
  * `Overview | Analysis (unavailable) | Evidence | Alternatives | Recommendation | History`; one W1 Finding read
  * resolves the exact revision before any Alternatives href or GET; the global breadcrumb is
- * `Findings › Finding › {section} · site: {Site}` (post-W6 W4 R328). Cold/EV child addresses are a section gap.
+ * `Findings › Finding › {section} · site: {Site}` (post-W6 W4 R328; IA-P P5 replaced it with `{home} › {Site} › {title}`). Cold/EV child addresses are a section gap.
  */
 describe("W4-03 unit 6b: canonical mini Alternatives", () => {
   const F = "49281b7c-96ac-456d-ab6b-040bb0760444";
@@ -593,7 +593,9 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
 
   const sectionRow = () =>
     Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] li')).map((li) => li.textContent);
-  const crumbs = () => document.querySelector("[data-mini-finding-crumbs]") as HTMLElement;
+  // IA-P P5 (D-IAP.38 Q20): the object-page trail is the shared `ui/Breadcrumbs` nav.
+  const crumbs = () => screen.getByRole("navigation", { name: "Breadcrumb" });
+  const crumbLabels = () => Array.from(crumbs().querySelectorAll("li")).map((li) => li.textContent);
   const tableCells = () =>
     Array.from(document.querySelectorAll("[data-alternatives-table] tbody tr")).map((tr) =>
       Array.from(tr.querySelectorAll("td")).map((c) => c.textContent),
@@ -680,8 +682,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     noControl(document.querySelector('[data-tab-unavailable="Alternatives"]'));
     expect(document.querySelector('[data-tab-unavailable="Alternatives"]')?.textContent).toBe("Alternatives · Not available yet");
     expect(document.querySelectorAll("[data-alternatives-finding-unavailable]")).toHaveLength(1);
-    // post-W6 W4 R328: a refused selection still names the slot `Finding`, never a code gap.
-    expect(document.querySelector("[data-finding-crumb]")?.textContent).toBe("Finding");
+    // post-W6 W4 R328, migrated for IA-P P5 (D-IAP.38 Q20): a refused selection's title part reads `Finding`, never a code gap.
+    expect(crumbLabels()).toEqual(["Decisions", "MINIGRID site", "Finding"]);
     expect(document.querySelector("[data-finding-code-gap]")).toBeNull();
     expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives`);
   });
@@ -719,16 +721,14 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       /^Analysis unavailable for this authored alternative; use the Finding overview and evidence\.$/,
     );
     noControl(document.querySelector("[data-analysis-helper]"));
-    // Global breadcrumb (post-W6 W4 R328): Findings › Finding › Alternatives · site: {Site}; no public code exists.
-    expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site");
+    // IA-P P5 (D-IAP.38 Q20): the object-page trail `Decisions › {Site} › {title}` (was R328's
+    // `Findings › Finding › Alternatives · site: {Site}`); the title part is the page's h1, not a link.
+    expect(crumbLabels()).toEqual(["Decisions", "MINIGRID site", screen.getByRole("heading", { level: 1 }).textContent]);
     expect(crumbs().textContent).not.toContain("code unavailable");
-    expect(crumbs().querySelector('a[href="/findings"]')).toHaveTextContent("Findings");
-    expect(crumbs().querySelector("[data-mini-finding-site] a")).toHaveAttribute("href", `/sites/${CODE}`);
-    // M7: no whitespace node between crumbs or before the Site suffix, so no line can begin with a separator.
-    expect(crumbs().querySelector(".mini-finding-crumbs__lead")?.textContent).toBe("· site:");
-    expect([crumbs(), ...Array.from(crumbs().querySelectorAll("ol"))].flatMap((e) => Array.from(e.childNodes))
-      .filter((n) => n.nodeType === Node.TEXT_NODE)).toEqual([]);
-    noControl(crumbs().querySelector("[data-finding-crumb]"));
+    expect(rangeless(crumbs().querySelectorAll("a")[0]?.getAttribute("href"))).toBe("/decisions");
+    expect(rangeless(crumbs().querySelectorAll("a")[1]?.getAttribute("href"))).toBe(`/sites/${CODE}`);
+    expect(crumbs().querySelectorAll("a")).toHaveLength(2);
+    expect(crumbs().querySelector('[aria-current="page"]')).not.toBeNull();
     expect(crumbs().textContent).not.toMatch(/F-104|mini:dispatch:key/);
     expect(crumbs().textContent).not.toContain(F);
     // H3 (final review; ledger l.186): the v69 `Open site` header action resolves the authorized Site Overview.
@@ -755,9 +755,12 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     );
     // post-W6 W1-a Q7: History no longer carries the Analysis helper.
     expect(document.querySelector("[data-analysis-helper]")).toBeNull();
-    expect(crumbs().textContent).toBe("FindingsFindingHistory· site: MINIGRID site");
+    // IA-P P5 (D-IAP.38 Q20): History is a Finding view, so the trail is `Findings › {Site} › {title}` and the page draws
+    // no Site tab row (was R328's `Findings › Finding › History · site: {Site}` with the R383 retained row).
+    expect(crumbLabels()).toEqual(["Findings", "MINIGRID site", screen.getByRole("heading", { level: 1 }).textContent]);
+    expect(rangeless(crumbs().querySelector("a")?.getAttribute("href"))).toBe("/findings");
     // post-W6 W1-a Q9 / R186: every Finding section carries Open site; the Alternatives marker stays its own.
-    expect(document.querySelector('nav[aria-label="Site sections"]')).not.toBeNull(); // M6 scope
+    expect(document.querySelector('nav[aria-label="Site sections"]')).toBeNull();
     expect(document.querySelector("[data-alternatives-open-site]")).toBeNull();
     expect(document.querySelector('.page-header__actions [data-finding-open-site="history"]')).toHaveAttribute("href", `/sites/${CODE}`);
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
@@ -1032,12 +1035,13 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     const path = `/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`;
     frameAt(path, findingsClient(() => ({ status: "not_found", message: null }) as FindingReadResult<FindingDetailBody>));
     await settledScreen();
-    await waitFor(() => expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site"));
+    // IA-P P5 (D-IAP.38 Q20): the title part of the object-page trail reads `Finding` (was R328's crumb slot).
+    await waitFor(() => expect(crumbLabels()).toEqual(["Decisions", "MINIGRID site", "Finding"]));
     cleanup();
     // A same-Site read with no selected revision does not resolve; the slot still says `Finding`.
     frameAt(path, findingsClient(() => w1(CODE, "")));
     await settledScreen();
-    await waitFor(() => expect(crumbs().textContent).toBe("FindingsFindingAlternatives· site: MINIGRID site"));
+    await waitFor(() => expect(crumbLabels()).toEqual(["Decisions", "MINIGRID site", "Finding"]));
     expect(main().textContent).not.toContain("Finding code unavailable");
   });
 

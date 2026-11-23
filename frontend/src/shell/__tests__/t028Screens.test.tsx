@@ -124,7 +124,8 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
   it("lists every assessed period in plain words; a Needed one has no Finding", async () => {
     renderAt(`/sites/${SITE_ID}/performance`);
     await settledScreen();
-    expect(linkLabels("Performance sections")).toEqual(["Dispatch assessment"]);
+    // IA-P P5 (spec §2.3): Performance's section line ends with the Health link after the page's own sub-tabs.
+    expect(linkLabels("Performance sections")).toEqual(["Dispatch assessment", "Health"]);
     // Contextual views inside Dispatch, not capabilities (D-2026-10-04-plain-language-analysis-views).
     expect(linkLabels("Dispatch views")).toEqual(["Overview", "Analysis"]);
     const tabs = screen.getByRole("navigation", { name: "Site sections" });
@@ -287,6 +288,8 @@ describe("AC18 rules for Performance subtabs", () => {
     expect(linkLabels("Performance sections")).toEqual([
       "Dispatch assessment",
       "Battery stress",
+      // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line.
+      "Health",
     ]);
   });
 

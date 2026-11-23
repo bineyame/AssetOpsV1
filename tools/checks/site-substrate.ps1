@@ -35,8 +35,11 @@ function Invoke-SiteSubstrateCheck {
             Pattern = '(?:interface|type)\s+Site(?!Template)[A-Za-z]*(?:ReadModel|Summary|Row|View|Record)\b'
         },
         @{
+            # IA-P3 P5 (D-IAP.45): the directory table (`SitesIndex`, `SiteTable`, `SiteRow`) was deleted, so the
+            # substrate's listing components the pattern still proves on are `SiteFindingIndex` and `SiteControlsTable`;
+            # a `SiteTable`, `SitesIndex` or `SiteFindingIndex` declared outside the substrate still fails.
             Name    = "Site presentation component"
-            Pattern = 'function\s+Sites?(?:Index|Table|Row|Card|List|Badge|Panel)\b'
+            Pattern = 'function\s+Site(?:s|Finding|Controls)?(?:Index|Table|Row|Card|List|Badge|Panel)\b'
         },
         @{
             Name    = "Site view-model derivation"

@@ -33,6 +33,9 @@ ROLE_SET_MINIGRID_4 = "minigrid-roles-4"
 #: DD1.2 (`D-DD.41`): roles-4 with the unit roles (those whose asset type is a unit type of the v9 Foundation,
 #: GENERATOR and INVERTER) PER_ASSET, so a Site of several units binds each unit's own evidence.
 ROLE_SET_MINIGRID_5 = "minigrid-roles-5"
+#: D-DD.109 (D-DD.108 Q1): the sets the mini-depth gate reads; "exactly one set in force" counts both names together.
+#: Every Python gate reads this; none names roles-4 alone. Migration 0074 writes the same literals (test-asserted).
+MINI_DEPTH_ROLE_SETS: tuple[str, ...] = (ROLE_SET_MINIGRID_4, ROLE_SET_MINIGRID_5)
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 #: W2-01 (`archive/agent-history/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`

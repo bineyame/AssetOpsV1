@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { settledScreen } from "../../test/settled";
+import { sitesE1 } from "../../test/sitesE1";
 import { COLD_SITE } from "../../sites/__tests__/coldWorkFixtures";
 import { EV_SITE } from "../../sites/__tests__/evWorkFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
@@ -81,7 +82,8 @@ afterEach(() => {
 async function open(path: string) {
   const view = render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={featureFlagsWith(false)} siteDetail={DETAIL} siteDirectory={DIRECTORY} />
+      {/* IA-P P4b: `/sites` is the Sites list; E1 serves no rows, so the directory's Sites are its rows (D-IAP.35 Q1). */}
+      <App flags={featureFlagsWith(false)} siteDetail={DETAIL} siteDirectory={DIRECTORY} portfolioSites={sitesE1()} />
       <Probe />
     </MemoryRouter>,
   );
@@ -205,12 +207,14 @@ describe("SR-4a the safety net completes a Site content address with no range", 
     view.unmount();
   });
 
-  it("the Foundation and the Sites index are not filled", async () => {
+  it("the Foundation is not filled; the Sites list is (IA-P P4b)", async () => {
     let view = await open("/sites/KOBO-001/foundation");
     expect(where).toBe("/sites/KOBO-001/foundation");
     view.unmount();
+    // IA-P P4b (spec §6 "Range pages", D-IAP.19): `/sites` follows the range, so it fills its range on entry.
     view = await open("/sites");
-    expect(where).toBe("/sites");
+    expect(pathOf(where)).toBe("/sites");
+    expect(paramsOf(where).has("from") && paramsOf(where).has("to")).toBe(true);
     view.unmount();
   });
 });

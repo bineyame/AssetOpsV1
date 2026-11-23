@@ -9,7 +9,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { DataTable } from "../ui";
 import { RangeLink as Link } from "../ui/RangeLink";
-import { DdHead, DdNotes, Lines, DdOutcomes, DdQueue, DdTiles, monthRangeHref, useDrawers } from "./DeepDiveMonth";
+import { DdHead, DdNotes, Lines, DdOutcomes, DdQueue, DdTiles, monthRangeHref } from "./DeepDiveMonth";
+import { useDrawers } from "../ui/Drawer";
 import type { EstateClient } from "./estateClient";
 import type { PeriodBody } from "./portfolioPeriodClient";
 import "./deepDiveMonth.css";

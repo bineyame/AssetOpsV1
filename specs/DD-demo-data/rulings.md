@@ -2686,3 +2686,59 @@ is informed of all three and asked to weigh in on **D-DD.148**'s story change an
     curve (D-DD.55: judges read rows). The writer is not changed.
   - *Units:* +0.25 u in DD3b3 (C-DD8 and C-DD20 Kisiwa judges, tolerance read, OR-MG-2 and `findings_expected` in
     D-DD.131's `M` commit). DD3b 6.25 u over its three parts (each part at most 6), DD 51.0 → 51.25 u.
+
+# DD rulings, round 21 (D-DD.150 to D-DD.152): DD3b3 deviations 12-14 (the bridge stop, Kisiwa's candidate share, C-DD17 with no burn)
+
+Architect (Claude, DD lane), 2026-11-23. Read: `packet-DD3b.md` on `task/DD3b-mini-plant` (6d567731e), "Moved figures
+against D-DD.147", the full Jul-Oct `dd_check --pure` and deviations 12-15; D-DD.19, D-DD.104, D-DD.131, D-DD.147 to
+D-DD.149; `M` Kobo, Kisiwa and Mto bridges. No run was made. The owner is informed of all three and asked to weigh
+in on **D-DD.151** (Kisiwa's story) and **D-DD.152** (Kobo July and August).
+
+- **D-DD.150 Deviation 12: every mini-grid Site's fuel bridge carries the same three fuel lines. Kisiwa and Mto gain
+  CANDIDATE_RUNNING, as Kobo has it** (model, W6 class; amends D-DD.131 "Bridge"; releases the held `M` commit).
+  - *Why.* The lines decompose `diesel_l` = necessary + candidate + unexplained (the builder's identity, confirmed).
+    Kisiwa and Mto had no candidate line only because their typed `candidate_l` was 0. Folding the candidate into the
+    necessary line would label avoidable running as necessary: the opposite of the finding.
+  - *Rule.* `{driver: CANDIDATE_RUNNING, overlap_group: <SITE>-2026-10-FUEL, amount: −candidate_l × price}`, with
+    Kobo's basis text, its `fig`/`rec` references re-pointed to the Site. On the packet's leaves: Kisiwa −87.10, so
+    the bridge closes at 1,759.80; Mto −40.00, so it closes at 255.00. The `M` commit then proceeds as D-DD.131
+    (leaves, `fuel_balance`, `findings_expected`, chain).
+  - *Figures the owner sees.* Mto's 32 L in October all came after the inverter trip. The writer's stand-in counts
+    them as litres the battery could have carried (candidate 32 L, about 40.00, labelled projected). The product's
+    own figure is served beside it.
+
+- **D-DD.151 Deviation 13: the plant and the measure stand. My 1 % bound was wrong: it was drawn from July and one
+  day. OR-MG-2 is no longer a negative control; Kisiwa's candidate is printed, not bounded** (amends D-DD.148 (a),
+  spec §8.1 C-DD8, `M` OR-MG-2 and `phase-plan-and-acceptance.md` R3).
+  - *Which is wrong.* The measure is the product's (dispatch-3.2: generator above 0 kW while PV ≥ 1.1 × load), and
+    the plant is declared. Any bound chosen now to pass would be fitted. The full span gives 0.36 %, 11.27 %, 0 % and
+    10.17 % of generator minutes (July-October). The writer's stand-in gives 67 L of 904 L in October (about 7 %,
+    about 87.10).
+  - *Rule.* C-DD8's Kisiwa clause prints the share per month and asserts only that the minutes were computed for
+    every month. OR-MG-2 becomes "Kisiwa: candidate time printed per month; no fuel-saving option is in `M`". R3's
+    negative controls drop OR-MG-2 and keep the rest. If the product raises a fuel-saving option at Kisiwa, it is
+    reported, not suppressed.
+  - *Story, plainly.* Kisiwa is no longer "nothing avoidable". About a tenth of its generator time in August and
+    October is spent charging the battery while the sun could carry the load, which is about 87 a month in October.
+    The repair beat is unchanged. The typed "95 %" for GEN-KS-02's evening load prints as about 70 % (41.87 kW of
+    60): still no redundancy, but less strain than the story said.
+
+- **D-DD.152 Deviation 14: the draw stands. C-DD17 judges the tolerance only in months the generator burned, and
+  states what the product shows in the others** (amends spec §8.1 C-DD17; a structure finding to its owner).
+  - *Why.* D-DD.19's 12/12/11 L draws are declared world causes: fuel did leave the tank. Removing or resizing them
+    to pass a check would be fitting. A tolerance relative to consumption has no meaning when consumption is only
+    the draw.
+  - *Rule.* For each month: unexplained ≥ 0, and unexplained equals the declared draw. Where burned > 0, it must be
+    within `fuel_balance.tolerance_pct` July-September and above it in October (September 1.42 %, October 18.92 %:
+    passes). Where burned = 0 (Kobo July and August), the detail prints "no burn: 12 L unexplained, which the product
+    shows against a 12 L consumption".
+  - *Structure finding (not a DD edit; coordinator logs it in `.agent/backlog-post-demo.md`).* The unexplained-fuel
+    tolerance is relative only. A real tank dip has an absolute uncertainty (litres), so at low consumption the
+    product can flag a residual that is within measurement error. The fix is an absolute floor from the level
+    sensor's declared accuracy, and it needs a sourced figure.
+  - *Figures the owner sees.* Unless that floor lands, Kobo may show 12 L of unexplained fuel in July and August,
+    months its generator never ran, beside October's 120 L. The October beat is unchanged.
+  - *Units (D-DD.150 to D-DD.152):* +0.25 u in DD3b3 (two bridge lines, C-DD8 and C-DD17 judges, OR-MG-2 and R3
+    wording). DD3b 6.5 u over three parts; if DD3b3 passes 6 u, the coordinator splits the `M` commit off. DD
+    51.25 → 51.5 u. Deviation 15 (unwritten-list wording) is a builder tidy: `diesel_l` / `diesel_cost` are listed
+    as written from purchases at a notes Site, with no new reason word.

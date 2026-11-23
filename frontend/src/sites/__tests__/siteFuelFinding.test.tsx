@@ -128,7 +128,13 @@ describe("DIESEL-K5 fuel Finding page", () => {
       "Versions",
     ]);
     expect(screen.getByRole("link", { name: "Version 2 · No longer supported · 16:00, 6 Oct" })).toHaveAttribute("href", siteFuelFindingHref(CODE, FID, R2));
-    expect(screen.getByRole("navigation", { name: "Site sections" }).querySelector('[aria-current="page"]')?.textContent).toBe("Findings");
+    // IA-P P5 (D-IAP.38 Q20): the fuel Finding is an object page: no Site tab row (was: the row with Findings selected),
+    // and the trail `Findings › {Site} › {title}`.
+    expect(screen.queryByRole("navigation", { name: "Site sections" })).toBeNull();
+    const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(crumbs.querySelectorAll("li")).toHaveLength(3);
+    expect(Array.from(crumbs.querySelectorAll("a"), (a) => (a.getAttribute("href") ?? "").split("?")[0])).toEqual(["/findings", `/sites/${CODE}`]);
+    expect(crumbs.querySelector('[aria-current="page"]')?.textContent).toBe(screen.getByRole("heading", { level: 1 }).textContent);
   });
 
   it("F6: NO_LONGER_SUPPORTED shows only the no-longer and why-not lines; ?revision_id= pins the version", async () => {

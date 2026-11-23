@@ -101,25 +101,18 @@ function noVocabularyViolations(page: string) {
 // bar on every page; it is chrome, not page content, so it is the one button this read-only check allows.
 function pageButtons(): string[] {
   return screen.queryAllByRole("button")
-    .filter((b) => !b.hasAttribute("data-shared-range-button"))
+    .filter((b) => !b.hasAttribute("data-shared-range-button") && !b.hasAttribute("data-shell-control"))
     .map((b) => b.outerHTML);
 }
 
 function foundationTabCurrent() {
   const current = qa('[aria-current="page"]').map((el) => el.textContent);
-  expect(current).toContain("Foundation");
-  // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the Foundation row shows here with Change & effect current,
-  // linking to this Changes route; the three period views link to their own addresses.
-  const row = screen.getByRole("navigation", { name: "Foundation views" });
-  const links = within(row).getAllByRole("link");
-  expect(links.map((l) => l.textContent)).toEqual(["Site model", "Single line diagram", "Readiness", "Change & effect"]);
-  expect(links.map((l) => l.getAttribute("aria-current"))).toEqual([null, null, null, "page"]);
-  expect(links.map((l) => l.getAttribute("href"))).toEqual([
-    "/sites/KOBO-001/foundation",
-    "/sites/KOBO-001/foundation/sld",
-    "/sites/KOBO-001/foundation/readiness",
-    "/sites/KOBO-001/foundation/changes",
-  ]);
+  // IA-P P5 (spec §2.3): the Foundation pages light the Setup tab (Foundation is the Setup section line's first link).
+  expect(current).toContain("Setup");
+  // IA-P P5 (R797): the Changes page draws no Foundation views row; the Setup line's Changes is current.
+  expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+  const line = screen.getByRole("navigation", { name: "Setup sections" });
+  expect(within(line).getByRole("link", { name: "Changes" })).toHaveAttribute("aria-current", "page");
 }
 
 afterEach(() => {
@@ -442,14 +435,14 @@ describe("post-W6 shell: change page plan figures, failure words, crumb and clos
     expect(failureWords(null)).toBe("The attempt was refused");
   });
 
-  it("R152/R119: both change routes end the crumb at 'Change & effect' under a linked Foundation; the closing note is the blue notice", async () => {
+  it("R152/R119: both change routes end the crumb at 'Changes' under a linked Foundation (IA-P P5, R797); the closing note is the blue notice", async () => {
     for (const path of [CHANGE_URL, "/sites/KOBO-001/foundation/changes"]) {
       serve(changeReads());
       mount(path);
       await settledScreen();
       const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
       const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
-      expect(items.slice(-2), path).toEqual(["Foundation", "Change & effect"]);
+      expect(items.slice(-2), path).toEqual(["Foundation", "Changes"]);
       expect(within(crumbs).getByRole("link", { name: "Foundation" })).toHaveAttribute("href", "/sites/KOBO-001/foundation");
       cleanup();
       vi.unstubAllGlobals();

@@ -35,6 +35,7 @@ from assetops_backend.analytics.assessment_inputs import (
 )
 from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERMINATE, NECESSARY
 from assetops_backend.i18n import Evidence, Instant, Items, Message, Percent, Quantity, State, Word, message
+from assetops_backend.sites import unit_roles
 
 #: `dispatch-3.1` (D-2026-10-11-s3-phase-3a-version-and-cutover) = `dispatch-3` plus the stricter
 #: default multi-epoch cohort (Q9) and interval limitations lifted into the window list (Q13).
@@ -203,6 +204,27 @@ class _Index:
             return Lookup(None, (), "MULTIPLE_BINDINGS")
         return self.lookup_asset(role, assets[0], at)
 
+    def unit_assets(self, role: str, at: datetime) -> list[str] | None:
+        """The units of a unit role bound at `at` (every binding PER_ASSET in its set, more than one asset); else
+        None, and the role reads as `lookup` (D-DD.118)."""
+        bound = [b for b in self.inputs.bindings if b.role == role and b.effective(at)]
+        assets = sorted({str(b.asset_id) for b in bound})
+        if len(assets) > 1 and all(unit_roles.per_asset(b.role_set, role) for b in bound):
+            return assets
+        return None
+
+    def site_lookup(self, role: str, at: datetime) -> tuple[Lookup, list[tuple[str, str]]]:
+        """A Site figure at `at`: over the units, `unit_roles.site_power` of each unit's `lookup_asset`, with the
+        units that made it absent as (asset, problem); otherwise `lookup` and no unit problems."""
+        assets = self.unit_assets(role, at)
+        if assets is None:
+            return self.lookup(role, at), []
+        found = {a: self.lookup_asset(role, a, at) for a in assets}
+        site = unit_roles.site_power({a: f.value if f.problem is None else None for a, f in found.items()})
+        problems = [(a, f.problem) for a, f in found.items() if f.problem]
+        ids = tuple(sorted({i for f in found.values() for i in f.ids}))
+        return Lookup(site.value, ids, problems[0][1] if problems else None), problems
+
     def lookup_asset(self, role: str, asset: str, at: datetime) -> Lookup:
         rows = self.by_channel.get((role, asset), [])
         found = [r for r in rows if r.interval_end is not None and r.interval_end == at]
@@ -252,13 +274,16 @@ class _Index:
             if problem:
                 return Cover(GAP, input=LOAD, problem=problem, at=s)
             load += value
-        panels = self.assets(PV_AVAILABLE, s)
-        if len(panels) != 1:
+        units = self.unit_assets(PV_AVAILABLE, s)
+        panels = units or self.assets(PV_AVAILABLE, s)
+        if units is None and len(panels) != 1:
             return Cover(GAP, input=PV_AVAILABLE, problem="UNBOUND" if not panels else "MULTIPLE_BINDINGS", at=s)
-        pv, problem = self.held_value(PV_AVAILABLE, panels[0], s)
-        if problem:
-            return Cover(GAP, input=PV_AVAILABLE, problem=problem, at=s)
-        return load, pv
+        values: dict[str, Fraction] = {}
+        for asset in panels:  # D-DD.118: the PV units summed through `unit_roles`; one panel is its own value
+            values[asset], problem = self.held_value(PV_AVAILABLE, asset, s)
+            if problem:
+                return Cover(GAP, input=PV_AVAILABLE, problem=problem, at=s)
+        return load, unit_roles.site_power(values).value
 
     def energy_to_cover(self, t: datetime) -> Cover:
         """The memoised per-slot recurrence (D-0K4.23), built once per `assess()`: walk forward until a memo hit or a
@@ -396,7 +421,16 @@ def _evaluate(index: _Index, t_meas: datetime, t_ctrl: datetime, t_rt: datetime,
             load = None
         elif load is not None:
             load += found.value
-    pv, dis, soc = take(PV_AVAILABLE), take(DISCHARGE), take(SOC)
+    def take_site(role: str) -> Fraction | None:
+        found, unit_problems = index.site_lookup(role, t_meas)
+        ids.update(found.ids)
+        for asset, problem in unit_problems:  # D-DD.108 Q7: the unit named in the existing missing text
+            missing.append(_missing(role, problem) + f" (asset {asset})")
+        if found.problem and not unit_problems:
+            missing.append(_missing(role, found.problem))
+        return found.value
+
+    pv, dis, soc = take_site(PV_AVAILABLE), take(DISCHARGE), take(SOC)
     reserve, reserve_control, problem = index.control(CONTROL_BATTERY_RESERVE, t_ctrl)
     if problem:
         missing.append(_missing(CONTROL_BATTERY_RESERVE, problem))

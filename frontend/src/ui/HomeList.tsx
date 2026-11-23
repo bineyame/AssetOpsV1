@@ -14,6 +14,8 @@ import { facetValue, homeListHref, homeListModel, type HomeListModel, type ListD
 export interface HomeListColumn<T> {
   label: string;
   cell(item: T): ReactNode;
+  /** A note under the column's heading, as `<small>` (IA-P P0/P4b: a column fed by a capped read says so). */
+  note?: ReactNode;
 }
 
 export interface HomeListTile {
@@ -45,6 +47,8 @@ export interface HomeListDef<T> extends ListDefModel<T> {
   /** The word of a scope chip. */
   scopeWord?(scope: string): string;
   groupWord?(group: string): string;
+  /** IA-P P4b (MD-IAP-13): a text before "Show all", naming the rows the cap hides (never a figure the browser sums). */
+  more?(hidden: readonly T[]): ReactNode;
   none: string;
 }
 
@@ -53,6 +57,11 @@ export interface HomeListOptions {
   tiles?: boolean;
   /** Overrides the cap; "Show all" becomes "View all", linking to the list's own route. */
   cap?: number;
+  /**
+   * The id of the heading that names the table. The table's scroll region is then a named, keyboard-reachable region
+   * (`DataTable` `labelledBy`), as the directory table it replaces on `/sites` was (IA-P3 P4b, test migration (a)).
+   */
+  labelledBy?: string;
 }
 
 export const DETAIL_NOT_AVAILABLE = "Detail not available yet";
@@ -249,13 +258,14 @@ export function HomeList<T>({
             </p>
           )
         ) : (
-          <DataTable tableClassName="hl-table">
+          <DataTable tableClassName="hl-table" labelledBy={options.labelledBy}>
             <thead>
               <tr>
                 <th scope="col">{def.firstColumn}</th>
                 {def.columns.map((c) => (
                   <th key={c.label} scope="col">
                     {c.label}
+                    {c.note ? <small>{c.note}</small> : null}
                   </th>
                 ))}
               </tr>
@@ -278,6 +288,7 @@ export function HomeList<T>({
         )}
         {model.hidden.length > 0 ? (
           <p className="hl-more">
+            {def.more ? <>{def.more(model.hidden)} </> : null}
             {options.cap !== undefined ? (
               <Link to={href({ show: null })}>View all {model.n}</Link>
             ) : (

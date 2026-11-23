@@ -132,8 +132,9 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     expect(defaultReading().replace(q(".notice")?.textContent ?? "", "")).not.toMatch(
       /site health|equipment health|healthy/i,
     );
-    // The Health tab is the current one.
-    expect(q('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Health");
+    // IA-P P5 (spec §2.3): Health lights the Performance tab and is the current link of Performance's section line.
+    expect(q('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Performance");
+    expect(q('nav[aria-label="Performance sections"] a[aria-current="page"]')?.textContent).toBe("Health");
     noVocabularyViolations("health KOBO-001");
   });
 

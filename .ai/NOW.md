@@ -37,6 +37,6 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 - Q12: lift the 31-day cap on other pages (shipped as "Showing {span} of the range").
 - Design-doc alignment pass (design, roadmap, phase plan, mock, incl. the vNEXT Kobo kit strings per D-DD.105), after IA-P and DD.
 
-IA-P (real app onto the IA shape): rev 3, `specs/IA-P-product-shape/spec.md`; IA-P1 (P0-P2) merged 22 Nov; IA-P2 next, then IA-P3.
+IA-P (real app onto the IA shape): rev 3, `specs/IA-P-product-shape/spec.md`; IA-P1 (P0-P2) and IA-P2 merged 22 Nov; IA-P3 (P4b to P7) built, in_review on `task/IA-P3-sites-site-inbox` (`packet-IA-P3.md`).
 
 UI slices merge on review ACCEPT; one owner walkthrough at product shape.

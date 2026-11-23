@@ -6,6 +6,11 @@ the selected dispatch model could not judge or did not classify is never candida
 between two dips (opening plus deliveries less closing) less the modelled litres of the dip window (D-4D.5, D-4D.7).
 Exact in `Fraction` until one rounding to the millilitre at the end (D-4D.6). Anything missing gives no figure, named
 by its note in `NOTES` order; unknown is never zero.
+
+D-DD.113: a Site with several GENERATOR units (one tank) has one `UnitFuel` per unit in declared Foundation order; each
+unit's litres are its own use at its own curve, and the Site's litres are the sum. A unit's incomplete use gives
+GENERATOR_USE_INCOMPLETE first, then a unit idling without its rate NO_LOAD_RATE_MISSING; any unit without an SFC
+gives FUEL_CURVE_MISSING; the curve window is the intersection of the units' windows.
 """
 
 from __future__ import annotations
@@ -34,7 +39,7 @@ CAUSE_OF: Mapping[str, str] = MappingProxyType({
     "DISPATCH_NOT_ASSESSED": "NOT_CALCULATED_YET", "SPANS_OVERLAP": "NOT_CALCULATED_YET",
     "SPAN_CLASS_UNKNOWN": "NOT_CALCULATED_YET"})                                       # else NOT_RECEIVED
 ASSESSED, NOT_ASSESSED, UNAVAILABLE, NO_READINGS = DAY_STATES
-ONE_EACH, NOT_ONE_EACH = "ONE_EACH", "NOT_ONE_EACH"
+ONE_EACH, NOT_ONE_EACH = "ONE_EACH", "NOT_ONE_EACH"   # one tank and every GENERATOR unit (D-DD.113), or not
 TANK_DIP, FUEL_DELIVERY = "TANK_DIP", "FUEL_DELIVERY"
 MODELLED = "MODELLED"
 
@@ -77,6 +82,13 @@ class FuelCurve:
 
 
 @dataclass(frozen=True)
+class UnitFuel:           # D-DD.113: one GENERATOR unit's use and fuel curve
+    unit: str                                      # the unit's asset id
+    use: Callable[[datetime, datetime], SpanUse]   # bound by the adapter to the unit's readings; a, b on the grid
+    curve: FuelCurve
+
+
+@dataclass(frozen=True)
 class TankRecord:
     kind: str                     # FUEL_DELIVERY | TANK_DIP
     occurred_at: datetime
@@ -90,11 +102,10 @@ class LitreInputs:
     lo: datetime                  # month_window's UTC instants
     hi: datetime
     known_at: datetime
-    assets: str                   # ONE_EACH | NOT_ONE_EACH (active GENERATOR and FUEL_TANK)
+    assets: str                   # ONE_EACH | NOT_ONE_EACH: one active FUEL_TANK and every GENERATOR unit (D-DD.113)
     days: tuple[DispatchDay, ...]  # every UTC day meeting [lo - EDGE, hi + EDGE), in order
-    use: Callable[[datetime, datetime], SpanUse]   # bound by the adapter to the Site's readings; a, b on the grid
-    held: Callable[[datetime, datetime], bool]     # any generator power or state reading with instant in (a, b]
-    curve: FuelCurve
+    units: tuple[UnitFuel, ...]                    # D-DD.113: every GENERATOR unit, declared order
+    held: Callable[[datetime, datetime], bool]     # any unit's power or state reading with instant in (a, b]
     tank: tuple[TankRecord, ...]  # the one tank's records with lo - EDGE <= occurred_at < hi + EDGE
 
 
@@ -150,16 +161,37 @@ class _Litres:
     idle: bool                    # some piece had idle seconds
 
 
-def _piece(inp: LitreInputs, a: datetime, b: datetime) -> _Litres:
-    u = inp.use(a, b)
+def _unit_piece(unit: UnitFuel, a: datetime, b: datetime) -> _Litres:
+    u = unit.use(a, b)
     if u.kwh is None or u.idle_seconds is None:
         return _Litres(USE_INCOMPLETE, Fraction(0), False)
     idle = u.idle_seconds > 0
-    if idle and inp.curve.no_load is None:
+    if idle and unit.curve.no_load is None:
         return _Litres(NO_LOAD_RATE_MISSING, Fraction(0), True)
-    assert inp.curve.sfc is not None
-    litres = inp.curve.sfc * Fraction(u.kwh) + (inp.curve.no_load or Fraction(0)) * Fraction(u.idle_seconds, 3600)
+    assert unit.curve.sfc is not None
+    litres = unit.curve.sfc * Fraction(u.kwh) + (unit.curve.no_load or Fraction(0)) * Fraction(u.idle_seconds, 3600)
     return _Litres(None, litres, idle)
+
+
+def _piece(inp: LitreInputs, a: datetime, b: datetime) -> _Litres:
+    """D-DD.113: every unit's piece, summed; an incomplete unit first, then one idling without its rate."""
+    parts = [_unit_piece(unit, a, b) for unit in inp.units]
+    for note in (USE_INCOMPLETE, NO_LOAD_RATE_MISSING):
+        if any(p.note == note for p in parts):
+            return _Litres(note, Fraction(0), note == NO_LOAD_RATE_MISSING)
+    return _Litres(None, sum((p.litres for p in parts), Fraction(0)), any(p.idle for p in parts))
+
+
+def _curve_missing(inp: LitreInputs) -> bool:
+    return not inp.units or any(u.curve.sfc is None for u in inp.units)
+
+
+def _curve_valid(inp: LitreInputs) -> tuple[datetime, datetime | None] | None:
+    """D-DD.113: where every unit's chosen revisions are in force (None if any unit's window is None)."""
+    if not inp.units or any(u.curve.valid is None for u in inp.units):
+        return None
+    ends = [u.curve.valid[1] for u in inp.units if u.curve.valid[1] is not None]
+    return max(u.curve.valid[0] for u in inp.units), min(ends) if ends else None
 
 
 def _sum(inp: LitreInputs, ranges: Iterable[tuple[datetime, datetime]]) -> _Litres:
@@ -223,7 +255,7 @@ def _checks(inp: LitreInputs, parts: list[tuple[datetime, datetime]], dispatch: 
         return SPANS_OVERLAP
     if any(s.claim not in CLAIMS for group in spans for s in group):
         return SPAN_CLASS_UNKNOWN
-    if inp.curve.sfc is None:
+    if _curve_missing(inp):
         return FUEL_CURVE_MISSING
     return _sum(inp, [p for a, b in parts for p in _pieces(a, b)]).note
 
@@ -244,11 +276,13 @@ def _unique(items: Iterable[str | None]) -> tuple[str, ...]:
     return tuple(out)
 
 
-def _sources(spans: Iterable[_Span], curve: FuelCurve, idle: bool, records: Iterable[TankRecord] = ()
+def _sources(spans: Iterable[_Span], units: Iterable[UnitFuel], idle: bool, records: Iterable[TankRecord] = ()
              ) -> tuple[str, ...]:
+    """D-DD.113: each unit's curve refs in unit order (through `_unique`)."""
     run_ids = sorted({s.run_id for s in spans if s.run_id is not None})
     fuel = sorted(records, key=lambda r: (r.occurred_at, r.ref))
-    return _unique([f"dispatch-run:{r}" for r in run_ids] + [curve.sfc_ref, curve.no_load_ref if idle else None]
+    return _unique([f"dispatch-run:{r}" for r in run_ids]
+                   + [ref for u in units for ref in (u.curve.sfc_ref, u.curve.no_load_ref if idle else None)]
                    + [f"fuel-record:{r.ref}" for r in fuel])
 
 
@@ -288,7 +322,7 @@ def month_litres(inp: LitreInputs, filled_by: Mapping[str, Any]) -> LitreMonth:
     note = _month_note(inp)
     if note is not None:
         return _all_absent(note, filled_by)
-    lo, hi, curve = inp.lo, inp.hi, inp.curve
+    lo, hi, curve = inp.lo, inp.hi, inp.units
     total = _sum(inp, _pieces(lo, hi))                                 # 11.
     spans = _spans(inp, lo, hi)
     candidate = [s for s in spans if s.claim == CANDIDATE]
@@ -317,7 +351,8 @@ def month_litres(inp: LitreInputs, filled_by: Mapping[str, Any]) -> LitreMonth:
     if len({r.litres for r in opening}) > 1 or len({r.litres for r in closing}) > 1:
         return without(TANK_DIPS_CONFLICT)
     w = (up(t_o), up(t_c))                                             # 13.
-    if curve.valid is None or w[0] < curve.valid[0] or (curve.valid[1] is not None and curve.valid[1] < w[1]):
+    valid = _curve_valid(inp)
+    if valid is None or w[0] < valid[0] or (valid[1] is not None and valid[1] < w[1]):
         return without(FUEL_CURVE_MISSING, w)                          # D-4D.14
     outside = [p for p in ((w[0], min(lo, w[1])), (max(hi, w[0]), w[1])) if p[0] < p[1]]
     note = _checks(inp, outside, (w[0] - _DAY, w[1]))
@@ -338,5 +373,6 @@ def month_litres(inp: LitreInputs, filled_by: Mapping[str, Any]) -> LitreMonth:
 __all__ = [
     "CANDIDATE", "CAUSE_OF", "CLAIMS", "DAY_STATES", "EDGE", "INDETERMINATE", "LITRE_ORDER", "NECESSARY", "NOTES",
     "QUANTUM", "SLOT", "DispatchDay", "FuelCurve", "LitreInputs", "LitreMonth", "RunSpan", "SpanUse", "TankRecord",
+    "UnitFuel",
     "month_litres", "q", "up",
 ]

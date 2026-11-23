@@ -1,12 +1,12 @@
 # DD: the demo data (implementer spec)
 
-Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`); DD3a in_review with open questions (`packet-DD3a.md`); DD4a in_review, run 3 (D-DD.89, D-DD.119-122) done (`packet-DD4a.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
+Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`); DD3a in_review with open questions (`packet-DD3a.md`); DD4a in_review, run 3 (D-DD.89, D-DD.119-122) done (`packet-DD4a.md`); DD3c in_review (`packet-DD3c.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
 **34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.149 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.152 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md`, `index-rulings-29.md` and `index-rulings-30.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -945,7 +945,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
 | C-DD5 | Does every Site have readings on every day of the span, at the cadence its readings manifest declares (the checker's own cadence table must equal it), with `source_mode` SIMULATED and no gap except a declared outage? | DD4.4 |
 | C-DD6 | Is each failure in the readings at its instant, on its own unit (Thika GEN-CR-01 6 Oct 19:11; Kasarani CH-K2 1 Nov 23:40; Ruiru CH-R7 c2 6 Oct; Kisiwa GEN-KS-01 30 Oct 18:40 (D-DD.126); Mto INV-MT-02 28 Oct 11:02)? Live by vertical, pending clauses named (D-DD.121). Is B-1031 above 5 °C for more than 15 minutes, and B-1034 below 12 °C? | DD4.4 |
 | C-DD7 | Do readings and books agree **exactly**? Mini: load served + unserved = `delivered_kwh`. Cold: bill kWh = room meter kWh. EV: invoice band kWh = Site meter band kWh; DEMAND = the largest 30-minute mean; each departure's `block_met` = delivered ≥ required; delivered + undelivered = roster required. Metered values are printed beside the manifest's, as information. | DD4.4 |
-| C-DD8 | On the data-sheet kit, is Kobo's October balance (opening dip + deliveries − closing dip − burned) ≥ 0, printed beside the manifest's 120 L? Is Kobo's unserved critical energy 0 (MG-5)? Is Kisiwa's candidate time under 1 % of its generator minutes in every month, printed (OR-MG-2 as restated by D-DD.148)? Does every tank stay within [0, capacity]? | DD3.3 (pure), DD5.1 (store) |
+| C-DD8 | On the data-sheet kit, is Kobo's October balance (opening dip + deliveries − closing dip − burned) ≥ 0, printed beside the manifest's 120 L? Is Kobo's unserved critical energy 0 (MG-5)? Is Kisiwa's candidate time computed and printed for every month (OR-MG-2 as restated by D-DD.151; no bound)? Does every tank stay within [0, capacity]? | DD3.3 (pure), DD5.1 (store) |
 | C-DD9 | For each cell of the table below, does the page's read return 200 with output for the whole range, and no "Not analysed yet" when nothing is pending? A pending cell is reported with the unit that closes it. | DD6.1 |
 | C-DD10 | On Jul-Oct, does E2 return mode `period` with four served months for each tenant whose `snapshot_months` holds them, and name the Sites not yet compared? | DD6.1 |
 | C-DD11 | Do two generator runs in separate processes give identical bytes for books, readings and measured books? | DD3.1 |
@@ -954,7 +954,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
 | C-DD14 | Is each disorder test planted, listed and asserted as §5.5's table says? | DD5.2 |
 | C-DD15 | Did L2 finish under its cap, with each rung's seconds recorded beside the projection? | DD6.1 |
 | C-DD16 | Does the world's Kobo Site carry the slot's values with their `-basis` properties, as the tool maps them? | DD3.2 |
-| C-DD17 | Is Kobo's served unexplained fuel, July to October, ≥ 0 every month, within the product's tolerance July to September, and above it in October? | DD3.3 (pure), DD6.1 (served) |
+| C-DD17 | Is Kobo's served unexplained fuel, July to October, ≥ 0 every month, equal to the declared draw, and, in months with burn > 0, within the product's tolerance July to September and above it in October (D-DD.152)? | DD3.3 (pure), DD6.1 (served) |
 | C-DD18 | For each tenant on October, is each of the four outcome categories shown by at least one surfaced item (Finding, decision or outcome row), or by a "Not available yet" naming the missing record, as §A's table expects? | DD6.1 |
 | C-DD19 | Is v9 with one unit each byte-identical to v8 on Kobo's October, and cold-thermal 2 with zero load terms byte-identical to v1? Judged in `world check` C5 by the simulator's parity tests; `dd_check` prints that line and does not count it (D-DD.84). | DD3.3, DD4.1 |
 | C-DD20 | Do the story mechanisms hold by direction? Mwea's kWh per crate-day rises each month as occupancy falls. Kirinyaga's kWh per crate-day rises each month. Embakasi's metered peak share rises each month. Kisiwa: GEN-KS-01 FAILED at 0 kW from 30 Oct 18:40, every later 18:00-23:00 generator interval on GEN-KS-02, and unserved energy 0 over the span (D-DD.148). Mto's generator litres per day are higher after 28 Oct 11:02 than in the 28 days before. A failure stops for the Architect; nothing is tuned. | DD4.4 (Kisiwa and Mto from DD3.3) |
@@ -1014,7 +1014,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.149**: `rulings.md` (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
+- **D-DD.17 to D-DD.152**: `rulings.md` (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.

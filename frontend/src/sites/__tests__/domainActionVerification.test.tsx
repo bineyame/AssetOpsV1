@@ -245,7 +245,8 @@ describe("cold-action strip, currentness and non-loaded states (rulings 3, 4, 6,
     const line = main.querySelector("[data-domain-action-status-line]") as HTMLElement;
     expect(text(line)).toBe(`Maintenance lead · GreenHarvest · Finding ${FINDING.slice(0, 8)}`);
     expect(text(line.querySelector("[data-domain-action-owner]"))).toBe("Maintenance lead");
-    expect(text(main.querySelector("[data-domain-action-crumb-site] a"))).toBe("GreenHarvest Cold Room");
+    // IA-P P5 (D-IAP.38 Q20): the Site part of the object-page trail keeps the full name.
+    expect(text(main.querySelectorAll('nav[aria-label="Breadcrumb"] li a')[1])).toBe("GreenHarvest Cold Room");
     expect(main.textContent).not.toContain("2026-11-01");
     expect(main.textContent).not.toMatch(/\bDue\b/);
   });
@@ -451,10 +452,10 @@ describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
   it("renders the mock frame, the full Site name status and the sole Declared verification plan with three plain Pending results", async () => {
     const { main, client } = await mountEv(() => loaded(evDetail()));
     expectV69Panels("ev-action");
-    // Mock breadcrumb `Actions › {code} › Verification · site: {site}`, heading, question subtitle and Open site.
-    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map(text)).toEqual(["Actions", "ACT-061", "Verification"]);
-    expect(main.querySelector("[data-domain-action-crumbs] a")?.getAttribute("href")).toBe("/actions");
-    expect(text(main.querySelector("[data-domain-action-crumb-site]"))).toBe(`· site: ${EV_SITE_NAME}`);
+    // IA-P P5 (D-IAP.38 Q20): the object-page trail `Actions › {Site} › {code}` (was the mock's
+    // `Actions › {code} › Verification · site: {site}`), heading, question subtitle and Open site.
+    expect(Array.from(main.querySelectorAll('nav[aria-label="Breadcrumb"] li')).map(text)).toEqual(["Actions", EV_SITE_NAME, "ACT-061"]);
+    expect(main.querySelector('nav[aria-label="Breadcrumb"] a')?.getAttribute("href")).toBe("/actions");
     expect(text(main.querySelector("h1"))).toBe("ACT-061 · Investigate connector c1");
     expect(main.textContent).toContain("What would establish successful service restoration?");
     expect(main.querySelector("[data-domain-action-open-site]")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}`);

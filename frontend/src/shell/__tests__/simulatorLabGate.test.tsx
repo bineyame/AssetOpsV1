@@ -17,7 +17,26 @@ import {
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
+import type { DeepDiveMonthClient, DeepDiveMonthBody } from "../../estate/deepDiveMonthClient";
+import type { PeriodResult, PortfolioPeriod, PortfolioPeriodClient } from "../../estate/portfolioPeriodClient";
+import PERIOD_MONTH_G from "../../estate/__tests__/fixtures/iap/period-month-g-2026-10.json?raw";
+import MONTH_G from "../../estate/__tests__/fixtures/iap/month-g-2026-10.json?raw";
+
+const PERIOD: PortfolioPeriodClient = {
+  fetchPeriod: () => Promise.resolve<PeriodResult>({ status: "loaded", body: JSON.parse(PERIOD_MONTH_G) as PortfolioPeriod }),
+};
+
+/**
+ * IA-P P6/P4b: `/` is the portfolio overview, which reads the month on its own. The read is answered here, so the
+ * route's controls are the page's own and a refusal's "Try again" button is not mistaken for (or hidden among) them.
+ * The loaded overview's evidence openers (`aria-haspopup=dialog` drawers, `.dd-link` "Show all") read records and create
+ * nothing, so the control count leaves them out; any form, input, select or other button still fails it.
+ */
+const MONTH: DeepDiveMonthClient = {
+  fetchDeepDiveMonth: () => Promise.resolve({ status: "loaded", body: JSON.parse(MONTH_G) as DeepDiveMonthBody }),
+};
 
 /**
  * The Sites index reads the Site store. It is injected here and empty, so a
@@ -302,6 +321,10 @@ function renderAt(path: string, flags: FeatureFlags) {
         flags={flags}
         siteDirectory={EMPTY_SITE_DIRECTORY}
         runSetup={RUN_SETUP}
+        portfolioSites={sitesE1()}
+        estateIndex={estateE0({})}
+        deepDive={MONTH}
+        portfolioPeriod={PERIOD}
       />
     </MemoryRouter>,
   );
@@ -380,10 +403,10 @@ describe("simulator lab gate: disabled", () => {
     "offers no way to create a site from the operator route %s",
     async (route) => {
       const { container } = renderAt(route, DISABLED);
-      await screen.findByRole("main");
+      await settledScreen();
 
       expect(container.querySelectorAll(
-          "form, button:not([data-shared-range-button]), input, select",
+          "form, button:not([data-shared-range-button]):not([data-shell-control]):not([aria-haspopup=dialog]):not(.dd-link), input, select",
         )).toHaveLength(
         0,
       );
@@ -394,8 +417,9 @@ describe("simulator lab gate: disabled", () => {
   it("still serves the Sites index when the gate is closed", async () => {
     renderAt("/sites", DISABLED);
 
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory's.
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
   });
 
@@ -492,8 +516,9 @@ describe("simulator lab gate: enabled", () => {
   it("serves the same Sites index it serves with the gate closed", async () => {
     renderAt("/sites", ENABLED);
 
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory's.
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
   });
 

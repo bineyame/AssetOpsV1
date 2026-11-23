@@ -137,6 +137,9 @@ function mount(path: string) {
 
 const q = (selector: string) => document.body.querySelector(selector);
 const qa = (selector: string) => Array.from(document.body.querySelectorAll(selector));
+// IA-P P5 (D-IAP.38 Q20): an Action is an object page; the trail's title part is its code once read, `Action` before.
+const titleCrumb = () => screen.queryByRole("navigation", { name: "Breadcrumb" })?.querySelector('[aria-current="page"]')?.textContent ?? null;
+const codeCrumbShown = () => expect(titleCrumb()).not.toBe("Action");
 const where = () => screen.getByTestId("where").textContent;
 
 function withoutCapability<T extends { body: any }>(c: T): Served {
@@ -1154,18 +1157,21 @@ describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => 
     ["/verification", "Verification"],
   ] as const;
 
-  it.each(sections)("reads Actions › code › section · site for %s", async (segment, label) => {
+  // IA-P P5 (D-IAP.38 Q20): the R203 Action-rooted trail is now the object-page trail `Actions › {Site} › {code}`;
+  // the section is named by the Action sections row, and the old `· site:` suffix is the Site part.
+  it.each(sections)("reads Actions › Site › code for %s", async (segment, label) => {
     serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
     mount(`/sites/KOBO-001/actions/${ACTION}${segment}`);
     await settledScreen();
-    await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
+    await waitFor(codeCrumbShown);
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
-    expect(items).toEqual(["Actions", displayCode(ov.applied_pending_newer_revision.body.action.action_code), label]);
-    expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
-    expect(crumbs.querySelector('[aria-current="page"]')?.textContent).toBe(label);
-    expect(crumbs.querySelector("[data-action-crumb-site]")?.textContent).toBe(`· site: ${HYBRID_MINI_GRID_SITE.display_name}`);
-    expect(crumbs.querySelector("[data-action-crumb-site] a")?.getAttribute("href")).toBe("/sites/KOBO-001");
+    const code = displayCode(ov.applied_pending_newer_revision.body.action.action_code);
+    expect(items).toEqual(["Actions", HYBRID_MINI_GRID_SITE.display_name, code]);
+    const links = Array.from(crumbs.querySelectorAll("a")).map((a) => a.getAttribute("href"));
+    expect(links).toEqual(["/actions", "/sites/KOBO-001"]);
+    expect(titleCrumb()).toBe(code);
+    expect(within(screen.getByRole("navigation", { name: "Action sections" })).getByRole("link", { current: "page" })).toHaveTextContent(label);
     expect(crumbs.textContent).not.toContain("Findings");
   });
 
@@ -1174,8 +1180,7 @@ describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => 
     mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
     await waitFor(() => expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeTruthy());
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(q("[data-action-crumb-code]")).toBeNull();
-    expect(Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Actions", "Plan"]);
+    expect(Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Actions", HYBRID_MINI_GRID_SITE.display_name, "Action"]);
   });
 });
 
@@ -1193,7 +1198,7 @@ describe("post-W6 W1-b: Action and Finding frame chrome", () => {
       serve(actionReads(ov.accepted_pending, hi.events_latest));
       mount(`/sites/KOBO-001/actions/${ACTION}${section}`);
       await settledScreen();
-      await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
+      await waitFor(codeCrumbShown);
       expect(siteTabs()).toHaveLength(0);
       expect(q("[data-mock-deviation]")).toBeNull();
       const open = within(document.querySelector(".page-header__actions") as HTMLElement).getByRole("link", { name: "Open site" });
@@ -1206,7 +1211,7 @@ describe("post-W6 W1-b: Action and Finding frame chrome", () => {
     serve({});
     mount(`/sites/KOBO-001/actions/${ACTION}`);
     await waitFor(() => expect(document.querySelector("h1")).not.toBeNull());
-    expect(q("[data-action-crumb-code]")).toBeNull();
+    expect(titleCrumb()).toBe("Action");
     expect(subtitle()).toBe(SITE);
   });
 
@@ -1241,23 +1246,16 @@ describe("post-W6 W1-b: Action and Finding frame chrome", () => {
     ["history", "/history", true],
     ["alternatives", "/alternatives", false],
     ["recommendation", "/recommendation", false],
-  ])("the Finding %s keeps its Site tabs with one R383 label only where the row is retained", async (_name, suffix, retained) => {
+  ])("the Finding %s draws no Site tab row and no R383 label (IA-P P5, D-IAP.38 Q20; R383 closed)", async (_name, suffix) => {
     serve({});
     const [path, search] = suffix.startsWith("?") ? ["", suffix] : [suffix, ""];
     mount(`/sites/KOBO-001/findings/f0000000-0000-4000-8000-000000000001${path}${search}`);
     await waitFor(() => expect(document.querySelector("main")).not.toBeNull());
     await settledScreen();
-    expect(siteTabs()).toHaveLength(retained ? 1 : 0);
-    // post-W6 W4 R453: the shared Site tab row carries its own wrap label inside the row; count the others.
-    const labels = qa("[data-mock-deviation]:not([data-mock-deviation='R453'])");
-    expect(labels).toHaveLength(retained ? 1 : 0);
-    expect(qa("[data-mock-deviation='R453']")).toHaveLength(retained ? 1 : 0);
-    if (retained) {
-      expect(siteTabs()[0].querySelector("[data-mock-deviation='R453']")).not.toBeNull();
-      expect(labels[0]).toHaveAttribute("data-mock-deviation", "R383");
-      expect(labels[0].textContent).toBe("MOCK DEVIATION D2 (R383)");
-      expect(siteTabs()[0].nextElementSibling).toBe(labels[0]);
-    }
+    // IA-P P5 (D-IAP.38 Q20): every Finding view is an object page; the retained row and its R383 label are gone.
+    expect(siteTabs()).toHaveLength(0);
+    expect(qa("[data-mock-deviation='R383']")).toHaveLength(0);
+    expect(qa("[data-mock-deviation='R453']")).toHaveLength(0);
   });
 });
 

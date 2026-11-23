@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { formatDay } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeLink as Link } from "../ui/RangeLink";
+import { SiteSections, type SiteSectionLink } from "../ui/SiteSections";
 
 import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
 
@@ -95,6 +96,8 @@ export interface ColdSiteRoutes {
   foundation: string;
   /** post-W6 W2-cold R256: the Foundation single line diagram view. */
   sld: string;
+  /** IA-P P5 (spec §2.3): the Site's Uploads page, the last link of the one Evidence line. */
+  uploads?: string;
   /** post-W6 W2-cold R254 (Q8): cold Work › Maintenance. */
   workMaintenance: string;
   /** post-W6 W2-cold R258: the portfolio Evidence page. */
@@ -433,23 +436,14 @@ const CRUMB: Record<ColdSiteView, Crumb[]> = {
 
 function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSiteRoutes; window: ColdWindowQuery }) {
   if (view !== "evidence" && view !== "analysis") return null;
-  const items: [string, string, string][] = [
-    ["evidence", "Overview", selected(routes.evidence, window)],
-    ["analysis", "Analysis", selected(routes.evidence, window, "analysis")],
+  // IA-P P5 (spec §2.3): one Evidence line, "In Evidence: Records · Analysis · Uploads" (the Records page's own
+  // Analysis view sits next to it, so the page draws no second "Evidence sections" nav).
+  const links: SiteSectionLink[] = [
+    { label: "Records", href: selected(routes.evidence, window), current: view === "evidence", data: { "data-cold-subtab": "evidence" } },
+    { label: "Analysis", href: selected(routes.evidence, window, "analysis"), current: view === "analysis", data: { "data-cold-subtab": "analysis" } },
+    ...(routes.uploads === undefined ? [] : [{ label: "Uploads", href: routes.uploads, current: false }]),
   ];
-  return (
-    <nav className="site-tabs site-subtabs" aria-label="Evidence sections">
-      <ol className="site-tabs__list">
-        {items.map(([id, label, href]) => (
-          <li className="site-tabs__item" key={id}>
-            <Link className="site-tabs__link" to={href} data-cold-subtab={id} aria-current={id === view ? "page" : undefined}>
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
+  return <SiteSections tab="Evidence" links={links} />;
 }
 
 /**

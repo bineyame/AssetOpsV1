@@ -7,6 +7,7 @@ import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { pathsWithOneRange } from "../../test/rangeHrefs";
 import { spacedText } from "../../test/text";
 import { NavRail, type NavRailItem } from "../../ui";
 
@@ -98,10 +99,11 @@ describe("operator rail inventory (W1-UX-07)", () => {
     renderAt("/sites");
     await settledScreen();
 
+    // IA-P P4b (spec §6 "Range pages"): `/sites` fills its range on entry, and every rail link keeps it.
+    const links = within(rail()).getAllByRole("link");
+    const paths = pathsWithOneRange(links.map((link) => link.getAttribute("href")));
     expect(
-      within(rail())
-        .getAllByRole("link")
-        .map((link) => [link.textContent, link.getAttribute("href")]),
+      links.map((link, i) => [link.textContent, paths[i]]),
     ).toEqual([
       ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],

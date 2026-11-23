@@ -27,6 +27,7 @@ from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.analytics.assessment_inputs import BRACKET
 from assetops_backend.chain.vocabulary import (  # FUEL-1 A3-R §3.6 (precedent `verification_families.py:41`)
     FUEL_VALUE_PAGE, NO_LOAD_BASIS_WORDS, money_text, price_text, trial_litres)
+from assetops_backend.sites import unit_roles
 from assetops_backend.sites.binding_roles import VERIFICATION_POINT_ROLES, VERIFICATION_POWER_ROLES
 
 VERIFY = "VERIFY"
@@ -174,6 +175,15 @@ def _bindings(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "critical_load_asset_ids": critical,
             "role_assets": {role: sorted({str(r["asset_id"]) for r in rows if r["role"] == role and r["asset_id"]})
                             for role in sorted({r["role"] for r in rows})}}
+
+
+def _unit_roles(bindings: dict[str, Any]) -> dict[str, list[str]]:
+    """`window_evidence`'s `unit_roles` keyword: the roles PER_ASSET in every bound set (roles-5; D-DD.118). Roles-4
+    names none, so the call is exactly as before (no keyword)."""
+    sets = bindings.get("role_sets") or []
+    roles = [role for role in (*rules.SINGLE_POWER_ROLES, "generator_state")
+             if sets and all(unit_roles.per_asset(s, role) for s in sets)]
+    return {"unit_roles": roles} if roles else {}
 
 
 def _critical_asset(bindings: dict[str, Any]) -> str | None:
@@ -782,7 +792,8 @@ class VerificationService:
             windows[name] = rules.window_evidence(lo, readings, load_asset_ids=list(basis["load_asset_ids"]),
                                                   critical_load_asset_id=basis.get("critical_load_asset_id"),
                                                   reserves=reserves, battery_asset_id=str(plan["battery_asset_id"]),
-                                                  role_assets=bound.get("role_assets"))
+                                                  role_assets=bound.get("role_assets"),
+                                                  **_unit_roles(bound))
         return windows
 
     def evidence(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID, plan_id: UUID | None = None,
@@ -1145,10 +1156,13 @@ class VerificationService:
 
         def facts(name: str) -> Any:
             w = windows[name]
+            # D-DD.118: each unit's kWh and idle seconds, present only above one unit (`window_evidence`)
+            units = None if "generator_units" not in w else {
+                a: (rules.parse_exact(u["generator_kwh"]), u["idle_seconds"]) for a, u in w["generator_units"].items()}
             return tfc.WindowFacts(tuple(w["evidence_ids"]), bool(w["complete"]),
                                    rules.parse_exact(w.get("generator_kwh")),
                                    rules.parse_exact(w.get("feeder_demand_kwh")), plan[f"{name}_start"],
-                                   plan[f"{name}_end"], w.get("generator_idle_seconds"))
+                                   plan[f"{name}_end"], w.get("generator_idle_seconds"), units)
 
         facts_out = tfc.OutcomeFacts(str(outcome["id"]), str(plan["id"]), str(basis["origin_finding_revision_id"]),
                                      outcome["outcome"], {n: tuple(basis["evidence_ids"].get(n) or ())
@@ -1162,10 +1176,17 @@ class VerificationService:
         # FUEL-1 A2: the generator's declared no-load fuel rate history, read beside the SFC history
         no_load = [] if len(generators) != 1 else self.store.no_load_history(
             tenant_id, site_id, generators[0], plan["baseline_start"], plan["later_end"], now)
+        # D-DD.118: at a Site whose generator power is a unit role (roles-5), every unit with its own histories;
+        # under a ONE set several generators keep the empty history above (UNAVAILABLE, as before)
+        units = () if len(generators) < 2 or "generator_power" not in _unit_roles(
+            plan["basis"]["baseline_bindings"]).get("unit_roles", ()) else tuple(tfc.TrialUnit(
+                str(g), self.store.sfc_history(tenant_id, site_id, g, plan["baseline_start"], plan["later_end"], now),
+                self.store.no_load_history(tenant_id, site_id, g, plan["baseline_start"], plan["later_end"], now))
+                for g in generators)
         prices = tuple(ports.price_selection(tenant_id, site_id, plan[f"{n}_start"], plan[f"{n}_end"], now)
                        for n in tfc.WINDOWS)
         cost = tfc.InterventionCost(Fraction(0), None, COST_CHECK_SOURCE)
-        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost, no_load)
+        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost, no_load, units=units)
         key = f"auto:{outcome['id']}"
         # CC-D2: the body without the idempotency key (the hook's body: outcome and intervention cost)
         payload = {"outcome_id": str(outcome["id"]), "intervention_cost": result["intervention_cost"]}

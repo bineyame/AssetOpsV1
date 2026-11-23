@@ -11,13 +11,20 @@ generator no-load fuel rate r (L/h) is in force over each of the two windows. It
 SFC x generator kWh + r x idle seconds / 3600 (upper x the same multiplier), and a MODELLED_IMPROVEMENT result gains
 the stored, priced total of the trial hour (`priced_total`, stored only when the amount is above 0). Without a rate in force over both windows the result is
 `trial-fuel-comparison/1`, byte-equal to before.
+
+DD3c (D-DD.118, D-DD.117's shape): at a Site with more than one GENERATOR unit (`compare(..., units=...)`) each unit
+burns on its own SFC over its own kWh and, under `/2` (a rate in force for every unit over both windows), idles on its
+own no-load rate; a window's fuel is the sum. Any unit without an SFC gives SFC_MISSING, any unit's SFC (or rate)
+differing between the windows SFC_DIFFERS (NO_LOAD_RATE_DIFFERS), any unit's kWh (idle seconds) unknown
+GENERATOR_KWH_UNKNOWN (IDLE_SECONDS_UNKNOWN). The per-unit terms (`windows.*.units`, `basis.units`) and the
+top-level `sfc: None` appear only above one unit, so a one-unit result and digest are unchanged.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from decimal import Decimal
 from fractions import Fraction
@@ -55,6 +62,25 @@ class WindowFacts:
     end: datetime
     #: FUEL-1 A2: the window's generator RUNNING seconds at exactly 0 kWh (`window_evidence`), None when unknown
     idle_seconds: int | None = None
+    #: D-DD.118: above one unit, each unit's (generator kWh, idle seconds) over the window, else None
+    units: Mapping[str, tuple[Fraction | None, int | None]] | None = None
+
+
+@dataclass(frozen=True)
+class TrialUnit:
+    """D-DD.118: one GENERATOR unit's declared SFC and no-load rate histories (declared order)."""
+
+    asset_id: str
+    sfc: Sequence[SfcValue]
+    no_load: Sequence[NoLoadValue] = ()
+
+
+@dataclass(frozen=True)
+class _Combined:
+    """The units' values in one window as one comparable value (a tuple in unit order); `_reason` compares it."""
+
+    value_l_per_kwh: tuple
+    value_l_per_h: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -149,16 +175,47 @@ def _reason(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sf
     return None
 
 
+def _unit_window(w: WindowFacts, units: Sequence[TrialUnit], v2: bool):
+    """D-DD.118: one window over every unit: the combined SFC (None if any unit's is), the combined rate under `/2`,
+    the facts with the summed kWh and idle seconds (unknown if any unit's is), the per-unit wire terms and the summed
+    nominal fuel (None when unknown)."""
+    use = {u.asset_id: (w.units or {}).get(u.asset_id, (None, None)) for u in units}
+    sfcs = [sfc_for(w, u.sfc) for u in units]
+    rates = [no_load_for(w, u.no_load) for u in units] if v2 else [None] * len(units)
+    sfc = None if any(s is None for s in sfcs) else _Combined(tuple(s.value_l_per_kwh for s in sfcs))
+    rate = _Combined((), tuple(r.value_l_per_h for r in rates)) if v2 else None
+    kwh = None if any(k is None for k, _ in use.values()) else sum((k for k, _ in use.values()), Fraction(0))
+    idle = None if any(i is None for _, i in use.values()) else sum(i for _, i in use.values())
+    facts = replace(w, generator_kwh=kwh, idle_seconds=idle if v2 else w.idle_seconds)
+    terms = []
+    for u, s, r in zip(units, sfcs, rates):
+        k, i = use[u.asset_id]
+        term = {"asset_id": u.asset_id, "generator_kwh": fmt(k),
+                "sfc_l_per_kwh": None if s is None else fmt(_exact(s.value_l_per_kwh))}
+        if v2:
+            term.update({"idle_seconds": i, "no_load_l_per_h": fmt(_exact(r.value_l_per_h))})
+        terms.append(term)
+    nominal = None
+    if sfc is not None and kwh is not None and (not v2 or idle is not None):
+        nominal = sum((_exact(s.value_l_per_kwh) * use[u.asset_id][0] for u, s in zip(units, sfcs)), Fraction(0))
+        if v2:
+            nominal += sum((_exact(r.value_l_per_h) * Fraction(use[u.asset_id][1], 3600)
+                            for u, r in zip(units, rates)), Fraction(0))
+    return sfc, rate, facts, terms, nominal
+
+
 def _window(w: WindowFacts, sfc: SfcValue | None, price: PriceSelection,
-            no_load: NoLoadValue | None = None, v2: bool = False) -> dict[str, Any]:
+            no_load: NoLoadValue | None = None, v2: bool = False, nominal: Fraction | None = None,
+            units: list | None = None) -> dict[str, Any]:
     """One window's fuel, cost and cost per demand kWh. Under `/2` (A2) the fuel adds r x idle seconds / 3600 and is
     unknown when the idle seconds are; under `/1` the keys and values are exactly as before."""
     fuel = cost = per = None
-    if w.generator_kwh is not None and sfc is not None and (
+    if units is None and w.generator_kwh is not None and sfc is not None and (
             not v2 or (w.idle_seconds is not None and no_load is not None)):
         nominal = _exact(sfc.value_l_per_kwh) * w.generator_kwh
         if v2:
             nominal += _exact(no_load.value_l_per_h) * Fraction(w.idle_seconds, 3600)
+    if nominal is not None:
         fuel = (nominal, nominal * _exact(MULTIPLIER))
         if price.state == "PRICED" and price.value is not None:
             cost = tuple(x * _exact(price.value) for x in fuel)
@@ -167,6 +224,8 @@ def _window(w: WindowFacts, sfc: SfcValue | None, price: PriceSelection,
     out: dict[str, Any] = {"generator_kwh": fmt(w.generator_kwh), "feeder_demand_kwh": fmt(w.feeder_demand_kwh)}
     if v2:
         out["idle_seconds"] = w.idle_seconds
+    if units is not None:
+        out["units"] = units
     out.update({"fuel_l": _pair(*fuel) if fuel else None, "cost": _pair(*cost) if cost else None,
                 "cost_per_demand_kwh": _pair(*per) if per else None, "_per": per, "_fuel": fuel, "_cost": cost})
     return out
@@ -179,17 +238,30 @@ def _iso(instant: datetime) -> str:
 
 def compare(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sfc_in_force: Sequence[SfcValue],
             prices: tuple[PriceSelection, PriceSelection], intervention_cost: InterventionCost,
-            no_load_in_force: Sequence[NoLoadValue] = ()) -> dict[str, Any]:
+            no_load_in_force: Sequence[NoLoadValue] = (), units: Sequence[TrialUnit] = ()) -> dict[str, Any]:
     """The stored cost-check result for one final verification outcome (everything but the read-layer fields).
 
     A2: `/2` iff a declared no-load rate is in force over both windows (`no_load_for` gives one for each);
-    otherwise `/1`, byte-equal to before."""
-    sfc = (sfc_for(baseline, sfc_in_force), sfc_for(later, sfc_in_force))
-    rates = (no_load_for(baseline, no_load_in_force), no_load_for(later, no_load_in_force))
-    v2 = rates[0] is not None and rates[1] is not None
-    reason = _reason(baseline, later, outcome, sfc, prices, rates if v2 else None)
-    windows = {name: _window(w, s, p, r if v2 else None, v2)
-               for name, w, s, p, r in zip(WINDOWS, (baseline, later), sfc, prices, rates)}
+    otherwise `/1`, byte-equal to before. D-DD.118: `units` (more than one) replaces `sfc_in_force` and
+    `no_load_in_force` with each unit's own histories."""
+    if len(units) > 1:
+        v2 = all(no_load_for(w, u.no_load) is not None for w in (baseline, later) for u in units)
+        per_unit = [_unit_window(w, units, v2) for w in (baseline, later)]
+        sfc = tuple(x[0] for x in per_unit)
+        rates = tuple(x[1] for x in per_unit) if v2 else (None, None)
+        baseline_, later_ = (x[2] for x in per_unit)
+        reason = _reason(baseline_, later_, outcome, sfc, prices, rates if v2 else None)
+        windows = {name: _window(x[2], None, p, None, v2, x[4], x[3])
+                   for name, x, p in zip(WINDOWS, per_unit, prices)}
+        unit_terms = {name: x[3] for name, x in zip(WINDOWS, per_unit)}
+    else:
+        sfc = (sfc_for(baseline, sfc_in_force), sfc_for(later, sfc_in_force))
+        rates = (no_load_for(baseline, no_load_in_force), no_load_for(later, no_load_in_force))
+        v2 = rates[0] is not None and rates[1] is not None
+        reason = _reason(baseline, later, outcome, sfc, prices, rates if v2 else None)
+        windows = {name: _window(w, s, p, r if v2 else None, v2)
+                   for name, w, s, p, r in zip(WINDOWS, (baseline, later), sfc, prices, rates)}
+        unit_terms = None
     change = priced_total = None
     if reason is None:
         b, l = windows["baseline"]["_per"], windows["later"]["_per"]
@@ -215,18 +287,24 @@ def compare(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sf
         raise ValueError("the intervention cost currency must equal the price currency")
     cost = {"amount": fmt(intervention_cost.amount), "currency": currency, "source": intervention_cost.source}
     evidence = {name: sorted(w.evidence_ids) for name, w in zip(WINDOWS, (baseline, later))}
-    shared_sfc = sfc[0] if sfc[0] is not None and sfc[1] is not None and \
+    shared_sfc = None if unit_terms is not None else sfc[0] if sfc[0] is not None and sfc[1] is not None and \
         sfc[0].value_l_per_kwh == sfc[1].value_l_per_kwh else None
     formula = FORMULA_V2 if v2 else FORMULA
     basis = {
         "formula": formula, "outcome_id": outcome.outcome_id, "evidence_ids": evidence,
         "generator_kwh": {n: windows[n]["generator_kwh"] for n in WINDOWS},
         "feeder_demand_kwh": {n: windows[n]["feeder_demand_kwh"] for n in WINDOWS},
-        "sfc_l_per_kwh": {n: None if s is None else fmt(_exact(s.value_l_per_kwh)) for n, s in zip(WINDOWS, sfc)},
+        "sfc_l_per_kwh": {n: None if s is None or unit_terms is not None else fmt(_exact(s.value_l_per_kwh))
+                          for n, s in zip(WINDOWS, sfc)},
         "price_revision_ids": {n: p.revision_id if p.state == "PRICED" else None for n, p in zip(WINDOWS, prices)},
         "intervention_cost": cost, "state": state, "reason": reason,
     }
-    if v2:  # A2: the idle inputs enter the digest of a `/2` result only, so a `/1` digest is unchanged
+    if unit_terms is not None:  # D-DD.118: the per-unit inputs enter the digest above one unit only
+        basis["units"] = unit_terms
+    if v2 and unit_terms is not None:
+        basis["idle_seconds"] = {n: windows[n]["idle_seconds"] for n in WINDOWS}
+        basis["no_load_l_per_h"] = {n: None for n in WINDOWS}
+    elif v2:  # A2: the idle inputs enter the digest of a `/2` result only, so a `/1` digest is unchanged
         basis["idle_seconds"] = {n: w.idle_seconds for n, w in zip(WINDOWS, (baseline, later))}
         basis["no_load_l_per_h"] = {n: fmt(_exact(r.value_l_per_h)) for n, r in zip(WINDOWS, rates)}
     result = {
@@ -239,7 +317,13 @@ def compare(baseline: WindowFacts, later: WindowFacts, outcome: OutcomeFacts, sf
         "sfc": None if shared_sfc is None else {"value_l_per_kwh": fmt(_exact(shared_sfc.value_l_per_kwh))},
         "evidence_ids": evidence, "basis_sha256": sha256(basis), "label": LABEL,
     }
-    if v2:
+    if v2 and unit_terms is not None:
+        bases = {r.basis for w in (baseline, later) for u in units for r in [no_load_for(w, u.no_load)]}
+        result["no_load"] = {"value_l_per_h": None, "basis": bases.pop() if len(bases) == 1 else None} \
+            if rates[0] == rates[1] else None
+        if priced_total is not None:
+            result["priced_total"] = priced_total
+    elif v2:
         same = rates[0].value_l_per_h == rates[1].value_l_per_h
         # FUEL-1 A3-R G4(b): the stored label of the rate (outside `basis`, so `basis_sha256` is unchanged)
         result["no_load"] = {"value_l_per_h": fmt(_exact(rates[0].value_l_per_h)),

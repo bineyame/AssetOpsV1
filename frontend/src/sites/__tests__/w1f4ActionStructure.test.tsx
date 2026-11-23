@@ -307,10 +307,11 @@ describe("W5-02 K2a: cold-action placeholder shell structure", () => {
     await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, coldDomain());
     const main = document.querySelector("main") as HTMLElement;
     expect(main.querySelector('nav[aria-label="Site sections"]')).toBeNull();
-    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map((li) => li.textContent)).toEqual([
+    // IA-P P5 (D-IAP.38 Q20): the object-page trail `Actions › {Site} › {code}` (was `Actions › ACT-051 › Verification`).
+    expect(Array.from(main.querySelectorAll('nav[aria-label="Breadcrumb"] li')).map((li) => li.textContent)).toEqual([
       "Actions",
+      COLD_SITE.display_name,
       "ACT-051",
-      "Verification",
     ]);
     const sections = Array.from(main.querySelectorAll('nav[aria-label="Action sections"] li'));
     expect(sections).toHaveLength(1);

@@ -24,7 +24,6 @@ import {
   createEstateClient,
   type EstateClient,
   type EstateEnvelope,
-  type EstateLens,
   type EstateOutcomeSummaryBody,
   type EstatePortfolioBody,
   portfolioOpportunity,
@@ -38,6 +37,7 @@ import {
   type EstateSourceBlock,
 } from "./estateClient";
 import { EstateCutoffLine, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
+import { useEstateRead } from "./estateReadCache";
 import { moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityText } from "./estateFinancialsWords";
 import {
   ACTION_WINDOW_NOTE,
@@ -75,6 +75,11 @@ import "./estatePortfolio.css";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 import { PortfolioTabs, portfolioHref } from "./PortfolioTabs";
 import { PortfolioCoverage } from "./PortfolioCoverage";
+import type { PortfolioSitesClient } from "./portfolioSitesClient";
+import { OutcomesSites } from "./sitesList";
+import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
+import { RangePartNote } from "../ui/RangePartNote";
+import { readSharedRange, type DayRange } from "../ui/sharedRange";
 import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
 
 /** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
@@ -542,11 +547,17 @@ function Loaded({
   body,
   window,
   summary,
+  sites,
+  range,
+  directory,
 }: {
   tab: HubTab;
   body: EstatePortfolioBody;
   window: Window;
   summary: EstateResult<EstateOutcomeSummaryBody> | null;
+  sites?: PortfolioSitesClient;
+  range: DayRange | null;
+  directory?: SiteDirectoryClient;
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const panelRef = useFocusPanelHeading(tab);
@@ -566,9 +577,17 @@ function Loaded({
       <div className="pf-panel" data-portfolio-tab-panel={tab} ref={panelRef}>
         {tab === "outcomes" ? (
           <>
-            {/* IA-P P3b (MD-IAP-7, Q8): the objectives matrix, then the range category cards (L3) until P4. */}
-            <ObjectivesPanel summary={summary} />
-            <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
+            {/* IA-P P4b (spec §6 P4b): L1 E1's headline, L2 the Sites rows (the Sites list's def). */}
+            <OutcomesSites sites={sites} waitingBySite={body.summary.waiting_by_site} directory={directory} />
+            {/* L3 (MD-IAP-7, Q8): the range category cards, then each Site's objectives in a disclosure; the estate read's
+                31-day window is said when it is not the range (P0, pre-flight Q7). */}
+            <div data-level="L3">
+              <RangePartNote range={range} />
+              <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
+              <Disclosure summary="Each Site's objectives" name="portfolio-objectives" variant="inline">
+                <ObjectivesPanel summary={summary} />
+              </Disclosure>
+            </div>
           </>
         ) : (
           // IA-P P3b (MD-IAP-3): Demand & capacity holds the opportunity panel; the mock's L1 chain has no live read.
@@ -579,13 +598,11 @@ function Loaded({
   );
 }
 
-type Read = { key: string; windowKey: string; lens: EstateLens; first: EstateResult<EstatePortfolioBody>; more: EstatePortfolioRow[]; next: string | null };
-
 /**
  * IA-P P3b (spec §2.2, §2.4): the mounted route `/portfolio/:tab` for Outcomes and Demand & capacity. A segment that
  * names no tab (or names the Overview) goes to `/portfolio`, keeping the range, before any read.
  */
-export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
+export function EstatePortfolioPage({ client, sites, directory }: { client?: EstateClient; sites?: PortfolioSitesClient; directory?: SiteDirectoryClient }) {
   const { tab: segment } = useParams();
   const [params] = useSearchParams();
   const tab = portfolioTabFrom(segment);
@@ -594,42 +611,21 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
     const path = portfolioTabPath("overview");
     return <Navigate replace to={search === "" ? path : `${path}?${search}`} />;
   }
-  return <PortfolioTabsPage client={client} tab={tab} />;
+  return <PortfolioTabsPage client={client} sites={sites} tab={tab} directory={directory} />;
 }
 
-function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: HubTab }) {
+function PortfolioTabsPage({ client, sites, tab, directory }: { client?: EstateClient; sites?: PortfolioSitesClient; tab: HubTab; directory?: SiteDirectoryClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
+  const sharedRange = readSharedRange(params);
   const base = queryFromParams(params);
-  // PF-T: the lens belongs to Act first; every other tab reads (and keeps) the whole list.
-  const lens: EstateLens = "all";
   const window: Window = { from: base.from, to: base.to, known_at: base.known_at };
-  const key = `${window.from}|${window.to}|${window.known_at ?? ""}|${lens}`;
-  const [read, setRead] = useState<Read | null>(null);
-  // PF-T (proposal §6): the whole-list read is kept by key, so moving from Act first?lens=cost to another tab, or back, shows it with no new read.
-  const cache = useRef(new Map<string, Read>());
-  useEffect(() => {
-    if (read !== null && read.lens === "all") cache.current.set(read.key, read);
-  }, [read]);
-  const query: EstatePortfolioQuery = { ...window, lens, limit: PORTFOLIO_PAGE_SIZE, cursor: null };
-
-  useEffect(() => {
-    let live = true;
-    const hit = lens === "all" ? cache.current.get(key) : undefined;
-    if (hit !== undefined) {
-      setRead(hit);
-      return () => {
-        live = false;
-      };
-    }
-    void reads.portfolio(query).then((first) => {
-      if (live) setRead({ key, windowKey: `${window.from}|${window.to}|${window.known_at ?? ""}`, lens, first, more: [], next: first.status === "loaded" ? first.value.next_cursor : null });
-    });
-    return () => {
-      live = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reads, key]);
+  // IA-P P7 (packet §8.4): page 1 comes from the shared estate read cache, the key `(client, "portfolio", range)` the
+  // shell's "Waiting for you" and the Decisions list read, so the tab adds no request of its own. The cache's first page
+  // is this tab's former query (`lens: "all"`, `limit: PORTFOLIO_PAGE_SIZE` = `ALL_PAGES_LIMIT`, `cursor: null`).
+  const shared = useEstateRead(reads, "portfolio", window);
+  const first: EstateResult<EstatePortfolioBody> | null =
+    shared === null ? null : shared.status === "loaded" ? { status: "loaded", value: shared.value.first } : shared;
 
   // OUT-B B6: the outcome summary is read in parallel with the portfolio, for the same window.
   const windowKey = `${window.from}|${window.to}|${window.known_at ?? ""}`;
@@ -654,11 +650,6 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: HubTab
   }, [reads, windowKey]);
   const currentSummary = summaryRead?.key === windowKey ? summaryRead.result : null;
 
-  const current = read?.key === key ? read : null;
-  // PL-1 (D-E5.22): when only the lens changed, the held loaded read stays on screen whole until the new one replaces it.
-  const held = current === null && read !== null && read.windowKey === windowKey && read.first.status === "loaded" ? read : null;
-  const shown = current ?? held;
-  const first = shown?.first ?? null;
   const body = first?.status === "loaded" ? first.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="portfolio">
@@ -683,7 +674,7 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: HubTab
       ) : first.status === "refused" ? (
         <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, tab)} />
       ) : (
-        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} />
+        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} sites={sites} range={sharedRange.status === "set" ? sharedRange : null} directory={directory} />
       )}
     </div>
   );
