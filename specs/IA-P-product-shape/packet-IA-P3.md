@@ -388,3 +388,9 @@ tests failed before the fix (9 failed / 64 passed across `homeLists`, `sitesList
 - `test_iap_*` 88 passed (84 s). `tsc` clean. Fresh `npm run build` clean. `iap_gates.cjs`: 64/64 (`gates.log`).
   `check-architecture`, `check-agent-workflow`, `statement_catalogue.py`: pass. No server or job left running.
 - `USER_REVIEW_REQUIRED`: no.
+- N1 (review round 1): `shell/__tests__/simulatorLabGate.test.tsx` "offers no way to create a site from the operator route /" is **(b)**.
+  Since P6/P4b `/` is the portfolio overview, which reads the month on its own; unstubbed, the refusal drew a `Try again`
+  `.dd-button` that the selector counted. The test now answers that page's reads (`deepDive` and `portfolioPeriod` clients
+  from the World A fixtures, as `siteTypeMatrix` does) and waits with `settledScreen`. The loaded overview draws evidence openers (drawer buttons, "Show all"), which read records and create nothing, so the count leaves `[aria-haspopup=dialog]` and `.dd-link` out. Unchanged: no
+  `form`, `button` (shared-range and shell controls aside), `input` or `select`, and no "create" text.
+
