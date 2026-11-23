@@ -171,8 +171,8 @@ describe("on a hub or a Site page", () => {
 
 describe('the chip "This page shows every Site" (MD-IAP-5; D-IAP.40)', () => {
   const CHIP = "This page shows every Site";
-  it.each([`/portfolio?${OCT}`, `/portfolio/demand-and-capacity?${OCT}`, `/portfolio/outcomes?${OCT}`, `/results?${OCT}`, `/evidence?${OCT}`])(
-    "%s with a scope shows it",
+  it.each([`/portfolio?${OCT}`, `/portfolio/demand-and-capacity?${OCT}`, `/portfolio/outcomes?${OCT}`, `/results?${OCT}`, `/evidence?${OCT}`, `/incidents?${OCT}`])(
+    "%s with a scope shows it (D-IAP.50: every operator page that is neither a list nor a Site page; plant chiplist)",
     async (path) => {
       renderAt(`${path}&scope=group:MINIGRID`);
       await settledScreen();

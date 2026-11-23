@@ -3,14 +3,14 @@
  * with "What changed in this review", then `ProgressPanel` moved verbatim, reading the estate portfolio's page 1 for
  * the window (the range's last 31 days, P0).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { PageHeader } from "../ui";
 import { createEstateClient, type EstateClient, type EstatePortfolioBody, type EstateResult } from "./estateClient";
 import { EstateCutoffLine, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
 import { barBody, ProgressPanel } from "./EstatePortfolio";
-import { PORTFOLIO_PAGE_SIZE } from "./portfolioWords";
+import { useEstateRead } from "./estateReadCache";
 import { RESULTS_PATH } from "../shell/operatorSiteRoutes";
 
 export { RESULTS_PATH };
@@ -22,21 +22,10 @@ export function ResultsPage({ client }: { client?: EstateClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
   const query = queryFromParams(params);
-  const key = `${query.from}|${query.to}|${query.known_at ?? ""}`;
-  const [read, setRead] = useState<{ key: string; result: EstateResult<EstatePortfolioBody> } | null>(null);
-  useEffect(() => {
-    let live = true;
-    void reads
-      .portfolio({ from: query.from, to: query.to, known_at: query.known_at, lens: "all", limit: PORTFOLIO_PAGE_SIZE, cursor: null })
-      .then((result) => {
-        if (live) setRead({ key, result });
-      });
-    return () => {
-      live = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reads, key]);
-  const current = read?.key === key ? read.result : null;
+  // D-IAP.49: page 1 comes from the shared estate read cache (`(client, "portfolio", range)`), as the Portfolio tabs do.
+  const shared = useEstateRead(reads, "portfolio", { from: query.from, to: query.to, known_at: query.known_at });
+  const current: EstateResult<EstatePortfolioBody> | null =
+    shared === null ? null : shared.status === "loaded" ? { status: "loaded", value: shared.value.first } : shared;
   const body = current?.status === "loaded" ? current.value : null;
   return (
     <div className="estate-page estate-portfolio portfolio-v2" data-estate-root="results">

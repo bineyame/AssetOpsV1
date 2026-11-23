@@ -8,9 +8,10 @@
  * - On a list (`HomeList`'s own address) an entry writes `scope=` and keeps every other parameter (facets, sort, `q`,
  *   the range); `show` goes, as `homeListHref` drops it on a scope change. On a Site page or a hub, a Site entry opens
  *   `/sites/{code}` with the range, and a group or all writes `scope=` (all removes it) on the same address.
- * - `EverySiteChip`: the pages whose reads have no scope say "This page shows every Site" while the scope is not all
- *   (MD-IAP-5): the Overview, Demand & capacity, Outcomes (above L1; L2 follows the scope), Results and Evidence &
- *   records. Site pages keep the parameter and show nothing more.
+ * - `EverySiteChip` (MD-IAP-5; D-IAP.40, D-IAP.50): every operator page that is neither a `HomeList` list nor a Site page
+ *   says "This page shows every Site" while the scope is not all: the Overview, Demand & capacity, Outcomes (above L1;
+ *   L2 follows the scope), Results, Evidence & records, Incidents, Maintenance and Financials. Site pages keep the
+ *   parameter and show nothing more.
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -28,8 +29,8 @@ export const SCOPE_MENU_LABEL = "Scope";
 
 /** The addresses of the lists drawn by `HomeList`, where a Site entry scopes the list. */
 const LIST_PATHS = /^\/(?:decisions|findings|actions|sites)\/?$/;
-/** The pages that show every Site whatever the scope (D-IAP.40). */
-const EVERY_SITE_PAGES = /^\/(?:portfolio(?:\/(?:outcomes|demand-and-capacity))?|results|evidence(?:\/records)?)\/?$/;
+/** A Site page: it keeps the scope parameter and says nothing more (D-IAP.40). */
+const SITE_PAGES = /^\/sites\/[^/]/;
 
 export interface ScopeEntry {
   word: string;
@@ -53,7 +54,7 @@ export function scopeWord(scope: string, sites: readonly SiteSummary[]): string 
   if (scope.startsWith("group:")) return (DOMAIN_WORD as Record<string, string>)[scope.slice(6)] ?? scope.slice(6);
   if (scope.startsWith("site:")) {
     const code = scope.slice(5);
-    return sites.find((s) => s.site_id === code)?.display_name ?? code;
+    return sites.find((s) => s.site_id.toLowerCase() === code.toLowerCase())?.display_name ?? code;
   }
   return ALL_SITES;
 }
@@ -182,7 +183,7 @@ export function EverySiteChip() {
   const [params] = useSearchParams();
   const { pathname } = useLocation();
   const scope = params.get("scope");
-  if (scope === null || scope === "" || scope === "all" || !EVERY_SITE_PAGES.test(pathname)) return null;
+  if (scope === null || scope === "" || scope === "all" || LIST_PATHS.test(pathname) || SITE_PAGES.test(pathname)) return null;
   return (
     <p className="ia-every-site" role="note" data-every-site-chip>
       <span className="ia-every-site__chip">{EVERY_SITE_CHIP}</span>

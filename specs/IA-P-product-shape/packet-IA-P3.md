@@ -354,3 +354,24 @@ bar is measured by W1).
   tabs wait for every page of the shared read; `/results` still reads page 1 twice; `scope=` is not carried by links.
 - Register rows of IA-P3: R790 to R799.
 - `USER_REVIEW_REQUIRED`: no. IA-P3 (P4b to P7) is ready for its one review.
+
+## 11. Fix round 1 (review-IA-P3.md; D-IAP.48 to D-IAP.51)
+
+Merged main (D-IAP.48 to D-IAP.51) first; the only conflict was the spec's Status line. Tests first: the new and flipped
+tests failed before the fix (9 failed / 64 passed across `homeLists`, `sitesList`, `scopeSwitch`;
+`/opt/assetecon/evidence/IA-P/IA-P3/fix1/red1.log`).
+
+- **D-IAP.48 (H1)**: `estate/siteDomains.ts` (`useSiteDomains`) reads the Site directory only while the scope is a group and
+  joins on `site_code`, case-blind. `findingsDef` and `actionsDef` take `domainOf` and gain `domain`; their `scopeWord` is
+  `scopeChipWord` (`DOMAIN_WORD`). `FindingsListPage` and `ActionsListPage` take an optional `directory` (else the
+  provider's). Loading shows "Loading Findings…" / "Loading Actions…"; a refused directory shows
+  "The Site list cannot be read right now, so this group cannot be applied." with "Try again". A row with no
+  directory entry is in no group. Sweep: `grep -n "site: (" frontend/src/estate/*.tsx` finds four defs, all now with `domain`.
+- **D-IAP.49**: `Results.tsx` reads `useEstateRead(reads, "portfolio", window)`. The `sr2RequestUrls` pin is reported below.
+- **D-IAP.50 (M1)**: `EverySiteChip` shows on every path that is neither `LIST_PATHS` nor `/sites/{code}…`. `scopeSwitch`
+  case for `/incidents`. R798 and the file header widened (MD-IAP-5 in the spec was widened by the ruling).
+- **D-IAP.51 (M2)**: `OutcomesSites` passes the directory rows to `siteItems`; the builder's test is flipped and the parity
+  case holds a directory-only Site.
+- **Lows**: R800 added (COLD/EV "Records · Analysis · Uploads"); R328 restated against the object-page trail (D-IAP.38 Q20);
+  Site scope matching is case-blind in `homeListModel.inScope` and `scopeWord` (test: `scope=site:cold-lab-001`).
+- Plants (each run, watched fail, reverted): see section 11.1.

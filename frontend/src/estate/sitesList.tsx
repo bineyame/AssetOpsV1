@@ -279,7 +279,7 @@ export function OutcomesSites({
   directory,
 }: {
   sites?: PortfolioSitesClient;
-  /** D-IAP.44: the directory read, for the lifecycle word only (Outcomes L2 lists E1's rows alone). */
+  /** The directory read: the lifecycle word (D-IAP.44) and the directory-only rows (D-IAP.51), as the Sites list. */
   directory?: SiteDirectoryClient;
   /** E0 from the Outcomes tab's own estate portfolio read (the same query; no second read). */
   waitingBySite: Record<string, number> | null | undefined;
@@ -288,7 +288,7 @@ export function OutcomesSites({
   const note = useWindowNote();
   const body = result?.status === "loaded" ? result.body : null;
   const listed = useDirectorySites(directory);
-  const items = useMemo(() => (body === null ? [] : siteItems(body, waitingBySite)), [body, waitingBySite]);
+  const items = useMemo(() => (body === null ? [] : siteItems(body, waitingBySite, listed)), [body, waitingBySite, listed]);
   const lifecycle = useMemo(() => lifecycleWords(listed), [listed]);
   const def = useMemo(() => (body === null ? null : sitesDef(body, note, lifecycle)), [body, note, lifecycle]);
   if (result === null) return <p className="estate-loading">{SITES_LOADING}</p>;

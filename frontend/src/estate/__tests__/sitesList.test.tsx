@@ -322,21 +322,23 @@ describe("IA-P P4b: the Outcomes tab", () => {
     expect(cards!.compareDocumentPosition(objectives) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("an Outcomes L2 row whose Site is not Active carries its lifecycle word; L2 gains no directory-only row (D-IAP.44)", async () => {
+  it("an Outcomes L2 row whose Site is not Active carries its lifecycle word; L2 lists a directory-only Site after E1's rows, as /sites does (D-IAP.44, D-IAP.51)", async () => {
     renderAt(`/portfolio/outcomes?${OCT}`, sitesClient(BY_RANGE), estateClient(), directory([labSite("KOBO-001", "Kobo", "MINIGRID", "DECOMMISSIONED"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN", "PLANNED")]));
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub", "Lab Site"]);
     const kobo = [...list().querySelectorAll("tbody tr")].find((r) => r.querySelector("th a, th span")!.textContent === "Kobo")!;
     expect(kobo.querySelector("th small[data-lifecycle]")!.textContent).toBe("Decommissioned");
   });
 
-  it("the Outcomes rows are the Sites list rows", async () => {
-    renderAt(`/portfolio/outcomes?${SEP_OCT}`);
+  it("the Outcomes rows are the Sites list rows, a directory-only Site included (D-IAP.51)", async () => {
+    const dirOnly = () => directory([labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN", "ACTIVE")]);
+    renderAt(`/portfolio/outcomes?${SEP_OCT}`, sitesClient(BY_RANGE), estateClient(), dirOnly());
     await settledScreen();
     const outcomes = titles();
+    expect(outcomes).toContain("Lab Site");
     const kobo = cells("Kobo");
     cleanup();
-    renderAt(`/sites?${SEP_OCT}`);
+    renderAt(`/sites?${SEP_OCT}`, sitesClient(BY_RANGE), estateClient(), dirOnly());
     await settledScreen();
     expect(titles()).toEqual(outcomes);
     expect(cells("Kobo")).toEqual(kobo);

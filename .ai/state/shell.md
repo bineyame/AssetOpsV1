@@ -534,6 +534,9 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   Sites/Decisions/Findings/Actions/live rail items, ANDed words, first 20, reads only while open). The directory reaches
   the shell through `EstateClientProvider`'s `directory`. The Outcomes and Demand tabs read page 1 from the shared cache
   (one request with the shell's). Walk pages +4 (Q26). Gate K1.
-- Left open: the demo prebuild (part IA-PD, D-IAP.36); a group scope on Findings and Actions shows no rows (their rows
-  carry no domain; packet §9 question); `/results` still reads page 1 outside the cache (twice with the shell); a
-  range-less address reads the default window once first; scoped reads for the hub pages (MD-IAP-5).
+- Fix round 1 (D-IAP.48 to D-IAP.51): Findings and Actions take a group's rows from the Site directory
+  (`estate/siteDomains.ts`, read only for a group scope; loading and refusal-with-retry states; chip word by
+  `DOMAIN_WORD`); `/results` reads through `useEstateRead`; `EverySiteChip` is the class rule (every non-list,
+  non-Site operator page); Outcomes L2 lists directory-only Sites as `/sites` does; Site scope matches case-blind.
+- Left open: the demo prebuild (part IA-PD, D-IAP.36); a range-less address reads the default window once first;
+  scoped reads for the hub pages (MD-IAP-5).

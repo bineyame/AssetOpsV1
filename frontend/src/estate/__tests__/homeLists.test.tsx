@@ -12,6 +12,8 @@ import { actionsDef, decisionStateKey, DecisionsListPage, ActionsListPage, Findi
 import { actionRow, actionsBody, findingRow, findingsBody, loaded } from "./estateFixtures";
 import { portfolioBody, row } from "./portfolioFixtures";
 import { homeListModel } from "../../ui/homeListModel";
+import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
+import type { SiteSummary } from "../../sites/siteReadModel";
 
 beforeEach(() => {
   window.scrollTo = vi.fn();
@@ -440,5 +442,87 @@ describe("refused window and Action titles on the lists", () => {
     const titles = Array.from(document.querySelectorAll("tbody tr[data-row] a")).map((a) => a.textContent);
     expect(titles).toEqual(["Review generator stop setting", "ACT-001"]);
     expect(document.body.textContent).not.toContain("Battery reserve trial");
+  });
+});
+
+// ---- D-IAP.48: a group scope on Findings and Actions takes each row's group from the Site directory ----------------
+
+function dirSite(site_id: string, site_type: string): SiteSummary {
+  return { site_id, display_name: site_id, site_type } as unknown as SiteSummary;
+}
+const DIR_SITES = [dirSite("COLD-LAB-001", "COLDCHAIN"), dirSite("KOBO-001", "MINIGRID")];
+const dir = (sites: SiteSummary[] = DIR_SITES): SiteDirectoryClient => ({ listSites: () => Promise.resolve({ status: "loaded", sites }) });
+
+describe("group scope on Findings and Actions (D-IAP.48; plant nodomain)", () => {
+  const COLD = "COLD-LAB-001";
+  const frows = [
+    findingRow(1, { finding_id: id(11), title: "Chamber above policy", site_code: COLD }),
+    findingRow(2, { finding_id: id(12), title: "Mini-grid finding", site_code: "KOBO-001" }),
+    findingRow(3, { finding_id: id(13), title: "Unlisted Site finding", site_code: "GONE-001" }),
+  ];
+  const arows = [
+    actionRow({ action_id: "a1a1a1a1-0000-4000-8000-000000000011", action_title: "Fix the chamber", site_code: COLD }),
+    actionRow({ action_id: "a1a1a1a1-0000-4000-8000-000000000012", action_title: "Fix the inverter", site_code: "KOBO-001" }),
+    actionRow({ action_id: "a1a1a1a1-0000-4000-8000-000000000013", action_title: "Fix the ghost", site_code: "GONE-001" }),
+  ];
+  const c: EstateClient = {
+    ...client(decisionRows(1)),
+    findings: async () => loaded(findingsBody("all", { rows: frows, total_count: 3 })),
+    actions: async () => loaded(actionsBody({ rows: arows, total_count: 3 })),
+  };
+
+  it("Findings: a group scope keeps that group's rows, the chip says the word, never COLDCHAIN", async () => {
+    mount(<FindingsListPage client={c} directory={dir()} />, `/findings?${RANGE}&scope=group:COLDCHAIN`, "/findings");
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual([id(11)]);
+    const page = document.querySelector("[data-estate-root]")!.textContent!;
+    expect(page).toContain("Cold-chain");
+    expect(page).not.toContain("COLDCHAIN");
+  });
+
+  it("Actions: a group scope keeps that group's rows", async () => {
+    mount(<ActionsListPage client={c} directory={dir()} />, `/actions?${RANGE}&scope=group:COLDCHAIN`, "/actions");
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual(["a1a1a1a1-0000-4000-8000-000000000011"]);
+    expect(document.querySelector("[data-estate-root]")!.textContent).not.toContain("COLDCHAIN");
+  });
+
+  it("a row with no directory entry is in no group, and is shown at scope all", async () => {
+    mount(<FindingsListPage client={c} directory={dir()} />, `/findings?${RANGE}&scope=group:MINIGRID`, "/findings");
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual([id(12)]);
+    cleanup();
+    mount(<FindingsListPage client={c} directory={dir()} />, `/findings?${RANGE}`, "/findings");
+    await settledScreen();
+    expect(rowsOf()).toHaveLength(3);
+  });
+
+  it("while the directory loads the list says loading, never No Findings", async () => {
+    const never: SiteDirectoryClient = { listSites: () => new Promise(() => undefined) };
+    mount(<FindingsListPage client={c} directory={never} />, `/findings?${RANGE}&scope=group:COLDCHAIN`, "/findings");
+    // The directory never answers, so `settledScreen` would never settle: give the Findings read time to land instead.
+    await new Promise((r) => setTimeout(r, 100));
+    expect(document.body.textContent).toContain("Loading Findings");
+    expect(document.body.textContent).not.toContain("No Findings");
+    expect(rowsOf()).toEqual([]);
+  });
+
+  it("a refused directory shows its refusal with a retry, never No Actions; retry reads again", async () => {
+    let ok = false;
+    const flaky: SiteDirectoryClient = { listSites: () => Promise.resolve(ok ? { status: "loaded", sites: DIR_SITES } : { status: "unavailable" }) };
+    mount(<ActionsListPage client={c} directory={flaky} />, `/actions?${RANGE}&scope=group:COLDCHAIN`, "/actions");
+    await settledScreen();
+    expect(document.body.textContent).not.toContain("No Actions");
+    expect(rowsOf()).toEqual([]);
+    ok = true;
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual(["a1a1a1a1-0000-4000-8000-000000000011"]);
+  });
+
+  it("the Site scope matches the code case-blind (L4)", async () => {
+    mount(<FindingsListPage client={c} directory={dir()} />, `/findings?${RANGE}&scope=site:cold-lab-001`, "/findings");
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual([id(11)]);
   });
 });
