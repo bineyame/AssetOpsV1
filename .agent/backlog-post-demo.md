@@ -147,3 +147,35 @@
 - 0K4e: Finding-level recency case (battery-support run whose post-run records arrive in a second delivery; Finding opens late). Queued from the 0K4e review.
 - Shared UI contrast below 4.5:1: shell demonstration bar 4.12:1, DataTable header cells 4.35:1 (5c review). UI lane.
 - 5c: phone (390 px) headline runs 3 lines and is not gated.
+- 5c cash r6 L1: no test drives cash() through collected_only with a collected figure present (plant P7, 0.00 in the fallback total, survives). Add: monkeypatch V.cash_parts None on World A; assert sentence and total ["3 of 3 Sites","Not available yet","$8,870.00","Not available yet","Not available yet"].
+- DDR runbook clarity (rehearsal 22 Nov, 10 notes in task/DDR-rehearsal-run packet b70843409): DB_PASSWORD never sourced; DIR never assigned; which python; set-password guidance; executive grant row not shown in plan; apply prints create; unwritten.json; serving not in runbook; admitted_by from list; copies differ by a comment line. -> Architect runbook pass.
+- Rehearsal sign-in passwords are in /opt/assetecon/evidence/DDR-rehearsal/run-2026-11-22/signin-passwords.txt (0600): delete at erase (runbook step 12).
+- 0K4m Low (unit review): hand_typed_scan covers only loop-*.js + rendered strings, not documents; ~130 hand-typed "61" replayed-day counts in pack docs (derivation-register ~71, domain 20, ...). Fix as a class: rec:replay_studies.K8|M8.days tags + extend scan to docs.
+- 0K4m unit 2: render_website_content_html.py design_values() read a retired key (website no-replay-money lint was silently empty); unit 2 fixed it to replay_sources. Reviewer to confirm.
+- Pack mock audit (0K4m ac298594c) now runs to completion but its own measures lag the IA mock (also on main): badLinkRoutes 87, vocabHits 38, identifierHitsPreservedV70 133, rev6TabOrder/rev7EvMeasure/rev6DesignValueLabels false, switchCasesOk 2/8, preservedIdentical 0/80. Mock defect on main: Review notes button throws (reviewNotes s.models.join) on 71 screens. Route as one audit-refresh task post-0K4m.
+- QUEUED right after IA-P (owner 22 Nov Q11): cold-chain and EV monthly figures so every Site type shows monthly output (MD-IAP-12 closes). Architect specs it.
+- QUEUED after IA-P (owner 22 Nov Q12): lift the 31-day server cap on ~15 range reads, measured for load time; removes the "Showing {span} of the range" label.
+- QUEUED after IA-P and DD merge (owner 22 Nov, owner-docs-refresh-2026-11-22.md): one alignment pass of layer4-transformation-design (+html), product-transition-and-roadmap (+html), phase-plan-and-acceptance, the vNEXT mock and the scenario manifest to what was built; tell the owner when done.
+- 6a follow-up (D-P6.33, review F5): commands read the whole tenant to print a name; add a name_of store read. Deviation 3 stands until then.
+- Operator CLIs (D-DD.35): 13 operator CLIs keep the constant 'demo' tenant guard; switch them to served_tenant_slug() as one task (none on DD's command list).
+- DD1 follow-up (D-DD.45): decide whether cold and EV roles should cover every component in readiness (every_component flag; includes the name-based skip at cold_foundation.py:333).
+- DD1 follow-up (D-DD.47, review L2): byte-size limit on the Foundation revision POST body (operator files already have the 256 KiB bound).
+- 6c follow-up (verification): valued-path end-to-end test once DD data seeds a tenant with fuel price, wear-rate assumption and dispatch for a month; assert against F1b literals.
+- 6a residual (6c verification): cli.py broad `except Exception` maps any composition defect to DECISIONS_UNAVAILABLE; narrow it like D-P6.41.
+- WORKAROUND (D-DD.61/66, DD2b): EV off-peak band written as OFFPEAK-AM + OFFPEAK-PM because a canonical tariff band cannot span two intervals. Model fix: bands with several intervals, in the first unit that reads time-of-use prices.
+- DD4.4 brief must cover (DD2a fix round flags): M has no `usd_per_kwh` key for flat EV tariffs (Kasarani peak=offpeak=0.15), so C-DD3 FAILs FLAT lines "not recorded" until M or a ruling names it; DD4.4 must write `body.band` on EV CHARGE rows.
+- MOCK FIX (found in IA-2b1 merge-prep, 22 Nov): vNEXT mock gates fail on main since 0K4m data: plan_switch_check 12 failures (huller "+undefined/NaN", missing money lines, "value null"), ux_interaction_check 4 FAIL ("decision: a released item shows its state in the header", Kobo generator at 390/1280/1440). The mockup is the layout spec and shows NaN: fix after IA-2b1 merges (Sonnet, mock + checks).
+- WORDING FAULT (6h statement fix, 22 Nov): BAD_DOCUMENT serves "Name the document, in 1 month to 200 characters." because the statement reuses the month-count `least` fact; give it its own character-count fact.
+- BEFORE NEXT WK RUN (IA-P spec §8): coordinator rebuilds the current world rung once (IA-P2 merged 22 Nov).
+- BEFORE NEXT DEMO BUILD (IA-P2 review Q1): `tools/demo_combined.py` prebuilt routes must answer `/api/portfolio/period` and `/api/portfolio/month`; story gets a whole-month Portfolio link (the 7-day link opens in mode none). Small task; Architect to confirm.
+- FLAKY (test-speedup backlog): s502OverviewFindingList fails a different case each run on main and branches; siteRangeMatrix x2 and sr2RequestUrls SR-6b fail on main.
+- ALIGNMENT PASS (DD3a fix round): vNEXT mock hand-typed Kobo figures not on the rec/fig mechanism: 200 kWh (18 in screens.js, 5 in generated screen-manifest), 40 kW (4), 0.30 L/kWh (3); declared now 191.5 kWh / 36 kW / 0.2917.
+- D-DD.110: v9 replay for multi-unit Sites (Kisiwa's replay refusal is honest until then: v8 cannot model two units).
+- D-DD.113: analytics `fuel_basis` per-unit fix, if DD5's load path does not reach AssessmentService.assess_site (DD3c builder checks; if it does, it stops and reports).
+- D-DD.115: scope digests still carry identity/version/calendar keys no rule reads (generator, site.code, mini-grid months, EV day_classes/families); general digest-key fix after the demo.
+- QUEUED IA-P (owner O3, 22 Nov): Actions list shows agreed actions (decision records via 6f1 for Decisions); DD shows pending until then.
+- D-IAP.42: one withholding rule for both the Site and estate Findings reads (estate hides PARTIAL mini Findings today; Kobo keeps its own Findings index until then).
+- ALIGNMENT PASS (DD4a run 3): vNEXT mock Thika chart series (screens.js:71, 77-78) and "50-90 °C·min" still show the old incident; content pass from the writer readings (/opt/assetecon/worlds/DD4a-0c5d5fab7b90/).
+- D-DD.146: inverter_state role (roles-6) and a reader, so the product sees an inverter fault state a real inverter reports (Mto INV-MT-02 shows only as 0 kW today).
+- DD4b follow-up review L2: _windows_metered in tools/dd_check.py would mis-credit a reading row that crosses local midnight (none exist today; depot rows are 5-minute means).
+- Test-order dependency: backend/tests/test_dd1b1_prepare_clock.py (and k3 a1) collect only after test_demo_combined_mill puts tools/ on sys.path; fix the import so each file runs alone.

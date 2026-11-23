@@ -1,3 +1,5 @@
+> Lags (22 Nov). Current state and remaining work: `.agent/codex-handoff.md`.
+
 # Now
 
 Active lanes only, one block each. Replaced, not appended; history is in git.
