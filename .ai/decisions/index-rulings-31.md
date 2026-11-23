@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51, D-P6.82 to D-P6.98)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51, D-P6.82 to D-P6.99)
 
 - `D-IAP.35` IA-P3 P4b answers Q1-Q10: directory-only Site rows (Group from site_type, E0 waiting), singular More line · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.36` demo prebuilt routes ask E2/month/E1 (answer check, live-composed) + whole-month Portfolio and Sites links; part IA-PD 0.5 u · live · specs/IA-P-product-shape/rulings.md
@@ -34,3 +34,4 @@
 - `D-P6.96` a figure's evidence is never stronger than a part of it; stated_changes folds the month's level; cross-currency change is missing; Q8 stands with one Known Deviation · live · specs/6f-decisions-screen/rulings-2.md
 - `D-P6.97` N4 now, N7 at merge, stillchoose corrected, U1 fix round 2; U1 3.25 u, 6f1 6.0 u · live · specs/6f-decisions-screen/rulings-2.md
 - `D-P6.98` OWNER: the word on an expected value at a Site with real records (recommended "Estimated") · open · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.99` only OPTION_RECORD and CURRENCY_MISMATCH entries are answered by a newer document; STATED_SINCE reads "what was asked for was stated ..." · live · specs/6f-decisions-screen/rulings-2.md

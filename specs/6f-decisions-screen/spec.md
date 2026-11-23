@@ -2,7 +2,7 @@
 
 **Status: rev 5 (D-P6.94 to D-P6.98: §16; 6f1 6.0 u). Rev 4 (D-P6.88 to D-P6.93: §15, `rulings-2.md`; 6f1 5.5 u). Rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
 Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
-**Rulings:** `rulings.md`, `rulings-2.md` (this folder), D-P6.42 to D-P6.98 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
+**Rulings:** `rulings.md`, `rulings-2.md` (this folder), D-P6.42 to D-P6.99 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
@@ -686,7 +686,7 @@ Appended here so the line numbers above hold. The rulings carry the reasons; thi
 
 - **§3.1 (D-P6.94).** `DecisionBundle.run_one_offs`; `OptionView.run_one_off`, `newer_one_off`, `newer_records` (replaces `records`);
   `one_off` stays the latest. Both stores.
-- **§3.3 cost (D-P6.94).** With a run, every cost shown is the run's one-off (`run_one_off`); `newer` and the missing rule as ruled; `rec.notes`
+- **§3.3 cost (D-P6.94).** With a run, every cost shown is the run's one-off (`run_one_off`); `newer` and the missing rule as ruled (D-P6.99); `rec.notes`
   gains `newer_inputs` before `can_choose`; the evidence lines gain it after `valued_by`. `can_choose`: a run, no choice, and no
   recommendation or `newer`. `source` `*_STATED` by the run's effect rows.
 - **§3.3 tables (D-P6.95).** A named lever: `limits` columns [OPTION, LIMITS], one cell a row; `all` columns five (LIMITS, no DAWN);
