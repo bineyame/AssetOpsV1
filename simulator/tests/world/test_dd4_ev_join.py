@@ -81,7 +81,7 @@ def test_j3_refusals_are_the_frames_and_the_span_ends_at_a_local_instant() -> No
     last = r.day_records(r.days[-1])
     assert r.days[-1].isoformat() == "2026-11-06"
     assert max(row[3] for row in last) == datetime.fromisoformat("2026-11-06T06:00:00+03:00")
-    assert all(len(row) == 7 for row in last)
+    assert all(len(row) == 8 for row in last)  # D-DD.91's seven elements plus the session pair (D-DD.161)
     assert {d["service_day"] for d in r.departures()} == {"2026-11-05"}
 
 
@@ -134,8 +134,10 @@ def test_j6_in_session_connector_rows_carry_the_sessions_pair() -> None:
     assert {(r["session"]["session_id"], r["session"]["connector_id"]) for r in carried} == pairs
     assert all("session" in r for r in measured if r["signal_id"] == "energy")  # energy is written per session
     assert not any("session" in r for r in measured if r["source_id"] == "site-meter")
-    idle = [r for r in measured if r["signal_id"] == "state" and r["value"] in ("UNPLUGGED", "FAULTED")]
+    states = [r for r in measured if r["signal_id"] == "state" and r["source_id"] != "site-meter"]
+    idle = [r for r in states if r["value"] in ("UNPLUGGED", "FAULTED")]  # the pack holds no session then
     assert idle and not any("session" in r for r in idle)
-    for r in carried:  # inside its session: from its first event, before its closing one
+    assert all("session" in r for r in states if r["value"] not in ("UNPLUGGED", "FAULTED"))
+    for r in (r for r in carried if r["signal_id"] == "energy"):  # energy: from START, not past END or ABORT
         first, *rest = sorted(spans[(r["session"]["session_id"], r["session"]["connector_id"])])
         assert first <= r["start"] and (not rest or r["end"] <= max(rest))
