@@ -358,10 +358,13 @@ def test_8_5b_world_kobo_october() -> None:
                                                targets.site(s, OCT, t5b.READ_AT).structure, {})}
     o = got["outstanding"]
     assert (o.state, format(o.gap, "f"), o.kind) == ("RAISED", "278.00", "CASH")
-    assert {k for k, v in got.items() if v.actual is None} == F2_NOT_SUPPLIED
-    for leaf in F2_NOT_SUPPLIED:
+    # DD3d.4: the 5b world now supplies the three litre leaves (`pack_litres`), as its fuel cost is litres times a price
+    not_supplied = F2_NOT_SUPPLIED - {"necessary_l", "candidate_l", "unexplained_l"}
+    assert {k for k, v in got.items() if v.actual is None} == not_supplied
+    for leaf in not_supplied:
         assert got[leaf].state == "ACTUAL_NOT_AVAILABLE", leaf
-    assert [k for k, v in got.items() if v.state == "RAISED"] == ["outstanding"]
+    # the candidate and unexplained litres now have actuals (25 and 120 L) against a target of 0, so they are raised
+    assert [k for k, v in got.items() if v.state == "RAISED"] == ["outstanding", "candidate_l", "unexplained_l"]
 
 
 # --- test 9: the pin -------------------------------------------------------------------------------------------------

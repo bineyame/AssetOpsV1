@@ -50,3 +50,33 @@ coordinator should confirm the four rulings. The branch is RED by design until t
 - `tools/dd3_pure_run.py`: `october_leaves` 254, `print_leaves` 326, `LEDGER_KEYS` 53. `world/scope.py` `RUN_WRITTEN`.
 - `world/history.py` `RUN_DERIVED` may gain plan keys computed from the new `RUN_WRITTEN` plan keys (`per_day`): check
   before step 5's diff (D-DD.176 5c).
+
+
+## Run 2 (23 Nov, partial; stopped at the context budget) 
+Branch head: see `git log -1`. Merged `fix/main-4d-litre` (coordinator order). Classification of the 116:
+`/opt/assetecon/evidence/DD3d/b/classification-116.md` (49 rename/version pin, 67 world without litres, 0 other).
+Done and green (pure): 3a7 x4 files, sc1, statement_cases, 3b1, 3b3, 3b7a seam/snapshot, 4a, 4b1, 4b (money: fuel_cost,
+cost_to_serve, contribution not available with the litre leaves named; invoices read through `_judge(..., "fuel_bought")`
+helpers `bought`/`assert_fuel_not_available`), 4d, 5a, 5b, 6a, 3b4 observer. New `backend/tests/pack_litres.py`
+(`with_litres()`: October litres of the three lakeside Sites from `derived-values.json`, MODELLED, origin unknown, source
+`test:M-october-litres`); used by 5b `reads`, 3b7a `fresh` default. Pure rerun (`pure-4.log`): 23 failed before the 3b4 fix
+(now 22): 5c api x2, 5c view x9, 5c screen_worlds_fresh x2, iap period x3, iap sites x6.
+Choices recorded (defaults, no owner question): (1) litre leaves are to the millilitre so figures carry a third decimal
+(1565.500); the 5b `money` helper and `by_home` text compare numerically exact and quantize the text to the cent.
+(2) Evidence words of Kobo/Kisiwa/Mto contribution and cost lines are now MODELLED (litres modelled), origins gain
+"unknown" (5b, 3b7a). (3) 3b7a `untracked` now lists the three litre leaves of every Site (not commercial records).
+(4) 4d: Kisiwa/Mto root NOT_SPLIT GAP_NOT_AVAILABLE; portfolio fuel effect 82.50 of 1 of 3. (5) 3b4: candidate_l and
+unexplained_l are now RAISED. (6) 4b test_1 no longer compares Kobo contribution to the pack (no litres there); the pack
+comparison belongs in a litre world: restore it in a 5b test (open). (7) `_check_stated` takes `also` (call-site updated).
+## Next (remaining of steps 1-3)
+- 5c view x9, api x2, screen_worlds_fresh x2 (regenerate `fixtures/5c/*` via `make_screen_worlds.py` with litres, list each in the
+  packet), iap period x3 / sites x6 (`IAP_WRITE_FIXTURES=1` regenerates `fixtures/iap`; frontend `sitesList.test.tsx`
+  "World A, October" and estate fixtures regenerate from the same worlds). iap 6 and 8 stay until DD3d.5 (coordinator).
+  `served_world` takes `fb=`; 3b7a `setup` default is now `with_litres()` so 5c/iap worlds get litres through it: check
+  why 5c still fails (evidence words Modelled, "of 3 Sites" lines, SPLIT lines, standing text).
+- D-DD.178 tests (target values byte-identical on 5a fixtures; Mto no price: budget line Declared; `STRUCTURE_STATED`
+  without `stated_nodes`; every `BUDGET_STATED` node non-leaf/SUM/money-or-kWh) in `test_dd3d_fuel_cost.py`, shown failing first.
+- Publisher tests (`test_s4_assumptions_postgres.py`, D-DD.179), G4 + `test_ddr_rehearsal_check.py`, DDR (D-DD.177), C4 classes
+  `tools/world.py`, C-DD4 fuel clause + tests (`test_dd2_check.py`, D-DD.180). None started. Postgres run not done.
+- Coordinator items: (2) 5c standing fixture input moved (accounts 5,100 to 2,100) untouched; (3) 3b1 t1 / 3b3 t6 manifest
+  version replacement kept as merged.
