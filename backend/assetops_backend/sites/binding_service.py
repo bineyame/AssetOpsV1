@@ -242,8 +242,9 @@ _MIXED_V4_ROLES_BY_ROLE_SET: Mapping[str, frozenset[str]] = {
 }
 
 
-#: D-DD.138: the role sets whose every channel is v4. A conversion of one of these publishes v4 metadata from the
-#: set's closed table; mini-grid role sets (mixed, W4-02) keep v3 conversions.
+#: D-DD.138: the role sets whose every channel is v4. A world conversion of one of these publishes v4 metadata
+#: from the set's closed table; mini-grid role sets (mixed, W4-02) keep v3 conversions, and the Lab's replayed
+#: conversions (cold-001, COLD-LAB-001, EV-LAB-001) keep theirs (v3, then a v4 PUBLISH revision; W2-02).
 _V4_CONVERSION_ROLE_SETS = frozenset({ROLE_SET_COLD_1, ROLE_SET_EV_1})
 
 #: D-DD.138: `ev-roles-1` checks a binding against the lab table and the closed world depot table. The Foundation
@@ -255,9 +256,10 @@ _V4_VALIDATION_TABLE_BY_ROLE_SET: Mapping[str, Mapping[tuple[str, str], Any]] = 
 }
 
 
-def publishes_v4_metadata(role_set: str, origin: str) -> bool:
-    """D-DD.138: a published set carries v4 metadata; a conversion does only for an all-v4 role set."""
-    return origin != "CONVERSION" or role_set in _V4_CONVERSION_ROLE_SETS
+def publishes_v4_metadata(role_set: str, origin: str, *, world_conversion: bool = False) -> bool:
+    """D-DD.138: a published set carries v4 metadata; a conversion does only when it is a world conversion
+    (`onboard_operator apply --bindings`, D-DD.36) of an all-v4 role set."""
+    return origin != "CONVERSION" or (world_conversion and role_set in _V4_CONVERSION_ROLE_SETS)
 
 
 def v4_mapping_profile(role_set: str) -> tuple[str, int] | None:
@@ -588,6 +590,7 @@ class BindingService:
         declare: Sequence[DeclaredSignal] = (),
         origin: str = "PUBLISH",
         role_set: str | None = None,
+        world_conversion: bool = False,
     ) -> BindingPublishResult:
         now = self._clock()
         # S3-01: the Site type's current vocabulary unless the caller names an
@@ -728,7 +731,8 @@ class BindingService:
                 )
             overlapping = [r for r in after if _overlaps(r.valid_from, r.valid_to, effective_from, period_to)]
             bindings = validate_bindings(site, role_set, requests, registrations, overlapping,
-                                         v4_metadata=publishes_v4_metadata(role_set, origin))
+                                         v4_metadata=publishes_v4_metadata(role_set, origin,
+                                                                           world_conversion=world_conversion))
             digest = bindings_digest(role_set, bindings)
             if replaced is not None and digest == replaced.bindings_sha256 and not rev_inserts:
                 raise BindingRefused(

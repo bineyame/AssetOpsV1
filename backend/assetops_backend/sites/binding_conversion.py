@@ -140,8 +140,11 @@ def convert(
     tenant: TenantRef,
     site: StoredSite,
     fixture: Mapping[str, Any],
+    *,
+    world_conversion: bool = False,
 ) -> ConversionResult:
-    """Publish the first binding set once; a rerun reports the existing one."""
+    """Publish the first binding set once; a rerun reports the existing one. `world_conversion` (D-DD.138): a world
+    cold or EV conversion publishes v4 metadata."""
     revisions = store.revisions(tenant.id, site.id)
     original = next((r for r in revisions if r.origin == "IMPORT"), None)
     if original is None:
@@ -159,7 +162,7 @@ def convert(
         published = service.publish(
             tenant, site, requests=requests, effective_from=effective_from,
             note=fixture["note"], declare=declared, origin="CONVERSION",
-            role_set=fixture["role_set"],
+            role_set=fixture["role_set"], world_conversion=world_conversion,
         )
     except BindingRefused as error:
         raise ConversionConflict(f"{error.code}: {error.message}") from error

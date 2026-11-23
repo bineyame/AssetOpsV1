@@ -136,7 +136,7 @@ def _publish_and_enable(store, f, fixtures: dict[str, Any]) -> int:
         fixture = fixtures[entry.code]
         site = store.find_site(tenant.id, entry.code)
         try:
-            convert(store, BindingService(store, utc_now), tenant, site, fixture)
+            convert(store, BindingService(store, utc_now), tenant, site, fixture, world_conversion=True)
         except ConversionConflict as error:
             sys.stderr.write(f"BINDING_CONVERSION bindings/{entry.code} {error}\n")
             return 3
