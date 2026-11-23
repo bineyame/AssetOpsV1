@@ -66,7 +66,7 @@ class SealedBatch:
 def _utc(text: str) -> str:
     moment = datetime.fromisoformat(text)
     if moment.tzinfo is None:
-        raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"reading time {text!r} has no offset")
+        raise WorldSealRefused("WORLD_READING_TIME_UNZONED", text)
     return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
@@ -101,8 +101,7 @@ def _envelope_text(context: SealContext, row: Mapping[str, Any], binding: Mappin
     event = row.get("event")
     if not context.v4:
         if event is not None:
-            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED",
-                                   f"{row['source_id']}/{row['signal_id']} is an event row on a v3 Site")
+            raise WorldSealRefused("WORLD_READING_EVENT_ON_V3", f"{row['source_id']}/{row['signal_id']}")
         measurement = _measurement(row, binding.get("role", ""))
         return canonical_envelope_v3_text(SourceEnvelopeV3(
             **message, interval_start=None if measurement == "STATE_AT_INSTANT" else _utc(row["start"]),
@@ -113,8 +112,7 @@ def _envelope_text(context: SealContext, row: Mapping[str, Any], binding: Mappin
     if event is not None:
         if event["record_kind"].startswith("EV_"):
             # The EV half (DD4b's session rows): the session id and connector of an EV event are not formed yet.
-            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED",
-                                   f"{row['source_id']}/{row['signal_id']} EV events wait for DD4b's session rows")
+            raise WorldSealRefused("WORLD_SEAL_EV_EVENT_PENDING", f"{row['source_id']}/{row['signal_id']}")
         kind, ordinal = event["correlation"]
         return canonical_envelope_v4_text(SourceEnvelopeV4(
             **message, interval_start=None, interval_end=None, family="EVENT", value=row["value"],
@@ -148,7 +146,7 @@ def seal_readings(context: SealContext, days: Iterable[tuple[date, list[Mapping[
             binding = context.bindings.get((row["source_id"], row["signal_id"]))
             if binding is None:
                 raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED",
-                                       f"{context.site_code} {row['source_id']}/{row['signal_id']} has no binding")
+                                       f"{context.site_code} {row['source_id']}/{row['signal_id']}")
             source_id = str(binding["source_id"])
             sequence = sequences.get(source_id, 0) + 1
             sequences[source_id] = sequence
