@@ -119,7 +119,7 @@ Evidence `/opt/assetecon/evidence/DD3b/fix2/`. Done (commits b1476e387..HEAD):
   observer Kisiwa -1486 / 69, band 18.06; dd2_check Kobo July 8200 / 3280 / 3016.30 / 513 L / 641.25; 5b postgres 2,136.60.
   Non-DB reach files (`backend-nodb-1.log` before re-pins: 7 failed, 1172 passed): now only 3b1 t1 and 3b3 t6 fail, both
   pre-existing on main (`dispatch-3.3` vs `dispatch-3.2`).
-- Six `--check`s and generate 3: `checks.log` (see the line appended below).
+- Six `--check`s all exit 0; generate 3 byte-identical to generate 2 (`d92fc9f1...`, `checks.log`): D-DD.176 acceptance met.
 
 Next (in this order): full `simulator/tests/world` rerun (expect 0 failed); pure DIR + `dd_check --pure` (fix/pure-run.sh with
 E=fix2); Kisiwa final candidate share per month three ways (accepted, run 2, final; D-DD.165); check_manifest (= main's 6 + six
