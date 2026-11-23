@@ -2694,6 +2694,10 @@ against D-DD.147", the full Jul-Oct `dd_check --pure` and deviations 12-15; D-DD
 D-DD.149; `M` Kobo, Kisiwa and Mto bridges. No run was made. The owner is informed of all three and asked to weigh
 in on **D-DD.151** (Kisiwa's story) and **D-DD.152** (Kobo July and August).
 
+**Owner-answered 23 Nov** (`owner/owner-demo-data-answers-2026-11-22.md` §"D-DD.150-152"): D-DD.150 and D-DD.151
+"Accept (Recommended)"; D-DD.152 "Fix before demo", so the absolute tolerance floor is built before the demo
+(D-DD.153), not logged to the backlog.
+
 - **D-DD.150 Deviation 12: every mini-grid Site's fuel bridge carries the same three fuel lines. Kisiwa and Mto gain
   CANDIDATE_RUNNING, as Kobo has it** (model, W6 class; amends D-DD.131 "Bridge"; releases the held `M` commit).
   - *Why.* The lines decompose `diesel_l` = necessary + candidate + unexplained (the builder's identity, confirmed).
@@ -2724,7 +2728,8 @@ in on **D-DD.151** (Kisiwa's story) and **D-DD.152** (Kobo July and August).
     60): still no redundancy, but less strain than the story said.
 
 - **D-DD.152 Deviation 14: the draw stands. C-DD17 judges the tolerance only in months the generator burned, and
-  states what the product shows in the others** (amends spec §8.1 C-DD17; a structure finding to its owner).
+  states what the product shows in the others** (amends spec §8.1 C-DD17; a structure finding to its owner; owner
+  23 Nov "Fix before demo": the floor is ruled by D-DD.153, which replaces this bullet's C-DD17 rule).
   - *Why.* D-DD.19's 12/12/11 L draws are declared world causes: fuel did leave the tank. Removing or resizing them
     to pass a check would be fitting. A tolerance relative to consumption has no meaning when consumption is only
     the draw.
@@ -2742,3 +2747,341 @@ in on **D-DD.151** (Kisiwa's story) and **D-DD.152** (Kobo July and August).
     wording). DD3b 6.5 u over three parts; if DD3b3 passes 6 u, the coordinator splits the `M` commit off. DD
     51.25 → 51.5 u. Deviation 15 (unwritten-list wording) is a builder tidy: `diesel_l` / `diesel_cost` are listed
     as written from purchases at a notes Site, with no new reason word.
+
+# DD rulings, round 22 (D-DD.153 to D-DD.154): the absolute floor on the fuel-balance tolerance, and the fuel records it needs
+
+Architect (Claude, DD lane, fresh hand-off), 2026-11-23. Read: rounds 17-21; owner §"D-DD.150-152" (D-DD.152 "Fix
+before demo"); `fuel_balance/rules.py` (`balance`, `TANK_MARGIN_FACTOR`, `ACCURACY_BASES`), `fuel_balance/service.py`
+(`accuracy_values`), `night_text.py`, `actions/fuel_verification.py`, `actions/verification_rules.py`;
+`structure/observe/observe.py` (`_band`, `basis`, `claim`), `structure/observe/service.py`, `structure/litres/rules.py`
+and `inputs.py`, `structure/rows_mini_grid.py` (`unexplained_l` tolerance 2.0 % of `diesel_l`; `diesel_l` =
+necessary + candidate + unexplained + extra); `sites/models.py` (`fuel-level-sensor-accuracy` on `FUEL_TANK`);
+`backend/tests/fixtures/on1/lakeside-power.onboarding.json` (no accuracy declared at any tank);
+`test_dd3c_kobo_parity_postgres.py` (10 L injected into its copy only); `packet-DD3b.md` (6d567731e) pure-run table.
+Source: Technoton DUT-E product page (https://jv-technoton.com/products/dut-e/), specification table: "Relative
+measuring error (to the length of the measuring part), %, not more than ±1". No run was made; no database touched.
+The owner is informed of both; **D-DD.154** is a structure finding the owner may want to weigh in on (default applied).
+
+- **D-DD.153 The unexplained-fuel tolerance is max(relative × consumption, 2a), with a the tank's declared level
+  accuracy, declared at the three mini-grid tanks as 1 % of capacity, Assumed** (model; amends D-DD.152's C-DD17 rule
+  and its backlog finding, spec §8.1 C-DD17, §7; adds part DD3d).
+  - *Why.* A month's balance is opening level + deliveries − closing level − modelled burn. Each level carries the
+    sensor's absolute uncertainty, so the residual carries about 2a whatever the consumption. A tolerance that is only
+    relative goes to zero with consumption and flags a residual inside measurement error: Kobo's 12 L draws in July and
+    August (no burn) read as unexplained against a 0.24 L band. The product already has the term: `fuel-balance-1`
+    (the night check) widens its band by `TANK_MARGIN_FACTOR × a` = 2a (F0, "applied to opening and closing, combined
+    linearly"). The monthly observer reuses that term on merit; nothing new is invented.
+  - *The figure (step 1).* The Foundation property exists: `fuel-level-sensor-accuracy` (L) with
+    `fuel-level-sensor-accuracy-basis` on `FUEL_TANK`. It is missing at all three real Sites (Lakeside's `/2` file
+    declares none; only the Kobo parity test's copy injects 10 L). The Sites declare a generic "Fuel level sensor"
+    with no make or model, so no device sheet applies. The sourced figure is the class figure of a common capacitive
+    tank probe: Technoton DUT-E, ±1 % of the measuring length, not more than. On a probe spanning the tank's height
+    that is about 1 % of capacity (exact for an upright tank; up to about 1.27 % near mid-height in a horizontal
+    cylinder, which is why the value is labelled Assumed and not Declared). It is K1's existing rule (10 L = "1 % of a
+    1000 L tank") applied to each tank's declared capacity:
+
+    | Tank (`/2` file) | `tank-capacity` | a = capacity / 100 | floor 2a |
+    |---|---|---|---|
+    | KOBO-001 `fuel-tank` | 2,500 L | **25 L** | 50 L |
+    | KISIWA-001 `fuel-tank` | 5,000 L | **50 L** | 100 L |
+    | MTO-001 `fuel-tank` | 1,000 L | **10 L** | 20 L |
+
+    Each tank's `properties` list gains, after `tank-capacity`: `{"property_key": "fuel-level-sensor-accuracy",
+    "value": <a>, "unit": "L", "source": "SITE", "source_version": 1}` and `{"property_key":
+    "fuel-level-sensor-accuracy-basis", "value": "GENERIC_DEFAULT", "unit": "state", "source": "SITE",
+    "source_version": 1}` (D-DD.71). GENERIC_DEFAULT renders Assumed (D-DD.17). The basis sentence, quoted in the
+    packet and `conditions`: "Generic capacitive level-sensor class, ±1 % of measuring length (Technoton DUT-E data
+    sheet), taken as 1 % of this tank's capacity; not this sensor's calibration (Assumed)". Lakeside's `/2` digest pin
+    moves (D-DD.128's chain); the packet lists it.
+  - *Rule (product, `structure/observe/`).*
+    - `observe/rules.py` gains `FLOORED: Mapping[str, tuple[str, ...]] = {"MINI_GRID": ("unexplained_l",)}`: the only
+      leaf with an absolute floor.
+    - `observe.py` gains `@dataclass(frozen=True) class Floor: litres: Decimal; accuracy_l: Decimal; basis: str;
+      revision_id: str` and `FactorObservation.floor: Floor | None = None` (last field, default None).
+    - `observe(actual, target, declarations, floors: Mapping[str, Floor] = MappingProxyType({}))` and
+      `observe_site(site, declarations, floors=...)` pass `floors.get(leaf)` to `_one` only for a leaf in
+      `FLOORED[key]`; any other leaf gets None.
+    - In `_one`, the adverse branch only: `rel = _band(tolerance, actual)` exactly as today. If `rel` is None the state
+      stays TOLERANCE_NOT_AVAILABLE (unknown is never zero; the floor does not stand in for a missing `diesel_l`). If
+      `tolerance.source == "NONE"` the band stays 0 (no floor). Otherwise, with a floor, `band = max(rel, floor.litres)`
+      and `FactorObservation.floor = floor` **only when `floor.litres > rel`** (strict); else `band = rel` and `floor`
+      None. The pct-0 case follows the same line: `rel` 0, so the floor binds (a declared 0 % sets no relative band;
+      the measurement's own uncertainty remains).
+    - `basis()` adds `"floor": {"litres": _dec(f.litres), "accuracy_l": _dec(f.accuracy_l), "basis": f.basis}` and
+      `claim()` adds `"floor": {..., "revision_id": f.revision_id}` **only when `o.floor` is not None**. With no
+      binding floor both strings are byte-identical to today's.
+    - The floor in force (`observe/service.py`, new port `FloorReadPort.read(tenant_id, site_id, window, known_at) ->
+      Floor | None`, wired in `structure/observe/composition` on the same Foundation read the litres inputs use,
+      `FuelReadPort.read_at`): the Site's active `FUEL_TANK` assets; not exactly one gives None. Its accuracy is
+      `fuel_balance.rules.declared_for(fuel_balance.service.accuracy_values(tx.properties(tank.asset_code,
+      (ACCURACY_KEY, ACCURACY_BASIS_KEY), lo, hi)), lo, hi, fuel_balance.rules.ACCURACY_BASES)` over `window` =
+      `month_bounds(month, tz)` (already computed in `_site`), imported by name, never re-derived. None gives no floor
+      (today's behaviour). `litres = TANK_MARGIN_FACTOR × a` (imported), converted exactly to `Decimal` in the
+      observer's 34-digit half-even context. `_site` passes `{"unexplained_l": floor}` when a floor exists.
+    - No copy changes: no screen renders the observation's band today (swept: `frontend/src`, `i18n`, `chain/`).
+  - *Every reach, named (W6).*
+
+    | Reach | Change |
+    |---|---|
+    | Monthly observer, `unexplained_l` (`structure/observe/`) | the rule above |
+    | `fuel_balance` night rules (`fuel-balance-1`) | **code unchanged**: already 2a; it now reads the declared a at the three tanks, so nights move from NOT_ASSESSED `NO_SENSOR_ACCURACY` to assessed (needs D-DD.154's delivery records first) |
+    | Night text (`night_text.py`) | **code unchanged**: renders "Declared sensor accuracy ±25 L" (Kobo), ±50 L, ±10 L where it said "no tank sensor accuracy declared" |
+    | Verification `fuel-residual-within-band-1` (`fuel_verification.py`) | **code unchanged**: reads the night's band, which carries 2a |
+    | Verification cost check (`verification_rules.py`, modelled cost) | **not reached**: it compares modelled fuel cost and has no fuel-balance tolerance; held by `test_dd3c_kobo_one_unit_golden` |
+    | C-DD17 (`tools/dd_check.py`) | restated below |
+    | `structure/litres/rules.py` (`unexplained_l` value) | **unchanged**: the value stays burned − modelled; only its judgement moves |
+
+  - *C-DD17 (replaces D-DD.152's rule).* The checker reads each tank's a from Lakeside's `/2` file by its own JSON
+    read and types the factor 2 with a comment citing D-DD.153 (W2: no import from the product). Per month, July to
+    October, with consumption = burned + draw and `tol = max(fuel_balance.tolerance_pct / 100 × consumption, 2a)`:
+    - Kobo: unexplained ≥ 0 and equal to the declared draw; ≤ `tol` July-September, > `tol` in October. The no-burn
+      carve-out is withdrawn: July and August are judged like any month.
+    - Kisiwa: unexplained equal to the draw and ≤ `tol` every month (printed with its share). Mto: unexplained 0.
+    - Served (DD6.1, through D-DD.133's read): each Site-month's `unexplained_l` observation state and band equal the
+      table below. If that read does not carry the observation, DD6 stops for the Architect.
+  - *Verdicts that change (step 3; projected from the DD3b pure run, target 0; the run measures, nothing tuned).*
+
+    | Site-month | consumption (L) | unexplained | relative band | band now | state before → after |
+    |---|---|---|---|---|---|
+    | Kobo Jul | 12.00 | 12 | 0.24 | 50 | **RAISED → INSIDE_TOLERANCE** |
+    | Kobo Aug | 12.00 | 12 | 0.24 | 50 | **RAISED → INSIDE_TOLERANCE** |
+    | Kobo Sep | 773.20 | 11 | 15.46 | 50 | INSIDE_TOLERANCE (band and basis move) |
+    | Kobo Oct | 634.22 | 120 | 12.68 | 50 | RAISED (band and basis move; the October beat holds, 120 > 50) |
+    | Kisiwa Jul | 1,275.28 | 20 | 25.51 | 100 | INSIDE_TOLERANCE (band and basis move) |
+    | Kisiwa Aug | 1,255.15 | 19 | 25.10 | 100 | INSIDE_TOLERANCE (band and basis move) |
+    | Kisiwa Sep | 707.02 | 18 | 14.14 | 100 | **RAISED → INSIDE_TOLERANCE** |
+    | Kisiwa Oct | 903.56 | 20 | 18.07 | 100 | **RAISED → INSIDE_TOLERANCE** |
+    | Mto Jul-Oct | 0-32.38 | 0 | not computed | not computed | NO_GAP, byte-identical (no adverse gap) |
+    | Cold and EV Sites | - | - | - | - | not observed for `unexplained_l`, byte-identical |
+
+    Kisiwa's September and October flags were the same fault as Kobo's: 18-20 L monthly draws against a 2 % band of a
+    700-900 L month (2.2-2.5 %), inside the probe's ±50 L. They were not in D-DD.152's figures because C-DD17 judged
+    Kobo only. Story, plainly: unexplained fuel shows at Kobo in October only, which is the story; Kisiwa and Mto show
+    none. The floor also bounds what the month can detect: under about 50 L a month at Kobo and 100 L at Kisiwa, a loss
+    is within measurement error. The night check keeps its own 40 L materiality per night.
+  - *Parity test (`backend/tests/test_dd3d_tolerance_floor.py`, pure).*
+    - P1, relative dominates: one fixture per state path with `pct/100 × |diesel_l| ≥ 2a`. `diesel_l` 3,000 L, a 25
+      (rel 60 > 50), unexplained 40 (INSIDE) and 70 (RAISED); and the tie, `diesel_l` 2,500 L (rel 50 = floor, no
+      bind). For each, `observe(..., floors={"unexplained_l": F})` equals `observe(..., floors={})` field by field, and
+      `basis()` and `claim()` are byte-identical strings.
+    - P2, no adverse gap: NO_GAP, FAVOURABLE, ACTUAL_NOT_AVAILABLE, TARGET_NOT_AVAILABLE and TOLERANCE_NOT_AVAILABLE
+      (`diesel_l` absent) with a floor are byte-identical to without.
+    - P3, a leaf not in `FLOORED` given a floor in the mapping is byte-identical (the mapping is filtered).
+    - P4, existing pins unchanged with no edit: `test_3b4_observer*.py`, `backend/tests/golden/6h_parity.json`,
+      `test_dd3c_kobo_one_unit_golden.py`, and `git diff main --` on `fuel_balance/rules.py`, `night_text.py`,
+      `actions/fuel_verification.py`, `actions/verification_rules.py` and `structure/litres/` is empty.
+    - Binding cases: Kobo July (12/12, a 25: INSIDE, band 50, basis carries the floor), Kobo October (634.22/120:
+      RAISED, band 50), Kisiwa September (707.02/18, a 50: INSIDE, band 100). Plant (negative control): the floor
+      port returning None flips Kobo July back to RAISED with band 0.24. Service test: a Site with two tanks, or an
+      accuracy revision starting mid-month, gets no floor.
+    - `test_dd3c_kobo_parity_postgres.py` drops its 10 L injection (the file now declares 25 L, read in both
+      states); its +5 L plant must still fail.
+  - *Part and size (step 4): new part **DD3d** "fuel records and the tolerance floor", `task/DD3d-fuel-floor`, 2.25
+    u with D-DD.154.* This ruling's share is 1.25 u: observer rule, port and wiring 0.5; parity and binding tests
+    0.25; the three `/2` declarations, digest re-pin and the Kobo parity test 0.25; C-DD17 restated with Kisiwa and
+    Mto clauses 0.25. It is its own part, not DD3b3: DD3b3 is at 6.5 u over three parts and is the writer's, while this
+    changes a product reader (discovery review: a money-adjacent observation). Order: after DD3b3 merges (D-DD.154
+    needs the restated notes); before DD5b loads.
+  - *The backlog entry D-DD.152 asked the coordinator to log is withdrawn (built here).*
+
+- **D-DD.154 The DD world writes no FUEL_DELIVERY or TANK_DIP records, so the product cannot value the month's
+  unexplained fuel at any mini-grid Site, and a declared a alone would mark every delivery night EXCESS. Default: DD3d
+  writes and loads them** (model, W6 class finding; amends spec §5.1, §7; D-DD.133's served C-DD17 depends on it).
+  - *Finding.* `structure/litres/rules.py` values `unexplained_l` only between two `TANK_DIP` records within 24 h of
+    the month's ends (D-4D.5), with `FUEL_DELIVERY` records between them; otherwise `TANK_DIPS_MISSING`, "not
+    available yet". The night check subtracts recorded deliveries. No DD writer or loader emits either kind (swept:
+    `simulator/`, `tools/world_history.py`, `tools/dd_check.py`, `tools/dd3_pure_run.py` on main and DD3b; the only
+    producers are user entry, `runs/operational_actions.py` and the old `demo_combined*` tools). `M` itself declares
+    the source: "fuel delivery notes + tank dips (existing operational records FUEL_DELIVERY, TANK_DIP)",
+    source-emulated (`M:789`). So Kobo's October 120 L would not be served, and D-DD.152's "Kobo shows 12 L" is the
+    figure the product would show once these records exist. The builder's pre-flight greps again; if a producer
+    exists, D-DD.154 drops to 0 u and the records are taken from it.
+  - *Rule (default applied pending the owner).*
+    - `world/exports.py` (mini-grid books) writes `fuel-records.json` per mini-grid Site, schema
+      `assetops.world-fuel-records/1`: one `FUEL_DELIVERY` per accepted note (DD3b3's restated notes) at the note's
+      `occurred_at` with its litres, `recorded_at` as the note's (OOO-1's 26 Oct note recorded 4 Nov, so the night
+      check shows its existing DELIVERY_RECORDED_LATE limitation); one `TANK_DIP` at 00:00 local on each month's first
+      day, 1 Jul to 1 Nov, valued at the writer's published tank level at that step (exact to 0.01 L, D-DD.131's dips),
+      `recorded_at` the same instant. Actor "Shift operator" (the Kisiwa operational-actions wording), source word
+      Emulated. Month-end dips are ordinary operator practice (Assumed; stated in `conditions`).
+    - `load_fuel_records(dir, tenant)` (DD3d, idempotent on `source_record_id`) records each through the existing
+      operational fuel-record path that `work/operational_entry.compose_entry` builds (kinds `FUEL_DELIVERY`,
+      `TANK_DIP`, unit L, the tank's asset id). DD5b's load step calls it once per tenant (one line in its step list,
+      no unit added).
+    - Checks: C-DD2 gains the two kinds for each mini-grid Site-month. C-DD8's balance is then also asserted on the
+      stored records: opening dip + deliveries − closing dip − burned = the draw, per Site-month. Every assessed night
+      is printed by state per Site; any UNEXPLAINED or EXCESS night stops for the Architect (projected: none; the
+      largest nightly draw is Kobo's October 3.87 L against the 40 L materiality plus 2a).
+  - *Units.* 1.0 u in DD3d (writer file, loader and its Postgres test, C-DD2/C-DD8 clauses). DD3d 2.25 u; DD 51.5 →
+    **53.75 u in twelve parts**.
+  - *Owner.* Informed. Weigh in if month-end dips at 00:00 should instead follow a stated operator dip time; nothing
+    else in the story moves.
+
+# DD rulings, round 23 (D-DD.155 to D-DD.160): DD3b3 deviations 17 (H5) and 18 (the tanks); DD4b review Q1-Q4; DD5a's blocker and deviations; the card sweep
+
+Architect (Claude, DD lane, fresh hand-off), 2026-11-23. Read: `packet-DD3b.md` on `task/DD3b-mini-plant` (4154c09bb),
+deviations 16-19; D-DD.76, D-DD.92 "Tanks stay", D-DD.131, D-DD.150 to D-DD.154; `check_manifest.py` H5 (branch line
+1512); `simulator/tests/world/test_dd3_telemetry.py::test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month`
+(branch); `M` lines 123, 198, 2178; owner §"D-DD.76 tank sizes". For D-DD.157 to D-DD.160: `review-DD4b.md` (branch `task/DD4b-ev-measured`) Q1-Q4
+and its residual-risk note on `measured.json`; D-DD.20, D-DD.99, D-DD.124, D-DD.144; `cards/DD5b.md`, `cards/DD6.md`.
+For D-DD.161 and D-DD.162: `packet-DD5a.md` (ba6282a8d) deviations 1-5; `evidence/world_seal.py` (`_value`, the EV
+refusal); `source_envelope_v3.is_canonical_decimal`; DD4b's `world/telemetry_ev.py` (c86af1a2e: `_rows`, `_event`)
+and `packs/ev_charger.scoped_session_id`; D-DD.91, D-DD.123, D-DD.138, D-DD.139; `cards/DD5a.md`.
+No run was made; no database touched. The owner is informed of all eight; none moves a figure the owner approved.
+D-DD.157 moves Kirinyaga's History series onto the meter (the drift story reads the same, more plainly).
+
+- **D-DD.155 Deviation 18: the declared tanks stay 2,500 / 5,000 / 1,000 L, as the owner approved. The 1,500 / 2,000 /
+  500 L are D-DD.76's sizing rule re-run on the restated fuel figures, which D-DD.92 already forbids; the test stops
+  re-running it** (test; restates D-DD.76's rule as a declaration-time sizing, not a standing invariant).
+  - *Where the smaller figures come from.* Not from `M`'s declarations, the `/2` file or the history's own fields: the
+    `/2` and `/1` files still declare 2,500 / 5,000 / 1,000 L, SITE, version 1 (branch lines 830, 285, 1365). The test
+    recomputes D-DD.76's rule (twice the largest month, rounded up to a standard size) on today's `history.json` and
+    `M` rev 16.20. Those months fell when D-DD.92 and D-DD.131 made consumption the readings' (Kobo largest 634 L in
+    October, so 1,268 to 1,500; Kisiwa 904, so 1,808 to 2,000; Mto below 250, so 500). D-DD.76 sized the tanks on the
+    books of 22 Nov (1,180 / 2,400 / 320 L delivered). D-DD.92 then ruled: "D-DD.76's rule is not re-run on restated
+    books, which would be circular". The tank now drives the purchases (the reorder rule), so sizing it from its own
+    outputs is a loop. Its input was also *delivered* litres; the test feeds it consumption. The builder kept the
+    declared sizes, correctly; only the test's second pin is wrong.
+  - *Rule.* The test keeps one assertion on the declared figures, `declared == {KISIWA-001: (5000, SITE, 1), KOBO-001:
+    (2500, SITE, 1), MTO-001: (1000, SITE, 1)}`, and replaces the recomputation with D-DD.76's own inputs typed as
+    constants, `SIZED_ON = {"KOBO-001": 1180, "KISIWA-001": 2400, "MTO-001": 320}` (comment: "D-DD.76, books of 22 Nov;
+    not re-run on restated books, D-DD.92"), asserting the rule on those gives the declared sizes. It no longer reads
+    `history.json` or `M`. The test is renamed `test_each_lakeside_tank_is_declared_at_its_d_dd_76_size`.
+  - *Figures that move.* None. The tanks, the 50 % start, the reorder notes, D-DD.153's a (25 / 50 / 10 L) and every
+    story figure stay. The packet's deviation 18 closes.
+  - *Where.* The DD3b3 fix round (Sonnet), 0 u.
+
+- **D-DD.156 Deviation 17: the history is right; H5 is the old relative-only rule. H5 judges with D-DD.153's tolerance,
+  max(2 % × `diesel_l`, 2a), restated in DD3d where a is declared** (check, W6 class: every restatement of the
+  unexplained-fuel tolerance follows D-DD.153; amends `M` lines 123 and 198 wording; +0.25 u DD3d).
+  - *Why the history stands.* The 12 / 12 / 11 L (Kobo) and 20 / 19 / 18 L (Kisiwa) draws are declared world causes
+    (D-DD.19; D-DD.152 "the draw stands"). Lowering them in `history.rules` to pass a 2 % line would fit the world to a
+    check. H5's question is "may history show the unexplained-fuel finding before October?". The finding's band is now
+    D-DD.153's, so H5 asks it with that band. It is the same fault D-DD.153 fixed in the observer and C-DD17: a
+    relative band that shrinks with consumption flags draws inside the tank's measurement error.
+  - *Rule.* For a mini-grid Site's actual side: `unexplained_l <= max(D("0.02") × diesel_l, 2 × a)`. `a` is the Site's
+    `fuel-level-sensor-accuracy` read by H5's own JSON read of Lakeside's `/2` file, matched by site code, as C-DD17
+    reads it; the factor 2 is typed with a comment citing D-DD.153 (W2: no import from the product). The label prints
+    both terms: `H5 {scope}: unexplained_l 20 <= max(2% of diesel_l 885 = 17.70, 2a = 100)`. No a declared at a
+    mini-grid Site is a FAIL ("no declared level accuracy"); it never falls back to 2 % alone.
+  - *Projected.* Kobo July-September 12 / 12 / 11 against max(10.16-10.20, 50): pass. Kisiwa 20 / 19 / 18 against
+    max(16.70-17.70, 100): pass. The six failures close. October is not in H5 (it is the finding month).
+  - *`M` wording (the same class).* Line 198, Kisiwa's UNEXPLAINED_RESIDUAL basis: "within 2% tolerance" becomes
+    "within tolerance (the larger of 2 % and the tank's 100 L measurement floor), reported not investigated". Kisiwa's
+    October 20 L of 904 is 2.2 %, inside the 100 L floor. Line 123, Kobo's note: "above 2% tolerance" becomes "above
+    tolerance (the tank's 50 L measurement floor; 2 % is 12.68 L)". Kobo's 120 L stays the October beat.
+  - *When.* DD3d.2, with the `/2` declarations it reads (a in DD3b3 would have nothing to read). DD3b3 merges with
+    exactly these six H5 lines listed as known in its packet, closed by DD3d. DD3d follows DD3b3 directly, so the
+    window is one part. Any other new check_manifest failure still blocks DD3b3.
+  - *Units.* +0.25 u in DD3d (H5 read and label, two `M` strings, the check counts in the packet). DD3d 2.25 → **2.5 u**;
+    DD 53.75 → **54.0 u in twelve parts**.
+  - *Owner, plainly.* Kobo and Kisiwa lose a few litres a month in July to September that nobody has explained. Those
+    amounts are smaller than the tank gauge can measure, so they are not shown as a problem. Only Kobo's October
+    120 L is. Nothing to decide; weigh in only if you want those small amounts shown anyway.
+
+- **D-DD.157 DD4b Q1: one figure per cold room-month. D-DD.144's parenthesis was wrong; DD6 sets `history.json`'s
+  cold `actual.kwh` July-September from the meter** (model; amends D-DD.144 R2505 and D-DD.20's "beside, as
+  information" for cold history `kwh`; +0.5 u DD6).
+  - *What is wrong.* D-DD.144 says "every cold `kwh` leaf (history and period) is the meter's". On DD4b, history
+    July-September is the restated model's output, 0.6-7.2 % off the bills (Kirinyaga +5.2 / +7.2 / +6.5 %). DD4b
+    follows D-DD.20 and the spec (the pairs print in `meter_billed`, C-DD4 excludes them), so the branch is right
+    and the ruling text is wrong. Left so, the product holds two figures for one room-month: the History series and
+    the bill. The owner's rule is one figure, loyal to the operating world, and the meter is the operating world.
+  - *Rule.* D-DD.144 R2505 reads "Every cold period `kwh` leaf is the meter's". In DD6, before the world build,
+    each cold room's `history.json` `actual.kwh` July-September is set to that room-month's metered kWh from the
+    cold tenant's `measured.json` (DD4b's frame output), rounded half-even to whole kWh, the leaf's precision (D-DD.162). Then the D-DD.30
+    chain: `world_history.py check`, view, goldens, fixtures, re-pins each to the regenerated value (D-DD.93). Not
+    circular: the cold writer no longer reads `kwh` (review Q1). `meter_billed` then prints equal pairs for those
+    rows. `kwh_model` and plan `kwh` stay the model's: the drift is meter against model, which is the story.
+  - *Stops.* Any H-check or C-DD check that then fails (H5's anchor "within 5 % of `kwh_model`" first) stops for
+    the Architect, with the figures; nothing is tuned. The packet lists every moved figure.
+  - *DD4b.* No change on that branch.
+  - *Units.* DD6 4.75 → **5.25 u** (DD6.4 below).
+
+- **D-DD.158 DD4b Q2: the EV month carries the two hour-window sums, and C-DD7's EV window clause goes live in a DD4b
+  follow-up before DD6** (schema; amends D-DD.99's EV `<month>`; +0.25 u DD4b).
+  - *Why.* D-DD.20 lists `kwh_2200_2400` and `kwh_0000_0500` as metered leaves and `rows_ev_depot.py` reads them
+    (`scheduled_kwh_night`), but D-DD.99's EV month has no field, so they are written `metered: null`. The writer
+    already holds the depot import by minute. Doing it now avoids a second 26-minute EV plant run in DD6.
+  - *Rule.* D-DD.99's EV `<month>` gains `"windows": {"2200_2400": <kWh>, "0000_0500": <kWh>}`: sums of the depot
+    import over local-clock minutes [22:00, 24:00) and [00:00, 05:00) of each day in the month, exact, rounded once
+    to the month's kWh precision. The key set stays fixed per vertical (an absent or extra key refuses
+    `TEL_FOUNDATION`). `meter_billed` writes them as `metered`. C-DD7's EV clause adds: each window equals
+    the sum of `site-meter/import` over the same minutes, exactly.
+  - *Where.* A DD4b follow-up on its branch after the review fixes (`task/DD4b-ev-measured`), merged with DD4b,
+    before DD6 builds. DD4b 4.75 → **5.0 u**.
+
+- **D-DD.159 DD4b Q3: C-DD5's cadence table is ratified; states and events are "ungridded"** (wording; amends
+  D-DD.124 R2196 and spec §4.3's reading words where they say "on change"; 0 u).
+  - *Why.* The writers repeat an unchanged state every minute or every 5 minutes; a strict "only on change" rule
+    would fail correct writers. Counting a sample at a slot's start is faithful to the readings.
+  - *Rule.* D-DD.124's parenthesis reads "(5-minute means; states and events ungridded: an unchanged state may
+    repeat)". The checker's `CADENCE` value `ON_CHANGE` is renamed `UNGRIDDED` in DD4b's L-fix commit (decided, not
+    a preference: the label must say what is judged).
+
+- **D-DD.160 DD4b Q4 and the review's `measured.json` note: the hand-offs are written on the cards. DD5b alone owns
+  C-DD7's mini-grid clause and the `stored_books` fetch; DD6 runs one writer process per tenant** (sequencing;
+  +0.25 u DD5b).
+  - *DD5b (card line, unit 2).* `stored_books` fetches TARIFF_SCHEDULE, FLEET_ROSTER and DEPARTURE as well. C-DD7's
+    mini-grid clause (load served + unserved = `delivered_kwh`, exactly) reads unserved from the loaded world's
+    `<slug>/telemetry/measured.json` `unserved_kwh` (no readings channel carries it). The pending text "DD3b/DD5"
+    becomes "DD5b". DD5b 3.75 → **4.0 u**.
+  - *DD6 (card line, unit 3).* D-DD.99 makes `measured.json` one file per tenant, written by the frame. The world
+    build runs each tenant's Sites in one writer process; several processes write several files and `exports
+    --telemetry` refuses `EMU_MEASURED` (exit 3). The build asserts one `measured.json` per tenant before exports.
+  - *Units (D-DD.155 to D-DD.160).* DD 54.0 (after D-DD.156) → **55.0 u in twelve parts**: DD3d 2.5, DD4b 5.0,
+    DD5b 4.0, DD6 5.25.
+
+- **D-DD.161 DD5a BLOCKER and deviations 1, 3, 4: D-DD.138's v4 publish is for world conversions only (narrowing
+  confirmed); the Foundation's `site-meter` stands; the sealer writes canonical decimals; an EV session has one id,
+  the pack's, carried by the writer and copied by the sealer** (BLOCKER, protected seam `contracts/` and the binding
+  service; amends D-DD.138 and D-DD.139's EV-id bullet; +0.25 u DD4b, +0.25 u DD5a).
+  - *Deviation 5, the blocker: confirmed.* D-DD.138's finding was the world path (`onboard_operator apply
+    --bindings`, D-DD.36); its rule was worded wider than its cause. The Lab's W2-02 design (a v3 conversion, then
+    a v4 PUBLISH revision) is existing, tested behaviour and the rule must not change it. Rule: `convert(...,
+    world_conversion: bool = False)`; v4 metadata is published at conversion only when `world_conversion` is True
+    **and** the role set is v4 (`cold-roles-1`, `ev-roles-1`), from that role set's closed table. Only
+    `onboard_operator apply --bindings` passes True. Mini-grid world role sets stay v3 either way. Test: the 24 Lab
+    tests pass unedited, and a plant passing True from a Lab replay fails one of them.
+  - *Deviation 1: confirmed.* D-DD.138 said the table is generated from the Foundation; the depots' `/2` files and
+    conversions declare `site-meter`, so the entry is `("site-meter", "import")`. "`site-meter-1`" in D-DD.138
+    (from D-DD.38) is wrong text; generation wins over a typed name (W6: no typed device name in a ruling stands
+    against the Foundation).
+  - *Deviation 2: accepted as built* (recomputed v3 formation from stored rows, plus no v4 rows), since
+    `bindings_sha256` carries fresh UUIDs.
+  - *Deviation 3: confirmed.* The readings writer prints exact millesimal text ("4.000"); envelopes admit only the
+    canonical spelling. The sealer writes the same value canonically ("4"; "0" for zero; no exponent). It asserts
+    `Decimal(out) == Decimal(in)` and `is_canonical_decimal(out)` (imported from `source_envelope_v3`) per value.
+    Readings files are unchanged. Every check that compares a reading to a book compares `Decimal` values, never
+    strings (C-DD7, C-DD8, D-DD.157's leaves).
+  - *Deviation 4, and the class behind it: one id per EV session.* D-DD.139 had the sealer form a new
+    `ev_session_id(foundation_digest, connector, ordinal)`. DD4b's writer already carries the pack's id
+    (`scoped_session_id`, Q3: `ev-` + SHA-256 of `[scenario_sha256, "session", private_label]`) on each session event
+    with `connector_id` (D-DD.123). Two formations would give one session two ids, so the event and the connector's
+    energy would not correlate. Rule: the pack's id is the only one.
+    - DD4b follow-up (with D-DD.158, +0.25 u, DD4b 5.0 → **5.25 u**): a connector measurement row inside a session
+      carries `"session": {"session_id", "connector_id"}`, the same pair as that session's events. The depot import
+      and rows outside a session carry none.
+    - DD5a (fix round, +0.25 u, DD5a 3.5 → **3.75 u**): `ev_session_id` is withdrawn from `contracts/`. The sealer
+      copies `session_id` and `connector_id` from the event object or the row's `session` object, and
+      `correlation_id` = `session_id`. An EV event without a session forms its ids as a cold event does (D-DD.91,
+      `cold_event_id` / `cold_correlation_id` over its `correlation`). `WORLD_SEAL_EV_EVENT_PENDING` is removed. An
+      EV event that has neither a session nor a `correlation` refuses `WORLD_SEAL_EV_UNCORRELATED`, exit 2. Parity
+      test on hand rows in DD4b's shape: one session event and one in-session connector energy give equal
+      `session_id` and `correlation_id`.
+  - *Test placement (standing).* The dependency-direction guard forbids `gateway`, `host` and `simulator` imports
+    anywhere under `backend/`, tests included. A parity test against the gateway lives in `host/tests/`, as DD5a
+    built it.
+
+- **D-DD.162 The card sweep: the remaining cards name the same five kinds of fact** (cards; 0 u). Each card gains a
+  "Facts the code fixes" list: (1) protected existing behaviour the part must not change; (2) device and channel
+  names as the Foundation declares them, never as a ruling typed them; (3) decimal spelling: compare `Decimal`
+  values, write canonical text; (4) the keys an id is formed on; (5) where a test may live under the import guard.
+  DD5a gets the five DD5a facts above. DD5b and DD6 get their own, below. Swept: neither card types a device name or
+  an id key. Both now state the import guard and the Decimal rule. Each also names the protected behaviour it
+  touches: for DD5b the `/1` definition path and the Lab replays; for DD6 the owner's walk and ports
+  5490/8990/8992, already stated.
+  - *DD6 D-DD.157 precision.* `history.json` cold `kwh` leaves are whole kWh. The meter value is written rounded
+    half-even to whole kWh (1659.750 → 1660), the History series' precision. The bill keeps the exact meter kWh.
+    The two are one figure at two precisions, and `meter_billed` prints the pair.
+  - *Units (D-DD.161, D-DD.162).* DD 55.0 → **55.5 u in twelve parts**: DD4b 5.25, DD5a 3.75.

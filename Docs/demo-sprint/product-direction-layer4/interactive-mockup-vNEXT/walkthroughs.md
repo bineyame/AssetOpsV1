@@ -64,7 +64,7 @@
 <!--derives: §2.0; §2.4; §2.6; WP §1.2; WP §1.5-->
 
 **Step 1. Three rooms that look alike.** Route `#/portfolio`, operator Harvest Cold Network.
-- *Sees:* contribution $946.00<!--fig:portfolio.harvest-cold.actual.sums.contribution--> against $1,716.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->. Under Grow, Mwea's empty space; under Optimize, Kirinyaga's electricity above what its occupancy explains and Thika's customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability-->. Under Protect, one batch exposed above its limit and 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika, with the stock value at stake listed, not added.
+- *Sees:* contribution $2,127.75<!--fig:portfolio.harvest-cold.actual.sums.contribution--> against $2,877.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->. Under Grow, Mwea's empty space; under Optimize, Kirinyaga's electricity above what its occupancy explains and Thika's customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability-->. Under Protect, one batch exposed above its limit and 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika, with the stock value at stake listed, not added.
 - *Why it matters:* similar rooms need different moves: a customer at Mwea, a repair at Kirinyaga, cover at Thika.
 - *Who:* Esther, the operator executive, reads it.
 
@@ -74,24 +74,24 @@
 - *Who:* Brian, Site manager at Thika, chose it and created the Action, released when created because it is within the threshold and needs no visit by a technician.
 
 **Step 3. The portfolio's plan.** Route `#/plan`.
-- *Sees:* $720.00<!--fig:plans.harvest-cold.default.spend--> of the budget and a modelled +$3,182.40<!--fig:plans.harvest-cold.default.value--> from the valued options. Switch "aggregator signs" to "No" and the Mwea contract drops out.
+- *Sees:* $720.00<!--fig:plans.harvest-cold.default.spend--> of the budget and a modelled +$2,519.82<!--fig:plans.harvest-cold.default.value--> from the valued options. Switch "aggregator signs" to "No" and the Mwea contract drops out.
 - *Who:* Esther approves the version.
 
 ## 4. Metro Bus Depots: Kasarani (EV depots)
 <!--derives: §2.0; §2.1; §2.4; §2.6; WP §1.3; WP §1.5-->
 
 **Step 1. A cost centre judged on service.** Route `#/portfolio`, operator Metro Bus Depots.
-- *Sees:* charging and depot cost of $41,705.12<!--fig:portfolio.metro-bus.actual.sums.cost_to_serve--> against $38,520.80<!--fig:portfolio.metro-bus.plan.sums.outcome_total_with_stated_totals-->; revenue is "not applicable". Under Protect, required departures missed: none in October, 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> since charger 2 failed at Kasarani on 1 Nov, shown separately from October; those cost 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> in penalties, which the Optimize card counts as cost.
+- *Sees:* charging and depot cost of $41,705.12<!--fig:portfolio.metro-bus.actual.sums.cost_to_serve--> against $38,520.80<!--fig:portfolio.metro-bus.plan.sums.outcome_total_with_stated_totals-->; revenue is "not applicable". Under Protect, required departures missed: none in October, 7<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> since charger 2 failed at Kasarani on 1 Nov, shown separately from October; those cost 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> in penalties, which the Optimize card counts as cost.
 - *Why it matters:* the structure shows the risk at the factor, before any invoice arrives.
 - *Who:* Daniel, the operator executive, reads it.
 
 **Step 2. Keeping every departure.** Route `#/decision/kasarani-charger`.
-- *Sees:* waiting for the manufacturer's repair would likely miss 2<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> more departures in the 3 nights to 9 Nov, 240.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> more in penalties, and is rejected because it breaks the departures limit. Charging the short bus at Ruiru on the nights the spare bus cannot cover is worth +$150.00<!--fig:options.KAS-OEM-STOPGAP.value--> to the restore on 9 Nov, against the reference of waiting. Repairing locally is rejected because it voids 380.00<!--fig:options.KAS-LOCAL.rights.cover_lost--> of cover.
+- *Sees:* waiting for the manufacturer's repair would likely miss 5<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> more departures in the 3 nights to 9 Nov, 600.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> more in penalties, and is rejected because it breaks the departures limit. Charging the short buses at Ruiru on the nights the spare bus cannot cover is worth +$375.00<!--fig:options.KAS-OEM-STOPGAP.value--> to the restore on 9 Nov, against the reference of waiting. Repairing locally is rejected because it voids 380.00<!--fig:options.KAS-LOCAL.rights.cover_lost--> of cover.
 - *Why it matters:* the decision sits under Protect because it restores departures; the penalties it avoids are money, a cost under Optimize.
 - *Who:* Mercy, Site manager at Kasarani, chose it and created the Action, released when created.
 
 **Step 3. Growth on the chargers already in place.** Routes `#/portfolio/demand-and-capacity`, then `#/plan`.
-- *Sees:* Ruiru can take 6 more buses on its chargers, shown as potential beside Grow, never counted as revenue. The plan holds a spend of $1,590.00<!--fig:plans.metro-bus.default.spend--> for a modelled +$95,634.00<!--fig:plans.metro-bus.default.value-->, almost all from Embakasi's charging schedule; its per-bus departure timing reads "Not available yet: needs a simulation of the charging schedule".
+- *Sees:* Ruiru can take 6 more buses on its chargers, shown as potential beside Grow, never counted as revenue. The plan holds a spend of $1,725.00<!--fig:plans.metro-bus.default.spend--> for a modelled +$95,859.00<!--fig:plans.metro-bus.default.value-->, almost all from Embakasi's charging schedule; its per-bus departure timing reads "Not available yet: needs a simulation of the charging schedule".
 - *Who:* Daniel approves; Ibrahim, Site manager at Embakasi, owns the schedule.
 
 ## 5. The owner's checklist

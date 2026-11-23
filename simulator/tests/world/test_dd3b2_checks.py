@@ -55,8 +55,8 @@ def _mini_failures(result) -> list[str]:
 def test_c_dd6_kisiwa_and_mto_clauses_live_on_the_writer_rows(books, kisiwa, mto) -> None:
     result = dd_check.judge_failures_at_instant({"KISIWA-001": kisiwa, "MTO-001": mto})
     assert not _mini_failures(result), result.detail
-    assert [p.split()[0] for p in result.pending] == ["EV-KAS", "EV-RUI"]
-    assert [c["evidence"] for c in dd_check.FAILURES_LIVE] == ["event", "state", "power"]
+    assert result.pending == []  # the EV clauses are live too (DD4.4, merged from main)
+    assert [c["evidence"] for c in dd_check.FAILURES_LIVE] == ["event", "event", "event", "state", "power"]
     assert any("11:02 is the O&M record's" in d for d in result.detail)
     # information (D-DD.146): the August outage fails at 19:20 and restores to STOPPED at 11:00
     august = _run(books, "KISIWA-001", "2026-08-14", "2026-08-17")[0]

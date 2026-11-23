@@ -140,6 +140,13 @@ resumed. State in every review which reviewer produced it.
     review per slice; a re-review only when the review has a High or Medium; Lows are fixed in
     the next builder run and noted, not re-reviewed. (d) One kept Architect per lane runs one
     lane-wide pre-flight for all remaining parts before they are built.
+  - **Fourth audit (owner, 23 Nov: "yes").** (a) Build cards: at pre-flight the lane Architect
+    writes one card per part (`specs/<lane>/cards/<part>.md`: the spec lines and rulings that
+    apply, by id and line, the tests, the plants and the reach set). A builder reads its card
+    and the code, never the whole spec or rulings file. (b) Evidence and logs live under
+    `/opt/assetecon/evidence/<slice>/`, never in a shared scratch folder (it was wiped mid-run
+    four times). (c) No hand-back while any job the agent started is still running; a reviewer
+    flags a breach as a Low.
   - **No merge without the shared branch held:** a branch is held behind another only when
     they share files (`git diff --name-only` overlap); otherwise each merges on its own ACCEPT
     (IA-P1 waited hours behind IA-2b1 with no overlap).

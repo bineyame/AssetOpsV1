@@ -140,18 +140,15 @@ def _dd_check():
 def test_c_dd6_thika_clauses_live_on_the_writer_rows(incident) -> None:
     _minutes, rows = incident
     dd_check = _dd_check()
-    result = dd_check.judge_failures_at_instant({"COLD-THIKA": rows})
-
-    def thika_fails(judged) -> list[str]:  # Kisiwa's and Mto's clauses are judged on their own rows (D-DD.146)
-        return [d for d in judged.detail if d.startswith("COLD-THIKA")]
-    assert result.check == "C-DD6" and not thika_fails(result), result.detail
-    assert [p.split()[0] for p in result.pending] == ["EV-KAS", "EV-RUI"]  # Kisiwa and Mto live (D-DD.146)
+    result = dd_check.judge_failures_at_instant({"COLD-THIKA": rows}, sites=("COLD-THIKA",))
+    assert result.check == "C-DD6" and result.passed, result.detail
+    assert result.pending == []  # the EV clauses (DD4.4) and Kisiwa's and Mto's (D-DD.146) are live
     moved = [dict(r) for r in rows]
     for r in moved:  # the failure planted a minute late: the clause fails
         if r["unit"] == "event" and r["event"]["outcome"] == "FAILED":
             r["start"] = r["start"].replace("T19:11", "T19:12")
-    assert thika_fails(dd_check.judge_failures_at_instant({"COLD-THIKA": moved}))
+    assert not dd_check.judge_failures_at_instant({"COLD-THIKA": moved}, sites=("COLD-THIKA",)).passed
     hot = [dict(r, value="12.5") if r["source_id"] == "chamber-probe" and r["start"][11:16] == "20:25" else r
            for r in rows]
-    assert thika_fails(dd_check.judge_failures_at_instant({"COLD-THIKA": hot}))
-    assert thika_fails(dd_check.judge_failures_at_instant({}))  # no Thika rows
+    assert not dd_check.judge_failures_at_instant({"COLD-THIKA": hot}, sites=("COLD-THIKA",)).passed
+    assert not dd_check.judge_failures_at_instant({}).passed  # no Thika rows

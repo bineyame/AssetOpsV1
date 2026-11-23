@@ -1,0 +1,14 @@
+{
+  "files": {
+    "lakeside-power/telemetry/KOBO-001.2026-07-01.readings.json": "2f0060a555503e4c14a079e2b061f8e0da760151efce12dca8cc1e55c5a32cb0",
+    "lakeside-power/telemetry/KOBO-001.2026-07-02.readings.json": "594e81e241b02180fb70175739f125b5e6fa6c55d5a0f5d7983b63180c8d32d6",
+    "lakeside-power/telemetry/KOBO-001.2026-07-03.readings.json": "c14817f462982800a921a1dd2bf800efd8408bad5a4d01f081e9035ee04a72d2",
+    "lakeside-power/telemetry/KOBO-001.2026-07-04.readings.json": "6b38fab487e9e74fa031e7c248760f597b64d64db5897729a737843d01447c18",
+    "lakeside-power/telemetry/KOBO-001.2026-07-05.readings.json": "afa3914e80fd37eca4bffc284b5c664990c65b307ce0c83a80a4bbe442206696",
+    "lakeside-power/telemetry/KOBO-001.2026-07-06.readings.json": "03c0d6d884552b3602b54e7fd9ad672692a411475a1826b8b9975baf0d8386c5",
+    "lakeside-power/telemetry/KOBO-001.2026-07-07.readings.json": "a97f5c09e5f2c05bd3186aa93e852d4c950566f32c8051c76cdcde586931843e",
+    "lakeside-power/telemetry/measured.json": "3bf5a6356f51da5e5cdf216b3c4225a5fd2798a7f5748761b931dc163d8478e5"
+  },
+  "source": "main 0c44ae75b, before DD4.4: Kobo's 7 days from 2026-07-01 on D-DD.75 W1's inputs (test_telemetry_join_parity's)",
+  "note_2026_11_23": "Re-based at the merge of main into DD3b (M rev 16.22): Kobo's W1 world is DD3b's (fuel notes, units), so the parity bytes are the DD3b head 22cf40ec3 writer's on the same W1 inputs; the merged writer equals them byte for byte (measured hooks change no mini-grid byte)."
+}

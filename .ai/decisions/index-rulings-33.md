@@ -1,9 +1,19 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.152)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.162)
 
 - `D-DD.146` C-DD6 reads each unit's admitted channel (no binding added): Kisiwa GEN-KS-01 state FAILED at 18:40, Mto INV-MT-02 power to 0 with the instant from the O&M book; inverter_state role to backlog; +0.25 u DD3b2 · live · specs/DD-demo-data/rulings.md
 - `D-DD.147` DD3b bound hit is ordering (reorder rule resolves); Kisiwa/Mto fuel story typed like Kobo's, restated by D-DD.131 (Kisiwa ~904 L, contribution ~+1,695); plan stays budget; owner asked · live · specs/DD-demo-data/rulings.md
 - `D-DD.148` Kisiwa plant stands: OR-MG-2 restated (candidate under 1 % of generator minutes); C-DD20 Kisiwa corrected to M (no unserved, GEN-KS-02 carries; redundancy lost); owner asked · live · specs/DD-demo-data/rulings.md
 - `D-DD.149` --pure defaults confirmed (tolerance from M, Kisiwa candidate per month); no per-day unserved series; +0.25 u DD3b3, DD 51.25 u · live · specs/DD-demo-data/rulings.md
-- `D-DD.150` Every mini-grid fuel bridge carries necessary, CANDIDATE_RUNNING and unexplained lines; Kisiwa -87.10, Mto -40.00 close; M commit released · live · specs/DD-demo-data/rulings.md
-- `D-DD.151` Kisiwa candidate share printed, not bounded (1 % bound withdrawn); OR-MG-2 leaves the negative controls; 95 % prints ~70 %; owner asked · live · specs/DD-demo-data/rulings.md
-- `D-DD.152` C-DD17 tolerance judged only in months with burn; draw stands; absolute tolerance floor a structure finding; +0.25 u DD3b3, DD 51.5 u; owner asked · live · specs/DD-demo-data/rulings.md
+- `D-DD.150` owner-answered 23 Nov: Every mini-grid fuel bridge carries necessary, CANDIDATE_RUNNING and unexplained lines; Kisiwa -87.10, Mto -40.00 close; M commit released · live · specs/DD-demo-data/rulings.md
+- `D-DD.151` owner-answered 23 Nov: Kisiwa candidate share printed, not bounded (1 % bound withdrawn); OR-MG-2 leaves the negative controls; 95 % prints ~70 %; owner asked · live · specs/DD-demo-data/rulings.md
+- `D-DD.152` owner-answered 23 Nov: C-DD17 tolerance judged only in months with burn; draw stands; absolute tolerance floor a structure finding; +0.25 u DD3b3, DD 51.5 u; owner asked · live · specs/DD-demo-data/rulings.md
+- `D-DD.153` Unexplained-fuel tolerance = max(2 % x consumption, 2a); a = tank level accuracy 1 % of capacity (Technoton DUT-E class), Assumed: Kobo 25, Kisiwa 50, Mto 10 L; Kobo Jul/Aug and Kisiwa Sep/Oct RAISED -> INSIDE; new DD3d · live · specs/DD-demo-data/rulings.md
+- `D-DD.154` DD world writes no FUEL_DELIVERY/TANK_DIP records (no served unexplained fuel; delivery nights EXCESS); default DD3d writes and loads them; +1.0 u, DD 53.75 u; owner informed · live · specs/DD-demo-data/rulings.md
+- `D-DD.155` DD3b3 dev 18: declared tanks stay 2,500/5,000/1,000 L (owner-approved); 1,500/2,000/500 was D-DD.76's rule re-run on restated books (D-DD.92 forbids); test pins declared only; no figure moves · live · specs/DD-demo-data/rulings.md
+- `D-DD.156` DD3b3 dev 17: history draws stand; H5 uses max(2 % x diesel_l, 2a) from the /2 file, in DD3d; M "within 2%" wording restated; six H5 lines known until DD3d; +0.25 u DD3d · live · specs/DD-demo-data/rulings.md
+- `D-DD.157` DD4b Q1: D-DD.144 parenthesis to "period"; DD6 sets history cold actual kwh Jul-Sep from measured.json (meter), D-DD.30 chain; +0.5 u DD6 · live · specs/DD-demo-data/rulings.md
+- `D-DD.158` DD4b Q2: D-DD.99 EV month gains windows 2200_2400 and 0000_0500; C-DD7 EV window clause live in a DD4b follow-up before DD6; +0.25 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.159` DD4b Q3: C-DD5 cadence ratified; states and events "ungridded"; CADENCE ON_CHANGE renamed UNGRIDDED · live · specs/DD-demo-data/rulings.md
+- `D-DD.160` DD4b Q4: DD5b owns C-DD7 mini clause (unserved from measured.json) and the stored_books fetch; DD6 one writer process per tenant; +0.25 u DD5b; DD 55.0 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.161` DD5a BLOCKER: v4 publish at conversion only for world_conversion=True and v4 role set (Lab W2-02 kept); site-meter; canonical decimals; EV session id is the pack's, copied by the sealer; +0.25 u DD4b, DD5a · live · specs/DD-demo-data/rulings.md
+- `D-DD.162` Card sweep: DD5a/DD5b/DD6 cards gain "Facts the code fixes" (protected behaviour, Foundation names, Decimal, id keys, import guard); cold history whole kWh; DD 55.5 u · live · specs/DD-demo-data/rulings.md

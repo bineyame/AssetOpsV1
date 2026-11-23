@@ -190,9 +190,12 @@ class EvChargerPack:
     """`ev-charger/1`: the closed connector/session state machine and shared-cap allocation."""
 
     def __init__(self, parameters: EvParameters, *, scenario_sha256: str,
-                 grid_available: bool = True) -> None:
+                 grid_available: bool = True, max_plugs: int | None = len(PLUG_LABELS)) -> None:
         self.parameters = parameters
         self.scenario_sha256 = scenario_sha256
+        #: DD4.3 (`specs/DD-demo-data/DD4b-preflight.md` Q1): v1 admits two plugs (`session-1`, `session-2`); the
+        #: world's depot passes None and plugs `session-<n>` in order, n = plugs + 1. The first two labels are v1's.
+        self.max_plugs = max_plugs
         #: Q3: a typed grid-available input retained for future profiles, frozen True for every 05b minute.
         self.grid_available = grid_available
 
@@ -208,7 +211,7 @@ class EvChargerPack:
         if kind == "PLUG":
             if c.state != "UNPLUGGED":
                 raise refuse("only an unplugged connector can be plugged")
-            if state.plugs >= len(PLUG_LABELS) or value != PLUG_LABELS[state.plugs]:
+            if (self.max_plugs is not None and state.plugs >= self.max_plugs) or value != f"session-{state.plugs + 1}":
                 raise refuse("plug labels follow session-1 then session-2 without reuse")
             session = scoped_session_id(self.scenario_sha256, value)
             state = replace(state, plugs=state.plugs + 1)

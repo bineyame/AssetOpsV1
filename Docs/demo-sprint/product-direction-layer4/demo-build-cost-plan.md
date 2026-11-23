@@ -42,12 +42,12 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 
 | Factor state | Intended value | Facts | Time scale |
 |---|---|---|---|
-| Mwea occupancy vs energy efficiency | 4,340 crate-days (35%); kWh within 0.6% of model | storage ledger; hourly energy; ambient | ledger + sparse context |
-| Kirinyaga efficiency deviation | 970 kWh (24%) above model at plan occupancy | same | ledger + sparse context |
+| Mwea occupancy vs energy efficiency | 4,340 crate-days (35%); kWh within 2.1% of model | storage ledger; hourly energy; ambient | ledger + sparse context |
+| Kirinyaga efficiency deviation | 260.03 kWh (14%) above model at plan occupancy | same | ledger + sparse context |
 | Thika exposure / damage / liability | 2,160.00 at stake / 108.00 / 108.00; B-1034 not exposed; B-1029 absent | chamber readings 6 Oct 19:00–20:00; grid and backup events; ledger; QA note 7 Oct; CN-0412; contract clause | evidence window + ledger + documents |
 | Rights | EPC claim accepted 17 Oct; insurer notified, no claim (108 < 500) | documents; claim events; test log 3 of 3 | documents + events |
 
-**Metro Bus (EV depots, captive).** *Choice:* Kasarani stopgap now (departures at risk), Embakasi deadline-aware schedule (largest money), absorb six more buses at Ruiru; spend 1,590.00<!--fig:plans.metro-bus.default.spend--> of 5,000.
+**Metro Bus (EV depots, captive).** *Choice:* Kasarani stopgap now (departures at risk), Embakasi deadline-aware schedule (largest money), absorb six more buses at Ruiru; spend 1,725.00<!--fig:plans.metro-bus.default.spend--> of 5,000.
 
 | Factor state | Intended value | Facts | Time scale |
 |---|---|---|---|
@@ -88,7 +88,7 @@ Each source is generated at the cadence its **factor observer** needs, and no fi
 | OCPP logs | **OCPP emulator** emitting a CPMS log file from simulated sessions (new; none exists today, baseline §8.8 [implementation-report]) | OCPP adapter → existing EV roles; idTag → commercial session attribution | — |
 | Factor values, outcome states, deviations, residuals, Findings, option values, plan, verdicts | the product's own observers, structure read, decision code and allocator | — | inserted; they are only compared, after the build, with the manifest's private `oracle:` |
 
-**Fixture consistency rules** (checked by the ledger generator before emitting, and by `check_manifest.py` for the arithmetic): every site's actual and plan values satisfy its structure to the cent (revenue = billed × tariff; cash = collected + in transit + outstanding; fuel cost = litres × price; cold revenue = crate-days × 0.20 and model kWh = 1,550 + 0.25 × crate-days; EV energy cost = Σ bands + demand); each site's factor attributions sum to its deviation; portfolio = Σ sites; allocation spend = Σ options ≤ budget; generated rows sum to the manifest totals (the per-customer split of Mto's 140 kWh, the size of each Kobo delivery); unrelated sites stay healthy.
+**Fixture consistency rules** (checked by the ledger generator before emitting, and by `check_manifest.py` for the arithmetic): every site's actual and plan values satisfy its structure to the cent (revenue = billed × tariff; cash = collected + in transit + outstanding; fuel cost = litres × price; cold revenue = crate-days × 0.20 and model kWh = 1,304 + 0.0554 × crate-days; EV energy cost = Σ bands + demand); each site's factor attributions sum to its deviation; portfolio = Σ sites; allocation spend = Σ options ≤ budget; generated rows sum to the manifest totals (the per-customer split of Mto's 140 kWh, the size of each Kobo delivery); unrelated sites stay healthy.
 
 ---
 

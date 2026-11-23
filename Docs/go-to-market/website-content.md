@@ -206,7 +206,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Is this room losing money because it is empty, or because it is inefficient?
 
-> <!--tag:coming--><!--tag:demo-emulated--> The room with the highest energy cost per crate-day has nothing wrong with its equipment: only 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.occupied_total_crate_days--> of its 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days were filled. The room that looks efficient draws 970<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> kWh a month more than its occupancy explains, and repairing it is the recommended option.
+> <!--tag:coming--><!--tag:demo-emulated--> The room with the highest energy cost per crate-day has nothing wrong with its equipment: only 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.occupied_total_crate_days--> of its 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days were filled. The room that looks efficient draws 260.03<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> kWh a month more than its occupancy explains, and repairing it is the recommended option.
 
 > <!--tag:today--> Know, room by room, when temperature left its limit and whether the backup started.
 

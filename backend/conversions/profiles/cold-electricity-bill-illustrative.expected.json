@@ -1,0 +1,89 @@
+[
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-KIRI:2026-10:electricity",
+    "source_version": "1",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "SITE",
+      "ref": "COLD-KIRI"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "2113.603",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "422.72",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-KIRI-UTIL",
+      "line_type": "USAGE",
+      "tariff_code": "T-GRID-COLD"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-MWEA:2026-10:electricity",
+    "source_version": "1",
+    "site_code": "COLD-MWEA",
+    "subject": {
+      "kind": "SITE",
+      "ref": "COLD-MWEA"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "1576.300",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "315.26",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-MWEA-UTIL",
+      "line_type": "USAGE",
+      "tariff_code": "T-GRID-COLD"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-THIKA:2026-10:electricity",
+    "source_version": "1",
+    "site_code": "COLD-THIKA",
+    "subject": {
+      "kind": "SITE",
+      "ref": "COLD-THIKA"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "1771.350",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "354.27",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-THIKA-UTIL",
+      "line_type": "USAGE",
+      "tariff_code": "T-GRID-COLD"
+    }
+  }
+]

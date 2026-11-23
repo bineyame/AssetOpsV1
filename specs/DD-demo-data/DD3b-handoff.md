@@ -62,3 +62,9 @@ manifest yaml, economic-metric md, history.json, fixtures.js, index.html, layer4
 golden/history_v1.json x2, test_dd4_thika_incident x2, spec.md, dd_check.py x4). Merge aborted; generated files need the
 D-DD.30 regeneration after the text merge. (2) 7 DDR rehearsal tests (see packet table). (3) test_ds4 t12 (a). (4) rerun of the
 affected files in one --db-lane call, host/simulator reach lines, guards.
+
+## Run 4: main merged (M rev 16.22)
+
+Done: `git merge main` resolved and regenerated (packet "Merge of main"); check_manifest = main's 6 + six H5; `dd_check --pure`
+exit 0; guards pass. Open: 7 DDR rehearsal tests and ds4 t12 (Architect, fuel cost); main's own 7 world failures (packet).
+

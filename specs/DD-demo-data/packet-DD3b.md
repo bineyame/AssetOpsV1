@@ -446,3 +446,33 @@ Rule: (b) = the test pinned a hand figure that M rev 16.20 moved (D-DD.150-152),
 | test_3b1 `leaf_sources...`, test_3b3 `t6` | pre-existing on main `9c38b69ac` (fail there too: code `dispatch-3.3`, manifest `dispatch-3.2`) | not caused by DD3b; not touched |
 | test_ddr_rehearsal_postgres (7) | OPEN | expect file `lakeside-2026-10.expect.json` stated fuel re-pinned to the books (Kisiwa 1,040, Kobo 500, Mto null; D-DD.130 purchases); still 7 fail: G4 PRICE_SOURCE for MTO-001 (no fuel purchase, so no invoice price), statements 5,100 / 5,000 against fuel books 1,540, screen literals ($4,995, -$755). (a)-candidate for Mto price source |
 | test_ds4_world_postgres t12 | (a) | C4: the DB's fuel_cost is the books (purchases: Kisiwa 1,040, Kobo 500, Mto none) while M's node is consumption (1,175.20 / 792.50 / 40.00). D-DD.130 design vs the C4 rule; for the Architect, not fixed |
+
+## Merge of main (DD4b) into DD3b, `M` rev 16.22 (23 Nov; evidence `/opt/assetecon/evidence/DD3b/merge-main/`)
+
+- 14 conflicted files. Hand-merged, both sides kept: `M` header (new rev 16.22 note naming DD3b3's rev 16.20 and DD4b's
+  rev 16.20/16.21; the two branches both numbered a 16.20), `check_manifest.py` (both dated notes; digests re-based),
+  `dd_check.py` (PENDING: C-DD6 has none left, since both sides made their clauses live; FAILURES_LIVE carries
+  main's three `event` clauses with `source_ids`/`outcome` and DD3b's `state`/`power` clauses; one judge with main's
+  `sites=` filter and DD3b's per-evidence branches; both sides' new sections kept), spec status, state (DD4b 211;
+  DD3b renumbered 212-215), `test_dd4_thika_incident.py` and `test_dd3b2_checks.py` (C-DD6 pending is now empty),
+  the three docs (Lakeside lines DD3b's, Harvest Cold line main's).
+- Regenerated (D-DD.30 chain), not hand-merged: `history.json` (`world_history.py generate`; `check` exit 0),
+  `derived-values.json`/`missing-records.json` (`evaluate_structure.py`), `fixtures.js` (`gen_fixtures.py`: evaluator vs
+  stated fields 0 differences), `index.html` (`build.mjs`), `fixtures/view_v1.json` (`view`, unchanged), golden
+  `history_v1.json` (`--update-golden`). Three-way check of derived-values and history.json against base, main and
+  DD3b: every value equals one side, no side's change lost, nothing moved that neither side moved.
+- Doc figures the merge made checkable (600.00 and 375.00 became option/plan figures with DD4b): economic-metric
+  Kobo examples restated to M's October (634 vs 700 L, +82.50; hypothetical AT-3 on the same litres, E5), a
+  `figx` on Mto's 375.00 sum in worked-portfolios, design-appendix rev 16.10 history note no longer quotes −600.00.
+- Re-based with dated notes: H8 derived, H10, K8, K13 sites/portfolio/history; golden `measured_kobo_main.json`
+  (m6) to the DD3b head writer's bytes on the W1 inputs (the merged writer equals them byte for byte).
+- check_manifest: 7,875 passed, 12 failed = main's 6 (H9, A1, A2, A3, A5, walkthroughs 3,184) + the six H5 D-DD.156
+  lists (Kobo 12/12/11, Kisiwa 20/19/18). `dd_check --pure` exit 0 on a rebuilt Jul-Oct DIR (same lines as run 2).
+- simulator/tests/world: 8 failed, 441 passed before the m6 re-pin; 7 of them fail identically on main (temp worktree,
+  removed): test_core t6 `31`, test_dd2b_cold c11, physical_reads cold x2, scope_seasons x3 (cold digests only; the
+  Lakeside digests match). Focused rerun after the re-pin: 51 passed. Guards: architecture, agent workflow,
+  statement catalogue pass.
+- Held figures: Kasarani 840.00, cold energy 315.26 / 354.27 / 422.72, Kobo 634 L, Kisiwa 904 L, Mto 32 L.
+- Still open (not touched; the Architect is ruling fuel cost purchases vs consumption): the 7 DDR rehearsal tests and
+  `test_ds4_world_postgres` t12.
+

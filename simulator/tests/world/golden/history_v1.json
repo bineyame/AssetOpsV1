@@ -1,15 +1,15 @@
 {
- "file_sha256": "77430f1d4338e64722ed67f7ca561be59c58f29af81d32142db01751d2219a22",
+ "file_sha256": "23013f57b12bcb369e634d2c6c48b04ca736bf3ea146dccda1ca6abe3c533e43",
  "scopes": {
-  "harvest-cold/Room A · Mwea/2026-07": "e67625abdf9d079411d1442b3c3de3ddbfcf28412e5844b9addac70395db3005",
-  "harvest-cold/Room A · Mwea/2026-08": "fc1e58eee5ebfd096873e091da1473d31e22d1caf94030396e932a349fbc8d25",
-  "harvest-cold/Room A · Mwea/2026-09": "25a06eb8f2d4ae00690534d83d0a315ab3fcb028c932884e8b072d1e2401e0de",
-  "harvest-cold/Room B · Thika/2026-07": "ea2473d31442120d217a82d8f66e179088410dbfa08f685faef444789b17d88e",
-  "harvest-cold/Room B · Thika/2026-08": "735a005a69ca71b2267b3bbfb158f24f9d690c950f1584d312d192e614367c92",
-  "harvest-cold/Room B · Thika/2026-09": "4cf695b1901f35e3784ff5f0bcc8432709f5e9bc89755559e157321cbc10114b",
-  "harvest-cold/Room C · Kirinyaga/2026-07": "d7c52494d11749c2eec5b392b3fc3e2934b65bec654b42babf04fe560a70d7d1",
-  "harvest-cold/Room C · Kirinyaga/2026-08": "6028c2e1ada008bd362a6ce41951d281aefd4b1ba1e30c9687a1547bf84cccbd",
-  "harvest-cold/Room C · Kirinyaga/2026-09": "be8c9a24edbd1e18ba9ad0c1a00fd540ff0af000220ae33d49532dbec9c79a3b",
+  "harvest-cold/Room A · Mwea/2026-07": "348075a76a6a578672c8b4396c5bfcc806c83a842bf2cbd4c86f301c840fa218",
+  "harvest-cold/Room A · Mwea/2026-08": "dbcdc063e39f63be0817a7a2057857956ce7962c89fd64db98c737a6874b4a33",
+  "harvest-cold/Room A · Mwea/2026-09": "a7215e8537f12e7e5bb9fbce24e4f4824f4655205d4bff31326633d88113b4f6",
+  "harvest-cold/Room B · Thika/2026-07": "5c3a860dc198ae60fc3ec4c7ee3ea4733d38cd6a29b3f21280efd2292c656d50",
+  "harvest-cold/Room B · Thika/2026-08": "64eb5377d5060a08e17376e0cd0b782a095aef5e4a6c0d3adb07ce4a7c08494a",
+  "harvest-cold/Room B · Thika/2026-09": "207beebc09be85ede9a61545853c994d3e4347d892a535cb02011f67c5cccf64",
+  "harvest-cold/Room C · Kirinyaga/2026-07": "7771d4f3c12b9d3ea52c5b7d3d9e60c2e7c033bd7eaafad7688f400a1a86197d",
+  "harvest-cold/Room C · Kirinyaga/2026-08": "29af1acd011e6e253b1d953e26fd85b4d3137ee2430b40c3243c83d05d2a55b0",
+  "harvest-cold/Room C · Kirinyaga/2026-09": "0f82e90ba4b5fed164abf6dd885261fd8dfcf89ffe367ded4ec80068d915f890",
   "lakeside-power/Kisiwa/2026-07": "371a3a9928c8f931557a2efe4ec8ee4a78004fb2d0c23ff34bd78e86343cf48b",
   "lakeside-power/Kisiwa/2026-08": "fe59a2264d73a5a739d59a3fe37955cc318cac7baa36c8fec60892389fa1b604",
   "lakeside-power/Kisiwa/2026-09": "c04e693ad15910e06dd02fe9afc18c5117e67bdfbc47c63dbca52cc26b4716f1",
@@ -29,5 +29,5 @@
   "metro-bus/Ruiru/2026-08": "1a206ef0fa6e53900dd1af5fe636a155b7b61831ecd9f9cd52772dd5d646491d",
   "metro-bus/Ruiru/2026-09": "b2cdd2801ea59e26199535982b3eeec308fb469344ab3b19c86cfe42adab3301"
  },
- "view_digest": "361562bf1f460879980bc32b63b50cd34eb311021ff23615d65129e1b9460b22"
+ "view_digest": "81d118a80a182017f7ac435dd9b51a629fb07bffd03e4de4c87584d443cd763c"
 }
