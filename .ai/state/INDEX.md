@@ -21,7 +21,7 @@ open the named area file at that `## ` heading. Never read an area file whole.
 | `demo.md` | combined demo dataset, polish passes, add-dates | 10 | 20 KB |
 | `sites.md` | Sites, Foundation, SLD, Readiness, Overview, Health | 20 | 77 KB |
 
-Slice lists: `index-1.md`, `index-2.md`, `index-3.md`.
+Slice lists: `index-1.md`, `index-2.md`, `index-3.md`, `index-4.md`.
 
 New entries: add a `## <slice ID> - <title>` section to the end of the matching area
 file, and one line to the last `index-*.md` (a new part when it passes the 2k-token cap).
