@@ -5,6 +5,11 @@ Pure literal data (D-SC1.3), the 1a pattern. A driver is its factor's label and 
 statement's text (`deep_dive.label`, `deep_dive.money`); a period is `portfolio_period.span`'s text.
 """
 STATEMENTS = {
+    "portfolio_sites.no_comparisons": {
+        "slots": {"period": {"type": "name"}},
+        "variants": [{"id": "none", "text": "No Sites have figures to compare with target in {period}"}],
+        "rephrase": "never",
+    },
     "portfolio_sites.headline": {
         "slots": {"sites": {"type": "k_of_n"}, "period": {"type": "name"},
                   "below": {"type": "state", "values": ["SOME", "NONE"]}},

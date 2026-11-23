@@ -22,6 +22,7 @@ from .conftest import load_fixture, site_of, tenant_of
 EXPECTED = {
     "MINI_GRID": {
         "actual": ("diesel_l", "necessary_l", "candidate_l", "diesel_cost", "contribution", "variance"),
+        "plan": ("diesel_l", "necessary_l", "candidate_l", "unexplained_l", "diesel_cost", "contribution", "variance"),
         "period": ("fuel_balance", "bridge", "findings_expected"),
     },
     "COLD_CHAIN": {"actual": ("kwh",)},
@@ -110,7 +111,7 @@ def test_period_input_drops_only_listed_keys_and_skips_missing_ones() -> None:
     site_doc = {"period": {"actual": {"diesel_l": 1, "delivered_kwh": 2}, "plan": {"diesel_l": 3}, "coverage": {}}}
     assert scope_module.period_input(site_doc, "MINI_GRID") == {
         "actual": {"delivered_kwh": 2},
-        "plan": {"diesel_l": 3},
+        "plan": {},
         "coverage": {},
     }
     assert scope_module.period_input(site_doc, "UNKNOWN_VERTICAL") == site_doc["period"]
@@ -126,9 +127,9 @@ from assetops_simulator.world.history import generate_scope  # noqa: E402
 
 #: Stated here, independently of `history.RUN_DERIVED` (D-DD.176; listed from the code's rules in pre-flight).
 EXPECTED_DERIVED = {
-    "MINI_GRID": ("necessary_l", "candidate_l"),
-    "COLD_CHAIN": ("kwh",),
-    "EV_DEPOT": ("peak_kwh", "offpeak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw"),
+    "MINI_GRID": ("actual.necessary_l", "actual.candidate_l", "plan.diesel_l"),
+    "COLD_CHAIN": ("actual.kwh",),
+    "EV_DEPOT": ("actual.peak_kwh", "actual.offpeak_kwh", "actual.kwh_2200_2400", "actual.kwh_0000_0500", "actual.max_kw"),
 }
 
 
@@ -180,8 +181,7 @@ def _stray_paths(tenant: str, site: str) -> list[str]:
             for month in after:
                 for path in set(after[month]) | set(before[month]):
                     if after[month].get(path) != before[month].get(path):
-                        leaf = path.split(".")[-1]
-                        if path.split(".")[0] not in SIDES_HISTORY or leaf not in derived:
+                        if path not in derived:
                             stray.append(f"{side}.{key} -> {month} {path}")
             if scope_module.physical_read(site_of(view, tenant, site), rules) != physical:
                 stray.append(f"{side}.{key} -> physical")
@@ -197,12 +197,13 @@ def test_run_derived_table_is_as_ruled_and_never_read_back() -> None:
     assert history_module.RUN_DERIVED == EXPECTED_DERIVED
     physical = {k for keys in scope_module.PHYSICAL_READS.values() for k in keys} | set(scope_module.PHYSICAL_READS)
     for vertical, keys in history_module.RUN_DERIVED.items():
-        assert not set(keys) & physical
-        assert not set(keys) & set(history_module.WRITER_READS[vertical])
+        leaves = {path.split(".")[1] for path in keys}
+        assert not leaves & physical
+        assert not leaves & set(history_module.WRITER_READS[vertical])
 
 
 def test_the_import_check_refuses_a_derived_key_a_writer_reads(monkeypatch) -> None:
-    monkeypatch.setitem(history_module.RUN_DERIVED, "MINI_GRID", ("necessary_l", "delivered_kwh"))
+    monkeypatch.setitem(history_module.RUN_DERIVED, "MINI_GRID", ("actual.necessary_l", "actual.delivered_kwh"))
     with pytest.raises(ValueError, match="RUN_DERIVED_READ_BACK MINI_GRID delivered_kwh"):
         history_module._run_derived_is_never_read_back()
 
@@ -250,10 +251,10 @@ def test_the_writers_read_no_run_derived_history_value() -> None:
             derived = history_module.RUN_DERIVED[tenant_doc["vertical"]]
             for months in out["tenants"][tenant_doc["tenant"]].values():
                 for block in months.values():
-                    for side in SIDES_HISTORY:
-                        for key in derived:
-                            if key in block[side]:
-                                block[side][key] += 7
+                    for path in derived:
+                        side, key = path.split(".")
+                        if key in block[side]:
+                            block[side][key] += 7
         return out
 
     planted = bumped()

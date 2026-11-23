@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.25 (DD3d.5, D-DD.166): Lakeside October fuel budgets follow the prior quarter plus a 10% contingency.
 # rev 16.24 (DD3d-a, 23 Nov 2026; D-DD.156): wording only, no figure moves: Kobo's UNEXPLAINED_FUEL note and Kisiwa's UNEXPLAINED_RESIDUAL basis name D-DD.153's tolerance, the larger of 2 % and 2a (the tank's declared level accuracy, Kobo 25 L, Kisiwa 50 L).
 # rev 16.23 (DD3b fix round, 23 Nov 2026; D-DD.164): run-written October keys leave the history scope digest, so Lakeside's Jul-Sep history was re-drawn once and the notes and leaves restated on it (fixed point: a second generate is byte-identical). Kisiwa 904 -> 903 L, necessary 817 -> 814, candidate 67 -> 69 L, fuel cost 1,175.20 -> 1,173.90, contribution 1,696.10, variance 1,761.10 (CANDIDATE_RUNNING -89.70, SOLAR_SHORTFALL_NECESSARY_GEN 1,931.80), dips 1,682 / 1,579; Kobo dips 1,241 / 1,007 (litres unchanged); Mto unchanged. Portfolio actual 4,431.60, cost to serve 5,256.40, variance 2,136.60, recorded 4,556.40 (0.8668).
 # rev 16.22 (merge of DD3b3 into main, 23 Nov 2026): both 23 Nov restatements stand together, nothing re-decided: DD3b3's rev 16.20 (mini-grid October fuel, below) and DD4b's rev 16.20 (EV charger bound) and rev 16.21 (cold energy model); the two branches both numbered a rev 16.20. Portfolio totals and stated fields re-derived from the merged structure; history.json, derived-values.json, fixtures.js and index.html regenerated (D-DD.30 chain).
@@ -109,20 +110,21 @@ tenants:
     customers: {connections: 300, critical: [clinic], productive: [mill]}
     daytime_headroom: {usable_kw: "18-20", window: "10:00-15:00", customer_evidence: NONE,
                        note: "v7.0 Finding F-109; capacity without a paying customer is shown as capacity, never as an opportunity value"}
+    fuel_plan: {class: ASSUMED, basis: "Budget set from last quarter's fuel use plus 10 % contingency (assumed operator practice)"}
     period: &kobo_oct
-      plan:   {billed_kwh: 8550, revenue: 3420.00, diesel_l: 700, diesel_cost: 875.00, om: 600.00, staff: 500.00, contribution: 1445.00}
+      plan:   {billed_kwh: 8550, revenue: 3420.0, diesel_l: 295, diesel_cost: 368.75, om: 600.0, staff: 500.0, contribution: 1951.25}
       actual: {delivered_kwh: 9100, metered_kwh: 8690, technical_loss_kwh: 410, adjustments_kwh: 45,
                billed_kwh: 8645, revenue: 3458.00, collected: 3180.00, in_transit: 0.00, outstanding: 278.00,
                diesel_l: 634, necessary_l: 489, candidate_l: 25, unexplained_l: 120, diesel_cost: 792.50, om: 600.00, staff: 500.00, contribution: 1565.50}
       coverage: {revenue: RECORDED, diesel: RECORDED, om: RECORDED, staff: RECORDED}
-      variance: 120.50
+      variance: -385.75
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kobo}", class: ECONOMIC_ACTUAL}
         - {driver: CANDIDATE_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -31.25, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kobo].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC", class: DERIVED,
            note: "observed factor; how much of it an option avoids is that option's effect (M3), never a node of the observed structure"}
-        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: 263.75, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
+        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -242.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} consumed minus modelled; investigate (MG-L5)", class: DERIVED}
-      fuel_balance: {opening_dip_l: 1241, deliveries_l: 400, closing_dip_l: 1007, consumed_l: 634, model_implied_l: 514, residual_l: 120, tolerance_pct: 2.0}
+      fuel_balance: {opening_dip_l: 1245, deliveries_l: 400, closing_dip_l: 1011, consumed_l: 634, model_implied_l: 514, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
       - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "5 of 31", gross_exposure_l: [0, 25], gross_exposure_usd: [0.00, 31.25], note: "fuel-cost-1 upper bound (includes its 1.10 consumption allowance); NOT the decision value and NOT the observed candidate-running factor (25 L x 1.25 = 31.25, projected from the pure run); the build keeps the two separate"}
       - {mechanism: UNEXPLAINED_FUEL, residual_l: 120, note: "above tolerance (the tank's 50 L measurement floor; 2 % is 12.68 L); investigation, no recovery claimed"}
@@ -189,21 +191,22 @@ tenants:
     reuse: "existing demo Site (template kisiwa-diesel-hybrid-60kw.yaml)"
     physical: {pv_kw: 30, battery_kwh: 80, reserve_soc_pct: 30, gensets: [{id: GEN-KS-01, kw: 60}, {id: GEN-KS-02, kw: 60}], sfc_l_per_kwh: 0.31}
     service_obligations: ["evening supply 18:00-23:00 (capacity short every evening: load > PV + PCS)"]
+    fuel_plan: {class: ASSUMED, basis: "Budget set from last quarter's fuel use plus 10 % contingency (assumed operator practice)"}
     period:
-      plan:   {billed_kwh: 7500, revenue: 4125.00, diesel_l: 2300, diesel_cost: 2990.00, om: 700.00, staff: 500.00, contribution: -65.00}
+      plan:   {billed_kwh: 7500, revenue: 4125.0, diesel_l: 1180, diesel_cost: 1534.00, om: 700.0, staff: 500.0, contribution: 1391.00}
       actual: {delivered_kwh: 7950, technical_loss_kwh: 520, metered_kwh: 7430, adjustments_kwh: 30, billed_kwh: 7400, revenue: 4070.00,
-               collected: 3800.00, in_transit: 0.00, outstanding: 270.00, diesel_l: 903, necessary_l: 814, candidate_l: 69, unexplained_l: 20, diesel_cost: 1173.90, om: 700.00, staff: 500.00, contribution: 1696.10}
+               collected: 3800.00, in_transit: 0.00, outstanding: 270.00, diesel_l: 903, necessary_l: 819, candidate_l: 64, unexplained_l: 20, diesel_cost: 1173.90, om: 700.00, staff: 500.00, contribution: 1696.10}
       coverage: {revenue: RECORDED, diesel: RECORDED, om: ESTIMATED, staff: RECORDED}
       coverage_note: "O&M invoice for October not received; plan amount carried as ESTIMATED"
-      variance: 1761.10
+      variance: 305.10
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KIS-2026-10-REV, amount: -55.00, basis: "100 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kisiwa}", class: ECONOMIC_ACTUAL}
-        - {driver: CANDIDATE_RUNNING, overlap_group: KIS-2026-10-FUEL, amount: -89.70, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kisiwa].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC; projected from the pure run; the served figure is the product's (D-DD.150)", class: DERIVED}
-        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: 1931.80, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
+        - {driver: CANDIDATE_RUNNING, overlap_group: KIS-2026-10-FUEL, amount: -83.20, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kisiwa].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC; projected from the pure run; the served figure is the product's (D-DD.150)", class: DERIVED}
+        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: 469.30, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KIS-2026-10-FUEL, amount: -26.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}; within tolerance (the larger of 2 % and the tank's 100 L measurement floor), reported not investigated", class: DERIVED}
-      fuel_balance: {opening_dip_l: 1682, deliveries_l: 800, closing_dip_l: 1579, consumed_l: 903, model_implied_l: 883, residual_l: 20, tolerance_pct: 2.0}
+      fuel_balance: {opening_dip_l: 1682, deliveries_l: 800, closing_dip_l: 1578, consumed_l: 904, model_implied_l: 883, residual_l: 21, tolerance_pct: 2.0}
     findings_expected:
-      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "9 of 31", gross_exposure_l: [0, 69], gross_exposure_usd: [0.00, 89.70], note: "fuel-cost-1 upper bound (includes its 1.10 consumption allowance); NOT the decision value and NOT the observed candidate-running factor (67 L x 1.3 = 87.10, projected from the pure run); the build keeps the two separate"}
+      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "8 of 31", gross_exposure_l: [0, 64], gross_exposure_usd: [0.00, 83.20], note: "fuel-cost-1 upper bound (includes its 1.10 consumption allowance); NOT the decision value and NOT the observed candidate-running factor (64 L x 1.3 = 83.20, projected from the pure run); the build keeps the two separate"}
       - {warning: BATTERY_NEAR_RESERVE, days: 22}
     decision:
       thread: "Generator GEN-KS-01 failed (alternator); GEN-KS-02 carries the evening alone at 70% load"
@@ -243,20 +246,21 @@ tenants:
     reuse: "new demo Site; built from template hybrid-mini-grid-100kw.yaml scaled to 50 kW"
     physical: {pv_kw: 50, inverters: [{id: INV-MT-01, kw: 25}, {id: INV-MT-02, kw: 25}], battery_kwh: 150, reserve_soc_pct: 30, genset_kw: 30, sfc_l_per_kwh: 0.33,
                extra_l_per_day_at_half_inverter_capacity: 5, extra_l_basis: "design value from calibration spike M (Mto dispatch at half inverter capacity)"}
+    fuel_plan: {class: ASSUMED, basis: "Budget set from last quarter's fuel use plus 10 % contingency (assumed operator practice)"}
     period:
-      plan:   {billed_kwh: 5600, revenue: 2240.00, diesel_l: 300, diesel_cost: 375.00, om: 500.00, staff: 450.00, contribution: 915.00}
+      plan:   {billed_kwh: 5600, revenue: 2240.0, diesel_l: 0, diesel_cost: 0.00, om: 500.0, staff: 450.0, contribution: 1290.00}
       actual: {delivered_kwh: 6000, expected_technical_loss_kwh: 300, metered_kwh: 5580, unexplained_kwh: 120,
                unbilled_mapping_kwh: 140, adjustments_kwh: 40, billed_kwh: 5400, revenue: 2160.00,
                collected: 1890.00, in_transit: 150.00, outstanding: 120.00,
                diesel_l: 32, necessary_l: 0, candidate_l: 32, unexplained_l: 0, diesel_cost: 40.00, om: 500.00, staff: 450.00, contribution: 1170.00}
       coverage: {revenue: RECORDED, diesel: RECORDED, om: RECORDED, staff: RECORDED}
-      variance: 255.00
+      variance: -120.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: MTO-2026-10-REV, amount: -8.00, basis: "20 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}", class: ECONOMIC_ACTUAL}
         - {driver: METER_MAPPING_UNBILLED, overlap_group: MTO-2026-10-REV, amount: -56.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.unmapped_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}; 6 customers, meter swap 3 Oct not applied", class: ECONOMIC_ACTUAL}
         - {driver: AUTHORISED_ADJUSTMENT, overlap_group: MTO-2026-10-REV, amount: -16.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.adjustments_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} clinic allowance, approved", class: ECONOMIC_ACTUAL}
         - {driver: CANDIDATE_RUNNING, overlap_group: MTO-2026-10-FUEL, amount: -40.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Mto].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC; projected from the pure run; the served figure is the product's (D-DD.150)", class: DERIVED}
-        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: 375.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
+        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: 0.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: MTO-2026-10-FUEL, amount: 0.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} consumed minus modelled (D-DD.150)", class: DERIVED}
       fuel_balance: {opening_dip_l: 500, deliveries_l: 0, closing_dip_l: 468, consumed_l: 32, model_implied_l: 32, residual_l: 0}
     findings_expected:
@@ -387,12 +391,12 @@ tenants:
                    {site: Mto, right: "INV-MT-02 inverter warranty (replacement unit)", value: 2600.00, state: "evidence assembled; notice due {rec:tenants[lakeside-power].sites[Mto].entitlement.notice_deadline}"},
                    {site: Kisiwa, right: "O&M late-response credit", value: 70.00, state: "review required"}],
            note: "values at stake are listed, never summed with money or with each other's classes"}
-    plan_contribution: 2295.00
+    plan_contribution: 4632.25
     actual_contribution: 4431.60
     chain: {delivered_kwh: 23050, metered_kwh: 21700, billed_kwh: 21445, plan_billed_kwh: 21650, revenue: 9688.00, plan_revenue: 9785.00,
-            collected: 8870.00, in_transit: 150.00, outstanding: 668.00, cost_to_serve: 5256.40, plan_cost_to_serve: 7490.00,
-            revenue_variance: -97.00, cost_variance: 2233.60}
-    variance: 2136.60
+            collected: 8870.00, in_transit: 150.00, outstanding: 668.00, cost_to_serve: 5256.40, plan_cost_to_serve: 5152.75,
+            revenue_variance: -97.00, cost_variance: -103.65}
+    variance: -200.65
     coverage:
       cost_recorded_usd: 4556.40
       cost_total_usd: 5256.40
@@ -1669,9 +1673,9 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
       productive_tariff:          {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 4b}
       in_transit:                 {family: COMMERCIAL_RECORD, kind: SETTLEMENT, absent: ZERO_WHEN_HELD, slice: 4b}
       outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 4b}
-      necessary_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
-      candidate_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc)", absent: ZERO_WHEN_HELD, slice: 3B3}
-      unexplained_l:              {family: OBSERVER, kind: "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.2", absent: ZERO_WHEN_HELD, slice: 3B3}
+      necessary_l:                {family: OBSERVER, kind: "dispatch-3.3 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
+      candidate_l:                {family: OBSERVER, kind: "dispatch-3.3 (generator_state, pv_available_power, battery_soc)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      unexplained_l:              {family: OBSERVER, kind: "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.3", absent: ZERO_WHEN_HELD, slice: 3B3}
       extra_l:                    {family: OBSERVER, kind: "forward replay (an option's extra running)", absent: OPTION_ONLY, slice: 6c}
       diesel_price:               {family: COMMERCIAL_RECORD, kind: "EXPENSE (FUEL)", absent: MISSING, slice: 4b}
       battery_throughput_kwh:     {family: OBSERVER, kind: "forward replay (throughput an option adds)", absent: OPTION_ONLY, slice: 6c}
@@ -1877,7 +1881,7 @@ oracle:   # PRIVATE expectation oracle: compared against computed results; never
   - {id: OR-MG-2, expect: "Kisiwa: candidate time printed per month; no fuel-saving option is in M"}
   - {id: OR-MG-3, expect: "Mto: MTO-HULLER valued on M8 litres per kWh; MTO-WELDING as the evaluator gives"}
   - {id: OR-MG-4, expect: "Mto energy-to-cash: 140 unbilled mapping, 40 authorised, 120 unexplained unpriced; billed 2,160 = 1,890 + 150 + 120"}
-  - {id: OR-MG-5, expect: "Portfolio bridge sums to 2136.60 with residual lines explicit"}
+  - {id: OR-MG-5, expect: "Portfolio bridge sums to -200.65 with residual lines explicit"}
   - {id: OR-ENT-1, expect: "INV-MT-02 POTENTIALLY_COVERED; GEN-KS-01 EXPIRED_AND_EXCLUDED; BAT-001 INSUFFICIENT_EVIDENCE; no remedy booked as money"}
   - {id: OR-CC-1, expect: "Mwea normalised energy within tolerance -> occupancy root cause; Kirinyaga +14% -> efficiency root cause"}
   - {id: OR-CC-2, expect: "B-1031 exposed 2,160 (EXPOSURE), damage 108, liability 108; B-1034 not exposed (peak 5.4 below 12); B-1029 excluded (checked out 5 Oct)"}

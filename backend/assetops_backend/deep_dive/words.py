@@ -5,7 +5,7 @@ evidence word (section 2.4, through 3A7's `money_word`) are decided here; every 
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Context, Decimal
 from typing import Any, Protocol
 
 from assetops_backend.i18n import (Absent, Count, Day, Evidence, Flag, Instant, Items, KOfN, Money, Month, Name, Percent,
@@ -15,6 +15,9 @@ from assetops_backend.structure.evaluate import weakest, weakest_origin
 from assetops_backend.structure.reconciliation import money_word
 
 from assetops_backend.deep_dive import tables as T
+
+CENT = Decimal("0.01")
+EXACT = Context(prec=34, rounding=ROUND_HALF_EVEN)  # the caller's context never reaches a figure
 
 
 class Standing(Protocol):
@@ -57,7 +60,7 @@ def evidence(ev: str, origins: Sequence[str]) -> Evidence:
 
 
 def money(value: Decimal, currency: str | None, ev: Evidence | None = None) -> Money:
-    return Money(value, currency, ev or Evidence("DERIVED"))
+    return Money(cents(value), currency, ev or Evidence("DERIVED"))
 
 
 def amount(value: Decimal | None, currency: str | None, form: str = "PLAIN", ev: Evidence | None = None) -> str:
@@ -65,6 +68,17 @@ def amount(value: Decimal | None, currency: str | None, form: str = "PLAIN", ev:
     if value is None or currency is None:
         return figure_text(message("deep_dive.money", value=Absent("NOT_AVAILABLE"), form=State(form)))
     return figure_text(message("deep_dive.money", value=money(value, currency, ev), form=State(form)))
+
+
+def cents(value: Decimal) -> Decimal:
+    """Round for display without a negative zero (D-DD.185)."""
+    rounded = value.quantize(CENT, rounding=ROUND_HALF_EVEN, context=EXACT)
+    return EXACT.plus(rounded)
+
+
+def plain(value: Decimal) -> str:
+    """A bare display amount for a bar, with the underlying value kept exact (D-DD.163)."""
+    return str(cents(value))
 
 
 def not_compared() -> str:
@@ -110,10 +124,10 @@ def names_of(codes: Sequence[str], names: Mapping[str, str]) -> Items:
 def named(gap: Decimal | None, grow: Decimal | None, optimize: Decimal | None) -> tuple[str | None, Decimal | None]:
     """Of Grow and Optimize, those whose sum has the gap's sign (zero and a missing sum have none); the larger in
     magnitude, ties to Optimize; (None, None) when none."""
-    if gap is None or gap == 0:
+    if gap is None or cents(gap) == 0:
         return None, None
     same = [(h, v) for h, v in ((T.OPTIMIZE, optimize), (T.GROW, grow))
-            if v is not None and v != 0 and (v < 0) == (gap < 0)]
+            if v is not None and cents(v) != 0 and (v < 0) == (gap < 0)]
     if not same:
         return None, None
     best = same[0]
@@ -204,7 +218,7 @@ def residual_text(parent: str, effect: Money, keys: Iterable[str], target_leaves
 
 
 def differ_text(side: str, stated: Money, computed: Money) -> str:
-    apart = Money(stated.value - computed.value, stated.currency, stated.evidence)
+    apart = money(stated.value - computed.value, stated.currency, stated.evidence)
     return figure_text(message("deep_dive.stop_differ", side=State(side), stated=stated, computed=computed,
                                apart=apart))
 
@@ -278,8 +292,8 @@ def tile_target(target: Money, ratio: Decimal | None) -> str:
     return figure_text(message("deep_dive.tile_target", **facts))
 
 
-def cost_received(ratio: Decimal) -> str:
-    return figure_text(message("deep_dive.cost_received", share=Percent(ratio, Evidence("DERIVED"))))
+def cost_at_budget(ratio: Decimal) -> str:
+    return figure_text(message("deep_dive.cost_at_budget", share=Percent(ratio, Evidence("DERIVED"))))
 
 
 def tile_split(grow: Money, optimize: Money) -> str:
@@ -347,7 +361,7 @@ def grow_line(k: int, n: int) -> str:
 def assure_line(disagreements: int, cost: Decimal | None) -> str:
     facts: dict[str, Any] = {"disagreements": Count(disagreements, "budget_disagreement")}
     if cost is not None:
-        facts["cost"] = Percent(cost, Evidence("DERIVED"))
+        facts["share"] = Percent(cost, Evidence("DERIVED"))
     return figure_text(message("deep_dive.assure_line", **facts))
 
 
@@ -368,7 +382,7 @@ def detail(row_unit_kind: str, actual: Decimal, target: Decimal, currency: str |
     elif row_unit_kind == "PRICE":
         facts = {"actual_price": Price(actual, currency, unit, ev), "target_price": Price(target, currency, unit, ev)}
     else:
-        facts = {"actual_money": Money(actual, currency, ev), "target_money": Money(target, currency, ev)}
+        facts = {"actual_money": money(actual, currency, ev), "target_money": money(target, currency, ev)}
     return figure_text(message("deep_dive.driver_detail", **facts))
 
 

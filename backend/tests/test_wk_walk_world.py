@@ -780,6 +780,10 @@ def test_t7_month_judge():
     b = month_ok()
     b["fresh"]["untracked_text"] = "x"
     assert WK.judge_month(b, EXPECT, AS_OF) == ["fresh.untracked_text"]
+    assert WK.judge_month(b, {**EXPECT, "untracked_text": "x"}, AS_OF) == []  # D-DD.181: both ways
+    assert WK.judge_month(b, {**EXPECT, "untracked_text": "y"}, AS_OF) == ["fresh.untracked_text"]
+    assert WK.judge_month(month_ok(), {**EXPECT, "untracked_text": "x"}, AS_OF) == ["fresh.untracked_text"]
+    assert WK.judge_month(month_ok(), {**EXPECT, "untracked_text": None}, AS_OF) == []
     b = month_ok()
     b["standing"]["reconciled"] = False
     assert WK.judge_month(b, EXPECT, AS_OF) == ["standing.reconciled False"]

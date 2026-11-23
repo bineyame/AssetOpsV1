@@ -29,9 +29,9 @@
   "suggest": null,
   "as_of_text": "Figures as of 20 November 2026, 08:00 UTC.",
   "headline": {
-    "text": "3 of 3 Sites are below target in October",
+    "text": "Every Site is on or above target in October",
     "evidence": [
-      "Estimated, not yet reconciled"
+      "Modelled, not yet reconciled"
     ]
   },
   "columns": [
@@ -47,36 +47,36 @@
       "site_code": "KOBO-001",
       "site": "Kobo",
       "group": "Mini-grid",
-      "contribution": "$883.00 against a target of $1,445.00",
-      "gap": "−$562.00",
-      "gap_word": "Emulated, not yet reconciled",
-      "driver": "Fuel cost −$600.00",
-      "driver_heading": "Optimize cost and efficiency",
-      "below": true,
-      "months_text": null
-    },
-    {
-      "site_code": "KISIWA-001",
-      "site": "Kisiwa",
-      "group": "Mini-grid",
-      "contribution": "−$250.00 against a target of −$65.00",
-      "gap": "−$185.00",
-      "gap_word": "Estimated, not yet reconciled",
-      "driver": "Fuel cost −$130.00",
-      "driver_heading": "Optimize cost and efficiency",
-      "below": true,
+      "contribution": "$1,565.50 against a target of $1,445.00",
+      "gap": "+$120.50",
+      "gap_word": "Modelled, not yet reconciled",
+      "driver": "No driver widens the gap",
+      "driver_heading": null,
+      "below": false,
       "months_text": null
     },
     {
       "site_code": "MTO-001",
       "site": "Mto",
       "group": "Mini-grid",
-      "contribution": "$810.00 against a target of $915.00",
-      "gap": "−$105.00",
-      "gap_word": "Emulated, not yet reconciled",
+      "contribution": "$1,170.00 against a target of $915.00",
+      "gap": "+$255.00",
+      "gap_word": "Modelled, not yet reconciled",
       "driver": "Revenue −$80.00",
       "driver_heading": "Grow revenue",
-      "below": true,
+      "below": false,
+      "months_text": null
+    },
+    {
+      "site_code": "KISIWA-001",
+      "site": "Kisiwa",
+      "group": "Mini-grid",
+      "contribution": "$1,696.10 against a target of −$65.00",
+      "gap": "+$1,761.10",
+      "gap_word": "Modelled, not yet reconciled",
+      "driver": "Revenue −$55.00",
+      "driver_heading": "Grow revenue",
+      "below": false,
       "months_text": null
     },
     {
@@ -93,8 +93,8 @@
     }
   ],
   "total": {
-    "gap": "−$852.00",
-    "word": "Estimated, not yet reconciled"
+    "gap": "+$2,136.60",
+    "word": "Modelled, not yet reconciled"
   },
   "without_target": {
     "count": 1,

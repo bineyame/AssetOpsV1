@@ -29,11 +29,11 @@ from test_3a7_reconciliation import (ANA, READ_AT, S1_AT, S2_AT, S3_AT, S4_AT, T
 FIN, EMU = "observed-financial", "source-emulated"
 OCT_K_REV = ("Revenue (Recorded, Emulated and Declared): the accounts say $500.00 and the records say $505.50, $5.50 "
              "more (1.10%), beyond the $5.00 allowed (1%).")
-OCT_K_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $780.00 and the records say $762.50, "
+OCT_K_FUEL = ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $780.00 and the records say $762.50, "
               "$17.50 less (2.25%), beyond the $7.80 allowed (1%).")
-T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+T2_FUEL = ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
            "more (1.49%), beyond the $5.05 allowed (1%).")
-T6_FUEL = "Fuel cost (Recorded): the accounts say $40.00, but no fuel invoices are recorded for October 2026."
+T6_FUEL = "Fuel bought (invoices) (Recorded): the accounts say $40.00, but no fuel invoices are recorded for October 2026."
 
 
 def texts(check) -> dict[str, str]:
@@ -64,7 +64,7 @@ def test_r1_words_before_and_after_the_corrections() -> None:
     for s in kobo_steps()[:4]:
         ingest(w, s["at"], s["batch"])
     k = record(w, S1_AT, site="KOBO-001", revenue="500.00", fuel="780.00")
-    assert texts(k) == {"revenue": OCT_K_REV, "fuel_cost": OCT_K_FUEL}
+    assert texts(k) == {"revenue": OCT_K_REV, "fuel_bought": OCT_K_FUEL}
     assert k.text == "October 2026 (KOBO-001) does not match the management accounts within 1% (Declared)."
     for s in kobo_steps()[4:6]:
         ingest(w, s["at"], s["batch"])
@@ -72,9 +72,9 @@ def test_r1_words_before_and_after_the_corrections() -> None:
     assert texts(after) == {
         "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $500.00 and the records say $495.50, "
                    "$4.50 less, within the $5.00 allowed (1%).",
-        "fuel_cost": "Fuel cost (Recorded, Emulated and Declared): the accounts say $780.00 and the records say "
+        "fuel_bought": "Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $780.00 and the records say "
                      "$775.00, $5.00 less, within the $7.80 allowed (1%)."}
-    assert after.text == "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."
+    assert after.text == "Revenue and fuel bought for October 2026 (KOBO-001) match the management accounts within 1% (Declared)."
 
 
 def test_r1_words_in_eur() -> None:
@@ -83,7 +83,7 @@ def test_r1_words_in_eur() -> None:
         ingest(w, s["at"], s["batch"])
     k = record(w, S1_AT, site="KOBO-001", revenue="500.00", fuel="780.00", currency="EUR")
     assert texts(k) == {"revenue": "Revenue: the accounts are in EUR, but the records are in USD.",
-                        "fuel_cost": "Fuel cost: the accounts are in EUR, but the records are in USD."}
+                        "fuel_bought": "Fuel bought (invoices): the accounts are in EUR, but the records are in USD."}
     assert k.text == "October 2026 (KOBO-001) cannot be compared with the management accounts yet."
 
 
@@ -98,33 +98,33 @@ def test_r2_words_t1_t2_t4_t5_t6() -> None:
     assert texts(t1) == {
         "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $755.00 and the records say $750.00, "
                    "$5.00 less, within the $7.55 allowed (1%).",
-        "fuel_cost": "Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say "
+        "fuel_bought": "Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records say "
                      "$500.00, $5.00 less, within the $5.05 allowed (1%)."}
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
-        assert st.text == ("Reconciled: October 2026 (the organisation) matches the management accounts within 1% "
+        assert st.text == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% "
                            "(Declared).")
         assert st.details == ()
     load(w, "C")  # T2
-    assert texts(only(w))["fuel_cost"] == T2_FUEL
+    assert texts(only(w))["fuel_bought"] == T2_FUEL
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
         assert st.text == ("Not yet reconciled: October 2026 (the organisation) does not match the management "
                            "accounts within 1% (Declared).")
         assert st.details == (T2_FUEL,)  # D-3A7.13's failing headings, one sentence each (packet D1)
     record(w, S2_AT, site=None, revenue="755.00", fuel="510.00")  # T4
-    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $510.00 and "
+    assert texts(only(w))["fuel_bought"] == ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $510.00 and "
                                            "the records say $512.50, $2.50 more, within the $5.10 allowed (1%).")
-    assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
+    assert standing(w, "KOBO-001").text == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management "
                                             "accounts within 1% (Declared).")
     s3 = record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")  # T5
     assert texts(s3) == {
         "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $250.00 and the records say $250.00, "
                    "the same, within the $2.50 allowed (1%).",
-        "fuel_cost": "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."}
-    assert s3.text == "October 2026 (MTO-001) matches the management accounts within 1% (Declared)."
+        "fuel_bought": "Fuel bought (invoices) (Recorded): the accounts say $0.00 and no fuel invoices are recorded."}
+    assert s3.text == "Revenue and fuel bought for October 2026 (MTO-001) match the management accounts within 1% (Declared)."
     s4 = record(w, S4_AT, site="MTO-001", revenue="250.00", fuel="40.00")  # T6
-    assert texts(s4)["fuel_cost"] == T6_FUEL
+    assert texts(s4)["fuel_bought"] == T6_FUEL
     assert s4.text == "October 2026 (MTO-001) cannot be compared with the management accounts yet."
     st = standing(w, "MTO-001")
     assert st.text == "Not yet reconciled: October 2026 (MTO-001) cannot be compared with the management accounts yet."
@@ -138,9 +138,9 @@ def test_r2_words_t3(tmp_path) -> None:
     w["clock"].now = T3_SET_AT
     w["recon"].set_tolerance(w["tid"], "0.02", OWNER_REF)
     w["clock"].now = READ_AT
-    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and "
+    assert texts(only(w))["fuel_bought"] == ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and "
                                            "the records say $512.50, $7.50 more, within the $10.10 allowed (2%).")
-    assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
+    assert standing(w, "KOBO-001").text == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management "
                                             "accounts within 2% (Declared).")
 
 
@@ -149,7 +149,7 @@ def test_r2_words_t7_t8_t10() -> None:
     load(w, "A", "B")
     assert standing(w, "KOBO-001").text == ("Not yet reconciled: no closed month has been compared with the "
                                             "management accounts.")
-    none_matched = ("Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts "
+    none_matched = ("Not yet reconciled: no month's recorded revenue and fuel bought match the management accounts "
                     "within 1% (Declared) yet.")
     assert standing(t2_world(), "KOBO-001", "2026-09").text == none_matched  # T8
     record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")  # T10
@@ -211,7 +211,7 @@ def test_r3_an_unnamed_origin_reads_estimated() -> None:
     (dict(site="NOPE-001"), "This Site is not this organisation's: NOPE-001."),
     (dict(currency="usd"), "Write the currency as its code in capital letters, like USD."),
     (dict(revenue="755"), "Write the revenue as digits with a decimal point and no separators, like 1200.00."),
-    (dict(fuel="05.00"), "Write the fuel cost as digits with a decimal point and no separators, like 1200.00."),
+    (dict(fuel="05.00"), "Write the fuel bought as digits with a decimal point and no separators, like 1200.00."),
     (dict(source_ref=""), "Say where the figures come from, in at most 200 characters."),
     (dict(period="2026-11"), "November 2026 is not closed yet: record a closed month."),  # T9
     (dict(site="FRZ-001"), "Only mini-grid Sites are compared with the management accounts for now: FRZ-001."),
@@ -316,4 +316,4 @@ def test_plant_v19_the_failing_headings_leave_the_standing() -> None:
     standing sentence alone never names the heading that did not match."""
     w = t2_world()
     st = standing(w, "KOBO-001")
-    assert "Fuel cost" not in st.text and st.details and "Fuel cost" in st.details[0]
+    assert "Fuel bought" not in st.text and st.details and "Fuel bought" in st.details[0]

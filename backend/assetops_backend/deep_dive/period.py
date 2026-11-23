@@ -194,7 +194,7 @@ def driver(effects: Sequence[tuple[str, Decimal | None, str | None]], home) -> t
     earlier step) names the driver and its heading; with none, `portfolio_sites.no_driver` and no heading."""
     best = None
     for step, effect, cur in effects:
-        if effect is not None and effect < 0 and (best is None or effect < best[1]):
+        if effect is not None and W.cents(effect) < 0 and (best is None or effect < best[1]):
             best = (step, effect, cur)
     if best is None:
         return render(message("portfolio_sites.no_driver")), None
@@ -285,6 +285,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
         for code in v.snap.asked:
             every.setdefault(code, v.name(code))
     disagreeing = {c for v in vs for c in v.disagreeing()}
+    not_checked = V.untracked_line([e for r in M for e in r.served.freshness.untracked], list(every), every, latest.reg)
     stale = [r.month for r in M if not r.served.freshness.current]
 
     # D-IAP.34: the Sites left out, named with why, and the count from the same set (`n - k == len(out)`). A code is out
@@ -328,7 +329,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
         gap_lines.append(W.tile_split(W.money(grow, grow_cur), W.money(opt, opt_cur)))
     tiles = [{"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(A, cur),
               "word": word(A, cur, Rs), "lines": lines,
-              "bar": {"actual": str(A), "target": str(Tg)} if A is not None and Tg is not None else None},
+              "bar": {"actual": W.plain(A), "target": W.plain(Tg)} if A is not None and Tg is not None else None},
              {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": z.gap()[0], "word": z.gap()[1],
               "lines": gap_lines, "bar": None},
              *latest.tiles()[2:]]
@@ -355,7 +356,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
                          "drawer": {"title": W.text("ASSURE_TITLE"), "lines": [
                              render(message("portfolio_period.assure_entry", month=W.month_of(r.month),
                                             standing=Name(r.standing.text, "reconciliation.standing")))
-                             for r in M]}})
+                             for r in M] + ([not_checked] if not_checked is not None else [])}})
         cards.append(card)
 
     return {"as_of_text": W.as_of(as_of),

@@ -46,7 +46,7 @@ def test_1_evaluate_inputs_equals_site(code):
     if code == "KOBO-001":  # the stated rows change the answer, so dropping them is seen
         assert evaluate_inputs(inputs).values != evaluate(reg, inputs.leaves)
     assert list(inputs.stated) == [r.factor_id for r in reg.rows if r.stated_by is not None]
-    assert list(inputs.stated) == ["metered_kwh", "billed_kwh", "revenue", "fuel_cost"]  # 4a: stated kWh nodes
+    assert list(inputs.stated) == ["metered_kwh", "billed_kwh", "revenue"]  # 4a: stated kWh nodes; DD3d.4: fuel cost is not stated
     assert (inputs.site_code, inputs.month, inputs.structure_version) == (code, OCT, reg.version)
     assert isinstance(inputs.leaves, MappingProxyType) and isinstance(inputs.stated, MappingProxyType)
 

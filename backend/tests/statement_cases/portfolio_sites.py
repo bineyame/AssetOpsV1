@@ -16,6 +16,8 @@ def usd(value: str) -> Money:
 OCTOBER = Name("October", "portfolio_period.span")
 
 CASES = [
+    Case("portfolio_sites.no_comparisons", "none", {"period": OCTOBER},
+         "No Sites have figures to compare with target in October"),
     Case("portfolio_sites.headline", "some", {"sites": KOfN(3, 3, "site"), "period": OCTOBER, "below": State("SOME")},
          "3 of 3 Sites are below target in October"),
     Case("portfolio_sites.headline", "none", {"sites": KOfN(0, 3, "site"), "period": OCTOBER, "below": State("NONE")},

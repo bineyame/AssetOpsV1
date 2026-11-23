@@ -33,13 +33,17 @@ def test_pg_1_site_bridges_and_portfolio(pgworld):  # noqa: F811 - tests 6 and 7
     nodb.check_portfolio(nodb.lakeside_portfolio(w), w)
 
 
-def test_pg_2_build_bridge_read(pgworld):  # noqa: F811 - the real wiring
+def test_pg_2_build_bridge_read(pgworld):  # noqa: F811 - D-DD.177: the real wiring with books and no readings
     w = nodb.load_lakeside(pgworld)
     r = t5a.refs(w)
     service = build_bridge_read(URL)
     try:
         pb = service.read.portfolio(w["tid"], [r[c] for c in nodb.CODES], "2026-10")
+        kobo = service.read.site(r["KOBO-001"], "2026-10")
     finally:
         service.dispose()
-    effect = pb.rows["contribution"]["contribution"].effect
-    assert (effect, format(effect, "f")) == (Decimal("2136.60"), "2136.60")  # D-DD.164: M rev 16.23
+    assert kobo.actual.values["revenue"].value == Decimal("3458.00")
+    fuel = kobo.actual.values["fuel_cost"]
+    assert fuel.value is None
+    assert {"necessary_l", "candidate_l", "unexplained_l"} <= set(fuel.missing_leaves)
+    assert pb.rows["contribution"]["contribution"].effect is None

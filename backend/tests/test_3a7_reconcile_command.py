@@ -17,7 +17,7 @@ from assetops_backend.database_target import PG_TARGET_ENV
 from test_3a7_reconciliation import ANA, FIONA, OWNER_REF, S1_AT, load, t2_world, two_sites_world
 
 URL = "postgresql+psycopg://u:p@rc4.invalid:1/assetops_test"
-T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+T2_FUEL = ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
            "more (1.49%), beyond the $5.05 allowed (1%).")
 
 
@@ -74,15 +74,15 @@ def test_m1_record_prints_the_statement(capsys) -> None:
         None, "2026-10", "USD", "0.01", "MATCHED", True)
     assert (line["recorded_by"], line["recorded_at"], line["recorded_by_script"]) == (
         str(FIONA.person_id), "2026-11-05T10:00:00+00:00", True)
-    assert line["text"] == "October 2026 (the organisation) matches the management accounts within 1% (Declared)."
+    assert line["text"] == "Revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared)."
     fuel = line["headings"][1]
     assert list(fuel) == ["heading", "state", "reason", "accounts", "recorded", "difference", "allowed",
                           "record_currencies", "sources", "origins", "text"]
     assert {k: fuel[k] for k in ("heading", "state", "reason", "accounts", "recorded", "difference", "allowed")} == {
-        "heading": "fuel_cost", "state": "MATCHED", "reason": None, "accounts": "505.00", "recorded": "500.00",
+        "heading": "fuel_bought", "state": "MATCHED", "reason": None, "accounts": "505.00", "recorded": "500.00",
         "difference": "-5.00", "allowed": "5.0500"}
     assert (fuel["record_currencies"], fuel["origins"]) == (["USD"], ["source-emulated"])
-    assert fuel["text"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records "
+    assert fuel["text"] == ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records "
                             "say $500.00, $5.00 less, within the $5.05 allowed (1%).")
 
 
@@ -123,7 +123,7 @@ def test_m4_show_prints_the_standing_and_reads_at_an_instant(capsys) -> None:
                            "KOBO-001", "--known-at", "2026-11-06T00:00:00+00:00")  # R9's instant
     assert (code, line["reason"], line["known_at"], line["details"]) == (0, "RECONCILED", "2026-11-06T00:00:00+00:00",
                                                                          [])
-    assert line["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts within 1% "
+    assert line["text"] == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% "
                             "(Declared).")
     for bad in ("2026-11-06", "2026-11-06T00:00:00", "yesterday"):
         code, lines, err = run(capsys, w, "show", "--tenant", "lakeside-power", "--period", "2026-10",

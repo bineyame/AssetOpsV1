@@ -47,6 +47,12 @@ the lane Architect; count it in the packet.
      run per tenant's `snapshot_months`.
    - Inputs digest covers every input file listed in S917-919 plus `fuel-records.json`; `sealed/` is not in it.
    - World check: C5 runs the two parity files as two `harness_run` calls (D-DD.140); C4 judges October only.
+   - C4 after the drain (D-DD.177): actual `fuel_cost`, `cost_to_serve` and `contribution` return to "E" (Kisiwa's `om`
+     override stays, so its two totals stay "B"), and Mto's actual `diesel_price` with `L1.prices`. Served litres are to
+     the millilitre: `diesel_l` passes when its half-even whole litre equals `M`'s, and `fuel_cost`, `cost_to_serve`,
+     `contribution` pass within 0.5 L × the Site's price. Every other cell stays exact. A "B" cell the readings fill
+     stops for the Architect with its value.
+   - C-DD4's fuel clause (D-DD.180) must pass on the loaded world; it fails by name before the fuel records load.
    - (0.25 u, D-DD.167, R3260-3284.) The rung manifest records every `sealed_dir` from the load step's output line;
      C6 globs only those (`<dir>/*.batch.json`); `drop_db(name)` removes the `sealed_dir`s recorded in that rung's
      manifest unless another live rung's manifest records the same folder (the check clone shares L2's).

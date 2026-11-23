@@ -862,11 +862,13 @@ def cmd_drop(world: World) -> int:
 
 # --- check (§3.6; D-DS4.8, D-DS4.16, D-DS4.20, D-DS4.21, D-DS4.26) -------------------------------------------------
 
-# §2.1 as a literal: the classes of the 47 mini-grid factors per side, as they hold at Kobo and Mto (D-DS4.16).
+# §2.1 as a literal: the classes of the 47 mini-grid factors per side, as they hold at Kobo (D-DS4.16).
+# D-DD.177: actual `fuel_cost`, `cost_to_serve` and `contribution` are "B"; lifted by DD5b: readings loaded and drained
+# at L2.
 C4_CONTRACT = {
     "actual": {
-        "metered_kwh": "B", "billed_kwh": "E", "revenue": "E", "collected": "E", "diesel_l": "B", "fuel_cost": "E",
-        "battery_wear": "E", "cost_to_serve": "E", "contribution": "E", "obligation_hours_without_redundancy": "B",
+        "metered_kwh": "B", "billed_kwh": "E", "revenue": "E", "collected": "E", "diesel_l": "B", "fuel_cost": "B",
+        "battery_wear": "E", "cost_to_serve": "B", "contribution": "B", "obligation_hours_without_redundancy": "B",
         "shortfall_backed": "B", "obligation_hours_without_backup": "B", "replayed_dawn_days_below_safeguard": "B",
         "asset_days_out_of_service": "B", "asset_days_total": "B", "asset_days_available": "B", "delivered_kwh": "B",
         "technical_loss_kwh": "B", "unexplained_loss_kwh": "B", "adjustments_kwh": "B", "unmapped_kwh": "B",
@@ -889,8 +891,12 @@ C4_CONTRACT = {
         "customer_hours_interrupted": "E", "field_visits": "E", "liability": "E", "period_days": "E",
         "standby_kw": "B", "lost_unit_kw": "B", "dawn_days_below": "E"},
 }
-# Kisiwa's October O&M invoice was not received: three actual cells are blank there (D-DS4.26).
-C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}
+# Kisiwa's October O&M invoice was not received: three actual cells are blank there (D-DS4.26). This
+# override outlives DD5b's lift. Mto buys no diesel: its price is blank until the declared one is published (D-DD.177);
+# lifted by DD5b L1.prices.
+C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}},
+                   "MTO-001": {"actual": {"diesel_price": "B"},
+                               "plan": {"diesel_price": "B", "necessary_l": "B", "diesel_l": "B"}}}
 # Filled only by the Architect (D-DS4.16). D-DS4.27: emptied once 5a fix F1 merged (do not re-add).
 C4_KNOWN_FINDINGS: tuple[str, ...] = ()
 CHECK_CLONE_LABEL = "check"

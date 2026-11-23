@@ -70,7 +70,7 @@ def test_1_the_registry_row_lists_the_lever_and_no_other_does() -> None:
         ("MINI_GRID", "obligation_hours_without_redundancy"): ("generator_redundancy",),
         ("MINI_GRID", "productive_kwh"): ("productive_demand",),
         ("MINI_GRID", "unexplained_l"): ("fuel_reconciliation",)}
-    assert REGISTRIES["MINI_GRID"].version == 4
+    assert REGISTRIES["MINI_GRID"].version == 5  # DD3d.4 (D-DD.163)
 
 
 # --- test 2: check_levers -----------------------------------------------------------------------------------------

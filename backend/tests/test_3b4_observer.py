@@ -350,14 +350,46 @@ F2_NOT_SUPPLIED = {"delivered_kwh", "unexplained_loss_kwh", "adjustments_kwh", "
                    "unserved_critical_kwh", "customer_hours_interrupted", "dawn_days_below"}
 
 
-def test_8_5b_world_kobo_october() -> None:
+LITRE_LEAVES = ("necessary_l", "candidate_l", "unexplained_l")
+
+
+def _kobo_5b(fb=None, floors=obs.NO_FLOORS) -> dict:
     w = t5b._world()
-    actual, targets = t5b.reads(w)
+    actual, targets = t5b.reads(w, fb)
     s = t5b.ref(w, t5b.KOBO)
-    got = {o.factor_id: o for o in obs.observe(actual.site(s, OCT, t5b.READ_AT),
-                                               targets.site(s, OCT, t5b.READ_AT).structure, {})}
+    return {o.factor_id: o for o in obs.observe(actual.site(s, OCT, t5b.READ_AT),
+                                                targets.site(s, OCT, t5b.READ_AT).structure, {}, floors)}
+
+
+def test_8_5b_world_kobo_october() -> None:
+    got = _kobo_5b()
     o = got["outstanding"]
     assert (o.state, format(o.gap, "f"), o.kind) == ("RAISED", "278.00", "CASH")
+    # DD3d.4: the 5b world now supplies the three litre leaves (`pack_litres`), as its fuel cost is litres times a price
+    not_supplied = F2_NOT_SUPPLIED - set(LITRE_LEAVES)
+    assert {k for k, v in got.items() if v.actual is None} == not_supplied
+    for leaf in not_supplied:
+        assert got[leaf].state == "ACTUAL_NOT_AVAILABLE", leaf
+    # The rule (D-3B4.6, P5 rule 3): an UP leaf with a leak's target of 0. Candidate litres carry no tolerance (band 0),
+    # so 25 L are raised; unexplained litres carry 2 % of the 634 L used (12.68 L), so 120 L are raised; necessary
+    # litres (489 of a 700 L target) are favourable.
+    assert {f: (got[f].state, got[f].actual, got[f].target, got[f].gap, got[f].band, got[f].tolerance.source)
+            for f in LITRE_LEAVES} == {
+        "necessary_l": ("FAVOURABLE", D("489"), D("700"), D("-211"), None, "NONE"),
+        "candidate_l": ("RAISED", D("25"), D(0), D("25"), D(0), "NONE"),
+        "unexplained_l": ("RAISED", D("120"), D(0), D("120"), D("12.68"), "STRUCTURE")}
+    assert [k for k, v in got.items() if v.state == "RAISED"] == ["outstanding", "candidate_l", "unexplained_l"]
+    # Kobo's declared tank floor (2a = 50 L, D-DD.153) sets the band, and 120 L are still beyond it
+    floored = _kobo_5b(floors={"unexplained_l": obs.Floor(D(50), D(25), "GENERIC_DEFAULT", "rev")})
+    assert (floored["unexplained_l"].state, floored["unexplained_l"].band) == ("RAISED", D(50))
+    assert floored["candidate_l"] == got["candidate_l"]  # the floor is for the tank balance only
+
+
+def test_8b_5b_world_without_litres() -> None:
+    """The pin before DD3d.4: a Site whose readings give no litres has no litre actual, so nothing is raised on them."""
+    from test_4b_money_leaves import fallback
+
+    got = _kobo_5b(fallback())
     assert {k for k, v in got.items() if v.actual is None} == F2_NOT_SUPPLIED
     for leaf in F2_NOT_SUPPLIED:
         assert got[leaf].state == "ACTUAL_NOT_AVAILABLE", leaf

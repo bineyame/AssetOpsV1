@@ -197,10 +197,10 @@ CASES = [
          "Revenue (Recorded and Declared): the accounts say $501.50 and the records say $506.52, $5.02 more (1.01%), "
          "beyond the $5.01 allowed (1%)."),
     Case("reconciliation.heading", "matched",  # C2
-         heading("MATCHED", "FUEL_COST", accounts=usd("505.00", "RECORDED"), recorded=usd("504.996", "RECORDED"),
+         heading("MATCHED", "FUEL_BOUGHT", accounts=usd("505.00", "RECORDED"), recorded=usd("504.996", "RECORDED"),
                  difference=usd("-0.004", "DERIVED"), allowed=usd("5.05", "DERIVED"),
                  tolerance=Percent(D("0.01"), Evidence("DECLARED", FIN))),
-         "Fuel cost (Recorded and Declared): the accounts say $505.00 and the records say $505.00, less than $0.01 "
+         "Fuel bought (invoices) (Recorded and Declared): the accounts say $505.00 and the records say $505.00, less than $0.01 "
          "less, within the $5.05 allowed (1%)."),
     Case("reconciliation.heading", "matched", C3,  # C3
          "Revenue (Recorded and Declared): the accounts say $1,200.00 and the records say $1,200.00, the same, within "
@@ -213,14 +213,14 @@ CASES = [
          "Revenue (Recorded and Declared): the accounts say KES 0.00 and the records say KES 10.00, KES 10.00 more, "
          "beyond the KES 0.00 allowed (1%)."),
     Case("reconciliation.heading", "currency_mismatch",  # C5
-         heading("CURRENCY_MISMATCH", "FUEL_COST", currency=Name("KES", "statement.currency"),
+         heading("CURRENCY_MISMATCH", "FUEL_BOUGHT", currency=Name("KES", "statement.currency"),
                  record_currencies=Items((Name("USD", "record.currency"), Name("EUR", "record.currency")))),
-         "Fuel cost: the accounts are in KES, but the records are in USD and EUR."),
+         "Fuel bought (invoices): the accounts are in KES, but the records are in USD and EUR."),
     Case("reconciliation.heading", "month_open", heading("MONTH_OPEN", "REVENUE", month=Month(2026, 11)),  # C6
          "Revenue: November 2026 is not closed yet."),
     Case("reconciliation.heading", "zero_stated",  # C7
-         heading("ZERO_STATED", "FUEL_COST", accounts=usd("0.00", "RECORDED"), records=Word("record_noun", "FUEL_COST")),
-         "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."),
+         heading("ZERO_STATED", "FUEL_BOUGHT", accounts=usd("0.00", "RECORDED"), records=Word("record_noun", "FUEL_BOUGHT")),
+         "Fuel bought (invoices) (Recorded): the accounts say $0.00 and no fuel invoices are recorded."),
     Case("reconciliation.heading", "not_received",  # C8
          heading("NOT_RECEIVED", "REVENUE", accounts=usd("900.00", "RECORDED"), records=Word("record_noun", "REVENUE"),
                  month=Month(2026, 10)),
@@ -260,7 +260,7 @@ CASES = [
     Case("reconciliation.scope", "organisation",  # SC2
          {"scope": State("ORGANISATION"), "site": Absent("ORGANISATION")}, "the organisation"),
     Case("reconciliation.heading", "zero_stated",  # C10 (D-SC1F.3): a tolerance given but not printed has no word
-         heading("ZERO_STATED", "FUEL_COST", accounts=usd("0.00", "RECORDED"), records=Word("record_noun", "FUEL_COST"),
+         heading("ZERO_STATED", "FUEL_BOUGHT", accounts=usd("0.00", "RECORDED"), records=Word("record_noun", "FUEL_BOUGHT"),
                  tolerance=Percent(D("0.01"), Evidence("DECLARED", FIN))),
-         "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."),
+         "Fuel bought (invoices) (Recorded): the accounts say $0.00 and no fuel invoices are recorded."),
 ]

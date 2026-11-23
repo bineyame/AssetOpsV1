@@ -345,6 +345,7 @@ def test_t8_shipped_catalogue_loads():
                                          "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
                                          "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
                                          "reconciliation.money_word", "reconciliation.refused",
+                                         "reconciliation.declared_price_no_invoice",
                                          "agreed_action.state", "agreed_action.refused", "decision.refused",  # 6a (D-P6.7)
                                          # 3C1b (D-SC1.28): the trial action's actor words.
                                          "action.actor_label", "action.observe_note", "action.change_statement",
@@ -366,7 +367,7 @@ def test_t8_shipped_catalogue_loads():
                                              "none", "suggest", "currencies", "fresh", "out_only", "grow_line", "assure_line",
                                              "assure_entry", "text", "refused")),
                                          *(f"portfolio_sites.{k}" for k in (
-                                             "headline", "months", "contribution", "driver", "no_driver",
+                                             "headline", "no_comparisons", "months", "contribution", "driver", "no_driver",
                                              "no_figures", "without_target", "group", "text")),
                                          # 6h (D-P6.58): the lever words of the named-option levers.
                                          "decision_lever.title", "decision_lever.question", "decision_lever.no_action",
@@ -813,7 +814,7 @@ def test_t13_evidence_on_the_page():
     assert say(c9).startswith("Revenue (Recorded, Emulated and Declared): ")
     c7, c10 = worked.CASES[6], worked.CASES[-1]
     assert "tolerance" not in c7.facts and c10.facts["tolerance"].evidence.evidence == "DECLARED"
-    assert say(c10) == say(c7) == "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."
+    assert say(c10) == say(c7) == "Fuel bought (invoices) (Recorded): the accounts say $0.00 and no fuel invoices are recorded."
 
 
 C1 = worked.CASES[0].facts

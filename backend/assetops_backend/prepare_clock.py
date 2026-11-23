@@ -27,5 +27,6 @@ def require_prepare_database(url: str | None) -> None:
     database (`database_target.is_operator_name`) is refused whatever the rest of its name (D-DD.168)."""
     database = None if not url else (unquote(urlsplit(url).path).lstrip("/") or None)
     if database is None or is_operator_name(database) or PREPARE_DATABASE.match(database) is None:
-        raise PrepareClockRefused(f"PREPARE_CLOCK_REFUSED: a story clock is not allowed on database {database!r}; "
-                                  "it needs assetops_polish_* or *_test.")
+        raise PrepareClockRefused(
+            f"PREPARE_CLOCK_REFUSED {database!r}: assetops_polish_*, *_test, assetops_*_audit_(l0|l1|l2|c)_*"
+        )

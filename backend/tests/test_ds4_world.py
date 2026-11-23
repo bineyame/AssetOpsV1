@@ -766,13 +766,24 @@ def test_t9_oracle_on_hand_payloads():
     for side in (p["actual"], p["targets"]["values"]):
         for f in side:
             side[f] = {"value": None, "missing": {"record_kind": "X"}, "missing_leaves": []}
-    assert len(_fail_lines(_oracle([p]))) == 18 + 36
+    assert len(_fail_lines(_oracle([p]))) == 15 + 36
     # Kisiwa's three actual cells are judged by C4_SITE_CLASSES; Kobo's om blank fails
     p = hand_payload("KOBO-001")
     p["actual"]["om"] = {"value": None, "missing": {"record_kind": "EXPENSE"}, "missing_leaves": []}
     assert _fail_lines(_oracle([p]))[0].startswith("lakeside-power/KOBO-001 actual.om class=E product=None")
     p = hand_payload("KISIWA-001")
     assert p["actual"]["om"]["value"] is None and _oracle([p])["state"] == "PASS"
+    # D-DD.177: a class cannot outlive its cause. Fuel cost read as the fuel bought (Mto's 0), or a filled price, fails
+    p = hand_payload("MTO-001")
+    p["actual"]["fuel_cost"] = {"value": "0", "missing": None, "missing_leaves": []}
+    p["actual"]["diesel_price"] = {"value": "1.25", "missing": None, "missing_leaves": []}
+    nodes = json.loads(DERIVED.read_text())["sites"]["lakeside-power/Mto"]["actual"]["nodes"]
+    assert _fail_lines(_oracle([p])) == [
+        f"lakeside-power/MTO-001 actual.diesel_price class=B product=1.25 expected={nodes['diesel_price']}",
+        f"lakeside-power/MTO-001 actual.fuel_cost class=B product=0 expected={nodes['fuel_cost']}"]
+    p = hand_payload("KOBO-001")  # the price override is Mto's alone
+    p["actual"]["diesel_price"] = {"value": None, "missing": {"record_kind": "EXPENSE"}, "missing_leaves": []}
+    assert _fail_lines(_oracle([p]))[0].startswith("lakeside-power/KOBO-001 actual.diesel_price class=E product=None")
 
 
 def test_t9_known_findings_are_marked_and_still_fail(monkeypatch):
@@ -893,13 +904,19 @@ def test_t9_c5_runs_under_its_own_base(env, capsys):
 
 def test_t9b_contract_against_derived_values_and_manifest():
     derived = json.loads(DERIVED.read_text())
-    for side, (e, b) in (("actual", (18, 29)), ("plan", (36, 11))):
+    for side, (e, b) in (("actual", (15, 32)), ("plan", (36, 11))):
         keys = set(derived["sites"]["lakeside-power/Kobo"][side]["nodes"])
         assert set(world.C4_CONTRACT[side]) == keys and len(keys) == 47
         classes = list(world.C4_CONTRACT[side].values())
         assert (classes.count("E"), classes.count("B")) == (e, b), side
     assert world.C4_CONTRACT["actual"]["adjustments_kwh"] == "B"
-    assert world.C4_SITE_CLASSES == {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}
+    # D-DD.177: the fuel cost's cells stay blank until DD5b's readings and Mto's price until L1.prices (DD5b lifts them)
+    assert all(world.C4_CONTRACT["actual"][f] == "B" for f in ("fuel_cost", "cost_to_serve", "contribution"))
+    assert all(world.C4_CONTRACT["plan"][f] == "E" for f in ("fuel_cost", "cost_to_serve", "contribution"))
+    assert world.C4_SITE_CLASSES == {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}},
+                                     "MTO-001": {"actual": {"diesel_price": "B"}}}
+    # ... and Mto's plan price and litres stay exact until DD3d.5's commit
+    assert all(world.site_class("MTO-001", "plan", f) == "E" for f in ("diesel_price", "necessary_l", "diesel_l"))
     manifest = yaml.safe_load(MANIFEST.read_text())
     assert manifest["accounting_period"] == "2026-10"   # each Site's `period` block is October
     (lake,) = [t for t in manifest["tenants"] if t["tenant"] == "lakeside-power"]
@@ -907,7 +924,7 @@ def test_t9b_contract_against_derived_values_and_manifest():
     estimated = {(site["code"], f) for site in lake["sites"]
                  for f, c in site["period"]["coverage"].items() if c == "ESTIMATED"}
     assert estimated == {("KISIWA-001", "om")}
-    for code, (e, b) in (("KISIWA-001", (15, 32)), ("KOBO-001", (18, 29)), ("MTO-001", (18, 29))):
+    for code, (e, b) in (("KISIWA-001", (14, 33)), ("KOBO-001", (15, 32)), ("MTO-001", (14, 33))):
         cls = [world.site_class(code, "actual", f) for f in world.C4_CONTRACT["actual"]]
         assert (cls.count("E"), cls.count("B")) == (e, b), code
         cls = [world.site_class(code, "plan", f) for f in world.C4_CONTRACT["plan"]]

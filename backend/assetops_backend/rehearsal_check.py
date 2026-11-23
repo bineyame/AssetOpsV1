@@ -19,6 +19,10 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Callable, Sequence
 
+from assetops_backend.deep_dive.words import cents
+from assetops_backend.i18n import message, render
+from assetops_backend.structure.sources import ASSUMPTION_WORDS
+
 DEFAULT_EXPECT = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "ddr" / "lakeside-2026-10.expect.json"
 GATES = ("G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10")
 STEPS = {"G1": "S1", "G2": "S2", "G3": "S4", "G4": "S4", "G5": "S5", "G6": "S6", "G7": "S8", "G8": "S9", "G9": None,
@@ -55,6 +59,7 @@ KEY_DIR_ENV = "ASSETOPS_PSEUDONYM_KEY_DIR"
 ORG_STATEMENT = None  # `site_id` of the organisation's statement
 PRICE = "diesel_price"
 PRICE_SOURCE = "commercial:"
+DECLARED_PRICE_SOURCE = "assumption:"
 PERSON = "person:"
 #: Spec §3.4: the body keys G9 compares, in order (D-DDR.7). `status_line` is compared after its first sentence.
 SCREEN_KEYS = ("schema", "operator", "month", "month_words", "state", "standing", "headline", "status_line", "tiles",
@@ -360,7 +365,7 @@ class Run:
                     raise Fail("ACCEPTER", reader=reader, expected=_id(accepter), found=_id(found))
 
     # G4 (S4)
-    def g4(self) -> None:
+    def g4(self) -> dict[str, dict[str, str]]:
         refs = {r.site_code: r for r in self.s.site_refs(self.slug)}
         read = {}
         for code in self.x["stated"]:
@@ -373,7 +378,8 @@ class Run:
         for code, factors in self.x["stated"].items():
             for factor, expected in factors.items():
                 value = found[code][factor].value if found[code][factor] is not None else None
-                if expected is not None and not _same_money(expected, value):
+                compared = cents(value) if factor == "fuel_cost" and value is not None else value
+                if expected is not None and not _same_money(expected, compared):
                     raise Fail("FIGURE", site=code, factor=factor, expected=expected, found=_money(value))
         for code, factors in self.x["stated"].items():
             for factor, expected in factors.items():
@@ -386,13 +392,23 @@ class Run:
                 cause = None if leaf is None or leaf.missing is None else leaf.missing.cause
                 if cause != expected:
                     raise Fail("CAUSE", site=code, factor=factor, expected=expected, found=cause)
+        declared_prices = {}
         for code in self.x["stated"]:
             price = _leaf(read[code], PRICE)
             if price is None or price.value is None or not price.sources:
                 raise Fail("PRICE_SOURCE", site=code, source=None)
+            bought = self.x.get("fuel_bought", {}).get(code)
+            declared = bought is not None and Decimal(bought) == 0
+            prefix = DECLARED_PRICE_SOURCE if declared else PRICE_SOURCE
             for source in price.sources:
-                if not source.startswith(PRICE_SOURCE):
+                if not source.startswith(prefix):
                     raise Fail("PRICE_SOURCE", site=code, source=source)
+            if declared:
+                missing = price.missing
+                if (price.evidence != "ESTIMATED" or missing is None or missing.carried_as != "ASSUMPTION"
+                        or missing.assumption != ASSUMPTION_WORDS[PRICE]):
+                    raise Fail("PRICE_ASSUMPTION", site=code)
+                declared_prices[code] = render(message("reconciliation.declared_price_no_invoice"))
         targets = {code: self.s.site_targets(refs[code], self.month) for code in self.x["target_contribution"]}
         for code, expected in self.x["target_contribution"].items():
             value = targets[code].structure.values[_CONTRIBUTION].value
@@ -410,6 +426,8 @@ class Run:
             for field in ("currency", "agrees"):
                 if getattr(check, field) != want[field]:
                     raise Fail("TARGET", site=code, field=field, expected=want[field], found=getattr(check, field))
+
+        return {"declared_prices": declared_prices} if declared_prices else {}
 
     # G5 (S5)
     def g5(self) -> None:
@@ -501,9 +519,9 @@ class Run:
             served = self.s.served(self.tid, self.month)
             reasons = () if served.freshness is None else served.freshness.reasons
             raise Fail("NOT_CURRENT", reason=reasons[0] if reasons else served.state)
-        if fresh.get("untracked_text") is not None:
-            raise Fail("UNTRACKED")
         want = self.x["screen"]
+        if fresh.get("untracked_text") != want["fresh"]["untracked_text"]:  # D-DD.181: both ways, None included
+            raise Fail("UNTRACKED")
         for key in SCREEN_KEYS:
             found = body.get(key)
             if key == "status_line" and isinstance(found, str):
@@ -611,7 +629,9 @@ def _gates(run: Run) -> int:
         line = {"gate": gate, "step": STEPS[gate], "state": "PASS", "code": None, "facts": {}}
         run.fresh()
         try:
-            getattr(run, gate.lower())()
+            facts = getattr(run, gate.lower())()
+            if facts:
+                line["facts"] = facts
         except Fail as failed:
             line.update(state="FAIL", code=failed.code, facts=failed.facts)
         except ReadFailed as failed:

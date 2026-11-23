@@ -84,7 +84,7 @@ class _Site:
                 "gap": W.amount(self.effect, self.cur, "SIGNED"),
                 "gap_word": z.word(self.effect, self.cur, self.roots),
                 "driver": words, "driver_heading": heading,
-                "below": self.effect is not None and self.effect < 0,
+                "below": self.effect is not None and W.cents(self.effect) < 0,
                 "months_text": (render(message("portfolio_sites.months", months=KOfN(len(self.months), served,
                                                                                      T.MONTH_NOUN)))
                                 if len(self.months) < served else None)}
@@ -115,6 +115,15 @@ def sites_view(*, period: P.Period, read: Sequence[P.MonthServed], suggest: str 
     compared = [s for s in sites if figures[s.code].months]
     rest = [s for s in sites if not figures[s.code].months]
     _check_sum(z, [figures[s.code] for s in compared])
+    if all(figures[s.code].effect is None for s in compared):
+        head = render(message("portfolio_sites.no_comparisons",
+                              period=Name(out["period_words"], "portfolio_period.span")))
+        out.update(as_of_text=W.as_of(max(r.served.as_of for r in z.M)),
+                   headline={"text": head, "evidence": []}, columns=columns,
+                   rows=[_not_compared(s) for s in sites],
+                   total={"gap": W.text("NOT_AVAILABLE"), "word": None},
+                   without_target={"count": 0, "text": None})
+        return out
     asked = list(z.latest.snap.asked)
     rank = {c: i for i, c in enumerate(asked)}
 

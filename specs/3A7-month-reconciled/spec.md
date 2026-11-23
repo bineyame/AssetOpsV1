@@ -231,14 +231,14 @@ name); scope: the Site code, or `the organisation`; heading names `Revenue`, `Fu
 | `reconciliation.heading.not_received` | {heading}: the accounts say {accounts} {currency}, but no {records} are recorded for {month}. |
 | `reconciliation.heading.currency_mismatch` | {heading}: the accounts are in {currency}, but the records are in {record_currencies}. |
 | `reconciliation.heading.month_open` | {heading}: {month} is not closed yet. |
-| `reconciliation.statement.matched` | {month} ({scope}) matches the management accounts within {tolerance}. |
+| `reconciliation.statement.matched` | Revenue and fuel bought for {month} ({scope}) match the management accounts within {tolerance}. |
 | `reconciliation.statement.not_matched` | {month} ({scope}) does not match the management accounts within {tolerance}. |
 | `reconciliation.statement.not_comparable` | {month} ({scope}) cannot be compared with the management accounts yet. |
-| `reconciliation.standing.reconciled` | Reconciled: {month} ({scope}) matches the management accounts within {tolerance}. |
+| `reconciliation.standing.reconciled` | Reconciled: revenue and fuel bought for {month} ({scope}) match the management accounts within {tolerance}. |
 | `reconciliation.standing.this_month_not_matched` | Not yet reconciled: {month} ({scope}) does not match the management accounts within {tolerance}. |
 | `reconciliation.standing.this_month_not_comparable` | Not yet reconciled: {month} ({scope}) cannot be compared with the management accounts yet. |
 | `reconciliation.standing.no_statement` | Not yet reconciled: no closed month has been compared with the management accounts. |
-| `reconciliation.standing.none_matched` | Not yet reconciled: no month's recorded revenue and fuel cost both match the management accounts within {tolerance} yet. |
+| `reconciliation.standing.none_matched` | Not yet reconciled: no month's recorded revenue and fuel bought match the management accounts within {tolerance} yet. |
 | `reconciliation.suffix` | not yet reconciled |
 | `reconciliation.refused.<code lower>` | `recon_role` Only the finance lead records the management accounts. · `recon_period` Write the month as YYYY-MM, like 2026-10. · `recon_site_unknown` This Site is not one of this organisation's: {site}. · `recon_currency` Write the currency as three capital letters, like USD. · `recon_amount` Write the {heading_words} with two decimals and no separators, like 1200.00. · `recon_site_type` Only mini-grid Sites are compared with the management accounts for now: {site}. · `recon_source_ref` Say where the figures come from, in at most 200 characters. · `recon_month_open` {period} is not closed yet: record a closed month. |
 

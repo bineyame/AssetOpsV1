@@ -30,7 +30,7 @@ from assetops_backend.structure.read import (
 )
 from assetops_backend.structure.registry import REGISTRIES, Registry
 from assetops_backend.structure.targets.lines import LEAF, NODE, BudgetLineReader, BudgetLines, TargetLine
-from assetops_backend.structure.targets.rules import AT_ACTUAL, AT_ACTUAL_TEXT, CALENDAR, LEAK_TEXT, LEAK_ZERO, MAIN, \
+from assetops_backend.structure.targets.rules import AT_ACTUAL, AT_ACTUAL_TEXT, BUDGET_STATED, CALENDAR, LEAK_TEXT, LEAK_ZERO, MAIN, \
     MAIN_OF, MAIN_TEXT, OPTION, TARGET_FAMILY, TARGET_KIND, TARGET_RULE, TARGET_WORDS, solve_main
 
 NOT_RECEIVED, NOT_CALCULATED_YET = "NOT_RECEIVED", "NOT_CALCULATED_YET"
@@ -152,10 +152,11 @@ class TargetRead:
                 raise StructureError("STRUCTURE_LEAF_INPUT", key, f)
 
         stated: dict[str, LeafValue] = {}
+        heads = BUDGET_STATED[key]
         for row in reg.rows:
-            if row.stated_by is None:
-                continue
             f = row.factor_id
+            if row.stated_by is None and f not in heads:
+                continue
             line = by_factor.get(f)
             if f in bl.blocked:  # D-5A.13: held but refused; 4b1's blocking row keeps the heading absent
                 stated[f] = _absent(NOT_CALCULATED_YET, bl.blocked[f])
@@ -180,7 +181,7 @@ class TargetRead:
                                     target.currency if reg.row(f).unit.has_money_dimension else None,
                                     _origin_union(target.origins, *under))
 
-        values = evaluate(reg, leaves, stated)
+        values = evaluate(reg, leaves, stated, stated_nodes=heads)
         checks = tuple(
             TargetCheck(row.factor_id, by_factor[row.factor_id].value, values[row.factor_id].value,
                         by_factor[row.factor_id].currency,
@@ -188,7 +189,8 @@ class TargetRead:
                         and values[row.factor_id].value == by_factor[row.factor_id].value
                         and values[row.factor_id].currency == by_factor[row.factor_id].currency)
             for row in reg.rows
-            if row.factor_id in by_factor and by_factor[row.factor_id].place == NODE and row.stated_by is None)
+            if row.factor_id in by_factor and by_factor[row.factor_id].place == NODE
+            and row.stated_by is None and row.factor_id not in heads)
         return SiteTargets(SiteStructure(site.site_code, month, key, reg.version, values), bl, checks, currency)
 
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,

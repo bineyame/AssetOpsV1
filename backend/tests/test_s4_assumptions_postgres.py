@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -31,6 +33,9 @@ if URL:
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
     from assetops_backend.publish_assumption import main as publish_main
+    from assetops_backend.sites.adapters.import_files import read_import_source
+    from assetops_backend.sites.foundation_service import ImportSource, import_site
+    from test_s1_bindings_postgres import KOBO_SOURCE, NOW, Clock
 
 BACKEND = Path(__file__).resolve().parents[1]
 FIXTURE = BACKEND / "conversions" / "demo-diesel-price-publications.json"
@@ -535,3 +540,132 @@ class TestEqualStartSuccession:
         later = (start, start + timedelta(days=1))
         assert price(None, *later).revision_id == str(succ.revision_id)
         assert price(succ.recorded_at - timedelta(microseconds=1), *later).revision_id == str(scheduled.revision_id)
+
+
+# --- DD3d.4: the publisher on the served tenant (D-DD.169, D-DD.179) -------------------------------------------------
+SERVED = "lakeside-power"
+TENANT_ENV = "ASSETOPS_TENANT_SLUG"
+WORLD_PRICES = ("KOBO-001", "KISIWA-001", "MTO-001")
+
+
+def world_file(code: str) -> Path:
+    return BACKEND / "conversions" / "world" / f"{SERVED}.diesel-price.{code}.json"
+
+
+def imported_for(store, slug: str, code: str):  # noqa: F811
+    source = read_import_source(str(KOBO_SOURCE))
+    done = import_site(store, tenant_slug=slug, configured_tenant_slug=slug,
+                       source=ImportSource(path=f"var/sites/{slug}-{code.lower()}.yaml", sha256=source.sha256,
+                                           record=replace(source.record, site_id=code)),
+                       legacy_documents=(), clock=Clock(NOW - timedelta(hours=2)))
+    return done.tenant.id, done.site.id
+
+
+class TestServedTenant:
+    @pytest.fixture()
+    def sites(self, store):  # noqa: F811
+        """Three Sites of the served tenant, and the development tenant's own KOBO-001 beside them."""
+        return {**{code: imported_for(store, SERVED, code) for code in WORLD_PRICES},
+                "demo": imported_for(store, "demo", "KOBO-001")}
+
+    @pytest.mark.parametrize("named", [(), ("--tenant", SERVED)])
+    def test_the_world_price_files_publish_to_the_served_tenant(self, sites, prices, engine, capsys,  # noqa: F811
+                                                                monkeypatch, named) -> None:
+        monkeypatch.setenv(TENANT_ENV, SERVED)
+        for code in WORLD_PRICES:
+            args = ["fixture", "--site", code, "--file", str(world_file(code)), *named]
+            first, again = [(publish_main(args, store=prices), capsys.readouterr()) for _ in range(2)]
+            assert (first[0], again[0]) == (0, 0), (first[1].err, again[1].err)
+            one, two = (json.loads(r[1].out) for r in (first, again))
+            assert (one["site_code"], one["step"], one["change_kind"], one["replayed"]) == (code, "v1", "INITIAL", False)
+            assert (two["revision_id"], two["replayed"]) == (one["revision_id"], True)  # a second run writes nothing
+        declared = {c: json.loads(world_file(c).read_text(encoding="utf-8"))["steps"][0] for c in WORLD_PRICES}
+        fresh = PostgresAssumptionStore(URL)
+        for code, step in declared.items():
+            (row,) = fresh.revisions(*sites[code], KEY)
+            assert (str(row["value"]), row["basis"], row["source_reference"], row["idempotency_key"], row["channel"]) == (
+                step["value"], "AUTHORED_ESTIMATE", step["source_reference"], f"world-diesel-price-{code.lower()}-v1",
+                "SYSTEM_FIXTURE")
+            (held,) = fresh.assignments(*sites[code], KEY)
+            assert held["valid_to"] is None
+        assert fresh.revisions(*sites["demo"], KEY) == []  # the same code in another tenant is never written
+        fresh.dispose()
+        assert counts(engine) == (3, 3)
+
+    def test_the_checker_reads_the_declared_price_in_force(self, sites, prices, engine, capsys, monkeypatch) -> None:  # noqa: F811
+        """C-DD4's own SQL (D-DD.180): the price that covers the Site's whole local month, as known now."""
+        sys.path.insert(0, str(BACKEND.parent / "tools"))
+        import dd_check
+
+        monkeypatch.setenv(TENANT_ENV, SERVED)
+        assert dd_check.stored_diesel_prices(URL, "2026-10") == {}
+        for code in WORLD_PRICES:
+            assert publish_main(["fixture", "--site", code, "--file", str(world_file(code))], store=prices) == 0
+        declared = {(SERVED, "KOBO-001"): Decimal("1.25"), (SERVED, "KISIWA-001"): Decimal("1.30"),
+                    (SERVED, "MTO-001"): Decimal("1.25")}
+        # valid from 1 July 00:00 in the Sites' zone (21:00Z the day before): July is covered, June is not
+        assert dd_check.stored_diesel_prices(URL, "2026-07") == dd_check.stored_diesel_prices(URL, "2026-10") == declared
+        assert dd_check.stored_diesel_prices(URL, "2026-06") == {}
+        # a correction replaces what is known of October, and a price covering part of a month does not cover it
+        (stored,) = prices.revisions(*sites["MTO-001"], KEY)
+        prices.publish(*sites["MTO-001"], pub(stored["id"], "corr", kind="CORRECTION", vf=datetime(2026, 9, 30, 21, tzinfo=UTC),
+                                              vt=datetime(2026, 10, 31, 21, tzinfo=UTC), value="1.40", reason="test"),
+                       SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-10") == {**declared, (SERVED, "MTO-001"): Decimal("1.40")}
+        assert dd_check.stored_diesel_prices(URL, "2026-11") == declared
+        (kobo,) = prices.revisions(*sites["KOBO-001"], KEY)
+        prices.publish(*sites["KOBO-001"], pub(kobo["id"], "half", kind="CORRECTION", vf=_t(2026, 10, 15), vt=None,
+                                               value="1.50", reason="test"), SYSTEM_PUBLISHER)
+        assert (SERVED, "KOBO-001") not in dd_check.stored_diesel_prices(URL, "2026-10")
+        assert dd_check.stored_diesel_prices(URL, "2026-11")[(SERVED, "KOBO-001")] == Decimal("1.50")
+        # one hour into local November (22:00Z): November is not covered, October still is
+        (kisiwa,) = prices.revisions(*sites["KISIWA-001"], KEY)
+        prices.publish(*sites["KISIWA-001"], pub(kisiwa["id"], "late", kind="CORRECTION", value="1.60", reason="test",
+                                                 vf=datetime(2026, 10, 31, 22, tzinfo=UTC)), SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-10")[(SERVED, "KISIWA-001")] == Decimal("1.30")
+        assert (SERVED, "KISIWA-001") not in dd_check.stored_diesel_prices(URL, "2026-11")
+        del declared[(SERVED, "KISIWA-001")]
+        # the development tenant's own price is its own
+        prices.publish(*sites["demo"], pub(None, "demo", value="9.00"), SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-11") == {
+            **declared, (SERVED, "KOBO-001"): Decimal("1.50"), ("demo", "KOBO-001"): Decimal("9.00")}
+
+    @pytest.mark.parametrize(("served", "other"), [(SERVED, "demo"), (SERVED, "harvest-cold"), (None, SERVED)])
+    def test_another_tenant_exits_2_before_any_store_is_built(self, sites, engine, capsys, monkeypatch,  # noqa: F811
+                                                              served, other) -> None:
+        from assetops_backend import publish_assumption
+
+        built = []
+        monkeypatch.setattr(publish_assumption, "build_assumption_store", lambda url: built.append(url))
+        if served is None:
+            monkeypatch.delenv(TENANT_ENV, raising=False)
+        else:
+            monkeypatch.setenv(TENANT_ENV, served)
+        commands = [["fixture", "--site", "KOBO-001", "--file", str(world_file("KOBO-001"))],
+                    ["publish", "--site", "KOBO-001", "--change-kind", "INITIAL", "--currency", "USD", "--value", "1.25",
+                     "--basis", "AUTHORED_ESTIMATE", "--source", "test", "--valid-from", "2026-01-01T00:00:00Z",
+                     "--expected-prior", "none", "--idempotency-key", "k1"]]
+        for command in commands:
+            assert publish_main([*command, "--tenant", other]) == 2
+            out = capsys.readouterr()
+            assert (out.out, out.err) == ("", f"TENANT_NOT_SERVED {other}\n")
+        assert built == [] and counts(engine) == (0, 0)
+
+    @pytest.mark.parametrize("named", [(), ("--tenant", "demo")])
+    def test_unset_the_development_tenant_publishes_as_before(self, sites, prices, engine, capsys,  # noqa: F811
+                                                              monkeypatch, named) -> None:
+        monkeypatch.delenv(TENANT_ENV, raising=False)
+        code = publish_main(["fixture", "--site", "KOBO-001", "--file", str(FIXTURE), "--step", "v1", *named], store=prices)
+        assert code == 0, capsys.readouterr().err
+        (row,) = prices.revisions(*sites["demo"], KEY)
+        assert str(row["value"]) == "1.25"
+        assert prices.revisions(*sites["KOBO-001"], KEY) == [] and counts(engine) == (1, 1)
+
+    @pytest.mark.parametrize("slug", ["", "Lakeside Power"])
+    def test_a_malformed_served_tenant_exits_2_with_its_reason(self, sites, engine, capsys,  # noqa: F811
+                                                               monkeypatch, slug) -> None:
+        monkeypatch.setenv(TENANT_ENV, slug)
+        assert publish_main(["fixture", "--site", "KOBO-001", "--file", str(world_file("KOBO-001"))]) == 2
+        out = capsys.readouterr()
+        assert (out.out, out.err) == ("", f"CONFIGURATION {TENANT_ENV}\n")
+        assert counts(engine) == (0, 0)

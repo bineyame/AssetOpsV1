@@ -323,6 +323,20 @@ def read_leaves_file() -> dict:
     return {"schema": LEAVES_SCHEMA, "rule": "D-DD.131", "sites": []}
 
 
+def quarter_fuel_budget(ledger: dict, notes: list[dict]) -> dict:
+    """D-DD.166 and D-DD.185: one half-even rounding on the exact run-rate litres."""
+    opening = Fraction(ledger["2026-07"]["tank_open"])
+    closing = Fraction(ledger["2026-10"]["tank_open"])
+    deliveries = sum(
+        (Fraction(note["litres"]) for note in notes if "2026-07" <= note["at"][:7] <= "2026-09"),
+        Fraction(0),
+    )
+    consumed = opening + deliveries - closing
+    contingency = Fraction("1.10")
+    return {"tank_open_jul": str(opening), "deliveries_jul_sep": str(deliveries), "tank_open_oct": str(closing),
+            "consumed_jul_sep": str(consumed), "contingency": "1.10", "plan_diesel_l": round(contingency * consumed / 3)}
+
+
 def print_leaves(code: str, first: str, last: str, write: bool = False, check: bool = False) -> int:
     import yaml
 
@@ -354,6 +368,9 @@ def print_leaves(code: str, first: str, last: str, write: bool = False, check: b
               "ledger": {key: str(Fraction(run.ledger["2026-10"][key])) for key in LEDGER_KEYS},
               "candidate_days": candidate_days, "peak_evening_generator_kw": str(peak),
               "inputs_sha256": run_inputs_sha256(code, entry["notes"], first, last)}
+    if first == "2026-07-01":
+        record["quarter"] = quarter_fuel_budget(run.ledger, entry["notes"])
+        print(f"{code} October run-rate plan litres: {record['quarter']['plan_diesel_l']}")
     leaves = october_leaves(ledger_from_record(record), entry["notes"], price, period["plan"], period["actual"])
     actual, balance = period["actual"], period.get("fuel_balance", {})
     print(f"{code} October leaves from the notes run ({first}..{last}; {len(entry['notes'])} notes; price {price})")

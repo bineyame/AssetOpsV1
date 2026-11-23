@@ -36,8 +36,9 @@ from assetops_backend.structure.evaluate import weakest_origin
 from assetops_backend.structure.money import line_origins, line_sources, used_lines
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 
-#: The headings, in order (spec §2.1), each with its key in the `heading` vocabulary.
-HEADING_WORDS = {"revenue": "REVENUE", "fuel_cost": "FUEL_COST"}
+#: The headings, in order (spec §2.1), each with its key in the `heading` vocabulary. The accounts' fuel figure states
+#: fuel bought (D-DD.163); the statement's stored field and the CLI flag keep the name `fuel_cost`.
+HEADING_WORDS = {"revenue": "REVENUE", "fuel_bought": "FUEL_BOUGHT"}
 HEADINGS = tuple(HEADING_WORDS)
 DEFAULT_TOLERANCE = Decimal("0.01")
 MATCHED, NOT_MATCHED, NOT_COMPARABLE = "MATCHED", "NOT_MATCHED", "NOT_COMPARABLE"
@@ -319,7 +320,7 @@ class _Read:
     def check(self, row: StatementRow) -> StatementCheck:
         if row.id not in self._checks:
             months = [self.month(sid, row.period) for sid in self.scope(row.site_id)]
-            amounts = {"revenue": row.revenue, "fuel_cost": row.fuel_cost}
+            amounts = {"revenue": row.revenue, "fuel_bought": row.fuel_cost}
             headings = tuple(_heading(name, Decimal(amounts[name]), self.tolerance, row.currency, row.period, months)
                              for name in HEADINGS)
             state = _statement_state(headings)
@@ -420,7 +421,7 @@ class CommercialReconciliation:
             site_id = found[0].site_id
         if not isinstance(currency, str) or CURRENCY_FORM.fullmatch(currency) is None:
             raise ReconRefused("RECON_CURRENCY")
-        amounts = {"revenue": revenue, "fuel_cost": fuel_cost}
+        amounts = {"revenue": revenue, "fuel_bought": fuel_cost}
         for heading in HEADINGS:
             if not isinstance(amounts[heading], str) or AMOUNT_FORM.fullmatch(amounts[heading]) is None:
                 raise ReconRefused("RECON_AMOUNT", {"heading": heading})

@@ -29,7 +29,7 @@ def test_7_the_generator_writes_the_committed_bytes(tmp_path, capsys) -> None:
     assert written.read_bytes() == committed
     expect = json.loads((FIXTURES / "lakeside-2026-10.expect.json").read_text(encoding="utf-8"))
     assert hashlib.sha256(committed).hexdigest() == expect["profile"]["sample_sha256"] == \
-        "2f629a1fc77a087932dbf565969b67ddd290395dcfb010a214782dd62576ad75"
+        "5e34e3a9c34105119b6d69ddcd91d494897a758eb49c95d7524a06a3977fc434"
 
 
 def test_6_portfolio_history_is_every_portfolio_row_by_as_of_memory() -> None:
@@ -95,6 +95,11 @@ class Reads:
         self.built_by = [f"person:{WANJIRU}", f"person:{WANJIRU}"]
         self.key_error: Exception | None = None
         self.collected = {}
+        self.fuel_cost = {}
+        self.declared_price_metadata = NS(
+            carried_as="ASSUMPTION", assumption="Declared diesel price per litre, not a fuel invoice",
+        )
+        self.declared_price_evidence = "ESTIMATED"
         self.owners = ["Peter"]
         self.body = self._body()
 
@@ -144,19 +149,23 @@ class Reads:
         return tuple(NS(site_code=c) for c in self.x["stated"])
 
     def _value(self, code, factor):
-        v = self.collected.get(code) if factor == "collected" else None
+        overrides = {"collected": self.collected, "fuel_cost": self.fuel_cost}
+        v = overrides.get(factor, {}).get(code)
         v = v or self.x["stated"][code][factor]
         missing = NS(cause=self.x["absent_causes"].get(code, {}).get(factor))
         return NS(value=None if v is None else D(v), missing=missing if v is None else None, sources=())
 
     def site_inputs(self, site, month):
         c = site.site_code
-        price = NS(value=D("1.50"), missing=None, sources=("commercial:expense",))
-        return NS(stated={f: self._value(c, f) for f in ("revenue", "fuel_cost")},
+        source = "assumption:price" if c == "MTO-001" else "commercial:expense"
+        price = NS(value=D("1.50"), sources=(source,),
+                   missing=self.declared_price_metadata if c == "MTO-001" else None,
+                   evidence=self.declared_price_evidence if c == "MTO-001" else "EMULATED")
+        return NS(stated={f: self._value(c, f) for f in ("revenue",)},
                   leaves={**{f: self._value(c, f) for f in ("om", "staff", "in_transit")}, "diesel_price": price})
 
     def site_actual(self, site, month):
-        return NS(values={"collected": self._value(site.site_code, "collected")})
+        return NS(values={f: self._value(site.site_code, f) for f in ("collected", "fuel_cost")})
 
     def site_targets(self, site, month):
         c = site.site_code
@@ -201,7 +210,12 @@ def run(reads, capsys, *argv) -> tuple[int, dict, list[str]]:
     assert [l["gate"] for l in lines] in ([], list(check.GATES))  # R7: ten lines, or none on a refusal
     for line in lines:
         assert set(line) == {"gate", "step", "state", "code", "facts"}
-        assert (line["state"], line["code"], line["facts"]) == ("PASS", None, {}) or line["state"] == "FAIL"
+        if line["state"] == "PASS":
+            assert line["code"] is None
+            assert line["facts"] == ({"declared_prices": {"MTO-001": "declared, no fuel invoice this month"}}
+                                     if line["gate"] == "G4" else {})
+        else:
+            assert line["state"] == "FAIL"
     assert all(LINE.match(e) or re.fullmatch(r"[A-Z_]+", e) for e in err.splitlines())  # 8(g): codes only
     return code, {l["gate"]: l for l in lines}, err.splitlines()
 
@@ -242,16 +256,72 @@ def test_8c_g9_ignores_the_clock_and_fails_on_a_figure(env, capsys) -> None:  # 
     reads.body["bridge"]["by_site"]["rows"][1][3] = "−$563.00"
     code, lines, _ = run(reads, capsys)
     assert failed(lines) == {"G9": ("SCREEN", {"path": "$.bridge.by_site.rows[1][3]"})}
-    assert EXPECT["screen"]["bridge"]["by_site"]["rows"][1][:4] == ["Kobo mini-grid", "$883.00", "$1,445.00",
-                                                                     "−$562.00"]
+    assert EXPECT["screen"]["bridge"]["by_site"]["rows"][1][:4] == ["Kobo mini-grid", "$1,565.50", "$1,951.25",
+                                                                     "−$385.75"]
+
+
+def _derived_untracked() -> str:
+    """D-DD.181's rule on the expect file's facts, not on the product's reader: the litre leaves of every asked Site, and
+    the diesel price where no fuel was bought; registry order, the vocabulary's labels, the screen's Site names."""
+    from decimal import Decimal
+
+    from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
+    from assetops_backend.structure.registry import REGISTRIES
+
+    names = dict(zip(EXPECT["asked"], (r[0] for r in EXPECT["screen"]["bridge"]["by_site"]["rows"])))
+    held = {f: list(EXPECT["asked"]) for f in ("necessary_l", "candidate_l", "unexplained_l")}
+    held["diesel_price"] = [c for c in EXPECT["asked"] if Decimal(EXPECT["fuel_bought"][c]) == 0]
+    parts = []
+    for row in REGISTRIES["MINI_GRID"].rows:
+        sites = [names[c] for c in held.get(row.factor_id, ())]
+        if sites:
+            words = ", ".join(sites[:-1]) + " and " + sites[-1] if len(sites) > 1 else sites[0]
+            parts.append(f"{VOCABULARY["factor"]["entries"][row.factor_id]["label"]} ({words})")
+    return "Not checked for later changes: " + (", ".join(parts[:-1]) + " and " + parts[-1]) + "."
+
+
+def test_8h_the_untracked_literal_follows_from_the_rule(env) -> None:  # D-DD.181
+    text = EXPECT["screen"]["fresh"]["untracked_text"]
+    assert text == _derived_untracked()
+    assert text.endswith(" and Diesel price (Mto mini-grid).")
+    assert EXPECT["screen"]["outcomes"][-1]["drawer"]["lines"][-1] == text
+
+
+@pytest.mark.parametrize("found", [
+    None,
+    EXPECT["screen"]["fresh"]["untracked_text"] and EXPECT["screen"]["fresh"]["untracked_text"].replace(
+        "Diesel price (Mto mini-grid)", "Diesel price (Kisiwa mini-grid and Mto mini-grid)"),
+    EXPECT["screen"]["fresh"]["untracked_text"] and EXPECT["screen"]["fresh"]["untracked_text"].replace(
+        " and Diesel price (Mto mini-grid)", ""),
+])
+def test_8i_g9_fails_on_another_untracked_text(env, capsys, found) -> None:  # plant (e)
+    reads = Reads()
+    assert found != reads.x["screen"]["fresh"]["untracked_text"]
+    reads.body["fresh"]["untracked_text"] = found
+    reads.body["bridge"]["by_site"]["rows"][1][3] = "−$563.00"  # checked before SCREEN
+    _, lines, err = run(reads, capsys)
+    assert failed(lines) == {"G9": ("UNTRACKED", {})} and err == ["DDR_GATE_FAILED G9 UNTRACKED"]
+
+
+@pytest.mark.parametrize(("value", "passes"), [("1173.9015", True), ("1173.906", False)])
+def test_g4_compares_computed_fuel_cost_to_the_cent(env, capsys, value, passes) -> None:
+    reads = Reads()
+    reads.fuel_cost["KISIWA-001"] = value
+    _, lines, _ = run(reads, capsys)
+    if passes:
+        assert "G4" not in failed(lines)
+    else:
+        assert failed(lines) == {"G4": ("FIGURE", {
+            "site": "KISIWA-001", "factor": "fuel_cost", "expected": "1173.90", "found": "1173.91",
+        })}
 
 
 def test_8d_g4_fails_on_kobo_collected(env, capsys) -> None:  # plant P13
     reads = Reads()
-    reads.collected["KOBO-001"] = "3000.00"
+    reads.collected["KOBO-001"] = "3180.001"
     _, lines, err = run(reads, capsys)
     assert failed(lines) == {"G4": ("FIGURE", {"site": "KOBO-001", "factor": "collected", "expected": "3180.00",
-                                               "found": "3000.00"})}
+                                               "found": "3180.00"})}
     assert err == ["DDR_GATE_FAILED G4 FIGURE"]
 
 
@@ -359,3 +429,17 @@ def test_l4_g3_checks_every_accepted_upload_of_a_reader(env, capsys) -> None:
     _, lines, _ = run(reads, capsys)
     assert failed(lines) == {"G3": ("SUBMITTER", {"reader": "billing-illustrative-1", "expected": str(WANJIRU),
                                                   "found": str(other)})}
+
+
+@pytest.mark.parametrize(("evidence", "metadata"), [
+    ("EMULATED", NS(carried_as="ASSUMPTION", assumption="Declared diesel price per litre, not a fuel invoice")),
+    ("ESTIMATED", None),
+    ("ESTIMATED", NS(carried_as="TARGET", assumption="Declared diesel price per litre, not a fuel invoice")),
+    ("ESTIMATED", NS(carried_as="ASSUMPTION", assumption=None)),
+])
+def test_g4_requires_the_declared_price_metadata(env, capsys, evidence, metadata):
+    reads = Reads()
+    reads.declared_price_evidence = evidence
+    reads.declared_price_metadata = metadata
+    _, lines, _ = run(reads, capsys)
+    assert failed(lines) == {"G4": ("PRICE_ASSUMPTION", {"site": "MTO-001"})}

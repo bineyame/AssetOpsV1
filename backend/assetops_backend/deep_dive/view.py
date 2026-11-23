@@ -6,7 +6,7 @@ figure's word carries the organisation's standing, read by the caller at `served
 """
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
@@ -56,13 +56,13 @@ def bridge_bars(effects: Sequence[Decimal | None], gap: Decimal | None) -> tuple
     """Spec section 3.2 "Bars" (D-5C.27): each step's bar on the gap's scale and the scale's two marks, as percentages
     of the step track (plain strings, two places, half even). `effects` in JSON order; None for a step with no
     figure in R's currency. No gap (None or 0): no bar and no scale."""
-    if gap is None or gap == 0:
+    if gap is None or W.cents(gap) == 0:
         return [None] * len(effects), None
     with localcontext(Context(prec=34, rounding=ROUND_HALF_EVEN)):
         spans: list[tuple[Decimal, Decimal, Decimal] | None] = []
         p = Decimal(0)
         for e in effects:
-            if e is None or e == 0:
+            if e is None or W.cents(e) == 0:
                 spans.append(None)
                 continue
             a, b = p, p + e / gap * 100
@@ -118,6 +118,23 @@ def _find(root: BridgeRow, factor_id: str) -> BridgeRow | None:
         if r.factor_id == factor_id and r.kind != "RESIDUAL":
             return r
     return None
+
+
+def untracked_line(entries: Iterable[str], codes: Sequence[str], names: Mapping[str, str], reg) -> str | None:
+    """D-DD.181: what is not rechecked, from `Freshness.untracked`'s "code:leaf" entries: factors in the registry's
+    order, Sites in `codes` order, None when there is none. A leaf outside `reg` raises, so a Site type this registry
+    does not hold is never left out in silence."""
+    per: dict[str, set[str]] = {}
+    for entry in entries:
+        code, leaf = entry.split(T.UNTRACKED_SEP, 1)
+        per.setdefault(leaf, set()).add(code)
+    order = [r.factor_id for r in reg.rows]
+    for leaf, held in per.items():
+        if leaf not in order or not held <= set(codes):
+            raise ValueError(f"UNTRACKED_OUTSIDE {sorted(f'{c}{T.UNTRACKED_SEP}{leaf}' for c in held)}")
+    if not per:
+        return None
+    return W.untracked([(f, [c for c in codes if c in per[f]]) for f in order if f in per], names)
 
 
 class _View:
@@ -273,6 +290,7 @@ class _View:
         return head, title
 
     def cost_ratio(self) -> Decimal | None:
+        """D-DD.182: the share of the cost carried at its budget line."""
         C = self.rows.get(T.COST)
         if C is None or C.actual is None or C.actual == 0:
             return None
@@ -283,7 +301,7 @@ class _View:
             for leaf in sb.carried:
                 value = sb.actual.values[leaf].value
                 carried += value if value is not None else Decimal(0)
-        return (C.actual - carried) / C.actual
+        return carried / C.actual
 
     def rest(self) -> Decimal:
         total = Decimal(0)
@@ -305,16 +323,16 @@ class _View:
             lines.append(W.tile_target(W.money(R.target, cur), share))
         lines.append(W.sites(R.k, self.n))
         if ratio is not None:
-            lines.append(W.cost_received(ratio))
+            lines.append(W.cost_at_budget(ratio))
         contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, cur),
                         "word": self.figure_word(R.actual, cur, R.evidence, R.origins), "lines": lines,
-                        "bar": ({"actual": str(R.actual), "target": str(R.target)}
+                        "bar": ({"actual": W.plain(R.actual), "target": W.plain(R.target)}
                                 if R.actual is not None and R.target is not None else None)}
         gap_lines = []
         if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:
             gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.group_cur(T.GROW)),
                                           W.money(sums[T.OPTIMIZE], self.group_cur(T.OPTIMIZE))))
-        if R.effect is not None and R.effect != 0:  # KD2 ruling: a gap of 0 has no rest line (nothing to offset)
+        if R.effect is not None and W.cents(R.effect) != 0:  # KD2 ruling: a gap of 0 has no rest line (nothing to offset)
             gap_lines.append(W.tile_rest(W.money(self.rest(), cur), W.money(R.effect, cur)))
         gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, cur, "SIGNED"),
                "word": self.figure_word(R.effect, cur, R.evidence, R.origins), "lines": gap_lines, "bar": None}
@@ -340,10 +358,10 @@ class _View:
     def shares(self) -> dict[str, str]:
         """Section 3.2: each step's share of what widens the gap; none when R has no gap (None or 0, D-5C.28)."""
         gap = self.R.effect
-        if gap is None or gap == 0:
+        if gap is None or W.cents(gap) == 0:
             return {}
         widening = [self.rows[s].effect for s in self.steps if s in self.rows and self.rows[s].effect is not None
-                    and self.rows[s].effect != 0 and (self.rows[s].effect < 0) == (gap < 0)]
+                    and W.cents(self.rows[s].effect) != 0 and (self.rows[s].effect < 0) == (gap < 0)]
         total = sum((abs(e) for e in widening), Decimal(0))
         out = {}
         for s in self.steps:
@@ -351,8 +369,8 @@ class _View:
             if row is None or row.effect is None:
                 continue
             e = row.effect
-            if e == 0 or total == 0:
-                value = Decimal(0) if e == 0 else Decimal(-1)
+            if W.cents(e) == 0 or total == 0:
+                value = Decimal(0) if W.cents(e) == 0 else Decimal(-1)
             elif (e < 0) == (gap < 0):
                 value = abs(e) / total
             else:
@@ -617,17 +635,7 @@ class _View:
         record_sites |= {by_id[s.site_id] for s in freshness.stale_stamps if s.site_id in by_id}
         ordered = [c for c in self.snap.asked if c in record_sites]
         text = None if freshness.current else W.fresh(freshness.reasons, ordered, self.names, as_of)
-        untracked = None
-        if freshness.untracked:
-            per: dict[str, list[str]] = {}
-            for entry in freshness.untracked:
-                code, leaf = entry.split(T.UNTRACKED_SEP, 1)
-                per.setdefault(leaf, [])
-                if code not in per[leaf]:
-                    per[leaf].append(code)
-            order = [r.factor_id for r in self.reg.rows]
-            entries = [(f, [c for c in self.snap.asked if c in per[f]]) for f in order if f in per]
-            untracked = W.untracked(entries, self.names)
+        untracked = untracked_line(freshness.untracked, self.snap.asked, self.names, self.reg)
         return {"current": freshness.current, "text": text, "untracked_text": untracked}
 
 

@@ -49,6 +49,12 @@ MAIN_OF: Mapping[str, Mapping[str, tuple[str, ...]]] = MappingProxyType({
 })
 
 
+#: Structure key -> every heading of `MAIN_OF`: a budget line states its target, whether or not a record states its
+#: actual (`fuel_cost` has none since structure v5, D-DD.163).
+BUDGET_STATED: Mapping[str, frozenset[str]] = MappingProxyType(
+    {key: frozenset(h for headings in mains.values() for h in headings) for key, mains in MAIN_OF.items()})
+
+
 def _context() -> Context:
     return Context(prec=34, rounding=ROUND_HALF_EVEN)
 
@@ -79,6 +85,6 @@ def solve_main(registry: Registry, leaves: Mapping[str, LeafValue], heading: str
 
 
 __all__ = [
-    "AT_ACTUAL", "AT_ACTUAL_TEXT", "CALENDAR", "LEAK_TEXT", "LEAK_ZERO", "MAIN", "MAIN_OF", "MAIN_TEXT", "OPTION",
+    "AT_ACTUAL", "AT_ACTUAL_TEXT", "BUDGET_STATED", "CALENDAR", "LEAK_TEXT", "LEAK_ZERO", "MAIN", "MAIN_OF", "MAIN_TEXT", "OPTION",
     "RULES", "TARGET_FAMILY", "TARGET_KIND", "TARGET_RULE", "TARGET_WORDS", "solve_main",
 ]

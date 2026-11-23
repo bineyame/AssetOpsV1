@@ -46,39 +46,23 @@ function strings(value: unknown, out: string[] = []): string[] {
 
 function worldH(): DeepDiveMonthBody {
   const h = worldA();
-  const SETUP = "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)";
-  const stop =
-    "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), " +
-    "the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery " +
-    `notes and ${SETUP}.`;
-  const untracked =
-    "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the " +
-    "load (Kobo) and Unexplained fuel (Kobo).";
-  h.tiles![1].lines[1] = "$252.00 of it not split to its drivers yet";
   const fuel = h.bridge!.groups[1].steps[0].drawer;
-  fuel.sites = [
-    { site: "Kobo", value: "−$600.00", text: null },
-    { site: "Kisiwa", value: "−$130.00", text: stop },
-    { site: "Mto", value: "−$25.00", text: stop },
-  ];
   const m = "Modelled, not yet reconciled";
   // D-5C.21: Diesel used holds its three parts; Diesel price is its sibling (D-5C.24: no detail, Modelled).
   const leaf = (key: string, label: string, value: string, detail: string | null): DeepDiveDriver => ({
-    key, label, value, sites: "1 of 3 Sites", detail, word: m, children: [],
+    key, label, value, sites: "3 of 3 Sites", detail, word: m, children: [],
   });
   fuel.drivers = [
     {
-      ...leaf("diesel_l", "Diesel used", "−$600.00", "Actual 1,180 L · Target 700 L"),
+      ...leaf("diesel_l", "Diesel used", "+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
       children: [
-        leaf("necessary_l", "Diesel not shown to be avoidable", "−$37.50", "Actual 730 L · Target 700 L"),
-        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$412.50", "Actual 330 L · Target 0 L"),
-        leaf("unexplained_l", "Unexplained fuel", "−$150.00", "Actual 120 L · Target 0 L"),
+        leaf("necessary_l", "Diesel not shown to be avoidable", "+$2,675.30", "Actual 1,219 L · Target 3,300 L"),
+        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$273.20", "Actual 216 L · Target 0 L"),
+        leaf("unexplained_l", "Unexplained fuel", "−$168.50", "Actual 134 L · Target 0 L"),
       ],
     },
     leaf("diesel_price", "Diesel price", "$0.00", null),
   ];
-  h.fresh = { current: true, text: null, untracked_text: untracked };
-  h.outcomes![3].drawer!.lines = [...h.outcomes![3].drawer!.lines, untracked];
   return h;
 }
 
@@ -154,14 +138,21 @@ function openDialog(): HTMLElement {
   return screen.getByRole("dialog");
 }
 
+/** Every not-available row: 8 are shown, and a 9th puts the rest behind "Show all {n}" (the caps test). */
+function showAllNotAvailable(body: DeepDiveMonthBody) {
+  const n = body.not_available!.rows.length;
+  const more = screen.queryByRole("button", { name: `Show all ${n}` });
+  expect(more !== null).toBe(n > 8);
+  if (more !== null) fireEvent.click(more);
+}
+
 describe("5c test 10: World A renders", () => {
   it("shows every string of spec §3.5 outside the drawers, the notice visible and the status line a status", async () => {
     const a = worldA();
     const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
     await settled();
     expect(screen.queryByRole("dialog")).toBeNull();
-    // Show all the not-available rows (8 shown, then "Show all {n}").
-    fireEvent.click(screen.getByRole("button", { name: `Show all ${a.not_available!.rows.length}` }));
+    showAllNotAvailable(a);
     const text = view.container.textContent ?? "";
     for (const s of strings(a)) expect(text, s).toContain(s);
     expect(text).toContain(a.headline!.evidence[0]);
@@ -217,7 +208,8 @@ describe("5c test 10: World A renders", () => {
     fireEvent.click(screen.getByRole("button", { name: assure.value }));
     const dialog = screen.getByRole("dialog", { name: assure.drawer!.title });
     const items = within(dialog).getAllByRole("listitem").map((li) => li.textContent);
-    expect(items).toEqual([a.standing!.text, ...a.standing!.details!]);
+    // DD3d.4: World A's litres are no commercial record, so the drawer's last line is the not-checked line.
+    expect(items).toEqual([a.standing!.text, ...a.standing!.details!, a.fresh!.untracked_text]);
   });
 
   it("World B: no 'not yet reconciled' suffix is added by the page", async () => {
@@ -225,7 +217,7 @@ describe("5c test 10: World A renders", () => {
     const strip = (s: string) => s.replace(", not yet reconciled", "");
     b.headline!.evidence = b.headline!.evidence.map(strip);
     b.tiles!.forEach((t) => (t.word = t.word === null ? null : strip(t.word)));
-    b.status_line = "Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
+    b.status_line = "Figures as of 20 November 2026, 08:00 UTC. Revenue and fuel bought are reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
     b.bridge!.groups.forEach((g) => g.steps.forEach((s) => (s.word = s.word === null ? null : strip(s.word))));
     b.cash!.word = strip(b.cash!.word!);
     b.outcomes!.forEach((o) => (o.word = o.word === null ? null : strip(o.word)));
@@ -291,7 +283,7 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     const revenue = a.bridge!.groups[0].steps[0].drawer;
     revenue.sites = Array.from({ length: 12 }, (_, i) => ({ ...revenue.sites[i % 3], site: `Site ${i + 1}` }));
     const na = a.not_available!.rows;
-    a.not_available!.rows = na.slice(0, 9);
+    a.not_available!.rows = Array.from({ length: 9 }, (_, i) => ({ ...na[i % na.length], needs: `${na[i % na.length].needs} (${i + 1})` }));
     const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
     await settled();
     const table = view.container.querySelector("details.dd-details tbody")!;
@@ -367,7 +359,7 @@ describe("5c test 11: the served worlds (backend-written H and the currency mism
     const x = worldX();
     const view = renderMonth(clientOf(() => ({ status: "loaded", body: x })));
     await settled();
-    fireEvent.click(screen.getByRole("button", { name: `Show all ${x.not_available!.rows.length}` }));
+    showAllNotAvailable(x);
     const text = view.container.textContent ?? "";
     for (const s of strings(x)) expect(text, s).toContain(s);
     // L7: the headline is the served sentence; no evidence chip beside a sentence with no figure.
@@ -393,7 +385,7 @@ describe("5c test 11: the served worlds (backend-written H and the currency mism
     for (const step of x.bridge!.groups.flatMap((g) => g.steps)) {
       expect(view.container.querySelector(`[data-dd-step="${step.key}"] .dd-wf__value`)!.textContent).toBe(step.value);
     }
-    expect(view.container.querySelector('[data-dd-step="fuel_cost"] .dd-wf__value')!.textContent).toBe("−KES 600.00");
+    expect(view.container.querySelector('[data-dd-step="fuel_cost"] .dd-wf__value')!.textContent).toBe("+KES 82.50");
     // Every money figure on the page is one the JSON serves (the page never puts "$" on a KES figure).
     const shown = moneyIn(view.container);
     expect(shown.some((m) => m.includes("KES"))).toBe(true);
@@ -526,12 +518,12 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     await settled();
     const bar = (key: string) => track(view.container, key).querySelector(".dd-wf__bar") as HTMLElement | null;
     // jsdom's CSSOM writes the served "0.00%" as "0%"; the served string is the source (fixture literal, spec §6).
-    expect(a.bridge!.groups[0].steps[0].bar).toEqual({ left: "0.00", width: "11.38", tone: "lowers" });
+    expect(a.bridge!.groups[0].steps[0].bar).toEqual({ left: "0.00", width: "4.34", tone: "lowers" });
     expect(bar("revenue")!.style.left).toBe("0%");
-    expect(bar("revenue")!.style.width).toBe("11.38%");
+    expect(bar("revenue")!.style.width).toBe("4.34%");
     expect(bar("revenue")!.classList.contains("dd-wf__bar--lowers")).toBe(true);
-    expect(bar("fuel_cost")!.style.left).toBe("11.38%");
-    expect(bar("fuel_cost")!.style.width).toBe("88.62%");
+    expect(bar("fuel_cost")!.style.left).toBe("0%");
+    expect(bar("fuel_cost")!.style.width).toBe("100%");
     expect(bar("om")).toBeNull();
     expect(bar("staff")).toBeNull();
     for (const step of a.bridge!.groups.flatMap((g) => g.steps)) {
@@ -542,11 +534,11 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     const marks = [...scale.querySelectorAll<HTMLElement>(".dd-wf__mark")];
     const t = a.bridge!.totals;
     expect(marks.map((m) => [m.textContent, m.style.left])).toEqual([
-      [`${t.target_label} ${t.target}`, "0%"],
+      [`${t.target_label} ${t.target}`, "4.34%"],
       [`${t.actual_label} ${t.actual}`, "100%"],
     ]);
     expect(marks[1].classList.contains("dd-wf__mark--end")).toBe(true);
-    expect(a.bridge!.scale).toEqual({ target_at: "0.00", actual_at: "100.00" });
+    expect(a.bridge!.scale).toEqual({ target_at: "4.34", actual_at: "100.00" });
   });
 
   it("D-5C.29: the cash sentence and the table's Billed column render exactly as served", async () => {

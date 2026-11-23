@@ -27,6 +27,7 @@ UTC = timezone.utc
 EAT = timezone(timedelta(hours=3))
 MG = REGISTRIES["MINI_GRID"]
 FB = {f: MG.row(f).filled_by for f in ("necessary_l", "candidate_l", "unexplained_l")}
+LEAVES_SORTED = ("candidate_l", "necessary_l", "unexplained_l")
 LEAVES = ("necessary_l", "candidate_l", "unexplained_l")
 SLOT = timedelta(minutes=5)
 EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
@@ -117,6 +118,20 @@ def kobo_tank() -> list[TankRecord]:
 def kobo(extra_spans: list[RunSpan] | None = None, running_extra: list[RunSpan] | None = None) -> World:
     spans = kobo_spans() + list(extra_spans or [])
     return World(spans, slots_of(spans) | slots_of(list(running_extra or [])), tank=kobo_tank())
+
+
+def kobo_record_world() -> World:
+    """The bridge tests' Kobo (D-DD.150-152, M rev 16.20, 2026-11-23): 5b's commercial record states Kobo October fuel
+    as 634 L (400 + 234 delivered, 792.50), no longer 1,180 L, so the bridge's litre inputs add up to the record:
+    necessary 390 + 10 L, candidate 120 L, unexplained 114 L (tank balance 634 L). KOBO-OCT above stays 4d's own spec
+    §5 world for tests 1-5, 7-10."""
+    spans = ([span(2026, 10, d, 18, 0, 24, 0, NEC) for d in range(1, 14)] + [span(2026, 10, 25, 18, 0, 20, 0, IND)]
+             + [span(2026, 10, d, 7, 0, 13, 0, CAND) for d in range(1, 5)])
+    tank = [TankRecord("TANK_DIP", local(2026, 10, 1).astimezone(UTC), D("500"), "dip-open"),
+            TankRecord("FUEL_DELIVERY", local(2026, 10, 1, 9).astimezone(UTC), D("400"), "del-1"),
+            TankRecord("FUEL_DELIVERY", local(2026, 10, 11, 9).astimezone(UTC), D("234"), "del-2"),
+            TankRecord("TANK_DIP", local(2026, 11, 1).astimezone(UTC), D("500"), "dip-close")]
+    return World(spans, slots_of(spans), tank=tank)
 
 
 def runs(*days: str) -> tuple[str, ...]:
@@ -562,13 +577,13 @@ class LakesideInputs:
 
     def read(self, site: SiteRef, month: str, known_at: datetime) -> LitreInputs:
         if site.site_code == "KOBO-001":
-            return kobo().inputs()
+            return kobo_record_world().inputs()
         w = v10(kobo())
         w.assets = "NOT_ONE_EACH"
         return w.inputs()
 
 
-def _bridge_reads(w: dict):
+def _bridge_reads(w: dict, fb=None):
     from test_3a4_commercial_months import READ_AT
     from test_4b_money_leaves import fallback
 
@@ -577,8 +592,8 @@ def _bridge_reads(w: dict):
     from assetops_backend.structure.targets.lines import BudgetLineReader
     from assetops_backend.structure.targets.read import TargetRead
 
-    src = CommercialLeafSource(w["months"], w["store"], LitreLeafSource(LakesideInputs(), fallback(),
-                                                                        lambda: READ_AT))
+    src = CommercialLeafSource(w["months"], w["store"], LitreLeafSource(LakesideInputs(), fallback(), lambda: READ_AT)
+                               if fb is None else fb)
     actual = StructureRead(src, stated=src)
     return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual), READ_AT
 
@@ -610,19 +625,19 @@ def test_6_kobo_fuel_cost_splits_into_the_three_litre_leaves() -> None:
 
     sb = _site_bridge("KOBO-001")
     root = sb.roots["contribution"]
-    t5b.money(root.gap, "-562.00"), t5b.money(root.effect, "-562.00")
+    t5b.money(root.gap, "120.50"), t5b.money(root.effect, "120.50")
     fuel = t5b.find(root, "fuel_cost")
-    t5b.money(fuel.effect, "-600.00")
-    shape(fuel, ("fuel_cost", "TERM", "AR1", "-1", "600.00", "-600.00", "SPLIT", None, (
-        ("diesel_l", "VOLUME", "AR2", "-1.25", "480", "-600.00", "SPLIT", None, (
-            t5b.leaf("necessary_l", "TERM", "-1.25", "30", "-37.50"),
-            t5b.leaf("candidate_l", "TERM", "-1.25", "330", "-412.50"),
-            t5b.leaf("unexplained_l", "TERM", "-1.25", "120", "-150.00"))),
-        t5b.leaf("diesel_price", "PRICE", "-1180", "0", "0.00"))))
+    t5b.money(fuel.effect, "82.50")
+    shape(fuel, ("fuel_cost", "TERM", "AR1", "-1", "-82.50", "82.50", "SPLIT", None, (
+        ("diesel_l", "VOLUME", "AR2", "-1.25", "-66", "82.50", "SPLIT", None, (
+            t5b.leaf("necessary_l", "TERM", "-1.25", "-300", "375.00"),
+            t5b.leaf("candidate_l", "TERM", "-1.25", "120", "-150.00"),
+            t5b.leaf("unexplained_l", "TERM", "-1.25", "114", "-142.50"))),
+        t5b.leaf("diesel_price", "PRICE", "-634", "0", "0.00"))))
     diesel = t5b.find(root, "diesel_l")
     assert diesel.evidence == "MODELLED"
     assert [r.evidence for r in diesel.rows] == ["MODELLED"] * 3
-    assert [format(sb.actual.values[f].value, "f") for f in LEAVES] == ["730.000", "330.000", "120.000"]
+    assert [format(sb.actual.values[f].value, "f") for f in LEAVES] == ["400.000", "120.000", "114.000"]
 
 
 @pytest.mark.parametrize("code", ["KISIWA-001", "MTO-001"])
@@ -630,31 +645,58 @@ def test_6_other_sites_say_what_is_missing(code: str) -> None:
     import test_5b_attribution as t5b
 
     sb = _site_bridge(code)
-    fuel = t5b.find(sb.roots["contribution"], "fuel_cost")
-    assert (fuel.split, fuel.reason, fuel.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ())
-    assert fuel.unobserved_actual == ("candidate_l", "necessary_l", "unexplained_l")
+    # D-DD.177: these Sites state fuel by invoices and hold no litres, so they serve no fuel cost and no contribution;
+    # the root is not available (never the invoice total) and names the litre leaves (was: fuel NOT_SPLIT).
+    root = sb.roots["contribution"]
+    assert (root.split, root.reason, root.rows) == ("NOT_SPLIT", "GAP_NOT_AVAILABLE", ())
+    assert root.actual is None and root.evidence == "NOT_AVAILABLE"
+    assert root.unobserved_actual == ("candidate_l", "necessary_l", "unexplained_l")
     for leaf in LEAVES:
         lv = sb.actual.values[leaf]
         assert lv.value is None and lv.missing.note == "GENERATOR_OR_TANK_NOT_DECLARED", (code, leaf)
 
 
-def test_6_the_portfolio() -> None:
+def _portfolio_rows(fb=None):
     import test_5b_attribution as t5b
     from assetops_backend.structure.attribution.read import BridgeRead
 
     w = t5b._world()
-    actual, targets, at = _bridge_reads(w)
+    actual, targets, at = _bridge_reads(w, fb)
     r = t5b.t5a.refs(w)
     pb = BridgeRead(actual, targets, clock=lambda: at).portfolio(w["tid"], [r[c] for c in t5b.CODES], t5b.OCT)
-    rows = pb.rows["contribution"]
-    fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
-    t5b.money(fuel.effect, "-755.00")
+    return pb.rows["contribution"]
+
+
+def test_6_the_portfolio_over_three_sites() -> None:
+    """All three Sites hold litres: the portfolio's fuel effect is the three Sites' (D-DD.164), and it splits."""
+    import test_5b_attribution as t5b
+    from pack_litres import KoboSplitsItself
+    from test_3a4_commercial_months import READ_AT
+
+    rows = _portfolio_rows(KoboSplitsItself(READ_AT))
+    fuel, diesel, price = rows["fuel_cost"], rows["diesel_l"], rows["diesel_price"]
+    t5b.money(fuel.actual, "2006.40"), t5b.money(fuel.target, "4240.00"), t5b.money(fuel.effect, "2233.60")
     assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())
-    assert format(diesel.actual, "f") == "1180.000" and diesel.target == D("700")
-    assert format(diesel.gap, "f") == "480.000"
-    assert diesel.effect == D("-600.00")  # -600.00000: mid-build question 1
+    assert diesel.actual == D("634") + D("903") + D("32") and (diesel.k, diesel.n, diesel.out) == (3, 3, ())
+    assert diesel.effect + price.effect == fuel.effect  # the split leaves nothing out
+    parts = [rows[f] for f in LEAVES]
+    assert [(p.k, p.n) for p in parts] == [(3, 3)] * 3 and sum(p.effect for p in parts) == diesel.effect
+    assert [p.actual for p in parts] == [D("400") + D("814"), D("120") + D("69") + D("32"), D("114") + D("20")]
+
+
+def test_6_the_portfolio() -> None:
+    import test_5b_attribution as t5b
+
+    rows = _portfolio_rows()
+    fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
+    t5b.money(fuel.effect, "82.50")  # D-DD.177: Kobo's alone; the other two Sites hold no litres (was 2,233.60 of 3)
+    missing = tuple((c, tuple(f"actual:{leaf}" for leaf in LEAVES_SORTED)) for c in ("KISIWA-001", "MTO-001"))
+    assert (fuel.k, fuel.n, fuel.out) == (1, 3, missing)
+    assert format(diesel.actual, "f") == "634.000" and diesel.target == D("700")
+    assert format(diesel.gap, "f") == "-66.000"
+    assert diesel.effect == D("82.50")  # 82.50000: mid-build question 1
     assert (diesel.k, diesel.n) == (1, 3)
-    assert diesel.out == (("KISIWA-001", ("NOT_SPLIT",)), ("MTO-001", ("NOT_SPLIT",)))
+    assert diesel.out == missing
 
 
 # =====================================================================================================================

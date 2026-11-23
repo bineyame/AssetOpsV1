@@ -85,7 +85,7 @@ def test_t1_own_home_map_categories_are_the_catalogue_codes():
 
 
 def test_t1_47_rows_31_leaves_16_nodes():
-    assert MG.structure_key == "MINI_GRID" and MG.version == 4  # 4a (D-4A.1)
+    assert MG.structure_key == "MINI_GRID" and MG.version == 5  # DD3d.4 (D-DD.163): fuel cost unstated
     assert len(MG.rows) == 47
     assert sum(r.is_leaf for r in MG.rows) == 31
     assert sum(not r.is_leaf for r in MG.rows) == 16
@@ -108,7 +108,8 @@ def test_t1_leaf_sources_absence_and_words_equal_the_manifest():
     assert {r.factor_id for r in leaves} == set(sources)
     for row in leaves:
         declared = sources[row.factor_id]
-        assert row.filled_by == FilledBy(declared["family"], declared["kind"], declared.get("words")), row.factor_id
+        assert row.filled_by == FilledBy(
+            declared["family"], declared["kind"], declared.get("words")), row.factor_id
         assert row.filled_by.words == declared.get("words"), row.factor_id  # R13
         assert row.absent == declared["absent"], row.factor_id
     # The words field is not vacuous: the manifest declares some.

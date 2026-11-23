@@ -1,0 +1,20 @@
+{
+  "fixture": "demo-diesel-price-publications",
+  "version": 2,
+  "statement": "The world's declared diesel price for this Site (D-DD.169), published by the server-side SYSTEM publisher. Not a fuel invoice.",
+  "assumption_key": "diesel_price_per_litre",
+  "steps": [
+    {
+      "step": "v1",
+      "change_kind": "INITIAL",
+      "currency": "USD",
+      "value": "1.25",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "Declared diesel price per litre for this Site (world declaration); not a fuel invoice",
+      "valid_from": "2026-06-30T21:00:00Z",
+      "valid_to": null,
+      "expected_prior_step": null,
+      "idempotency_key": "world-diesel-price-kobo-001-v1"
+    }
+  ]
+}

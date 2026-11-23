@@ -330,3 +330,41 @@ def test_kisiwa_evening_load_and_or_mg_2_read_from_the_run() -> None:
 def test_c_dd17_reads_the_declared_draws_from_history_and_m() -> None:
     assert dd_check.declared_draws("KOBO-001") == {"2026-07": Decimal(12), "2026-08": Decimal(12),
                                                     "2026-09": Decimal(11), "2026-10": Decimal(120)}
+
+
+@pytest.mark.parametrize(("consumed", "litres"), [
+    ("0", 0), ("75/11", 2), ("105/11", 4), ("660/11", 22),
+])
+def test_quarter_budget_rounds_the_exact_rate_once(consumed, litres):
+    ledger = {"2026-07": {"tank_open": Fraction(100)}, "2026-10": {"tank_open": 100 - Fraction(consumed)}}
+    notes = [{"at": "2026-10-01T10:00:00+03:00", "litres": "400"}]
+    result = _tool().quarter_fuel_budget(ledger, notes)
+    assert (result["deliveries_jul_sep"], result["consumed_jul_sep"], result["plan_diesel_l"]) == (
+        "0", str(Fraction(consumed)), litres,
+    )
+
+
+def test_october_fuel_plan_and_september_scaling_match_the_quarter():
+    tool = _tool()
+    view = tool.world_history.load_view(tool.MANIFEST)
+    history = generate_history(view)["tenants"]["lakeside-power"]
+    tenant = next(item for item in view["tenants"] if item["tenant"] == "lakeside-power")
+    records = {item["site_code"]: item["quarter"] for item in tool.read_leaves_file()["sites"]}
+    derived = json.loads((tool.MANIFEST.parent / "derived-values.json").read_text(encoding="utf-8"))["sites"]
+    for site in tenant["sites"]:
+        plan = site["period"]["plan"]
+        q = records[site["code"]]
+        used = Fraction(q["tank_open_jul"]) + Fraction(q["deliveries_jul_sep"]) - Fraction(q["tank_open_oct"])
+        scaled = used * 11 / 30
+        whole, rem = divmod(scaled.numerator, scaled.denominator)
+        if 2 * rem > scaled.denominator or (2 * rem == scaled.denominator and whole % 2):
+            whole += 1
+        nodes = derived[f"lakeside-power/{site['site']}"]["plan"]["nodes"]
+        assert q["plan_diesel_l"] == plan["diesel_l"] == nodes["necessary_l"] == whole
+        assert nodes["candidate_l"] == nodes["unexplained_l"] == 0
+        price = Decimal(str(tenant["prices"]["diesel_usd_per_l"][site["site"]]))
+        assert Decimal(str(plan["diesel_cost"])) == Decimal(whole) * price
+        september = history[site["site"]]["2026-09"]["plan"]
+        assert september["diesel_l"] == round(Fraction(whole * 30, 31))
+        if site["code"] == "MTO-001":
+            assert whole == 0

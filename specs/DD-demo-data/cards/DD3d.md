@@ -1,11 +1,11 @@
 # Build card: DD3d, the fuel floor, the fuel records, the fuel cost and the budget
 
-DD3d = five units, **6.5 u**, split by D-DD.171 into two parts (W4: over 6 u):
+DD3d = five units, **7.0 u** (6.5, +0.5 by D-DD.185), split by D-DD.171 into two parts (W4: over 6 u):
 
 | Part | Units | Size | Branch | Review |
 |---|---|---|---|---|
 | **DD3d-a** | DD3d.1 floor, DD3d.2 records, DD3d.3 H5 | 2.75 u | `task/DD3d-fuel-floor` (exists, no commits) | one discovery review |
-| **DD3d-b** | DD3d.4 fuel cost, DD3d.5 run-rate budget | 3.75 u | `task/DD3d-b-fuel-cost` | one discovery review |
+| **DD3d-b** | DD3d.4 fuel cost, DD3d.5 run-rate budget | 4.25 u | `task/DD3d-b-fuel-cost` | one discovery review |
 
 Card by the DD lane Architect, 23 Nov, for a builder who has not seen the session (Codex or Claude). Line numbers:
 `specs/DD-demo-data/spec.md` (S), `rulings.md` (R) and `assessment-budget.md` (A), all as at `task/DD-cards-2`. Read
@@ -118,9 +118,12 @@ unexplained, relative band, band, state; compare with R2842-2856), the night sta
 
 ---
 
-## Part DD3d-b (3.75 u)
+## Part DD3d-b (4.25 u)
 
-### DD3d.4 Fuel cost is burned × price (1.75; D-DD.163 R3100-3160 with D-DD.169 R3330-3347; S892-895)
+**Read `rulings.md` rounds 28 and 29 (D-DD.177 to D-DD.185, from the heading "DD rulings, round 28" to the end) first. They govern; the lines below are
+amended to them.**
+
+### DD3d.4 Fuel cost is burned × price (2.25; D-DD.163 R3100-3160 with D-DD.169 R3330-3347; S892-895)
 
 - Structure v5 (R3111-3115): `rows_mini_grid.py` drops `fuel_cost`'s `stated_by`; `STATED_STATE["MINI_GRID"]` drops
   `fuel_cost`. No `diesel_l` gives no fuel cost ("not available yet"), never the invoices.
@@ -131,17 +134,28 @@ unexplained, relative band, band, state; compare with R2842-2856), the night sta
 - Declared prices (D-DD.169): `publish_assumption.py`'s tenant check against `config.served_tenant_slug()`;
   three fixture files `backend/conversions/world/lakeside-power.diesel-price.<SITE>.json` (fields R3337-3344;
   value from `M` `prices.diesel_usd_per_l`, a parity test reads `M`); the DDR rehearsal Postgres test publishes them
-  in its setup. DD5b adds the ladder step.
+  in its setup. DD5b adds the ladder step. A wrong `--tenant` prints `TENANT_NOT_SERVED <slug>`, a malformed slug
+  `CONFIGURATION`; both exit 2 (D-DD.179, D-DD.184).
 - G4 (`backend/assetops_backend/rehearsal_check.py`): a Site-month without a fuel invoice needs the declared price,
-  evidence ASSUMED, printed "declared, no fuel invoice this month"; a missing price is still a FAIL (R3127-3134).
+  an ESTIMATED leaf with `missing.carried_as` ASSUMPTION and the words of `ASSUMPTION_WORDS["diesel_price"]`, printed "declared, no fuel invoice this month"; a missing price is still a FAIL (R3127-3134).
+  A computed node is compared at the cent; commercial leaves stay exact (D-DD.185).
 - DDR statements S5/S8 as offsets from the expect file's invoice total (+105.00 / +5.00), computed by the test,
   never typed; revenue keeps its offset from the served revenue (R3135-3140).
 - Screen literals (`backend/tests/fixtures/ddr/lakeside-2026-10.expect.json`): re-pinned to served values, mapped to
   `M` in the packet (R3141-3148). After DD3d.4 the fuel actual is burned × price; the plan side still reads the typed
   plan until DD3d.5. Re-pin the actual-side literals here and the plan-side ones (target, difference, headline) once,
   in DD3d.5.
-- `tools/dd_check.py` C-DD4 judges mini `diesel_l` and `fuel_cost` again (served = `M`); `EMU_FUEL` stays Σ invoices =
-  fuel bought (R3149-3150).
+- `tools/dd_check.py` C-DD4's fuel clause judges October's stored dips, deliveries and prices against `M`, live and
+  failing until DD5b; history litres are not judged (D-DD.180). `EMU_FUEL` stays Σ invoices = fuel bought.
+- Databases without readings: the DDR fixture supplies October's litres at `LitreLeafSource._month`; `test_7` pins the
+  reading-less state on the month, range and Sites reads; C4 classes "B" (D-DD.177, D-DD.185).
+- Target side: `stated_nodes` / `BUDGET_STATED` (D-DD.178).
+- What is not rechecked: G9 and `judge_month` compare `untracked_text` with the expected text; the range view's Assure
+  drawer carries the line; a leaf outside the registry raises (D-DD.181).
+- Words: the cost line is the share taken at its budget line; the four "reconciled" strings; the mock-departure row
+  (D-DD.182). Signs are judged as printed, `words.cents` (D-DD.185).
+- Tests that stay strict: the canned 5c standing is 3A7's own text and the Postgres test's `.replace` calls go
+  (D-DD.183). Runbook, DDR spec and expect file state S5 / S8 as 1,645.00 / 1,545.00 (D-DD.185).
 
 ### DD3d.5 Run-rate fuel budget (2.0; D-DD.166 A99-121 and A50-89, with D-DD.170 R3349-3363; S896-898)
 
@@ -153,13 +167,19 @@ unexplained, relative band, band, state; compare with R2842-2856), the night sta
   `plan.diesel_cost` = litres × declared price; plan necessary = plan litres, candidate and unexplained 0; contribution
   and variance by `M`'s identities; the basis string and class ASSUMED on the fuel plan line (A52-56, A104-107). July-September
   plans by `per_day`. Bridges by their stated formulas (D-DD.131), Portfolio totals.
-- Then D-DD.164's acceptance steps 1-7 (R3206-3215) again: generate, `--restate-notes`, `--leaves --write`, `M`
-  from the tool, **generate again byte-identical**, `--check` exit 0 at all three Sites, the D-DD.30 chain
-  (`history.json`, `derived-values.json`, `missing-records.json`, mock fixtures) and re-pins (D-DD.93). If step 5
-  differs, stop: a run-written key is missing from the table.
-- The budget export rows (`exports.py` `_budget_records`) follow the new plan; goldens re-pin and are listed.
-- DDR expect file: the plan-side literals re-pinned to served values (projected: Portfolio about −196.60 against
-  plan, Grow −97.00, Optimize about −99.60; A72-80). Anchored-figure doc sweep: every `check_manifest.py` anchor that
+- Repeat D-DD.164's acceptance sequence as amended by D-DD.176 and D-DD.187. Generate before and after writing
+  `M`, then run both notes and leaves `--check` at all three Sites. Generate a third time and require byte equality
+  with the second generation. Audit the first-to-second differences against the side-aware derived-path table.
+  An unlisted change or any input drift stops for the Architect. Run the D-DD.30 chain (`history.json`,
+  `derived-values.json`, `missing-records.json`, mock fixtures) and re-pins (D-DD.93).
+- The first `M` commit writes `dispatch-3.3` in the three litre `leaf_sources` kinds and deletes the `.replace` of 3b1 t1
+  and 3b3 t6 (D-DD.183). Plan litres: `Fraction`, one half-even rounding (D-DD.185).
+- The budget export rows (`exports.py` `_budget_records`) follow the new plan; goldens re-pin and are listed. Mto's plan
+  `diesel_price`, `necessary_l` and `diesel_l` become C4 "B" in this commit only (D-DD.177).
+- The DDR board budget (`make_board_budget.py`, XLSX, `expected.json`, digests) follows `M`'s plan, Kisiwa's stated
+  contribution + 5.00, A2 dated 1 October 2026; other typed plans swept by grep (D-DD.185).
+- DDR expect file: the plan-side literals re-pinned to served values (projected: Portfolio about −195.30 against
+  plan, Grow −97.00, Optimize about −98.30; A72-80, D-DD.177). Anchored-figure doc sweep: every `check_manifest.py` anchor that
   moves is updated to the check's value, nothing else.
 - Pre-flight confirm (A114-116): no reader serves `history.json`'s July-September *actual* litre leaves; if one does,
   stop for the Architect.
@@ -177,9 +197,12 @@ unexplained, relative band, band, state; compare with R2842-2856), the night sta
 
 ### DD3d-b: plants
 
-(a) Restore `fuel_cost`'s `stated_by`: Mto's October fuel cost reads 0 and C-DD4 FAILs. (b) Remove Mto's price
+(a) Restore `fuel_cost`'s `stated_by`: the DD3d.4 unit test (Mto reads 0), `test_7` and t12's C4 (`fuel_cost class=B`)
+FAIL; run the first and the last (D-DD.177). (b) Remove Mto's price
 fixture: G4 FAILs "missing price". (c) Drop `plan` from `RUN_WRITTEN`: step 5's second generate differs (or the
 scope guard test fails). (d) Type 700 into `M`'s Kobo plan litres: the `M` parity test FAILs.
+(e) `untracked()` returns `()`: G9 and the period test FAIL. (f) The old cost ratio under the new words: World A reads
+86.7% and FAILs. (g) `dispatch-3.4` in `M`'s `candidate_l` kind: 3b1 t1 and 3b3 t6 FAIL.
 
 ### DD3d-b: reach set
 
@@ -188,14 +211,16 @@ The structure and money suites: `test_3b1*`, `test_3b2*`, `test_3b3*`, `test_3b4
 `test_3a7*`, `test_ch6*`, `test_ch5d1_optimize_card.py`, `test_fuel_cost_v2{,_postgres}.py`, `test_pr1_price_action.py`,
 `test_s4_assumptions_postgres.py`, `test_data8_kisiwa_productive.py`, `test_ch9b3_mill_verdict_postgres.py`,
 `test_ddr_rehearsal_{check,postgres}.py`, `test_ds4_world{,_postgres}.py`, `test_dd2_check.py`, `test_dd3c_*`;
-`golden/6h_parity.json` readers; simulator `world/*` (`test_scope_run_written.py`, history and exports goldens);
+`test_wk_walk_world.py`, `test_iap_portfolio_{period,sites}.py`, `test_sc1_*`, the frontend `src/estate` files and the
+shell files that read the same fixtures; `golden/6h_parity.json` readers; simulator `world/*` (`test_scope_run_written.py`, history and exports goldens);
 `check_manifest.py`. Guards as DD3d-a. The structure-version bump may reach structure-snapshot goldens: re-pin each
 to its regenerated value and list it.
 
 ### DD3d-b: done when
 
-All tests pass; plants fail and are reverted; the seven DDR lines and t12 pass; reach set green or identical to
-main. Packet: mid-build question count; every literal old → served → `M` figure; the two `history.json` hashes
+All tests pass; plants fail and are reverted; the seven DDR lines and t12 pass; no expected side is rewritten
+before a comparison (D-DD.183); reach set green or identical to main. Packet: mid-build question count; the C-DD4 fuel
+lines that fail until DD5b; walk `/1` cannot pass W4/S2 until DD6's `/2` (D-DD.185); every literal old → served → `M` figure; the two `history.json` hashes
 (step 1 and step 5) and the `--check` logs; the quarter table per Site (A72-80 to compare); every re-pinned golden.
 
 ---
@@ -204,7 +229,7 @@ main. Packet: mid-build question count; every literal old → served → `M` fig
 
 D-DD.17, D-DD.18, D-DD.30, D-DD.53, D-DD.92, D-DD.93, D-DD.96, D-DD.128, D-DD.130, D-DD.131, D-DD.147 (amended),
 D-DD.152 (replaced by D-DD.153), D-DD.153, D-DD.154, D-DD.155 (tanks stay), D-DD.156, D-DD.162, D-DD.163, D-DD.164,
-D-DD.166, D-DD.168 to D-DD.171.
+D-DD.166, D-DD.168 to D-DD.171, D-DD.176 to D-DD.185.
 
 ## Merge order and shared files
 

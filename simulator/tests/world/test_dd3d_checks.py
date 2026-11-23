@@ -97,7 +97,7 @@ def _months(*values: str) -> dict[str, Decimal]:
 
 
 WORLD = {"KOBO-001": (_months("12", "12", "11", "120"), _months("0", "0", "762", "514"), _months("0", "0", "800", "400")),
-         "KISIWA-001": (_months("20", "19", "18", "20"), _months("700", "700", "680", "680"), _months("0", "800", "800", "800")),
+         "KISIWA-001": (_months("19", "20", "18", "20"), _months("700", "700", "680", "680"), _months("0", "800", "800", "800")),
          "MTO-001": (_months("0", "0", "0", "0"), _months("0", "0", "0", "32"), _months("0", "0", "0", "0"))}
 
 
@@ -134,6 +134,18 @@ def test_c_dd17_fails_without_a_declared_accuracy_or_a_site(pure) -> None:
     assert not result.passed and any(d.startswith("FAIL KISIWA-001") and "no declared level accuracy" in d for d in result.detail)
     missing = dd_check.judge_pure_c_dd17({**pure, "sites": {k: v for k, v in pure["sites"].items() if k != "MTO-001"}}, ONBOARDING)
     assert not missing.passed and "FAIL MTO-001: no readings" in missing.detail
+
+
+@pytest.mark.parametrize("code", ["KOBO-001", "KISIWA-001"])
+def test_c_dd17_fails_when_a_site_with_a_draw_declares_no_tolerance(pure, monkeypatch, code) -> None:
+    """Review L2: never judged on the floor alone; Mto has no draw and declares none."""
+    declared = dd_check.fuel_tolerances()
+    assert set(declared) == {"KOBO-001", "KISIWA-001"}
+    monkeypatch.setattr(dd_check, "fuel_tolerances", lambda: {c: v for c, v in declared.items() if c != code})
+    result = dd_check.judge_pure_c_dd17(pure, ONBOARDING)
+    assert not result.passed
+    assert [d for d in result.detail if d.startswith("FAIL")] == [f"FAIL {code}: a declared draw and no tolerance_pct"]
+    assert not [d for d in result.detail if d.startswith(f"{code} ")]
 
 
 def test_c_dd17_fails_on_mto_unexplained_fuel(pure) -> None:
