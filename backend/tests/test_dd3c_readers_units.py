@@ -106,6 +106,28 @@ def test_minimum_runtime_is_the_lead_units_policy() -> None:
     assert pas._lead_policy_property(one, "minimum-runtime") == pas._property(one, "GENERATOR", "minimum-runtime")
 
 
+class _Conn:
+    """`_configuration`'s two reads: the Foundation revisions, then the (here no) binding sets."""
+
+    def __init__(self, foundations) -> None:
+        self.results = [foundations, []]
+
+    def execute(self, *_a, **_k):
+        rows = self.results.pop(0)
+        return SimpleNamespace(all=lambda: rows)
+
+
+def test_m1_a_non_lead_policy_is_the_existing_limit_not_a_job_failure() -> None:
+    """Review M1 (D-DD.108 Q6): `UnitRolesRefused` maps to the existing minimum-runtime limit line; no runtime
+    control is read, and nothing raises out of `_configuration` (the worker would retry it as a failed job)."""
+    stray = {"components": [_gen("gen-ks-01"), _gen("gen-ks-02", ("minimum-runtime", 45))]}
+    rng = SimpleNamespace(start=AT, end=AT + timedelta(hours=1))
+    config = pas.PostgresAssessmentStore._configuration(
+        None, _Conn([(UUID(int=9), 3, AT - timedelta(days=1), None, stray)]), UUID(int=1), UUID(int=2), rng, AT)
+    assert "Foundation v3 minimum-runtime unit 'gen-ks-02' not mapped" in config.limits
+    assert not [c for c in config.controls if c.key == pas.CONTROL_MINIMUM_RUNTIME]
+
+
 # --------------------------------------------------------------------------- replay_series
 
 PV_2 = UUID(int=777)

@@ -134,6 +134,19 @@ def test_c6_a_silent_unit_gives_generator_kwh_unknown() -> None:
     assert r["reason"] in ("WINDOW_INCOMPLETE", "GENERATOR_KWH_UNKNOWN")
 
 
+def test_c6b_a_bound_unit_silent_for_the_whole_window_is_named_and_incomplete() -> None:
+    """Review H2: the units come from the bindings, not the readings. Both units report: 26 kWh (20 + 6). `gen-2`
+    bound but silent for all 60 minutes: the Site figure is absent, `gen-2` is named, and the window is not
+    complete (before the fix: 20 kWh, complete, no generator problem)."""
+    both = window(T0, two_units(T0))
+    assert (both["generator_kwh"], both["complete"]) == ("26", True)
+    silent = window(T0, [r for r in two_units(T0) if r.asset_id != "gen-2"])
+    assert silent["generator_kwh"] is None and silent["complete"] is False
+    named = {p["asset_id"] for p in silent["problems"] if p["role"] == "generator_power"}
+    assert named == {"gen-2"}
+    assert set(silent["generator_units"]) == {"gen", "gen-2"}
+
+
 # ------------------------------------------------------------------------------ the service: a two-unit Site
 
 
