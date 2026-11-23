@@ -619,6 +619,12 @@ class SiteRun:
         first = index * STEPS_PER_DAY + 1
         return self.readings_for_steps(first, first + self.day_steps[index] - 1)
 
+    def measured_months(self) -> dict[str, dict]:
+        """D-DD.99 mini-grid `<month>` (DD3a's, unchanged), exact; the frame rounds once."""
+        return {month: {"demand_kwh": dict(row["demand_kwh"]), "served_kwh": dict(row["served_kwh"]),
+                        "unserved_kwh": dict(row["unserved_kwh"]), "generator_kwh": row["generator_kwh"]}
+                for month, row in sorted(self.ledger.items())}
+
     def advance_day(self) -> date:
         """D-DD.81's day-level protocol: step the next local day and keep its rows (already bound by this frame)."""
         day = self.days[self.next_day]
@@ -670,7 +676,7 @@ def day_file(site: dict, day: date, rows: list[dict]) -> bytes:
 #: D-DD.81: a Site's pack family, by its binding role set's family (the role set's name before its version).
 PACK_FAMILIES = {"minigrid-roles": "mini-grid", "cold-roles": "cold-thermal", "ev-roles": "ev-charger"}
 #: The vertical pack each family's run drives (model, version), written in its readings manifest.
-VERTICAL_PACKS = {"cold-thermal": ("cold-thermal", 2)}
+VERTICAL_PACKS = {"cold-thermal": ("cold-thermal", 2), "ev-charger": ("ev-charger", 1)}
 
 
 def pack_family(site: dict) -> str | None:
@@ -690,15 +696,23 @@ class VerticalBinding:
             if key in self.rows_by_channel:
                 raise TelemetryRefused("TEL_BINDING", f"{self.code} {key[0]}/{key[1]} has two binding rows")
             self.rows_by_channel[key] = row
+        # D-DD.123: a run that names a channel by its bound asset (EV: `ch-k1-c1`, `site-meter`) resolves through the
+        # binding's `asset_code` when no binding row's `device_id` carries that name; an asset bound twice refuses.
+        self.by_asset: dict[tuple[str, str], dict | None] = {}
+        for row in site["bindings"]:
+            key = (row["asset_code"], row["signal_id"])
+            self.by_asset[key] = None if key in self.by_asset else row
         self.used: set[tuple[str, str]] = set()
 
     def rows(self, pack_rows: list[tuple]) -> list[dict]:
         out = []
         for device, signal, start, end, value, unit, event in pack_rows:
-            binding = self.rows_by_channel.get((device, signal))
+            binding = self.rows_by_channel.get((device, signal)) or self.by_asset.get((device, signal))
             if binding is None:
-                raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} has no binding row")
-            self.used.add((device, signal))
+                bound_twice = (device, signal) in self.by_asset
+                raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} is bound twice by asset_code" if bound_twice
+                                       else f"{self.code} {device}/{signal} has no binding row")
+            self.used.add((binding["device_id"], binding["signal_id"]))
             row = {"source_id": binding["device_id"], "signal_id": binding["signal_id"],
                    "start": start.astimezone(self.zone).isoformat(), "end": end.astimezone(self.zone).isoformat()}
             if event is not None:
@@ -735,11 +749,14 @@ def supported(site: dict) -> bool:
 
 
 def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str, end: str,
-                    only: tuple[str, ...] | None = None) -> TelemetryResult:
+                    only: tuple[str, ...] | None = None, sink=None) -> TelemetryResult:
     """`view` the allowlisted manifest view, `sites` the `F` file, `decided_books` per Site code (see `books_for`).
-    `start` is the first local day; `end` the last local day (whole) or a local end instant (D-DD.103)."""
+    `start` is the first local day; `end` the last local day (whole) or a local end instant (D-DD.103).
+    `sink(name, data)`, when given, receives each file as it is made and the result holds none (DD4b run 5: the CLI
+    writes and drops each day file); without it the files are collected and returned, in the same order."""
     refuse_oracle(sites)
     files, manifests = [], []
+    emit = sink if sink is not None else (lambda name, data: files.append((name, data)))
     by_tenant: dict[str, list[SiteRun]] = {}
     for site in sites["sites"]:
         code = site["code"]
@@ -747,7 +764,8 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
             continue
         family = pack_family(site)
         if family in VERTICAL_PACKS:
-            files += _vertical(site, family, decided_books[code], start, end, manifests)
+            vertical_run = _vertical(site, family, decided_books[code], start, end, manifests, emit)
+            by_tenant.setdefault(site["tenant"], []).append(vertical_run)
             continue
         if family != "mini-grid" or not supported(site):
             manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", {"schema": MANIFEST_SCHEMA, "site_code": code,
@@ -757,27 +775,27 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
         digests: dict[str, "hashlib._Hash"] = {}
         for day in run.days:
             data = day_file(site, run.advance_day(), run.day_records(day))
-            files.append((f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data))
+            emit(f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data)
             digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
         by_tenant.setdefault(site["tenant"], []).append(run)
         manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", site_manifest(
             site, run, decided_books[code], {m: d.hexdigest() for m, d in sorted(digests.items())})))
     for slug, runs in sorted(by_tenant.items()):
-        files.append((f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs))))
+        emit(f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs)))
     return TelemetryResult(tuple(files), tuple(manifests))
 
 
-def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> list[tuple[str, bytes]]:
-    """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time."""
-    from .telemetry_cold import ColdSiteRun
-
-    run = ColdSiteRun(site, books, start, end)
+def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list, emit) -> object:
+    """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time. Each
+    day file goes to `emit` and the run's rows of that day are released once written (DD4b run 5)."""
+    run = _vertical_runs()[family](site, books, start, end)
     binding = VerticalBinding(site)
-    files, digests = [], {}
+    digests = {}
     for day in run.days:
         run.advance_day()
         data = day_file(site, day, binding.rows(run.day_records(day)))
-        files.append((f"{site['tenant']}/telemetry/{site['code']}.{day.isoformat()}.readings.json", data))
+        run.release_day(day)
+        emit(f"{site['tenant']}/telemetry/{site['code']}.{day.isoformat()}.readings.json", data)
         digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
     model, version = VERTICAL_PACKS[family]
     manifests.append((f"{site['tenant']}/telemetry/{site['code']}.manifest.json", {
@@ -787,7 +805,20 @@ def _vertical(site: dict, family: str, books: dict, start: str, end: str, manife
                  "to": run.end.astimezone(_zone(site)).isoformat()},
         "private_parameters": run.private_parameters(), "conditions": run.conditions(),
         "mappings": binding.mappings(), "golden_digests": {m: d.hexdigest() for m, d in sorted(digests.items())}}))
-    return files
+    return _measured_view(run)
+
+
+def _measured_view(run) -> object:
+    """What `measured_for` reads of a finished vertical run, taken now so the run's day rows are not held."""
+    from types import SimpleNamespace
+
+    months = run.measured_months()
+    view = SimpleNamespace(code=run.code, days=[run.days[-1]], end_local=run.end_local, zone=run.zone,
+                           measured_months=lambda: months)
+    if hasattr(run, "departures"):
+        departed = run.departures()
+        view.departures = lambda: departed
+    return view
 
 
 def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str]) -> dict:
@@ -880,20 +911,48 @@ def _rate_kwh(month: str, rate_of: str, weights: dict, delivered: int) -> int:
     return int((Decimal(exact.numerator) / Decimal(exact.denominator)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
-def measured_for(slug: str, runs: list[SiteRun]) -> dict:
-    """`<slug>/telemetry/measured.json`: per Site and month, the load energy the meters carried and the unserved
-    energy the pack's accepted loads record (`accepted.loads[].unserved_energy`); no unserved signal is published."""
-    sites = {}
+def _written(value: object) -> object:
+    """A measured value as `measured.json` holds it: exact decimal text (`_decimal`, rounded once), maps sorted."""
+    if isinstance(value, dict):
+        return {k: _written(v) for k, v in sorted(value.items())}
+    return _decimal(value)
+
+
+def measured_for(slug: str, runs: list) -> dict:
+    """`<slug>/telemetry/measured.json` (D-DD.99): per Site and month, each run's `measured_months()` with its
+    vertical's fixed key set (mini-grid: the load energy the meters carried and the unserved energy the pack's accepted
+    loads record; cold: the room meter; EV: bands, demand, import), and, for a tenant with EV Sites only, `departures`
+    sorted by (site, departure instant, vehicle)."""
+    sites, departures, ev = {}, [], False
     for run in runs:
-        months = {}
-        for month, row in sorted(run.ledger.items()):
-            months[month] = {
-                "demand_kwh": {k: _decimal(v) for k, v in sorted(row["demand_kwh"].items())},
-                "served_kwh": {k: _decimal(v) for k, v in sorted(row["served_kwh"].items())},
-                "unserved_kwh": {k: _decimal(v) for k, v in sorted(row["unserved_kwh"].items())},
-                "generator_kwh": _decimal(row["generator_kwh"])}
+        months = {month: _written(row) for month, row in run.measured_months().items()}
         end = run.end_local
         if (end.day, end.hour, end.minute) != (1, 0, 0):  # the span ends inside its last month (D-DD.99)
             months[run.days[-1].strftime("%Y-%m")]["partial_to"] = end.isoformat()
         sites[run.code] = months
-    return {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}
+        if hasattr(run, "departures"):
+            ev = True
+            departures += [{"site_code": d["site_code"], "vehicle_ref": d["vehicle_ref"], "block_ref": d["block_ref"],
+                            "service_day": d["service_day"],
+                            "departure_at": d["departure_at"].astimezone(run.zone).isoformat(),
+                            "required_kwh": _decimal(d["required_kwh"]), "kwh_at_departure": _decimal(d["delivered_kwh"])}
+                           for d in run.departures()]
+    out = {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}
+    if ev and departures:  # no file writes an empty list (D-DD.99)
+        out["departures"] = sorted(departures, key=lambda d: (d["site_code"], d["departure_at"], d["vehicle_ref"]))
+    return out
+
+
+def _vertical_runs() -> dict:
+    """D-DD.123 `VERTICAL_RUNS`: the run class of each vertical family, one table. Read through the module's
+    `__getattr__` because the vertical modules import this frame."""
+    from .telemetry_cold import ColdSiteRun
+    from .telemetry_ev import EvSiteRun
+
+    return {"cold-thermal": ColdSiteRun, "ev-charger": EvSiteRun}
+
+
+def __getattr__(name: str):
+    if name == "VERTICAL_RUNS":
+        return _vertical_runs()
+    raise AttributeError(name)

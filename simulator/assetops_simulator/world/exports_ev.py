@@ -2,8 +2,10 @@
 
 In the source profiles' own formats:
 
-- the fleet roster (`ev-fleet-roster-illustrative`): one row per bus per night, July to October, by the one roster
-  function `roster_rows` (DD4.3 widens its month span to 6 Nov; it never writes a second roster writer, D-DD.52). A
+- the fleet roster (`ev-fleet-roster-illustrative`): one row per bus per night, 1 Jul to 6 Nov, by the one roster
+  function `roster_rows` (DD4.3 widened its span to the open nights before `as_of`, D-DD.52; pre-flight Q8: November
+  rows carry `kwh_per_bus_night` exactly, with no month total to scale to). Kasarani's spare bus `EV-KAS-S01` is one
+  more row on each of `SPARE_NIGHTS` (pre-flight Q9), returning at `SPARE_ARRIVAL` (D-DD.98: a daytime spare). A
   night is dated by its start (the evening return); the bus leaves the next morning. Embakasi's returns spread over
   17:30-19:30 by bus index (17:30 + i x 120/(n-1) minutes, to the whole minute, half to even), departure 05:30;
   Kasarani returns 22:00, Ruiru 21:00, both depart 05:00. `required_kwh` is `kwh_per_bus_night` scaled by largest
@@ -22,6 +24,7 @@ Standard library, `assetops_contracts` and the world modules only.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from fractions import Fraction
@@ -33,7 +36,7 @@ from .allocate import allocate
 from .books import (NOT_IN_HISTORY, SOURCE_VERSION, BooksResult, SiteMonth, budget_rows, checked,
                     ds1b_by_tenant, expense_rows, remaining_unwritten, site_months, zone_currency)
 from .exports import ExportFile
-from .months import dates_of
+from .months import dates_of, parse_month
 from .profile_csv import PROFILES_DIR, load_profile, render_profile, row_digest
 from .records import RecordsResult
 
@@ -53,6 +56,11 @@ TICKETS = (
     ("EV-KAS", "CH-K2", "2026-11-01T23:40:00+03:00", "OPEN"),
     ("EV-RUI", "CH-R7", "2026-10-06T00:00:00+03:00", "OPEN"),
 )
+#: Pre-flight Q9: the nights (dated by their start) Kasarani's one spare bus is in the roster. `M` gives their count
+#: (`observations.november_to_date.spare_bus_nights`), not their dates; a manifest parity test pins the count and range.
+SPARE_NIGHTS = {"EV-KAS": ("2026-11-02", "2026-11-03", "2026-11-04")}
+#: D-DD.98: the spare is a daytime-charged bus; it arrives at 10:00 local on the night's start date (Assumed).
+SPARE_ARRIVAL = time(10, 0)
 CONTRACTOR = "oem-contractor"  # R5: source text, never a named counterparty
 MILLI = 1000
 
@@ -74,31 +82,51 @@ def _kwh_text(milli: int) -> str:
     return f"{milli // MILLI}.{milli % MILLI:03d}"
 
 
-def roster_rows(m: SiteMonth, zone, nights: list[date]) -> list[dict] | None:
-    """One FLEET_ROSTER row per bus per night of `nights` (D-DD.52: the one roster function). None when the month's
-    `kwh` is absent."""
+def open_nights(view: dict) -> list[date]:
+    """Pre-flight Q8: the nights after the accounting period, to the day before `as_of` (their departures fall before
+    the readings span ends on `as_of` 06:00)."""
+    year, number = parse_month(view["accounting_period"])
+    night = date(year + number // 12, number % 12 + 1, 1)
+    last = date.fromisoformat(view["as_of"]) - timedelta(days=1)
+    out = []
+    while night <= last:
+        out.append(night)
+        night += timedelta(days=1)
+    return out
+
+
+def roster_rows(m: SiteMonth, zone, nights: list[date], *, scaled: bool = True) -> list[dict] | None:
+    """One FLEET_ROSTER row per bus per night of `nights`, plus the spare on its nights (D-DD.52: the one roster
+    function). Scaled to the month's `kwh` by largest remainder; None when that `kwh` is absent. Unscaled (an open
+    month, pre-flight Q8), each row carries `kwh_per_bus_night`."""
     physical = m.site.get("physical", {})
     buses, per_night = int(physical["buses"]), Decimal(str(physical["kwh_per_bus_night"]))
-    total = m.whole("actual", "kwh")
-    if total is None:
-        return None
-    weights = [Fraction(per_night)] * (buses * len(nights))
-    shares = allocate(total * MILLI, weights)
     returns = _return_times(m.code, buses)
+    spare = set(SPARE_NIGHTS.get(m.code, ()))
+    plan = [(night, [(f"{i + 1:02d}", f"B{i + 1:02d}", returns[i]) for i in range(buses)]
+             + ([("S01", "S01", SPARE_ARRIVAL)] if night.isoformat() in spare else [])) for night in nights]
+    count = sum(len(row) for _, row in plan)
+    if scaled:
+        total = m.whole("actual", "kwh")
+        if total is None:
+            return None
+        shares = allocate(total * MILLI, [Fraction(per_night)] * count)
+    else:
+        shares = [int(per_night * MILLI)] * count
     departure = ROSTER_TIMES[m.code][2]
     out = []
     k = 0
-    for night in nights:
-        for i in range(buses):
-            bus = f"{m.code}-B{i + 1:02d}"
-            back = datetime.combine(night, returns[i], tzinfo=zone)
+    for night, row in plan:
+        for label, ref, back_at in row:
+            bus = f"{m.code}-{ref}"
+            back = datetime.combine(night, back_at, tzinfo=zone)
             leaves = datetime.combine(night + timedelta(days=1), departure, tzinfo=zone)
             out.append(checked(m.where(), {
                 "format_version": 1, "kind": "FLEET_ROSTER",
-                "source_record_id": f"gen:{m.code}:{night.isoformat()}:roster:{i + 1:02d}",
+                "source_record_id": f"gen:{m.code}:{night.isoformat()}:roster:{label}",
                 "source_version": SOURCE_VERSION, "site_code": m.code, "subject": {"kind": "VEHICLE", "ref": bus},
                 "clocks": {"effective_from": night.isoformat()},
-                "body": {"vehicle_ref": bus, "block_ref": f"{m.code}-BLK-{i + 1:02d}", "return_at": back.isoformat(),
+                "body": {"vehicle_ref": bus, "block_ref": f"{m.code}-BLK-{label}", "return_at": back.isoformat(),
                          "departure_at": leaves.isoformat(), "required_kwh": _kwh_text(shares[k])}}))
             k += 1
     return out
@@ -135,6 +163,12 @@ def build_ev_exports(view: dict, history: dict, records: RecordsResult, tenant: 
             continue
         roster += rows
         written.add((m.code, m.month, "actual", "kwh"))
+    nights = open_nights(view)
+    if nights:
+        month = nights[0].strftime("%Y-%m")
+        for m in (m for m in months if m.october):  # the last book month's Site, carried to the open month
+            roster += roster_rows(replace(m, month=month, actual={}, plan={}, coverage={}, october=False), zone,
+                                  nights, scaled=False) or []
     layouts = {key: load_profile(pid, profiles_dir)[1] for key, pid in PROFILES.items()}
     tickets = ticket_rows({s["code"] for s in tenant.get("sites", [])}, layouts["tickets"])
     budget, node_fields = budget_rows(KEY, name, months, ds1b, BUDGET_LINES, currency, unwritten)

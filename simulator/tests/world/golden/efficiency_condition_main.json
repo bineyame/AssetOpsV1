@@ -1,0 +1,14 @@
+{
+ "captured_from": "main 6e3c02ab5: telemetry_cold._efficiency over that commit's manifest view (D-DD.144 freeze)",
+ "efficiency": {
+  "COLD-KIRI": {
+   "2026-07": "21/20",
+   "2026-08": "11/10",
+   "2026-09": "117/100",
+   "2026-10": "500/403",
+   "2026-11": "500/403"
+  },
+  "COLD-MWEA": {},
+  "COLD-THIKA": {}
+ }
+}

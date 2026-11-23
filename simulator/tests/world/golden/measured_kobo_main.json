@@ -1,0 +1,13 @@
+{
+  "files": {
+    "lakeside-power/telemetry/KOBO-001.2026-07-01.readings.json": "4344e432d7a43da0cec45368d68199033ef2f4ace76b4cb3e89cf49fe73c8b23",
+    "lakeside-power/telemetry/KOBO-001.2026-07-02.readings.json": "4a7f081dd8c512099b421b08070964ca4e243d66b30ea1c01939d4188966ca51",
+    "lakeside-power/telemetry/KOBO-001.2026-07-03.readings.json": "a0deddaadd6896a24ef4917c64fd50e7f5f9e4e2539dd74977c9abb5e7aab6c7",
+    "lakeside-power/telemetry/KOBO-001.2026-07-04.readings.json": "87429de10d11bcb230d75dbbf2944e8ef09c039e829d6830ddbe0f4d807baa04",
+    "lakeside-power/telemetry/KOBO-001.2026-07-05.readings.json": "15112c7eb7780e469a8227a5992f645669e321df4e50044f688ec8e12fa5989a",
+    "lakeside-power/telemetry/KOBO-001.2026-07-06.readings.json": "b8737f1e562b30fece421f23b4df2627453e01ff93310a053fda11c5fefe3c0b",
+    "lakeside-power/telemetry/KOBO-001.2026-07-07.readings.json": "6c30c06443b42740d447e41fac1e5e967e5382c2e1873515421329198db15ff0",
+    "lakeside-power/telemetry/measured.json": "97f7318d39888cb3c275dabf1e01d3fe5ef5e3a1e43cd3c2159e04e4558281df"
+  },
+  "source": "main 0c44ae75b, before DD4.4: Kobo's 7 days from 2026-07-01 on D-DD.75 W1's inputs (test_telemetry_join_parity's)"
+}

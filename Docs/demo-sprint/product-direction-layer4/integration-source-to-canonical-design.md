@@ -79,12 +79,12 @@ contribution = revenue − (energy_cost + staff + maintenance + liability)
     occupied         = Σ_batches crates × days present in period        (presence: in_at ≤ t < out_at)
     idle capacity    = capacity_crate_days − occupied                    (400 crates × 31 days = 12,400 per room)
   energy_cost        = kWh × electricity_price
-    kWh              = (1,550 + 0.25 × occupied) × ambient correction + efficiency deviation   (physical sub-structure)
+    kWh              = (1,304 + 0.0554 × occupied) × ambient correction + efficiency deviation   (physical sub-structure)
   liability          = Σ QA-confirmed damage on batches the contract makes the operator's
     exposure (not money) = Σ present batches above their limit × declared value
 bounds: chamber 2–4 °C policy band · each batch ≤ its commodity limit (French beans 5 °C, avocado 12 °C)
 ```
-Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenue 4,588.00, cost to serve 3,642.00, contribution 946.00 against 1,716.00.
+Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenue 4,588.00, cost to serve 2,460.25, contribution 2,127.75 against 2,877.00.
 
 | Place in the structure | Leaf factor | Feeds | Source fact | Canonical record (store) | Exists today? | Integration needed |
 |---|---|---|---|---|---|---|
@@ -101,7 +101,7 @@ Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenu
 | Rights | cost bearer for the backup start controller; insurance deductible | residual cost of the Thika options | EPC workmanship warranty (CoolBuild); quarterly backup test log; goods-in-custody policy | rights register; maintenance records; claim events | **no** | documents, reviewed extraction, supplier-claim case |
 | Option inputs | draft aggregator contract (150 crates Dec–Mar at 0.18); curtain cost; repair and replacement quotes | counterfactual occupancy, revenue, cost | draft contract; quotes | `CONTRACT_DOCUMENT`; `EXPENSE` QUOTE | **no** | intake |
 
-**Why these.** The cold room earns per crate-day, so its revenue factor is paid occupancy, which only the storage ledger observes. Mwea's high energy cost per crate-day (0.1221) and Kirinyaga's lower one (0.1008) look like the same kind of problem until the structure is evaluated: Mwea's kWh sits within 0.6% of the occupancy model (2,650 against 2,635) and its occupancy factor is 35% against 60%; Kirinyaga's occupancy is on plan and its efficiency factor is 970 kWh (24%) above model. Both conclusions need the ledger and the bill. Thika's liability factor needs four sources on one clock: chamber readings, the ledger (which batches were present), the QA note (what was damaged) and the customer contract (whose cost it is). Exposure, damage and liability are three different factors (§3.3).
+**Why these.** The cold room earns per crate-day, so its revenue factor is paid occupancy, which only the storage ledger observes. Mwea's high energy cost per crate-day (0.0726) and Kirinyaga's lower one (0.0426) look like the same kind of problem until the structure is evaluated: Mwea's kWh sits within 2.1% of the occupancy model (1,576.30 against 1,544.44) and its occupancy factor is 35% against 60%; Kirinyaga's occupancy is on plan and its efficiency factor is 260.03 kWh (14%) above model. Both conclusions need the ledger and the bill. Thika's liability factor needs four sources on one clock: chamber readings, the ledger (which batches were present), the QA note (what was damaged) and the customer contract (whose cost it is). Exposure, damage and liability are three different factors (§3.3).
 
 ### 1.3 EV depots, captive fleet (Metro Bus: Embakasi, Kasarani, Ruiru)
 
@@ -167,7 +167,7 @@ Two further instants are bookkeeping: `received_at` (when a batch arrived) and `
 
 | Site | Continuously observed factor | Visible from | Money node that confirms it | Confirmed from |
 |---|---|---|---|---|
-| Kasarani | chargers in service 4 → 3 (CH-K2 fault, 1 Nov 23:40) → deliverable 1,050 < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh: departure bound at risk | 1 Nov 23:40, before the 2 Nov departures | penalties 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> (2 missed blocks × 120) | penalty statement in November |
+| Kasarani | chargers in service 4 → 3 (CH-K2 fault, 1 Nov 23:40) → deliverable 1,050 < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh: departure bound at risk | 1 Nov 23:40, before the 2 Nov departures | penalties 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> (7 missed blocks × 120) | penalty statement in November |
 | Embakasi | peak share of energy 55% against 30% planned, from interval energy bucketed by tariff band | the first October nights | invoice peak line 47,740 kWh × 0.24 = 11,457.60 | October invoice, early November |
 | Kobo | candidate generator time after dawn on 11 of 31 days, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f | each day after its window is assessed | fuel line 1,475.00 | dips, delivery notes, invoice at month end |
 | Thika | chamber above 4 °C from about 19:35 on 6 Oct; B-1031 above its 5 °C limit | 6 Oct, minutes | liability 108.00 | QA note 7 Oct, credit note CN-0412 |
@@ -282,7 +282,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 | modelled litres (generator observer) | 1,060 | 1,060 |
 | consumed − modelled | −280: impossible (less than the generator's own output needs) | +120 (10.2%, above the 2% tolerance) |
 | fuel cost = consumed × 1.25 | 975.00, flagged *a delivery may be missing* | 1,475.00 |
-| contribution = 3,458.00 − fuel − 600.00 − 500.00 | 1,383.00, provisional | 883.00 |
+| contribution = 3,458.00 − fuel − 600.00<!--fig:-sites.lakeside-power/Kobo.actual.nodes.om--> − 500.00 | 1,383.00, provisional | 883.00 |
 | attribution of the fuel deviation | withheld | sums to −562.00 with the revenue line |
 
 The structure itself detects the hole in revision 1: the litres-consumed leaf contradicts the physical sub-structure, so the fuel node is not attributed and the outcome is marked provisional. In revision 2 the 480 L above plan (700 L) is attributed to observed sub-factors: candidate running 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L (−412.50<!--figx:-{sites.lakeside-power/Kobo.actual.nodes.candidate_l}*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, Calculated from records), necessary running for evening load growth 30<!--figx:{sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l}--> L (−37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, Modelled), the split as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f, and unexplained 120 L (−150.00<!--rec-->, Derived; investigate). With more demand (+95 kWh × 0.40 = +38.00) the site's deviation is −562.00.
@@ -326,7 +326,7 @@ Documents: the customer storage contract (commodity limits French beans 5 °C, a
 
 Three different factors: exposure is a bound violation with a value at stake; damage needs the QA note; liability needs the contract clause. The bound check uses the lower end of the duration range, so the 5-minute cadence cannot create a liability that the readings do not support.
 
-**Structure → outcome state.** Thika's occupancy (8,680 crate-days), revenue (1,736.00) and energy (3,720 kWh, equal to the occupancy model) are on plan; the liability leaf is 108.00 (Recorded, from CN-0412), so contribution is 454.00 against 562.00. The 2,160.00 exposure is shown beside it, never added. The insurance factor: loss 108 below the 500 deductible, claim not filed, reimbursement recorded 0.00.
+**Structure → outcome state.** Thika's occupancy (8,680 crate-days) and revenue (1,736.00) are on plan and its energy (1,771.35 kWh metered) is 0.8% below the occupancy model (1,784.87), +2.73 against plan; the liability leaf is 108.00 (Recorded, from CN-0412), so contribution is 843.73 against 949.00. The 2,160.00 exposure is shown beside it, never added. The insurance factor: loss 108 below the 500 deductible, claim not filed, reimbursement recorded 0.00.
 
 **Decision at factor key** (site Thika, factor *backup start*, cause: start controller). The rights factor puts the controller's cost on CoolBuild (claim accepted 17 Oct; replacement scheduled 8 Nov), so the operator's residual cost per path is: stopgap (night manual-start rota and SMS alarm relay) 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off-->, recommended; wait with no stopgap, rejected (stock unprotected until 8 Nov); self-funded controller 710.00<!--fig:options.THIKA-SELF.operator_one_off-->, rejected (voids the EPC cover). Verification: the witnessed automatic-start test ACT-051 after replacement. The remedy clock is itself a factor: the extracted term "within 30 days of acceptance" put the remedy due on 27 Oct, and the scheduled date is 8 Nov, so the product would flag the supplier's remedy timing for human review, never as a legal conclusion (see the manifest note in the report to the Architect).
 
@@ -363,7 +363,7 @@ total,,,,22144.80
 
 **Leaf factors.** Energy by tariff band from interval energy (peak 47,740 kWh, non-peak 39,060 kWh; peak share 55% against 30% planned), monthly maximum 500 kW, departures required and met (620 of 620). **Reconciliation:** invoice kWh against the site import meter within 1% [assumption], and the computed peak line against the invoice's peak line within the same tolerance before the tariff is treated as confirmed (the manifest marks tariff applicability as to be confirmed from the invoice).
 
-**Structure → outcome state.** Energy cost = 47,740 × 0.24 + 39,060 × 0.12 + 500 × 12.00 = 22,144.80 against plan 18,940.80; with maintenance 600.00, cost 22,744.80 against 19,540.80 (−3,204.00). Attribution: 21,700 kWh more at peak than plan × 0.12 premium = −2,604.00 (Recorded); 50 kW above the 450 kW plan × 12 = −600.00 (Recorded). The peak-share factor was visible from the first October nights; the invoice confirms it.
+**Structure → outcome state.** Energy cost = 47,740 × 0.24 + 39,060 × 0.12 + 500 × 12.00 = 22,144.80 against plan 18,940.80; with maintenance 600.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.maintenance-->, cost 22,744.80 against 19,540.80 (−3,204.00). Attribution: 21,700 kWh more at peak than plan × 0.12 premium = −2,604.00 (Recorded); 50 kW above the 450 kW plan × 12 = −600.00<!--figx:-({sites.metro-bus/Embakasi.actual.nodes.demand_cost}-{sites.metro-bus/Embakasi.plan.nodes.demand_cost})--> (Recorded). The peak-share factor was visible from the first October nights; the invoice confirms it.
 
 **Evaluate on the same structure.** No action = October's factor values under tariff revision 2: peak 11,457.60 + 22:00–24:00 15,500 kWh × 0.12 = 1,860.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.offpeak_cost--> + 00:00–05:00 23,560 kWh × 0.09 = 2,120.40 + demand 6,000.00 = 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> a month (706.80 lower than October's bill with no action; never credited to an option). EMB-DEADLINE (22:00–05:15 staggered, 400 kW): 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->, so 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month better than no action and 95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months after 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> (Modelled; condition: tariff confirmed, 14 supervised nights). EMB-CHEAPEST (00:00–05:00 at 500 kW) has the lowest bill, 12,975.00, but deliverable 2,500 < required 2,800 kWh a night: the departure bound fails for 3 buses, so it is rejected.
 
@@ -371,18 +371,18 @@ total,,,,22144.80
 
 ### 3.5 Trace E — Kasarani: a charger fault and the SLA ticket clock
 
-**Source rows.** OCPP StatusNotification from CH-K2: `status: Faulted` at 2026-11-01T23:40+03:00 with a vendor error code for a welded contactor [assumption on code]; the vendor ticket export (`ticket_id, asset, created_at, acknowledged_at, restored_at, status`): created 2 Nov 07:10 (notice), acknowledged 3 Nov 15:00, restored empty; the depot dispatch log and the operator's penalty statement (two missed blocks at 120.00<!--rec-->); roster (8 buses × 150 kWh, window 22:00–05:00).
+**Source rows.** OCPP StatusNotification from CH-K2: `status: Faulted` at 2026-11-01T23:40+03:00 with a vendor error code for a welded contactor [assumption on code]; the vendor ticket export (`ticket_id, asset, created_at, acknowledged_at, restored_at, status`): created 2 Nov 07:10 (notice), acknowledged 3 Nov 15:00, restored empty; the depot dispatch log and the operator's penalty statement (seven missed blocks at 120.00<!--rec-->); roster (8 buses × 150 kWh, window 22:00–05:00).
 
 **Collection and canonical records.** Fault into `ev_connector_fault` and `ev_connector_state` (existing roles); ticket as `SERVICE_TICKET` with source-versioned revisions (the vendor updates the same ticket); dispatch log as `DEPARTURE`; penalties as `EXPENSE` category PENALTY; claim events on the supplier-claim case (NOTIFIED 2 Nov 07:10, ACKNOWLEDGED 3 Nov 15:00).
 
 **Leaf factors → structure, as time passes.**
 - 1 Nov 23:40: chargers in service 4 → 3. Deliverable = 3 × 50 kW × 7 h = 1,050 kWh < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night-->: the departure bound is **at risk for one bus per night**, visible before the first affected departure and before any money.
-- 2–5 Nov: departures met fall below required on two nights (a spare bus covered one night); penalties 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> Recorded.
+- 2–5 Nov: two buses a night fall short on five nights, 10 departures short (the spare bus covered 3), 7 missed; penalties 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> Recorded.
 - SLA clock (rights factor): response 31 h after notice, within the 48 h term; restore due Mon 9 Nov (5 business days after the Mon 2 Nov notice: 3, 4, 5, 6, 9 Nov); status running. A late restore would make a service credit of 5% of the 400.00 monthly fee per business day *potential*, never money until a credit note arrives.
 
 **Outcome state.** October is on plan (5,880.00, all 248 departures met); November shows the departure bound breached twice and the penalty node moving, weeks before the November invoices.
 
-**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off-->), recommended; wait (about 240.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> of penalties and two broken departures), rejected; local repair 380.00<!--fig:options.KAS-LOCAL.operator_one_off-->, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
+**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (two buses short a night for the 3 nights to restore, the spare bus covering one bus-night, so 5 bus-nights charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off-->), recommended; wait (about 600.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> of penalties and two broken departures), rejected; local repair 380.00<!--fig:options.KAS-LOCAL.operator_one_off-->, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
 
 **Evidence drawer.** Fault message, deliverable vs required by night, the ticket with its clock ("responded in 31 h; restore due 9 Nov"), the SLA clause with page reference, penalties, and "a service credit is potential until a credit note is received".
 
@@ -472,11 +472,11 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Paid occupancy (CC-C1).** Sources: storage ledger, rate card and customer contracts, invoices. Canonical: `STORAGE_MOVEMENT`, `CHARGE`. Observer: occupancy ledger: occupied crate-days = Σ crates × days present (half-open, site-local midnight); chargeable = occupied on a paying contract; check chargeable × rate against invoiced charges within 0.5% [assumption]. Nodes: occupied → chargeable → revenue; idle capacity. Consumer: Mwea (4,340 against 7,440 crate-days). Failure: open batches older than 60 days [assumption] → suspect, excluded, coverage shown. Pilot: warehouse system or spreadsheet export.
 
-**Normalised refrigeration energy (CC-C3).** Sources: electricity bill or meter, ambient, occupancy. Observer: kWh = 1,550 + 0.25 × crate-days at 24 °C (+2.5% per °C above), tolerance 5%. Factor: efficiency deviation. Consumers: Kirinyaga (+24%), Mwea (+0.6%). Failure: fewer than 60 days of meter and occupancy → coefficients declared from the manifest and labelled, not fitted.
+**Normalised refrigeration energy (CC-C3).** Sources: electricity bill or meter, ambient, occupancy. Observer: kWh = 1,304 + 0.0554 × crate-days at 24 °C (+2.5% per °C above), fitted on the Jul–Sep meter and occupancy of Mwea and Thika (D-DD.144), tolerance 5%. Factor: efficiency deviation. Consumers: Kirinyaga (+14%), Mwea (+2.1%), Thika (−0.8%). Failure: fewer than 60 days of meter and occupancy → coefficients declared from the manifest and labelled, not fitted.
 
 **Batch exposure and liability (CC-C2).** Trace C. Failure: no ledger → excursion shown, "batches unknown"; no QA note → damage *not available*, never 0; no contract clause → liability *not available*.
 
-**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+1,670.00<!--fig:options.MWEA-AGG.value--> over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
+**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+2,370.56<!--fig:options.MWEA-AGG.value--> over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
 
 ### 5.3 EV depots
 

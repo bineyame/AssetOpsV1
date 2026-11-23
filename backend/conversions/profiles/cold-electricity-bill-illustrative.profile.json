@@ -1,0 +1,25 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "cold-electricity-bill-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "utility_invoice",
+  "source_system": "cold-utility-bill",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Bill", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}, {"path": "subject.ref", "type": "text"}]},
+    {"header": "Account", "paths": [{"path": "body.account_ref", "type": "text"}]},
+    {"header": "From", "paths": [{"path": "clocks.effective_from", "type": "date"}]},
+    {"header": "To", "paths": [{"path": "clocks.effective_to", "type": "date"}]},
+    {"header": "Month", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "kWh", "paths": [{"path": "quantity.value", "type": "number"}]},
+    {"header": "Amount", "paths": [{"path": "amount.value", "type": "number"}]},
+    {"header": "Currency", "paths": [{"path": "amount.currency", "type": "text"}]},
+    {"header": "Tariff", "paths": [{"path": "body.tariff_code", "type": "text"}]}
+  ],
+  "constants": {"kind": "CHARGE", "subject.kind": "SITE", "quantity.unit": "kWh", "body.line_type": "USAGE"},
+  "personal": []
+}

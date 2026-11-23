@@ -13,7 +13,8 @@ from assetops_simulator.world.books import STAGED_KINDS
 from assetops_simulator.world.exports import build_exports, file_name
 from assetops_simulator.world.profile_csv import PROFILES_DIR, load_profile
 
-from .books_support import COLD, EV, HAND_SAMPLES, SAMPLES, built, expected_bytes, sample_of, shipped
+from .books_support import COLD, EV, HAND_SAMPLES, SAMPLE_EXTRAS, SAMPLES, built, emulated_files, expected_bytes, \
+    sample_of, shipped
 
 PROFILE_IDS = sorted(p.name.removesuffix(".profile.json") for p in PROFILES_DIR.glob("*.profile.json"))
 
@@ -69,12 +70,29 @@ def test_b3_profile_ships_its_sample_and_expected(profile_id: str, request) -> N
     assert 3 <= len(records) <= 200  # admission's sample size (3A6)
 
 
-def test_b4_every_profile_has_a_sample_source() -> None:
-    assert not set(SAMPLES) & set(HAND_SAMPLES) and set(SAMPLES) | set(HAND_SAMPLES) == set(PROFILE_IDS)
+def test_b4_every_profile_sample_is_a_slice_of_emulated_rows() -> None:
+    """D-DD.65a L1: `HAND_SAMPLES` is empty once `exports_measured` exists; every one of the nine profiles samples
+    an emulated file (the measured books from the committed `measured.json` fixtures)."""
+    assert HAND_SAMPLES == {}
+    assert set(SAMPLES) == set(PROFILE_IDS)
     assert PROFILE_IDS == sorted([
-        "cold-budget-illustrative", "cold-storage-invoicing-illustrative", "cold-storage-ledger-illustrative",
-        "ev-budget-illustrative", "ev-departures-illustrative",
+        "cold-budget-illustrative", "cold-electricity-bill-illustrative", "cold-storage-invoicing-illustrative",
+        "cold-storage-ledger-illustrative", "ev-budget-illustrative", "ev-departures-illustrative",
         "ev-fleet-roster-illustrative", "ev-service-tickets-illustrative", "ev-utility-invoice-illustrative"])
+
+
+@pytest.mark.parametrize("profile_id", PROFILE_IDS)
+def test_b4b_sample_rows_are_rows_of_the_emulated_file(profile_id: str) -> None:
+    """A sample cannot drift from the emulator: each sampled row is a row of the file (extras aside)."""
+    name, _ = SAMPLES[profile_id]
+    def strip(r):
+        return {k: v for k, v in r.items() if k != "source_version"}
+
+    rows = [strip(r) for r in emulated_files()[name].records]
+    extras = [strip(r) for r in SAMPLE_EXTRAS.get(profile_id, [])]
+    _, records = sample_of(profile_id)
+    picked = [strip(r) for r in records if strip(r) not in extras]
+    assert picked and all(r in rows for r in picked)
 
 
 def test_b5_departures_block_met_is_a_json_boolean() -> None:

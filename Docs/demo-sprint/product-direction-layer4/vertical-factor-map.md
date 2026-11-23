@@ -293,8 +293,8 @@ flowchart BT
   nb["nights_without_backup_cover (Protect), beside, never added"] -.-> ct
 ```
 
-- Revenue is 1,736.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.revenue-->, on target; energy is 744.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.energy-->, on the occupancy model; staff 350.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.staff-->; maintenance 80.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.maint-->, an estimate.
-- The customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability--> is the whole deviation: contribution 562.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution--> targeted, 454.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution--> actual.
+- Revenue is 1,736.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.revenue-->, on target; energy is 354.27<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.energy-->, just below the occupancy model (inside its tolerance); staff 350.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.staff-->; maintenance 80.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.maint-->, an estimate.
+- The customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability--> is nearly the whole deviation (the energy just below the model offsets a little of it): contribution 949.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution--> targeted, 843.73<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution--> actual.
 - Beside it, under Protect, 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover: the measure the decision restores, never added to the money.
 - Cash received is 1,650.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.received--> with 86.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.outstanding--> outstanding, outside the gap.
 
@@ -313,7 +313,7 @@ flowchart BT
 ```
 
 - October was on target: cost to serve 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, energy 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> and maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance-->, an estimate; 1,400<!--fig:sites.metro-bus/Kasarani.actual.nodes.deliverable_kwh_night--> kWh deliverable a night.
-- From 1 Nov, 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.chargers_in_service--> chargers in service deliver 1,050<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.deliverable_kwh_night--> of the 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh needed, so 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures were missed (Protect) and 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties fell into cost to serve (Optimize), read before any invoice.
+- From 1 Nov, 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.chargers_in_service--> chargers in service deliver 1,050<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.deliverable_kwh_night--> of the 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh needed, so 7<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures were missed (Protect) and 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties fell into cost to serve (Optimize), read before any invoice.
 
 ## 6. The check, and the traceability file
 <!--derives: §2.1; §2.9; Decisions-->

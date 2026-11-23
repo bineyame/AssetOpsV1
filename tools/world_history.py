@@ -29,6 +29,7 @@ from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
 from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
 from assetops_simulator.world import telemetry_cold as cold_writer  # noqa: E402
+from assetops_simulator.world import telemetry_ev as ev_writer  # noqa: E402
 from assetops_simulator.world.books import build_books  # noqa: E402
 from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
@@ -102,7 +103,23 @@ def _records(manifest: Path, out: Path) -> int:
     return 0
 
 
-def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: list[str] | None = None) -> int:
+def _measured_documents(view, dirs: list[Path], tenants: list[str] | None) -> dict[str, dict]:
+    """D-DD.99: each cold and EV tenant's `<slug>/telemetry/measured.json`, found in exactly one of `dirs`."""
+    out = {}
+    for tenant in view.get("tenants", []):
+        slug = str(tenant.get("tenant"))
+        if tenant.get("vertical") not in ("COLD_CHAIN", "EV_DEPOT") or (tenants and slug not in tenants):
+            continue
+        found = [d / slug / "telemetry" / "measured.json" for d in dirs
+                 if (d / slug / "telemetry" / "measured.json").is_file()]
+        if len(found) != 1:
+            raise ValueError(f"EMU_MEASURED {slug} measured.json found in {len(found)} of the --telemetry directories")
+        out[slug] = json.loads(found[0].read_text(encoding="utf-8"))
+    return out
+
+
+def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: list[str] | None = None,
+             telemetry: list[Path] | None = None) -> int:
     try:
         target = _out_dir(out)
         extra = _out_dir(extras) if extras is not None else None
@@ -113,8 +130,14 @@ def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: lis
             for slug in tenants:
                 if slug not in known:
                     raise ValueError(f"EMU_TENANT_UNKNOWN {slug}")
+        measured = None
+        if telemetry:  # DD4.4 (D-DD.20): the measured books, written after the readings
+            from assetops_simulator.world.exports_measured import build_measured_exports
+
+            measured = build_measured_exports(view, generate_history(view), result.files,
+                                              _measured_documents(view, telemetry, tenants))
     except ValueError as error:
-        if not str(error).startswith(("EMU_", "DS1B_")):
+        if not str(error).startswith(("EMU_", "DS1B_", "TEL_")):
             raise
         print(error, file=sys.stderr)
         return 3
@@ -124,12 +147,12 @@ def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: lis
         return not prefixes or name.startswith(prefixes)
 
     target.mkdir(parents=True, exist_ok=True)
-    for export in result.files:
+    for export in (*result.files, *(measured.files if measured else ())):
         if kept(file_name(export)):
             (target / file_name(export)).write_bytes(export.data)
     if extra is not None:  # D-DD.54 staged DS1b JSON and DD spec §5.4 statements: not in the CSV directory
         extra.mkdir(parents=True, exist_ok=True)
-        for name, data in (*result.staged, *result.statements):
+        for name, data in (*result.staged, *result.statements, *(measured.extras if measured else ())):
             if kept(name):
                 (extra / name).write_bytes(data)
     (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
@@ -173,31 +196,61 @@ def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
     return 0
 
 
+class FileSink:
+    """`build_telemetry`'s sink for the CLI (DD4b run 5): each file is written as it is made, so no day file is held;
+    `undo()` removes what was written (a refused run leaves the directory as it found it)."""
+
+    def __init__(self, target: Path) -> None:
+        self.target, self.paths = target, []
+
+    def __call__(self, name: str, data: bytes) -> None:
+        path = self.target / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        self.paths.append(path)
+
+    def undo(self) -> None:
+        for path in reversed(self.paths):
+            path.unlink()
+        for folder in sorted({p.parent for p in self.paths}, key=lambda d: -len(d.parts)):
+            while folder != self.target and folder.is_dir() and not any(folder.iterdir()):
+                folder.rmdir()
+                folder = folder.parent
+        self.paths = []
+
+
 def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str,
                only: tuple[str, ...] | None) -> int:
+    sink = None
     try:
         target = _out_dir(out)
+        sink = FileSink(target)
         view = load_view(manifest)
         history = generate_history(view)
         expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8")
                     for p in books.glob("*.expenses.csv")}
         records = build_records(view, history)
         ledgers = cold_writer.cold_ledger_files(view, history, records)
-        for ledger in ledgers:  # D-DD.119: the readings and the admitted books come from one ledger
+        rosters = ev_writer.ev_roster_files(view, history, records)
+        site_doc = json.loads(sites.read_text(encoding="utf-8"))
+        written = {s["tenant"] for s in site_doc.get("sites", []) if only is None or s["code"] in only}
+        for ledger in ledgers + rosters:  # D-DD.119, D-DD.123: the readings and the admitted books share one source
+            if file_name(ledger).split(".", 1)[0] not in written:
+                continue  # a tenant this run writes no Site of
             exported = books / file_name(ledger)
             rendered = render_profile(load_profile(ledger.layout_id)[1], list(ledger.records))
             if not exported.is_file() or exported.read_bytes() != rendered:
                 raise telemetry_writer.TelemetryRefused("TEL_BOOKS", file_name(ledger))
         decided = {**telemetry_writer.books_for(view, history, expenses),
-                   **cold_writer.cold_books_for(view, history, records, ledgers=ledgers)}
+                   **cold_writer.cold_books_for(view, history, records, ledgers=ledgers),
+                   **ev_writer.ev_books_for(view, rosters)}
         result = telemetry_writer.build_telemetry(
-            view, json.loads(sites.read_text(encoding="utf-8")), decided, start=start, end=end, only=only)
+            view, site_doc, decided, start=start, end=end, only=only, sink=sink)
     except telemetry_writer.TelemetryRefused as error:
+        if sink is not None:
+            sink.undo()  # a refused run leaves no files, as before the sink (DD4b run 5)
         print(error, file=sys.stderr)
         return 3
-    for name, data in result.files:
-        (target / name).parent.mkdir(parents=True, exist_ok=True)
-        (target / name).write_bytes(data)
     for name, document in result.manifests:
         (target / name).parent.mkdir(parents=True, exist_ok=True)
         write_canonical_file(document, target / name)
@@ -220,6 +273,8 @@ def build_parser() -> argparse.ArgumentParser:
     exports.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
     exports.add_argument("--extras", type=Path, default=None,
                          help="a new or empty directory outside the repository for the staged DS1b JSON and statements")
+    exports.add_argument("--telemetry", action="append", default=None, type=Path, metavar="DIR",
+                         help="a directory `telemetry` wrote; repeat for several (DD4.4 measured books)")
     exports.add_argument("--tenant", action="append", default=None, metavar="SLUG",
                          help="keep only this tenant's files (repeatable; default every tenant) (D-DD.74)")
     inputs = commands.add_parser("site-inputs", help="join each /2 Site with its binding conversion (DD3.1, D-DD.28)")
@@ -248,7 +303,7 @@ def main(argv: list[str]) -> int:
     if args.command == "records":
         return _records(args.manifest, args.out)
     if args.command == "exports":
-        return _exports(args.manifest, args.out, args.extras, args.tenant)
+        return _exports(args.manifest, args.out, args.extras, args.tenant, args.telemetry)
     if args.command == "site-inputs":
         return _site_inputs(args.onboarding, args.bindings, args.out)
     if args.command == "telemetry":

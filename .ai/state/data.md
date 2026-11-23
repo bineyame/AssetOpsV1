@@ -722,3 +722,15 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Left open: the multi-unit night note's blended form and the cost check's multi-unit wire shape (to confirm in
   review); `analytics/service.fuel_basis` first-match on multi-unit Sites (backlog, D-DD.118); Kisiwa's and Mto's
   readings load with DD5.1.
+
+## DD4b: EV depot writer, measured books, charger bound, cold energy model (in_review; `specs/DD-demo-data/packet-DD4b.md`, run 7 of 7)
+- DD4.3 `EvSiteRun` on D-DD.81's day protocol behind the one frame; DD4.4 `exports_measured` (cold bill, EV invoice,
+  departures, `meter-billed.json`, statements) via `world_history.py exports --telemetry`, checks C-DD5/6/7/20 live in
+  `tools/dd_check.py` (mini-grid, Kisiwa, Mto clauses and the EV hour sums pending, packet deviations 8-10); DD4.5
+  (D-DD.125) `buses_full_by_charger` node and Kasarani November restated from the departure log (2 short, 840.00);
+  the writer holds one day (EV three depots 149 MB, was 3.8 GB).
+- DD4.6 (D-DD.144): `M` rev 16.21, cold energy 1304 + 0.0554 x crate_days, October kWh the meter's (Kirinyaga 2113.60 at two
+  decimals), plan kWh whole, Thika ENERGY_EFFICIENCY bridge row; Kirinyaga's condition is `telemetry_cold.EFFICIENCY_CONDITION`.
+  `check_manifest.py` 6 FAIL = main's 6 (digests re-based, dated notes); 6h parity golden unedited.
+- Open: vNEXT mock JS, `gen_docs.cjs`, CHANGE-REGISTER, fixture-mapping (alignment pass); packet deviations 8-10 for the
+  Architect; two reach-set failures (`test_3b1` t1, `test_3b3` t6, dispatch-3.2 vs 3.3) are main's own.

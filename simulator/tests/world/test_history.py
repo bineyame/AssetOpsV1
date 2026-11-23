@@ -441,6 +441,8 @@ def test_t9_october_reproduces_itself(view: dict) -> None:
                     if rule[0] in {"scale", "trend", "level"} or "anchor" in rule:
                         october = Fraction(Decimal(str(s["period"][side][leaf])))
                         expected = october * 100 if leaf in money else october
+                        if rule[0] == "cold_kwh":  # DD4.6 (D-DD.144): October's meter kWh keep their decimals in M (1576.3); a history leaf is whole kWh
+                            expected = Fraction(round(expected))
                         assert value == expected, (t["tenant"], s["site"], side, leaf, value, expected)
                         compared += 1
     assert compared >= 30

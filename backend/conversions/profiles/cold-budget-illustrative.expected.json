@@ -26,7 +26,7 @@
     },
     "body": {
       "factor_id": "kwh",
-      "value": "3720",
+      "value": "1785",
       "version_ref": "budget-2026-v1",
       "line_ref": "kwh"
     }
