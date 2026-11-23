@@ -61,9 +61,10 @@ In flight (branch, what is left):
 4. DD3d-b (3.75 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
    run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress, about 0.75 u built, RED by design:
    116 pure failures at f563f9c6c), worktree AssetOpsV1-dd3db. Start from `DD3d-b-handoff.md` on the branch and
-   rulings round 28 at the end of `rulings.md` (four rulings, on the branch only, coordinator confirmed). Run 2 (bf00bef02) did part of step 1 (22 pure
-   failures left, 0 of 116 unexplained); run 3 in progress: rest of step 1, repair of checks run 2 weakened (4b pack
-   comparison, 4d portfolio 3 of 3, served money text to the cent), the target-side (`stated_nodes`) tests. Then steps 2-6.
+   rulings round 28 at the end of `rulings.md` (four rulings, on the branch only, coordinator confirmed). Runs 2 and 3
+   (39c9fd2de) finished the existing tests: pure 2 failed (iap sites 6 and 8, held for DD3d.5), 2365 passed; no Postgres
+   run yet. Run 4 in progress: publisher tests, C4, C-DD4, DD3d-a Lows, t12. An Architect round (branch
+   `task/DD3d-b-rulings-29`) rules run 3's Q1-Q4; after it: G4, DDR, DD3d.5 (budget), plants, reach set, review.
    Headline is now projected about -195.30, not -196.60 (Kisiwa October litres 903, not 904); not yet measured.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
