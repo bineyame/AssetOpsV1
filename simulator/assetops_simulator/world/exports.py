@@ -67,8 +67,9 @@ PRICE_FROM_PLAN = {"tariff": ("revenue", "billed_kwh"), "diesel_price": ("diesel
 BUDGET_ORDER = ("revenue", "fuel_cost", "om", "staff", "billed_kwh", "diesel_l", "tariff", "diesel_price")
 EXPENSE_ORDER = ("FUEL", "OM", "STAFF")
 #: D-DD.53: a note that a disorder test dates is cut first, at its date; the rest fall on the cycle days at 10:00.
-#: (test id, tenant, Site name, date, litres). The parity test reads the manifest's `disorder_tests`.
-DATED_NOTES = (("OOO-1", "lakeside-power", "Kobo", "2026-10-26", 400),)
+#: (test id, tenant, Site name, date, litres, the date it was recorded: D-DD.168). The parity test reads the manifest's
+#: `disorder_tests`.
+DATED_NOTES = (("OOO-1", "lakeside-power", "Kobo", "2026-10-26", 400, "2026-11-04"),)
 CYCLE_DAYS = (1, 8, 15, 22, 29)
 NOTE_HOUR = 10
 #: D-DD.92: the notes file `tools/dd3_pure_run.py --restate-notes` writes (`assetops.world-fuel-notes/1`).
@@ -295,7 +296,7 @@ def _receipt_records(s: _Site, charges: list[tuple[str, int, int]]) -> list[dict
 def _notes(s: _Site, litres: int) -> list[tuple[int, int, bool]]:
     """D-DD.53: (day, litres, carries the remainder). Dated notes first (cut first, so numbered first), at their dates; the rest in 400 L notes on the
     cycle days, the last carrying the remainder."""
-    dated = [(int(date[8:10]), note_l) for _, tenant, site, date, note_l in DATED_NOTES
+    dated = [(int(date[8:10]), note_l) for _, tenant, site, date, note_l, _ in DATED_NOTES
              if (tenant, site) == (s.tenant, s.name) and date[:7] == s.month]
     left = litres - sum(note_l for _, note_l in dated)
     if left < 0:

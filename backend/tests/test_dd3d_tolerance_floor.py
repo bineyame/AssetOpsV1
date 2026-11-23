@@ -120,12 +120,15 @@ def test_p2_no_band_is_byte_identical(sides, state) -> None:
 # --- P3: a leaf not in FLOORED ----------------------------------------------------------------------------------------
 
 def test_p3_a_floor_for_another_leaf_is_filtered() -> None:
-    sides = pair("634.22", "0")
+    sides = (side("Kobo", "actual", {}), side("Kobo", "plan", {}))
+    declared = {leaf: obs.ToleranceInForce("SITE", "diesel_l", D(0), uuid.UUID(int=7))
+                for leaf in rules.OBSERVED["MINI_GRID"]}
     floors = {leaf: floor("500") for leaf in rules.OBSERVED["MINI_GRID"] if leaf != "unexplained_l"}
-    with_floors, without = obs.observe(*sides, {}, floors=floors), obs.observe(*sides, {})
+    with_floors, without = obs.observe(*sides, declared, floors=floors), obs.observe(*sides, declared)
     assert with_floors == without
     assert [strings(o) for o in with_floors] == [strings(o) for o in without]
-    assert any(o.state == "RAISED" for o in without)  # non-vacuous: a floor of 1,000 would have moved one
+    # non-vacuous: a floor of 1,000 on these leaves, all with a declared tolerance, would have moved them
+    assert {o.factor_id for o in without if o.state == "RAISED"} >= {"candidate_l", "adjustments_kwh", "outstanding"}
 
 
 # --- the binding cases (D-DD.153's table) -----------------------------------------------------------------------------

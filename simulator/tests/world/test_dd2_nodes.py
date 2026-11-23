@@ -205,10 +205,11 @@ def test_source_version_is_two_except_on_receipts() -> None:
 
 def test_the_dated_note_table_is_the_manifests_disorder_test(manifest) -> None:
     (test,) = [t for t in manifest["disorder_tests"] if t["id"] == "OOO-1"]
-    found = re.fullmatch(r"(\w+) fuel delivery note of (\d+) L arrives \d+ days late \(recorded [\d-]+ for ([\d-]+)\)",
+    found = re.fullmatch(r"(\w+) fuel delivery note of (\d+) L arrives \d+ days late \(recorded ([\d-]+) for ([\d-]+)\)",
                          test["what"])
     assert found is not None
-    assert exports.DATED_NOTES == (("OOO-1", TENANT, found.group(1), found.group(3), int(found.group(2))),)
+    assert exports.DATED_NOTES == (("OOO-1", TENANT, found.group(1), found.group(4), int(found.group(2)),
+                                    found.group(3)),)
 
 
 def test_kobo_october_notes(full) -> None:
