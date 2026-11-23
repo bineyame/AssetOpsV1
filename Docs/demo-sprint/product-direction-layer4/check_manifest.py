@@ -1275,9 +1275,11 @@ def empty_states(root, doc):
 # restated (buses short 1 -> 2, departures_missed 2 -> 7, penalties 240.00 -> 840.00), the KAS options and the metro-bus plan follow (H8, K13);
 # the manifest before `history:` moves with the rev 16.20 structure and the restated stated fields (H10). The previous H8_DERIVED_SHA was
 # b6a37dc910900d70cf6717db5bd5b3056c4a86a181d413f5778304230fddb4cc; H10_MANIFEST_SHA 5f880ea11bae5aa13a56b125fda5e713ff5047c9d0279f42a54f3fb2008fadee.
-H8_DERIVED_SHA = "00afe2d6b94e48055e96deaa89d9748570d8b5074004d6c7a83d19ae93d7897d"   # derived-values.json at the DD4b D-DD.125 base (was the DD4a D-DD.89 base)
+# Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was 00afe2d6b94e48055e96deaa89d9748570d8b5074004d6c7a83d19ae93d7897d.
+H8_DERIVED_SHA = "eedf75f35ebb085cae419f8368ab1599c0b047e5fb85e9210d706ab5b9b5fb2d"   # derived-values.json at the DD4b D-DD.125 base (was the DD4a D-DD.89 base)
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the 0K4m base (was the DS1p base)
-H10_MANIFEST_SHA = "b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17663a"  # the manifest at the DS1p base, plus
+# Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17663a.
+H10_MANIFEST_SHA = "e167155eddbe27587773285db0533db89fc033da7d6419f548b3e8de76ef8fe4"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
@@ -1299,7 +1301,8 @@ H10_MANIFEST_SHA = "b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17
 # sfc_l_per_kwh 0.30 -> 0.2917, battery_kwh 200 -> 191.5) and the rev 16.18 note. The view moves (view_digest), so history.json
 # was regenerated (K8 re-based below); derived-values.json and missing-records.json stayed byte-identical after evaluate_structure.py.
 # The previous base was 4cf82719a7a615f0648fe5c6cf7fa16d807695ef0106a7d945147fe854f9d40c.
-H9_BASELINE = 4533   # 0K4m, closing commit 6 (D-0K4.43): the ledger, per-section multiset diff of CHECK_LABELS passes, commit 1a on main -> branch head
+# Re-based (23 Nov) for DD4b DD4.6: 4533 -> 4574 passes before the history checks (the 5 walkthrough/alignment failures stay, as on main, so H9 still fails on main's account).
+H9_BASELINE = 4574   # 0K4m, closing commit 6 (D-0K4.43): the ledger, per-section multiset diff of CHECK_LABELS passes, commit 1a on main -> branch head
                      # (evidence 0K4m/h9-ledger-final.txt): 4496 (= 4502 - 6, 0K4d's anchors) evaluator +50 (+142 -92: replay_sources, params, violations),
                      # stated -15, narratives +2 (+14 -12), anchors +9 (+186 -177), workflow -9, homes 0 (+5 -5), the rest unchanged = 4533;
                      # K10 retired (D-0K4.45, removed D-0K4.56); K13 and replay_sources run after H9. H11 and history_checks (2868) unchanged.
@@ -2127,7 +2130,8 @@ RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "day
 OPTION_ONLY_SOURCE = "admission_parts_failed"
 KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
 KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
-K8_HISTORY_SHA = "d2498a9c5a0ea766022aa084682b43652698e65e39924be038a8b62e6f375f0b"   # history.json at the 0K4m base (K8);
+K8_HISTORY_SHA = "a20d9db298c7dccf26579413c0c5732012402bceb6185a72bec69d25c5d75a72"   # history.json at the 0K4m base (K8);
+# Re-based (23 Nov) for DD4b DD4.6: history.json regenerated (cold-room energy). The previous base was d2498a9c5a0ea766022aa084682b43652698e65e39924be038a8b62e6f375f0b.
 # re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view. The previous base was 9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9.
 # Re-based (22 Nov) for DD3a's fix round (D-DD.102): a scope digest covers only the `physical` keys its rules read, so the
 # July-September leaves of Kobo, Kisiwa and Mto were re-drawn once and the depots' scope digests moved (cold rooms unchanged).
@@ -2657,13 +2661,16 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     ("manifest", "history.rules"): "55c330af1acba430a295949f8bd4caa5e04ac8c6bacb5c337705fbf45a3f8541",
     # Re-based (22 Nov) for DD4a's D-DD.89 M commit: Thika cooling_minutes_unavailable 4 -> 72 (sites, portfolio). The previous
     # values were 6b7ee11a6a03e8aa683dae78b68d32920c328d385c13c44fc859141d52286d1a and c994625db43e247bc1d0ab3176ca13e695668b5d1c3aaeec55e95a2ccd1e254b.
-    ("derived-values.json", "sites"): "a1a0a337156fdc6f93334e5a99899ba469fc1522f200ad0a0966b357f63b7972",
-    ("derived-values.json", "portfolio"): "eb7962798fb0ac05e38906ee70544fd6b2cc853810209bb6632d3867a127f2ce",
+    # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was a1a0a337156fdc6f93334e5a99899ba469fc1522f200ad0a0966b357f63b7972.
+    ("derived-values.json", "sites"): "506e6d5e161e9d3cec17976636b603772e0cf72f7ff153c0c61bd63d60bcd5e1",
+    # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was eb7962798fb0ac05e38906ee70544fd6b2cc853810209bb6632d3867a127f2ce.
+    ("derived-values.json", "portfolio"): "0747afb414e2c692f8d8fe5efded0203327026a5c167157915fa13d7b196065a",
     # Re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view, so history.json and this part
     # were regenerated (evaluate_structure.py). The previous value was de3fbbaed74207bc3273bfd84453caed3e99432c2d235fe8c092b2409289fc09.
     # Re-based (22 Nov) for DD3a's fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's
     # July-September leaves once (history.json, K8). The previous value was 3de2042041cd58e1878e5c242b1f11e445323b4d0944ccba8c74179a81affcef.
-    ("derived-values.json", "history"): "73db129eefb4f0d9d054736d70d45f90d8a84d770b2c91b3c7a3aade9aa37249",
+    # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was 73db129eefb4f0d9d054736d70d45f90d8a84d770b2c91b3c7a3aade9aa37249.
+    ("derived-values.json", "history"): "11780a8e1e9b2db16a47df1862d90ceeff35f72c05dbc2dbc1d540736c19aa98",
     ("missing-records.json", "sites"): "d17461a1a6f5a347ea26f0455fa1cdad5792bdf65167097eb57a31ad771346e3",
 }
 
