@@ -107,7 +107,7 @@ resumed. State in every review which reviewer produced it.
   - **Model coverage before design:** a spec Architect first checks that the model (levers,
     structures, factors, records) covers every Site type the work shows. A gap is fixed in the
     model, or put to the owner labelled WORKAROUND; it is never bridged in code silently.
-  - **Coordinator merge check:** before every merge, run check-decision-index, check-agent-workflow and `statement_catalogue.py` on the merged tree (6c and 6h each broke the catalogue on main unseen). For any DD or simulator merge, also run `simulator/tests/world` (PYTHONPATH=simulator:contracts:backend:host, via heavy-slot, ~3 min) and compare with the last run (seven failures reached main unseen on 23 Nov).
+  - **Coordinator merge check:** before every merge, run check-decision-index, check-agent-workflow and `statement_catalogue.py` on the merged tree (6c and 6h each broke the catalogue on main unseen). For any DD or simulator merge, also run `simulator/tests/world` (PYTHONPATH=simulator:contracts:backend:host, via heavy-slot, ~3 min) and compare with the last run (seven failures reached main unseen on 23 Nov). Also run the backend test files that import a module the merge changed (`--db-lane`, one call) and compare their failing ids with `.agent/main-baseline/`; a new failure is fixed or reverted before the next dispatch.
   - **Coordinator housekeeping:** stop an agent's leftover background work (TaskStop) as soon
     as its hand-back is in; check `tools/heavy-slot.sh --status` before dispatching DB-heavy
     work alongside another; merge dependent branches in order and check a long-running agent's
