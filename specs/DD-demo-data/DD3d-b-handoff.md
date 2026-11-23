@@ -80,3 +80,58 @@ comparison belongs in a litre world: restore it in a 5b test (open). (7) `_check
   `tools/world.py`, C-DD4 fuel clause + tests (`test_dd2_check.py`, D-DD.180). None started. Postgres run not done.
 - Coordinator items: (2) 5c standing fixture input moved (accounts 5,100 to 2,100) untouched; (3) 3b1 t1 / 3b3 t6 manifest
   version replacement kept as merged.
+
+## Run 3 (23 Nov): pure suite green but iap 6 and 8; run 2's checks repaired
+Pure (`pure.sh pure-6.log`, 104 s): 2 failed (iap sites 6 and 8, held for DD3d.5), 2,365 passed, 1 skipped. Also 0k4b and wk:
+120 passed. Frontend `src/estate` + three shell files that read the fixtures: all pass. Statement catalogue exit 0 (it was
+red since run 1), architecture and agent-workflow pass. No Postgres run. Mutations: `mutations-r3.log` (10, each fails its test).
+
+1. **Served money text.** Every served money figure goes through `i18n.formats.money` (cents, half-even) except one: tile 1's
+   `bar` was `str()` of the stored figure in `deep_dive/view.py` and `period.py`, so the API served `4431.600`, and 4299.87125 in
+   a world where Kobo burned 739.383 L. Product fault, fixed: `deep_dive.words.plain` (the money rule's cents, half-even, as a
+   bare decimal); stored values stay exact. Failing first: `served-money-first.log`; tests `test_served_money_is_whole_cents`,
+   `test_bar_text_is_moneys_rule` (5c), `test_2c_money_text_is_whole_cents` (iap period). `test_5b` compares the exact value and
+   the text through `plain`, no rounding of its own. Readers checked: snapshot payload (stored, exact), observer claims (leaves
+   only, no litres x price), decisions (`evaluate_options.money`, cents), 3A7 (invoices), `rehearsal_check._money` (cents),
+   `walk_world` (numeric compare: it failed on a real third-decimal difference only), frontend (bar widths only).
+2. **Checks restored** (where each lives now).
+   - Kobo contribution, cost to serve, fuel cost, litres against the pack; their sources, origins, `missing_leaves ()`,
+     `detail_missing`; Kisiwa `("om",)` alone: 4b `test_1b_october_with_litres_is_the_packs`.
+   - Kobo and Kisiwa fuel invoices' currency, evidence, source, origin: 4b `invoice_facts`. Revenue's `detail_missing`, price
+     not the fallback's: back in `check_kobo_october`.
+   - Portfolio fuel cost (3 of 3) and contribution (1 of 3) with words: 4b `test_3b_portfolio_with_litres`.
+   - 3A4's 1,500.00 / -1,004.50 / -887.00: 4b `test_4b_3a4_fixture_with_litres`.
+   - 4d portfolio fuel over three Sites (2,233.60, 3 of 3, the split adds up): `test_6_the_portfolio_over_three_sites`.
+   - Litre leaves not available in the 5b world: 3b4 `test_8b_5b_world_without_litres`. Kobo and Kisiwa untracked `()`: 3b7a
+     `test_3_a_site_on_commercial_records_alone_is_tracked`.
+   - 5c stop and out sentences for fuel without litres (EMS, curve, dips, delivery notes, setup), "1 of 3 Sites" drivers: world
+     HK, `test_4_hk_two_sites_without_litres`. iap Site below target (order, count, cost driver): `test_1b_sites_below_target`;
+     the browser's Below-target facet: `sitesList.test.tsx`.
+   - Gone with its state, not restored: "fuel cost valued but not split" (5b `FUEL_UNOBSERVED`, removed). A fuel cost has a value
+     only when its litres do, so it always splits. The rule itself stays tested on revenue.
+3. **3b4 is right at Kobo, from the rule.** `candidate_l` and `unexplained_l` are observed UP (`observe/rules.py`) with target 0
+   (LEAK_ZERO, P5 rule 3). Candidate has no tolerance row, so NONE, band 0: 25 > 0, RAISED. Unexplained has 2 % of `diesel_l`:
+   12.68 L, and with Kobo's declared floor 2a = 50 L (D-DD.153, whose table says October RAISED): 120 > 50, RAISED. Necessary
+   489 against 700 is FAVOURABLE. The test pins target, gap, band, tolerance source and the floored case.
+4. **Fixtures regenerated**, from the same worlds: `backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json` (from `view("A")`);
+   `frontend/src/estate/__tests__/fixtures/deep_dive_world_h.json`, `deep_dive_currency_mismatch.json` (`make_screen_worlds.py`);
+   `fixtures/iap/`: `month-g-2026-10`, `period-period-2026-09-10`, `period-period-g-2026-09-10`, `sites-2026-09-10`,
+   `sites-2026-10`, `sites-g-2026-09-10`, `sites-g-2026-10` (`IAP_WRITE_FIXTURES=1`). New golden
+   `backend/tests/golden/dd3d_targets_before.json`, written by the test's own function on aae7d9826 (v4). World H is now Kobo's
+   own litres beside the pack's (all three Sites); World A is the pack's at all three.
+5. **D-DD.178 tests** 7 to 13 in `test_dd3d_fuel_cost.py`. `stated_nodes` naming a leaf or unknown row was accepted: now
+   `STRUCTURE_STATED` (tests 11 failed first). 0k4b p6: the two `pv-array-share` names added.
+
+Open, with defaults (none acted on):
+- (a) **Blocker for L2 and DDR, not for this branch:** litres are no commercial record, so every served litre world carries
+  `fresh.untracked_text` ("Not checked for later changes: ..."), and `rehearsal_check` G9 (`UNTRACKED`) and `walk_world` fail on
+  any text. It also fails D-DD.177's DDR fixture (source `test:M-october-litres`). Default: both judge it against an expected
+  text in the expect file; the product keeps saying it until 3B7b tracks readings.
+- (b) "86.7% of cost from figures received": unchanged number, but fuel is now modelled litres x price, not a figure received.
+  The ratio only takes out O&M carried at its budget. Default: the words change in the copy pass; the ratio stays.
+- (c) The 5c standing input (accounts 5,100 to 2,100): default keep 2,100.00 against 2,006.40 (the world's invoices), because
+  5,100 against 2,006.40 is a 60 % miss and tests a different case; but the canned sentence says "Fuel cost" and the product
+  now says "Fuel bought (invoices)": change it with the 5c Postgres test in the Postgres run.
+- (d) 3b1 t1 / 3b3 t6 replace `dispatch-3.2`: default keep until the owner's pack names dispatch-3.3 (D-0K4.10), then delete.
+- (e) World A pins no Site below target (D-DD.164's figures); DD3d.5 moves them again, then iap 6 and 8 and the turned world go.
+- (f) `publish_assumption`'s refusal is now `TENANT_NOT_SERVED <slug>` (the catalogue refuses a new hand-built sentence).
