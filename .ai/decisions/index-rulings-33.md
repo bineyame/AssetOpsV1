@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.165)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.166)
 
 - `D-DD.146` C-DD6 reads each unit's admitted channel (no binding added): Kisiwa GEN-KS-01 state FAILED at 18:40, Mto INV-MT-02 power to 0 with the instant from the O&M book; inverter_state role to backlog; +0.25 u DD3b2 · live · specs/DD-demo-data/rulings.md
 - `D-DD.147` DD3b bound hit is ordering (reorder rule resolves); Kisiwa/Mto fuel story typed like Kobo's, restated by D-DD.131 (Kisiwa ~904 L, contribution ~+1,695); plan stays budget; owner asked · live · specs/DD-demo-data/rulings.md
@@ -20,3 +20,4 @@
 - `D-DD.163` Month fuel cost = consumption x price (fuel_cost unstated, structure v5); invoices are "fuel bought" (price, reconciliation); Mto declared price Assumed; DDR statements offsets from invoices (1,545/1,645); headline +2,135.30; DD3d.4 +1.75 u, DD 57.25 u · live · specs/DD-demo-data/rulings.md
 - `D-DD.164` DD3b Q1 BLOCKER: history seed loop broken; RUN_WRITTEN October keys leave the scope digest (D-DD.102 class), still read as values; fixed point = second generate byte-identical + all --check 0; guard test; +0.75 u, DD 58.0 u · live · specs/DD-demo-data/rulings.md
 - `D-DD.165` DD3b M1/Q2: Kisiwa candidate share printed old -> run 2 -> final with cause (threshold sensitivity); story sentence restated from final; owner told plainly · live · specs/DD-demo-data/rulings.md
+- `D-DD.166` DRAFT, awaiting owner: Lakeside fuel plan typed on the old story (actual minus designed variance); default run-rate budget (Jul-Sep use +10 %, Assumed), Portfolio -196.60 vs +2,135.30 kept; cold/EV plans stand; +1.75 u DD3d.5 · draft · specs/DD-demo-data/assessment-budget.md
