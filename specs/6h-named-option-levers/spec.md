@@ -390,8 +390,8 @@ Same columns and shape for every type; a value appears where its record exists; 
   `observed-financial`). One-off 270.00 USD. Expected effects, registry order: `contract_crate_days` +4500,
   `contract_rate` +0.18, `handling` +100.00, `revenue` +810.00, `kwh_model` +1125, `kwh` +1125, `energy` +225.00,
   `cost_to_serve` +325.00, `contribution` +485.00. Effect currencies (D-P6.62; `Delta.currency` is set on
-  `MONEY^1` rows only, as today): `handling`, `revenue`, `energy`, `cost_to_serve`, `contribution` USD;
-  `contract_crate_days`, `contract_rate` (MONEY/DAY, a price row), `kwh_model`, `kwh` None. Monthly 485.00; horizon
+  `MONEY^1` rows only, as today; amended by D-P6.88: the `contract_rate` effect row stores its record's USD): `handling`, `revenue`, `energy`, `cost_to_serve`, `contribution` USD;
+  `contract_rate` (MONEY/DAY, a price row) USD (D-P6.88); `contract_crate_days`, `kwh_model`, `kwh` None. Monthly 485.00; horizon
   1940.00; value 1670.00 USD; `RECOMMENDED` rank 1; outcome `RECOMMENDED`; `source_class` RECORDED.
   **N1e**: records `--emulated` → `source_class` EMULATED. **N1m**: no `handling` record → value null, missing
   `[OPTION_RECORD, DECISION, handling]`, outcome `RANKING_INCOMPLETE`. **N1k**: `contract_rate` record 0.18 **KES** →

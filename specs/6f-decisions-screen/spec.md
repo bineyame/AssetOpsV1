@@ -1,13 +1,13 @@
 # 6f: the Decisions screen (implementer spec, with its reviewer guide)
 
-**Status: rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; 6f1 5.25 u; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
+**Status: rev 4 (D-P6.88 to D-P6.93: §15, `rulings-2.md`; 6f1 5.5 u). Rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
 Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
-**Rulings:** `rulings.md` (this folder), D-P6.42 to D-P6.58 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
+**Rulings:** `rulings.md`, `rulings-2.md` (this folder), D-P6.42 to D-P6.93 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
 **Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **3.75 units** in
-three units (5.25 u from rev 3, D-P6.87). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
+three units (5.5 u from rev 4, D-P6.93). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
 6d specs, so their bounds and Action carrier fold in (D-P6.42). Each part is under the 6-unit cap.
 
 **Read first (by section):** this spec; `rulings.md`; 6a `spec.md` §2, §3.5; 6c `spec.md` §3.4, §3.5, §12; IA-P
@@ -661,3 +661,23 @@ Appended here so the line numbers above hold. The rulings carry the reasons; thi
   number on the records fixture (4), on a range of one month and of three?
 - **§12 R1** is answered: IA-P3 landed first, so U2 runs the sweep.
 - **Size:** U1 2.5 + U2 1.25 + U3 1.5 = **5.25 u**. Order: U1 → (U2 and U3 in parallel) → U3 merges → U2 merges.
+
+## 15. Rev 4 amendments: the U1 review answered (D-P6.88 to D-P6.93, `rulings-2.md`; binding over §2a to §14)
+
+- **§3.3 shapes (D-P6.91).** `Fig {text, evidence: [text]}` is the type of Card and `all` row `result`, `cost`, `dawn|null`; `limits`
+  row `dawn|null`; `change` row `change`; `cost` row `cost`; `rec.cost|null`. `limits` `columns` is six (DAWN last).
+- **§3.3 rules.** `can_choose` only with a run, no choice and no recommendation (D-P6.90). Effects: a PRICE row reads its stored
+  currency (D-P6.88); a zero `MONEY` row with none reads `NONE` (D-P6.89). A protective lever's texts by how many options have
+  a value (D-P6.90's table). `assumed`: in-sentence words, registry order.
+- **§3.4 words (replaced or new; texts in the rulings).** `effect` `NONE`; `at_stake` `BOUNDS_PART`; `outcome_note`
+  `INCOMPLETE`, `INCOMPLETE_OPTION`, `BOUNDS_PART`, `BOUNDS_NONE`; `valued_by` `NO_VALUE` (else `VALUED`, as built); `choice` stale twins; `why_rule` `SETTING`,
+  `OPTION`, `BOUNDS`; `why_answer` `NONE`, `BOUNDS`, `NEAR_OPTION` withdrawn; `missing` `NIL_DENOMINATOR` `{factor}`;
+  `checks` `BASE` "The baseline"; `cards_note` `EMULATED`; `horizon_basis` `MONTH`, `MONTHS`, `STATED`; `limits_answer` `REC_SOME`,
+  `SOME`. Vocabulary `factor` `buses_full_by_charger` (D-P6.92).
+- **Outside 6f1's own files:** `decisions/evaluate.py` `_effect_currency` (D-P6.88; one line of `test_6h_evaluate.py`);
+  `main.py`'s two `unavailable` tuples (D-P6.93).
+- **§6.1 expected texts.** F6-A: no `can_choose`. F6-B: "Rejected or deferred: 13 of 13 options"; `valued_by` `NO_VALUE`. F6-N: "+$0.18 per
+  crate-day", `why_rule` `OPTION`. F6-T: `BOUNDS_PART` (1 of 2 options), `rec_heading` `PART`, `why_rule` and `why_answer` `BOUNDS`. F6-S: `valued_by` `NO_VALUE`.
+- **§6.3 plants gain** `pricecur`, `nocur`, `boundsnone`, `stillchoose`, `nearopt`, `noev` (test 1; `noev` also test 6).
+- **§9 gains** MD-6F-12 (D2, U3): each figure keeps its evidence word when all valued options share it.
+- **Size:** U1 2.75 + U2 1.25 + U3 1.5 = **5.5 u**.

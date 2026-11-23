@@ -1,4 +1,4 @@
-# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.87): the Decisions screen, and 6h
+# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.87; D-P6.88 on: `rulings-2.md`): the Decisions screen, and 6h
 
 Architect (Claude), 2026-11-22, with `spec.md` rev 0. Code read on `main` at `591458c38` (6a and 6c merged) and IA-P1
 on `task/IA-P1-frame-portfolio` (`1a19442e2`). Each ruling is a default applied now (W3); the owner answers in the
