@@ -37,3 +37,8 @@ Owner answer: "Readings stand (Recommended)".
 
 Asked: keep the rooms and rebuild the scenario's energy model from the metered kWh (1,304 kWh + 0.055 kWh per crate-day; Mwea ~$315, Thika ~$354, Kirinyaga ~$423 and ~+14 %; repair still beats replace by ~+$150 net), +1.0 u to restate everywhere?
 Owner answer: "Approve rebuild (Recommended)".
+
+## D-DD.147 / D-DD.148 Kisiwa (later the same day)
+
+Asked (D-DD.147): accept simulated Kisiwa figures (Oct diesel ~904 L vs story 2,400; fuel cost ~1,175 vs 3,120; result ~+1,695 vs -250; Mto ~32 L vs 320)? Owner: "Accept simulated (Recommended)".
+Asked (D-DD.148): the 30 Oct failure costs backup, not supply (GEN-KS-02 and the battery carry the evening); "nothing avoidable" becomes "nothing material avoidable" (~20 min after sunrise, ~2-3 L)? Owner: "Accept (Recommended)".
