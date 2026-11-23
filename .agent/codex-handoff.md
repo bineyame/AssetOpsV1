@@ -58,7 +58,7 @@ Open branches. Each was asked to land clean with its own handoff; START FROM THE
 | 6f1 U1 | `task/6f1-decisions`, AssetOpsV1-6f1 | `specs/6f-decisions-screen/6f1-handoff.md` last session | finish fix round 2, re-review, merge |
 | Shell tests | `fix/main-shell-tests`, AssetOpsV1-shellfix | `specs/IA-P-product-shape/main-shellfix.md` | finish round 2, re-review, merge |
 
-HEADS: `task/DD3d-b-fuel-cost` a94c91f10 (10 uncommitted files); `task/6f1-decisions` bf90f6f3b (clean); `fix/main-shell-tests` 7c0403b80 (clean).
+HEADS: `task/DD3d-b-fuel-cost` e20ffeac4 (clean); `task/6f1-decisions` bf90f6f3b (clean); `fix/main-shell-tests` 7c0403b80 (clean).
 
 - DD3d-b run 5 = merge `task/DD3d-b-rulings-29` (ae818b36c, D-DD rulings round 29) then main, then: untracked text
   compared both ways (G9, `judge_month`) and the range line; the cost line "taken at its budget line" and four
@@ -69,11 +69,12 @@ HEADS: `task/DD3d-b-fuel-cost` a94c91f10 (10 uncommitted files); `task/6f1-decis
   failed (iap sites 6 and 8, held); Postgres 186 passed, 1 failed (5c test_9). Report served figures before and
   after; the headline is projected about -195.30, never measured.
 - `fix/main-4d-litre` is inside the DD3d-b branch; it does not merge on its own.
-- 6f1 U1: rulings D-P6.94-99 (on main). Fix round 2's first run did D-P6.96 and D-P6.94's read and view; the second
-  run had N3-N6, four whole Pages, `--write-fixtures`, plants, the whole reach set once, guards, packet. D-P6.99 adds
-  the STATED_SINCE wording and one test. The re-review is verification, plus discovery on `records.py`, the Postgres
-  read and `stated_changes`. A third fix round triggers W7 (stop rule). State line number: next free in
-  `.ai/state/index-4.md`.
+- 6f1 U1 (bf90f6f3b, landed clean, nothing known red, NOT ready for re-review): rulings D-P6.94-99 on main; all of fix
+  round 2's code, words, whole Pages and fixtures are done. NOT done, commands in the handoff's "Ninth session": 52 of
+  69 plants (incl. `latestcost`, `nonewer`, `docnow`, `levelev`, N2, the Postgres one); the whole reach set (36 + the 6f
+  files, not started; 6a, 6c, 6h and Postgres not rerun); packet, state entry, in_review. The re-review is verification,
+  plus discovery on `records.py`, the Postgres read and `stated_changes`. A third fix round triggers W7 (stop rule).
+  State line: next free number in `.ai/state/index-4.md`.
 - Shell tests (7c0403b80, landed clean, NOT accepted): three whole runs, each 2 failed / 4457 passed. Always red:
   evActionFixRound "over 31 days" (Q-SF-1). Intermittent, not in main's one run: evEnergy R347, evEnergy
   `energy_states_table_loading`, temporarilyUnavailable "a loaded board after a retry" (one-line awaits, in the note's
