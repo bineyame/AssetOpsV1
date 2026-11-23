@@ -51,9 +51,9 @@ In flight (branch, what is left):
 
 1. DD3b: merged 23 Nov (owner accepted Kisiwa share 20.7/16.1/0/10.6 %).
 2. DD5a: merged 23 Nov.
-3. DD3d-a (2.75 u, card `specs/DD-demo-data/cards/DD3d.md`): floor, fuel records, H5. After DD3b.
+3. DD3d-a: merged 23 Nov (its six Lows go into DD3d-b, `specs/DD-demo-data/review-DD3d-a.md`).
 4. DD3d-b (3.75 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
-   run-rate budget (D-DD.166). After DD3d-a.
+   run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress), worktree AssetOpsV1-dd3db.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
 7. WK-SC story clock (3.0 u, `specs/DD-demo-data/spec-WK-SC.md`, card `cards/WK-SC.md`) after DD6.
