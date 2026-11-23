@@ -187,3 +187,33 @@ Could not verify:
 3. **(M1; widens D-IAP.40's page list)** Does the chip go on every operator page that is neither a `HomeList` list nor a
    Site page (Incidents, Maintenance, Financials included)? Default: yes, as a class rule in `EverySiteChip`, with R798
    extended to name them.
+
+## Re-review (fix round 1)
+
+Head a17981bdc. Verification re-review (W5) of H1, M1, M2 and the Lows, plus the full estate/shell/ui/sites vitest.
+
+- **Verdict: ACCEPT with one new Medium (N1) to fix on the branch.** H1, M1, M2, L1 to L4 are closed.
+- **H1**: `findingsDef` and `actionsDef` take `domainOf` from `useSiteDomains` (directory read only while the scope is a
+  group, case-blind join); loading and a refused directory have their own states, never `def.none`. Shot at
+  `/findings?scope=group:COLDCHAIN` (fixture, built dist at head): 2 rows (Cold Room), chip "Cold-chain", no "COLDCHAIN",
+  no false "No Findings" (`rr1/h1-findings.png`). `/actions` same scope says "No Actions" because the fixture holds only
+  KOBO-001 actions; that empty is true (the row case is unit-tested).
+- **M1** (`ScopeSwitch.tsx` chip class: not a list and not a Site page), **M2** (directory rows reach `siteItems`),
+  **L1** (`/results` through `useEstateRead`), **L4** (case-blind), **L2/L3** (R800, R328): read in the diff, as the packet says.
+- **Checks I ran**: full `src/estate src/shell src/ui src/sites` at head: 190 files, 10 failed / 4155 passed
+  (`/opt/assetecon/evidence/IA-P/IA-P3/rr1/full.log`); `tsc --noEmit` clean. Failures: siteRangeMatrix 2 (on main too,
+  rerun on main 83a5e577d gives the same 2), sr2RequestUrls, domainActionVerification, evActionFixRound,
+  evSiteMoneyRoutes 2, siteWorkCases (the packet's main set), siteRangeMatrix `ev / (R)` (flaky: passes on rerun), and **N1**.
+  Builder's full run at head was 14 / 4151 (it did not rerun in full after its 3 test fixes); mine is 10 / 4155. Main as the
+  builder measured it (12e618be3): 12 / 4081.
+
+**N1 (Medium, acceptance gap: packet §11 says every remaining failure is main's set).** `src/shell/__tests__/simulatorLabGate.test.tsx`
+"offers no way to create a site from the operator route /" fails at head and at ee220fd55, and passes on main (83a5e577d).
+At `/`, with the estate unstubbed, the page draws a `<button class="dd-button">Try again</button>` that the test's
+selector (`button:not([data-shared-range-button]):not([data-shell-control])`) counts. It is a P6/P4b test-migration miss
+(the round-1 review ran 11 files and the builder's list omitted it). Fix: stub the estate read for that route or mark
+the refusal button as not a create path, as P6 did for `data-shell-control`; the test must pass at `/` and `/sites`.
+Not caused by this fix round; it is not a product defect found, only a red test the branch owns.
+
+Not verified: the Postgres-backed `test_iap_*` and `iap_gates` runs (cited from the packet, not rerun); main's full count
+(cited, not rerun). Residual risk: unchanged from round 1.
