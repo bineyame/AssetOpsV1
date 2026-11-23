@@ -43,11 +43,15 @@ LITRES = "L"
 
 _MG = _registry.REGISTRIES["MINI_GRID"]
 
+#: D-DD.163: the month's fuel invoices state what was bought, never `fuel_cost` (what was burned, at the price).
+#: Not a structure row; the reconciliation compares it with the management accounts.
+FUEL_BOUGHT = FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month")
+
 #: D-4B.13, spec §3.4 "Names when absent": the record an absent value names. `outstanding` resolves per failing
 #: kind; cases 2 and 4 (open month, mixed currency) name its `filled_by`.
 READ_AS: Mapping[str, FilledBy | Mapping[str, FilledBy]] = MappingProxyType({
     "revenue": _MG.row("revenue").stated_by,
-    "fuel_cost": _MG.row("fuel_cost").stated_by,
+    "fuel_bought": FUEL_BOUGHT,
     "om": _MG.row("om").filled_by,
     "staff": _MG.row("staff").filled_by,
     "productive_kwh": _MG.row("productive_kwh").filled_by,
@@ -99,7 +103,7 @@ class _Row:
 
 _ROWS: Mapping[str, _Row] = MappingProxyType({
     "revenue": _Row(("CHARGE",), _amount("CHARGE"), _none, "RECORDED", False, True),
-    "fuel_cost": _Row(("EXPENSE",), _cost("FUEL"), _none, "RECORDED", False, True),
+    "fuel_bought": _Row(("EXPENSE",), _cost("FUEL"), _none, "RECORDED", False, True),
     "om": _Row(("EXPENSE",), _cost("OM"), _none, "RECORDED", False, True),
     "staff": _Row(("EXPENSE",), _cost("STAFF"), _none, "RECORDED", False, True),
     "productive_kwh": _Row(
@@ -153,7 +157,7 @@ def _origins(lines: Sequence[MonthLine]) -> tuple[str, ...]:
 
 
 def used_lines(factor_id: str, lines: Sequence[MonthLine]) -> list[MonthLine]:
-    """The lines this module sums into a money row (`revenue`, `fuel_cost`, ...): 3A7 reconciles the same lines
+    """The lines this module sums into a money row (`revenue`, `fuel_bought`, ...): 3A7 reconciles the same lines
     the screen shows (D-3A7.1), so it reads them here rather than restating the filter."""
     return [line for line in lines if _ROWS[factor_id].plus(line)]
 

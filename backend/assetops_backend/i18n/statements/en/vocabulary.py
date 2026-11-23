@@ -42,14 +42,14 @@ VOCABULARY = {
     },
     "heading": {
         "forms": ["label", "in_sentence"],
-        "order": ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE", "REVENUE", "FUEL_COST"],
+        "order": ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE", "REVENUE", "FUEL_BOUGHT"],
         "entries": {
             "GROW_REVENUE": {"label": "Grow revenue", "in_sentence": "grow revenue"},
             "OPTIMIZE_COST": {"label": "Optimize cost and efficiency", "in_sentence": "optimize cost and efficiency"},
             "PROTECT_ASSET": {"label": "Protect asset and capital", "in_sentence": "protect asset and capital"},
             "ASSURE_PERFORMANCE": {"label": "Assure performance and returns", "in_sentence": "assure performance and returns"},
             "REVENUE": {"label": "Revenue", "in_sentence": "revenue"},
-            "FUEL_COST": {"label": "Fuel cost", "in_sentence": "fuel cost"},
+            "FUEL_BOUGHT": {"label": "Fuel bought (invoices)", "in_sentence": "fuel bought"},
         },
     },
     "headline_subject": {
@@ -89,10 +89,10 @@ VOCABULARY = {
     },
     "record_noun": {
         "forms": ["in_sentence"],
-        "order": ["REVENUE", "FUEL_COST"],
+        "order": ["REVENUE", "FUEL_BOUGHT"],
         "entries": {
             "REVENUE": {"in_sentence": "billing records"},
-            "FUEL_COST": {"in_sentence": "fuel invoices"},
+            "FUEL_BOUGHT": {"in_sentence": "fuel invoices"},
         },
     },
     "unit": {

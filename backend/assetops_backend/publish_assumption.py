@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Sequence
 from uuid import UUID
 
-from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
+from assetops_backend.config import database_url, served_tenant_slug
 from assetops_backend.financials.composition import (
     AssumptionStoreUnavailable,
     PostgresAssumptionStore,
@@ -122,10 +122,10 @@ def main(argv: Sequence[str] | None = None, *, store: PostgresAssumptionStore | 
     fix.add_argument("--file", required=True)
     fix.add_argument("--step", action="append", default=[])
     for p in (one, fix):
-        p.add_argument("--tenant", default=DEVELOPMENT_TENANT_SLUG)
+        p.add_argument("--tenant", default=served_tenant_slug())
     args = parser.parse_args(argv)
-    if args.tenant != DEVELOPMENT_TENANT_SLUG:
-        print(f"Tenant {args.tenant!r} is not the configured development tenant.", file=sys.stderr)
+    if args.tenant != served_tenant_slug():
+        print(f"Tenant {args.tenant!r} is not the served tenant.", file=sys.stderr)
         return 2
     store = build_assumption_store(database_url()) if store is None else store
     try:

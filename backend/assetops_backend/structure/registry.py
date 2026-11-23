@@ -174,8 +174,8 @@ from assetops_backend.structure.rows_mini_grid import ROWS as _MINI_GRID_ROWS  #
 #: a captive depot declares revenue not applicable (D-3B6.3).
 REGISTRIES: Mapping[str, Registry] = MappingProxyType({
     # 3B3 (D-3B3.9): v2, rows gained neutral and composes. 4b1 (D-4B.10): v3, revenue and fuel_cost gained stated_by.
-    # 4a (D-4A.1): v4, metered_kwh and billed_kwh gained stated_by.
-    "MINI_GRID": Registry("MINI_GRID", 4, _MINI_GRID_ROWS),
+    # 4a (D-4A.1): v4, metered_kwh and billed_kwh gained stated_by. DD3d (D-DD.163): v5, fuel_cost lost its own.
+    "MINI_GRID": Registry("MINI_GRID", 5, _MINI_GRID_ROWS),
     "COLD_CHAIN": Registry("COLD_CHAIN", 1, _COLD_CHAIN_ROWS),
     "EV_DEPOT_CAPTIVE": Registry("EV_DEPOT_CAPTIVE", 1, _EV_DEPOT_ROWS, not_applicable=("revenue",)),
 })

@@ -209,15 +209,16 @@ def _check_leaf(registry: Registry, factor_id: str, leaf: LeafValue) -> None:
         raise StructureError("STRUCTURE_ORIGIN", key, factor_id)
 
 
-def _check_stated(registry: Registry, stated: Mapping[str, LeafValue]) -> None:
-    """4b1 (spec §2.3): every key a node with `stated_by`; every value checked as a leaf against that node's row."""
+def _check_stated(registry: Registry, stated: Mapping[str, LeafValue], also: frozenset[str]) -> None:
+    """4b1 (spec §2.3): every key a node with `stated_by`, or one the caller names in `also` (the target side's
+    budget headings); every value checked as a leaf against that node's row."""
     key = registry.structure_key
     for factor_id, value in stated.items():
         try:
             row = registry.row(factor_id)
         except KeyError:
             raise StructureError("STRUCTURE_STATED", key, str(factor_id)) from None
-        if row.is_leaf or row.stated_by is None:
+        if row.is_leaf or (row.stated_by is None and factor_id not in also):
             raise StructureError("STRUCTURE_STATED", key, factor_id)
         _check_leaf(registry, factor_id, value)
 
@@ -394,9 +395,11 @@ class _Evaluation:
 
 
 def evaluate(registry: Registry, leaves: Mapping[str, LeafValue],
-             stated: Mapping[str, LeafValue] = MappingProxyType({})) -> Mapping[str, FactorValue]:
+             stated: Mapping[str, LeafValue] = MappingProxyType({}), *,
+             stated_nodes: frozenset[str] = frozenset()) -> Mapping[str, FactorValue]:
     """Every factor of `registry` from one Site's `leaves` (spec §2.2), in registry order. 4b1: `stated` holds the
-    values a record states for nodes with `stated_by` (spec §2.3)."""
+    values a record states for nodes with `stated_by` (spec §2.3). `stated_nodes` names further nodes the caller's own
+    record states: the target side's headings, which a budget line states though no actual record does (D-DD.163)."""
     key = registry.structure_key
     leaf_ids = [row.factor_id for row in registry.rows if row.is_leaf]
     for factor_id in leaf_ids:
@@ -404,7 +407,7 @@ def evaluate(registry: Registry, leaves: Mapping[str, LeafValue],
             raise StructureError("STRUCTURE_LEAF_INPUT", key, factor_id)  # a caller bug, never a zero
     for factor_id in leaf_ids:
         _check_leaf(registry, factor_id, leaves[factor_id])
-    _check_stated(registry, stated)
+    _check_stated(registry, stated, stated_nodes)
     with localcontext(_context()):
         run = _Evaluation(registry, leaves, stated)
         out = {row.factor_id: run.factor(row.factor_id) for row in registry.rows}

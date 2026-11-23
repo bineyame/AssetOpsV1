@@ -323,7 +323,7 @@ def _solved_target():
     assert note is None and solved is not None
     t_leaves["necessary_l"] = dataclasses.replace(t_leaves["necessary_l"], value=solved)
     return evaluate(MG, t_leaves, {"fuel_cost": LeafValue(D("875.00"), "DECLARED", ("budget:test",), None, None,
-                                                          USD, (E,))})
+                                                          USD, (E,))}, stated_nodes=frozenset({"fuel_cost"}))
 
 
 def test_3i_a_solved_target_agrees_with_its_record_within_the_tolerance() -> None:  # plant V18a

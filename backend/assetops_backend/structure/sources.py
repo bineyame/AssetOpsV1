@@ -124,7 +124,7 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
 
 #: 4b2 (spec §3.2, D-4B.1): the nodes a record states, and their state. `CommercialLeafSource` serves the PROVIDED ones.
 STATED_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
-    "MINI_GRID": MappingProxyType({"revenue": PROVIDED, "fuel_cost": PROVIDED,
+    "MINI_GRID": MappingProxyType({"revenue": PROVIDED,
                                    "metered_kwh": PROVIDED, "billed_kwh": PROVIDED}),  # 4a: energy-to-cash@1
 })
 #: 4b2: the PROVIDED leaves whose only provider is `structure.money.CommercialLeafSource`. Read alone (no commercial

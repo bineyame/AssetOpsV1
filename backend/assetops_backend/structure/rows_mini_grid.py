@@ -1,9 +1,10 @@
-"""3B1: the mini-grid structure, version 3 (spec §2; D-3B1.1, D-3B1.4, D-3B1.5; R9, R13, R19).
+"""3B1: the mini-grid structure, version 5 (spec §2; D-3B1.1, D-3B1.4, D-3B1.5; R9, R13, R19).
 
 3B3 made it version 2: every row states `composes` (D-3B3.14), and the OPTION_ONLY leaves carry the
 manifest's `neutral` literal (D-3B3.9). 4b1 made it version 3: `revenue` and `fuel_cost` name the record that
 states their total (`stated_by`, D-4B.1, D-4B.10); no other row states. 4a made it version 4: `metered_kwh` and
-`billed_kwh` name the record that states their kWh (D-4A.1).
+`billed_kwh` name the record that states their kWh (D-4A.1). DD3d made it version 5: `fuel_cost` is no longer
+stated; it is the litres burned at the price, and the invoices are fuel bought (D-DD.163).
 
 One literal tuple of 47 rows: the 31 leaves in `canonical.leaves_of("MINI_GRID")` order,
 then the 16 nodes in spec §2.2's order. Leaf units, sources, words and absence values are
@@ -117,8 +118,7 @@ ROWS: tuple[FactorRow, ...] = (
           composes="SUM", stated_by=FilledBy("COMMERCIAL_RECORD", "CHARGE", "Billing export: the month's charges")),
     _node("collected", "revenue - in_transit - outstanding", MONEY, Home(_OPTIMIZE, "O3"), composes="SUM"),
     _node("diesel_l", "necessary_l + candidate_l + unexplained_l + extra_l", L, Home(_OPTIMIZE, "O1"), composes="SUM"),
-    _node("fuel_cost", "diesel_l * diesel_price", MONEY, Home(_OPTIMIZE, "O1"), composes="SUM",
-          stated_by=FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month")),
+    _node("fuel_cost", "diesel_l * diesel_price", MONEY, Home(_OPTIMIZE, "O1"), composes="SUM"),
     _node("battery_wear", "battery_throughput_kwh * wear_rate", MONEY, Home(_OPTIMIZE, "O1"), composes="SUM"),
     _node("cost_to_serve", "fuel_cost + om + staff + collection_cost + battery_wear", MONEY, Home(_OPTIMIZE, "O1"),
           composes="SUM"),
