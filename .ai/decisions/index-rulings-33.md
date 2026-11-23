@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.162)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.174)
 
 - `D-DD.146` C-DD6 reads each unit's admitted channel (no binding added): Kisiwa GEN-KS-01 state FAILED at 18:40, Mto INV-MT-02 power to 0 with the instant from the O&M book; inverter_state role to backlog; +0.25 u DD3b2 · live · specs/DD-demo-data/rulings.md
 - `D-DD.147` DD3b bound hit is ordering (reorder rule resolves); Kisiwa/Mto fuel story typed like Kobo's, restated by D-DD.131 (Kisiwa ~904 L, contribution ~+1,695); plan stays budget; owner asked · live · specs/DD-demo-data/rulings.md
@@ -17,3 +17,15 @@
 - `D-DD.160` DD4b Q4: DD5b owns C-DD7 mini clause (unserved from measured.json) and the stored_books fetch; DD6 one writer process per tenant; +0.25 u DD5b; DD 55.0 u · live · specs/DD-demo-data/rulings.md
 - `D-DD.161` DD5a BLOCKER: v4 publish at conversion only for world_conversion=True and v4 role set (Lab W2-02 kept); site-meter; canonical decimals; EV session id is the pack's, copied by the sealer; +0.25 u DD4b, DD5a · live · specs/DD-demo-data/rulings.md
 - `D-DD.162` Card sweep: DD5a/DD5b/DD6 cards gain "Facts the code fixes" (protected behaviour, Foundation names, Decimal, id keys, import guard); cold history whole kWh; DD 55.5 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.163` Month fuel cost = consumption x price (fuel_cost unstated, structure v5); invoices are "fuel bought" (price, reconciliation); Mto declared price Assumed; DDR statements offsets from invoices (1,545/1,645); headline +2,135.30; DD3d.4 +1.75 u, DD 57.25 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.164` DD3b Q1 BLOCKER: history seed loop broken; RUN_WRITTEN October keys leave the scope digest (D-DD.102 class), still read as values; fixed point = second generate byte-identical + all --check 0; guard test; +0.75 u, DD 58.0 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.165` DD3b M1/Q2: Kisiwa candidate share printed old -> run 2 -> final with cause (threshold sensitivity); story sentence restated from final; owner told plainly · live · specs/DD-demo-data/rulings.md
+- `D-DD.166` owner-approved 23 Nov: Lakeside fuel plan typed on the old story (actual minus designed variance); default run-rate budget (Jul-Sep use +10 %, Assumed), Portfolio -196.60 vs +2,135.30 kept; cold/EV plans stand; +1.75 u DD3d.5 · draft · specs/DD-demo-data/assessment-budget.md
+- `D-DD.167` DD5a review Q1: `sealed/<context12>/` keyed by the database's seal context; refusal within one database's lifetime; rung manifest records sealed_dirs, C6 judges them, drop removes them; +0.25 u DD5a, +0.25 u DD5b · live · specs/DD-demo-data/rulings.md
+- `D-DD.168` Fuel records carry their own times: loader records each through the operational path on the prepare clock (work-store override); prepare guard widened to world rung names, operator names refused; file and ticket format; +0.25 u DD3d · live · specs/DD-demo-data/rulings.md
+- `D-DD.169` Lakeside declared diesel prices via publish_assumption fixture on the served tenant (check reads served_tenant_slug); three world fixture files; DD5b L1.prices step; 0 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.170` Run-rate plan leaves are run-written (RUN_WRITTEN MINI_GRID plan); --leaves records the quarter; D-DD.164 fixed point re-proved; +0.25 u DD3d · live · specs/DD-demo-data/rulings.md
+- `D-DD.171` DD3d renumbered to build order and split: DD3d-a (floor, records, H5) 2.75 u, DD3d-b (fuel cost, run-rate budget) 3.75 u; DD 60.75 u in thirteen parts · live · specs/DD-demo-data/rulings.md
+- `D-DD.172` WK-SC story clock: world time (person act times, due/overdue, verification today, screen calendar) vs system time (received/recorded/known_at, unchanged); ASSETOPS_STORY_NOW through prepare_clock only; 3.0 u; spec-WK-SC.md · live · specs/DD-demo-data/rulings.md
+- `D-DD.173` demo_workflow by WK-SC: 6h §7's ten decisions, M's nine Actions, seven choices; executive acts, proposer in M (proposed_by) only; refused choices listed pending · live · specs/DD-demo-data/rulings.md
+- `D-DD.174` Card sweep through D-DD.173: DD5a 4.0 u, DD5b 4.25 u, DD6 closing unit WK-SC · live · specs/DD-demo-data/rulings.md

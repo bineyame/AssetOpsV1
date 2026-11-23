@@ -2,7 +2,7 @@
 
 Part DD6 = DD6.1 to DD6.3 with D-DD.133 to D-DD.136 (D-DD.137 outside DD). **5.25 u** (4.75, +0.5 by D-DD.157), branch `task/DD6-world`, one
 discovery review. Card by the DD lane Architect, 23 Nov, under `.ai/ROLE_CONFIG.md` "Fourth audit" (a). Line numbers
-are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22`. Read only the lines named here,
+are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22` (D-DD.167 onward: as at `task/DD-cards-2`). Read only the lines named here,
 then the code. A question the lines do not answer stops only the affected unit and goes to the lane Architect; count
 it in the packet.
 
@@ -12,8 +12,8 @@ it in the packet.
    - C8 runs `python tools/dd_check.py --database-url <clone> --json --world-manifest <path>` as a `world.run_step`
      subprocess before the clone is dropped (the ASGI client mutates `os.environ`, `dd_check.py:150-158`). Exit code
      = C8's state.
-   - A result is PENDING when every failing line names its closing unit (Q11, Q12, IA-P3, D-DD.137's `WK-SC`, "IA-P
-     lane" for the Decisions/Actions pages). C8 = no FAIL; PENDING lines are listed in the world check output. A stub
+   - A result is PENDING when every failing line names its closing unit (Q11, Q12, IA-P3, `WK-SC` (owner-approved
+     O1; spec `spec-WK-SC.md`, D-DD.172), "IA-P lane" for the Decisions/Actions pages). C8 = no FAIL; PENDING lines are listed in the world check output. A stub
      is a FAIL; none may remain.
    - Live here: C-DD9 (S963, cells S977-988), C-DD10 (S964; judges Lakeside, Harvest Cold and Metro Bus pending Q11,
      D-DD.11), C-DD15 (S969; `_rung` writes `seconds` and `cap_seconds` into the world manifest, read by
@@ -34,9 +34,10 @@ it in the packet.
      `{"step", "skipped": true}`.
    - `demo_workflow` items: the product's permissions win (executive-only `action.agree`, `decision.choose`); `M`'s
      `created_by`/`chosen_by` corrected to who may act, the manager kept as `proposed_by` where `M` has it. Due dates
-     need the story clock (not on main), so every item is listed "pending: story clock (D-DD.137)" and C-DD9's
-     Decisions, Actions and Results cells are PENDING with that unit and "Decisions/Actions pages read 6a and 3C2
-     rows (IA-P lane)". `prepare` never writes rows (D-DD.27).
+     need the story clock (WK-SC, built after DD6), so every item is listed "pending: WK-SC" and C-DD9's
+     Decisions, Actions and Results cells are PENDING with "WK-SC" and "Decisions/Actions pages read 6a and 3C2
+     rows (IA-P lane)". `prepare` never writes rows (D-DD.27). The ten decisions of 6h spec §7 (its "DD6.2, +0.25 u"
+     line) are WK-SC's too (D-DD.173, D-DD.174); DD6 creates none.
    - One walk database and label for the three tenants. `serve --tenant <slug>` sets `ASSETOPS_TENANT_SLUG` for the
      child on ports 8991/5491; a serve whose recorded tenant differs is stopped by PID first. Ports 8990, 5490, 8992
      and the owner's walk stay untouched.
@@ -71,8 +72,10 @@ it in the packet.
 ## Rules that apply (by id)
 
 D-DD.11, D-DD.15, D-DD.26, D-DD.27, D-DD.28 (R157-167: `dd_check` reads the product through an in-process ASGI client,
-no port), D-DD.84, D-DD.133 to D-DD.136, D-DD.137 (pending listing only; `WK-SC` is built only on the owner's yes),
-D-DD.142, D-DD.153 (C-DD17 served), D-DD.154 (the records C-DD17 and C-DD8 read are loaded by DD5b), D-DD.157 (cold history), D-DD.160 (one writer per tenant), D-DD.162 (facts).
+no port), D-DD.84, D-DD.133 to D-DD.136, D-DD.137 and D-DD.172 (pending listing only; `WK-SC` is owner-approved and built after DD6),
+D-DD.142, D-DD.153 (C-DD17 served), D-DD.154 (the records C-DD17 and C-DD8 read are loaded by DD5b), D-DD.157 (cold history), D-DD.160 (one writer per tenant), D-DD.162 (facts), D-DD.167 (C6 judges the rung manifest's `sealed_dirs`, built
+in DD5b), D-DD.174 (sweep: D-DD.163 to D-DD.166 move no DD6 judge; C-DD17's served states stand after D-DD.164's
+re-seed, Kisiwa now 903 L in October, still INSIDE_TOLERANCE).
 
 ## Tests (each can fail) and plants
 

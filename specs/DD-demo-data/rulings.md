@@ -3085,3 +3085,344 @@ D-DD.157 moves Kirinyaga's History series onto the meter (the drift story reads 
     half-even to whole kWh (1659.750 → 1660), the History series' precision. The bill keeps the exact meter kWh.
     The two are one figure at two precisions, and `meter_billed` prints the pair.
   - *Units (D-DD.161, D-DD.162).* DD 55.0 → **55.5 u in twelve parts**: DD4b 5.25, DD5a 3.75.
+
+# DD rulings, round 24 (D-DD.163): a month's fuel cost is the fuel burned, not the fuel bought
+
+Architect (Claude, DD lane), 2026-11-23. Read: `DD3b-handoff.md` "Run 3 state" and `packet-DD3b.md` reach table on
+`task/DD3b-mini-plant` (22cf40ec3); D-DD.18, D-DD.92, D-DD.130, D-DD.131; `structure/rows_mini_grid.py` (`fuel_cost`
+= `diesel_l * diesel_price`, `stated_by` EXPENSE (FUEL)), `structure/evaluate.py` `_stated_node` (a stated record
+governs the node), `structure/sources.py` `STATED_STATE` and `ASSUMPTION_WORDS`, `structure/money.py`
+(`_ROWS["fuel_cost"]`, `_diesel_price`), `structure/reconciliation.py` (`used_lines`, `HEADING_WORDS`),
+`deep_dive/tables.py`, `rehearsal_check.py` G4/G5, `backend/tests/test_ddr_rehearsal_postgres.py` and
+`fixtures/ddr/lakeside-2026-10.expect.json`. No run was made; no database touched. The owner is informed; the
+headline the owner was told (about +2,135) is what the screen will show.
+
+- **D-DD.163 The product's month fuel cost is consumption × price, the node's own expression. The fuel invoices
+  state purchases, a different quantity, and stop stating `fuel_cost`. A month with no invoice prices its fuel at
+  the Site's declared diesel price, labelled Assumed. The statements and screen literals follow** (model, W6 class;
+  completes D-DD.92 and D-DD.130 in the product; amends D-DD.130's C-DD4 clause; adds DD3d.4).
+  - *What is wrong.* D-DD.92 made purchases and consumption two quantities, and D-DD.130 put the purchases in the
+    books. The product's `fuel_cost` node, though, is `diesel_l × diesel_price` (consumption) with a `stated_by`
+    record: the month's fuel invoices. In `_stated_node` the record governs, so the served fuel cost is whatever
+    was bought that month: Kisiwa 1,040, Kobo 500, Mto nothing. `M` and the model say 1,175.20 / 792.50 / 40.00.
+    `stated_by` assumed purchases equal consumption, which is only true for a Site without storage. With a tank,
+    cost to serve and contribution would swing with delivery dates: Mto would show $0 of fuel while burning 32 L.
+    The model's figure is the loyal one. The cause is two figures for one quantity, so the fix is in the model.
+  - *Rule (product).*
+    - `fuel_cost` is no longer a stated node. `rows_mini_grid.py` drops its `stated_by` (structure version 5;
+      revenue, `metered_kwh` and `billed_kwh` keep theirs), and `STATED_STATE["MINI_GRID"]` drops `fuel_cost`.
+      The node folds from `diesel_l × diesel_price`, with `diesel_l` the readings' litres split (D-DD.18). No
+      `diesel_l`, no fuel cost ("not available yet"; never the invoices instead).
+    - The invoices keep two jobs, under their own name:
+      - `diesel_price`, unchanged (D-4B.6): invoice spend ÷ invoice litres in a month with invoices.
+      - Fuel bought. `money._ROWS["fuel_cost"]` and `READ_AS["fuel_cost"]` are renamed `fuel_bought`, with the
+        literal FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"). It is not a
+        structure row.
+    - Reconciliation (`structure/reconciliation.py`) still compares the management accounts' fuel figure with
+      the recorded invoices, a completeness check on the books. Its heading key becomes `FUEL_BOUGHT`, label
+      "Fuel bought (invoices)"; the statement CLI's `--fuel-cost` flag and the stored field keep their names (a
+      data contract; the label carries the meaning).
+    - Deep dive (`deep_dive/tables.py`): the `fuel_cost` step's value is the node's. Its evidence stays
+      `FUEL_INVOICES`, now as the price's evidence, beside the litres.
+  - *Mto's price.* No invoice in the month gives the product's existing fallback: the Site's declared
+    `diesel_price_per_litre`, ASSUMED, worded "Declared diesel price per litre, not a fuel invoice". The fuel in
+    Mto's tank was bought before the span, so that is the honest price. The world declares it: DD3d.4 records
+    Lakeside's per-Site declared price from `M`'s `prices.diesel_usd_per_l` (Kobo 1.25, Kisiwa 1.30, Mto 1.25)
+    through the product's existing price-assumption path (the one PR1/PR2a write; the builder names the function
+    in pre-flight; if no loader-callable path exists, stop for the Architect). G4 (`rehearsal_check.py`) changes:
+    a Site-month with a fuel invoice needs `commercial:` sources as today; one without needs the declared price,
+    evidence ASSUMED, and prints "declared, no fuel invoice this month". A missing price is still a FAIL.
+  - *Statements (DDR S5/S8).* The management accounts state fuel bought, compared with the recorded invoices. The
+    rehearsal's designed beats stay as offsets from the recorded total: S8 final = invoices + 5.00 (MATCHED within
+    the 1 % tolerance); S5 draft = invoices + 105.00 (NOT_MATCHED). On today's books, invoices are 1,540.00, so
+    S8 is **1,545.00** and S5 is **1,645.00** (were 5,000 / 5,100 against 4,995). The test computes them from the
+    expect file's invoice total, never types them. Revenue 9,700.00 keeps its offset from the served revenue the
+    same way.
+  - *Screen literals (expect file).* Each literal is re-pinned to the served value (D-DD.93), and the packet maps
+    each to its `M` figure. Projected from `M` rev 16.20:
+    - Portfolio fuel: Actual **$2,007.70** · Target $4,240.00 · Difference **−$2,232.30**; effect on contribution
+      **+$2,232.30**.
+    - Headline: contribution **+$2,135.30** against target (actual 4,430.30, target 2,295.00); Grow −$97.00,
+      Optimize +$2,232.30.
+    - The sentences are the product's own copy for a favourable gap, not hand-written. A served figure that
+      differs from `M` by more than money rounding stops for the Architect.
+  - *Checks.* C-DD4 judges mini-grid `diesel_l` and `fuel_cost` again (served = `M`), reversing D-DD.130's drop.
+    `EMU_FUEL` stays Σ invoices = fuel bought. `test_ds4_world_postgres` t12 then compares like with like.
+  - *Owner, plainly.* A month's fuel cost is now what the generators burned, priced per litre. Fuel deliveries
+    are shown separately as "fuel bought". The Portfolio headline stays at about **+2,135 above target**, as you
+    were told. Without this ruling the screen would have shown about +2,603, because it was counting October's
+    deliveries (1,540) instead of the fuel burned (2,007.70). Mto's fuel is priced at its declared 1.25 per litre,
+    marked Assumed, since it bought no fuel in these months.
+  - *Where and size.* DD3d.4 (product reader, discovery review with DD3d): +1.75 u (structure v5 and money rename
+    0.5; reconciliation and deep-dive label 0.25; declared prices recorded and G4 0.5; re-pins, DDR expect file,
+    C-DD4 restored 0.5). DD3d 2.5 → **4.25 u**; DD 55.5 → **57.25 u**. DD3b3 merges with exactly the seven DDR
+    rehearsal failures and `test_ds4_world_postgres` t12 listed as known, closed by DD3d.4. DD3d follows DD3b3
+    directly. Any other failure still blocks.
+
+# DD rulings, round 25 (D-DD.164 to D-DD.165): the history seed loop, and Kisiwa's candidate share
+
+Architect (Claude, DD lane), 2026-11-23. Read: `review-DD3b.md` (8ebad03df) H1, M1, Q1, Q2; D-DD.30, D-DD.102 (the
+`physical` read set), D-DD.92, D-DD.130, D-DD.131, D-DD.144, D-DD.151; `simulator/assetops_simulator/world/scope.py`
+(`scope_input`: the whole `site_doc["period"]` in the digest), `world/history.py` (`_Scope`, `october`, `_side`, the
+family seeds `seed(digest, key, name)`), `telemetry.books_for` (what the mini writer reads from history:
+`delivered_kwh`, `unexplained_l`), `telemetry_cold.cold_books_for` (the cold ledger reads history); the Lakeside rules
+in `M`'s `history.rules`. No run was made; no database touched. The owner is told the final Kisiwa share (D-DD.165).
+
+- **D-DD.164 Q1 (BLOCKER), H1: a history seed never covers a value written back from the run it seeds. The
+  run-written October keys leave the scope digest; they stay readable as values. Acceptance is a fixed point
+  proved by a second pass** (model, W6 class of D-DD.102; amends `scope.py`'s digest input and D-DD.131's test).
+  - *The loop.* The October fuel leaves are written into `M` from the pure run (D-DD.131). `scope_input` hashes the
+    whole `period`, and that digest seeds every July-September jitter draw. So writing the leaves re-seeds the
+    history, which moves `delivered_kwh`, which is the writer's load. That moves the run, and so the leaves. With a
+    seed that depends on its own output there is no fixed point; re-running cannot close it.
+  - *Which break, and why.*
+    - Taken: the run-written keys leave the digest. A seed decides the scope's jitter. A figure the run computes
+      is a value, not part of the scope's identity. This is D-DD.102's rule (the digest covers only what is the
+      scope's own input), applied to `period`.
+    - Rejected: freezing July-September. It turns generated history into typed data, so a correction elsewhere
+      would never reach it. And it breaks `scale`'s stated link to October.
+    - Rejected: removing all of `period` from the digest. That re-seeds the cold and EV histories that the
+      merged DD4 writers read (the cold ledger reads history), so it would move worlds with no loop.
+    - Not a loop: history's `necessary_l` / `candidate_l` = October × family weight × jitter (`scale`). They move
+      with October as values. No writer reads them (D-DD.18, D-DD.92: the writer reads `delivered_kwh` and the
+      declared `unexplained_l`), so nothing feeds back.
+  - *Change (`world/scope.py`).*
+    - `RUN_WRITTEN: dict[str, dict[str, tuple[str, ...]]]`, by vertical and side, declared beside `PHYSICAL_READS`.
+      Each entry is a period key whose value is written from a run:
+      - `MINI_GRID`, `actual`: `diesel_l`, `necessary_l`, `candidate_l`, `diesel_cost`, `contribution`, `variance`
+        (D-DD.131's restated leaves and the identities computed from them).
+      - `MINI_GRID`, site-level: `fuel_balance`, `bridge`, `findings_expected` (the blocks D-DD.131 restates).
+      - `COLD_CHAIN`, `actual`: `kwh` (the meter's, D-DD.144). `EV_DEPOT`, `actual`: the metered leaves of D-DD.20
+        that `M` takes from `measured.json`; the builder lists them from D-DD.20 and D-DD.158 in pre-flight.
+      - A key not in the table stays in the digest.
+    - `period_input(site_doc, vertical) -> dict` is `period` with exactly those keys removed (a missing key is
+      skipped, never an error). `scope_input` writes `"period": period_input(...)`. `_Scope.october` still reads
+      the full `site_doc["period"]`, so values are unchanged as inputs.
+  - *Moves (once).* The mini-grid digests change once (their run-written keys leave), so Lakeside's July-September
+    jitter is re-drawn once more. After that, writing the leaves cannot re-seed. Cold and EV digests change only if
+    their `RUN_WRITTEN` keys are in `M`'s period today; any moved cold or EV leaf that a cold or EV writer reads
+    (crate days, ledger movements, roster) **stops for the Architect** before anything is written. The packet lists
+    every moved leaf, grouped by Site.
+  - *Acceptance (one pass, proved by a second).*
+    1. `world_history.py generate` with the new digest.
+    2. `dd3_pure_run.py --restate-notes --write` at all three Sites.
+    3. The notes run and `--leaves --write`.
+    4. `M` written from the tool (rev bump).
+    5. `world_history.py generate` again: **`history.json` byte-identical to step 1** (the fixed point).
+    6. `--restate-notes --check` and `--leaves --check` exit 0 at Kobo, Kisiwa and Mto.
+    7. The D-DD.30 chain (view, goldens, fixtures, derived values) and re-pins (D-DD.93).
+    If step 5 differs, stop: the table missed a key. The `--check` logs and the two `history.json` hashes go in
+    the evidence.
+  - *Guard (cheap, in the default suite).* `simulator/tests/world/test_scope_run_written.py`: on a copy of the view,
+    changing each `RUN_WRITTEN` key of Kobo, Kisiwa and Mto leaves every scope digest and every July-September jitter
+    factor equal. Changing a non-listed key (Kobo `delivered_kwh`) changes the digest (plant). D-DD.131's `M` test
+    keeps comparing with `fuel-leaves.json`. The record is then valid because step 6 is in the packet, and a merge
+    that touches `M`'s fuel leaves reruns step 6 (coordinator merge check for DD parts).
+  - *Where and size.* The DD3b3 fix round (Opus: model change): +0.75 u (scope table and guard 0.25; the pass,
+    regeneration and re-pins 0.5). DD3b 6.5 → 7.25 u over three parts; DD 57.25 → **58.0 u**. The coordinator may run
+    it as its own commit series in DD3b3.
+
+- **D-DD.165 M1, Q2: Kisiwa's candidate share is reported from the final pass, old → new with the cause. The owner
+  is told in plain words, and the story sentence is restated from the printed figures** (story; amends D-DD.151's
+  "about a tenth" sentence; no bound, nothing tuned; 0 u).
+  - *Why it moved.* The measure (generator on while PV ≥ 1.1 × load) is a threshold. Many of Kisiwa's minutes are
+    cycle-charge tails at 10:00-10:40, with PV about 21.6 kW against load 18.4-19.0 kW: just at 1.1 ×. A 1 % change in
+    the load draw tips them over. H1's re-seeding moved the load about 1 %, and July went from 0.36 % to 18.80 %. That
+    is the measure's real sensitivity, not a plant change. Bounding it, or choosing a seed, would be fitting.
+  - *Rule.* After D-DD.164's pass, the packet prints July-October shares as D-DD.151's figures (0.36 / 11.27 / 0 /
+    10.17 %), then run 2's (18.80 / 17.77 / 0 / 10.67 %), then the final ones. The cause is stated as above. The
+    figures stay the final run's, rounded to whole percent in prose. The OR-MG-2 wording and `M`'s Kisiwa
+    sentences quote the final figures, and D-DD.151's "about a tenth in August and October" is replaced by them.
+  - *Owner, plainly (the coordinator relays this with the final numbers).* "Kisiwa's generator sometimes runs to
+    finish charging the battery in mid-morning, when the sun is only just enough to carry the load. Whether those
+    minutes count as avoidable depends on a margin of about 10 %. So a 1 % change in the month's demand can move
+    the share a lot: it was about 0 % / 11 % / 0 % / 10 % (July to October) when you accepted the story, and is now
+    [final]. Nothing was adjusted to get either figure. The product shows the share it measures." If the final
+    August and October are no longer near 10 %, or July is well above 0 %, the owner is asked whether the story
+    sentence should change. The default is that the sentence states the measured share, whatever it is.
+
+# DD rulings, round 26 (D-DD.167 to D-DD.174): DD5a's re-seal question; DD3d's build card (fuel records' times, the declared prices, the run-rate plan's seed, the split); the story clock WK-SC; the card sweep
+
+Architect (Claude, DD lane, fresh hand-off), 2026-11-23. Read: `.agent/codex-handoff.md`; owner `owner-dd-strategy-2026-11-22.md`
+O1, O2 and `owner-demo-data-answers-2026-11-22.md` (D-DD.166 approved); `review-DD5a.md` (branch `task/DD5a-load`,
+2805d367a) residual risk and question 1; `DD3b-handoff.md` on `task/DD3b-mini-plant` (b3478de5f, `M` rev 16.23);
+`assessment-budget.md`; D-DD.135 to D-DD.137, D-DD.140, D-DD.153 to D-DD.166; code on main (87067a97f):
+`load_world_inputs.py` (`_seal_tenant`), `tools/world.py` (`drop_db`, the inputs folder), `work/operational_entry.py`
+(`compose_entry`), `work/service.py` (`post_operational_record`), `work/adapters/postgres_work_store.py`
+(`command_now`, `test_db_clock_override`), `fuel_balance/rules.py` (`limitations`, DELIVERY_RECORDED_LATE),
+`prepare_clock.py`, `tools/demo_story_clock.py`, `publish_assumption.py` (tenant check), `structure/money.py`
+(`_diesel_price` fallback), `structure/sources.py` (`ASSUMPTION_WORDS["diesel_price"]`), `world/scope.py`
+(`RUN_WRITTEN`, DD3b), `actions/agreed.py` (due check, OVERDUE), migration 0070 (`due_on >= created_at::date`),
+`decisions/records.py`, `decisions/run.py` (one `now` for `known_at` and `run_at`), migration 0072 (act-time columns),
+`accounts/permissions.py`, `structure/levers.py`, `specs/6h-named-option-levers/spec.md` §7, `M` `demo_workflow`,
+`frontend/src/ui/sharedRange.ts` (`Date.now()` defaults). No run was made; no database touched.
+
+- **D-DD.167 DD5a review Q1: `sealed/` is keyed by the database it was sealed against; a refusal holds within that
+  database's lifetime; a dropped rung takes its sealed folder with it** (model; amends D-DD.140's `sealed/` bullet;
+  +0.25 u DD5a, +0.25 u DD5b).
+  - *Why.* D-DD.140 says sealed bytes are "a function of the inputs and the database ids". The ids are `uuid4` at
+    onboarding (`binding_service.py:504,627,744`), and `tools/world.py` reuses `inputs/<digest>` when it exists. So a
+    folder keyed only by the inputs holds the previous database's bytes, and every rebuild on unchanged inputs
+    refuses `WORLD_SEALED_BYTES_DIFFER`. The folder's key must be what its content depends on: inputs (the folder's
+    parent) and the database's seal context. Clearing `sealed/` by the caller (rejected) throws away the check
+    D-DD.140 wants on a same-database re-run. Keying by the database name (rejected) fails too, since a rung is dropped and
+    recreated under the same name (`name_for(prefix, rung, key12)`).
+  - *Rule (DD5a, `load_world_inputs.py`).* `_seal_tenant` computes `context12` = the first 12 hex of SHA-256 over the
+    canonical JSON (sorted keys, no spaces) of the sorted list of `[site_code, gateway_id, source_id,
+    binding_set_id, foundation_digest]` for every Site it seals, all as text, from the resolved seal context. It
+    writes to `<slug>/sealed/<context12>/`. That folder absent: write all. Present: re-seal and compare, refusing
+    `WORLD_SEALED_BYTES_DIFFER <name> re-seal` or `... stray` exactly as today. The output line adds
+    `"sealed_dir": "<slug>/sealed/<context12>"`. `sealed/` stays outside the inputs digest. A sibling
+    `<context12>` folder is never read or deleted by the loader.
+  - *Rule (DD5b, `tools/world.py`).* The rung manifest records every `sealed_dir` from the load step's output line.
+    C6 globs only the manifest's `sealed_dirs` (`<dir>/*.batch.json`), not `*/sealed/*`. `drop_db(name)` then removes
+    each `sealed_dir` recorded in that rung's manifest, unless another live rung's manifest records the same
+    folder. The check clone is a copy of L2 with the same ids, so it shares L2's folder.
+  - *Tests.* DD5a: (a) fresh database, unchanged inputs, existing folder of another context: exit 0, a new
+    `<context12>` folder; (b) same-database re-run: same folder, no new bytes; (c) a changed byte in the folder: refuses
+    `re-seal`; (d) a stray file: refuses `stray`. DD5b: C6 judges only recorded folders (a planted extra folder with a
+    bad batch is not judged); dropping L1 removes L1's folder and keeps L2's.
+
+- **D-DD.168 Fuel records carry their own times: each is recorded through the product's operational path at its
+  record time, on the prepare clock** (model, W6 class of D-DD.154; amends D-DD.154's rule bullets 1-2; +0.25 u DD3d).
+  - *What D-DD.154 missed.* The operational path stamps `recorded_at` with the work store's `command_now`, the
+    database time of the load, weeks after the night. `fuel_balance.rules.limitations` flags DELIVERY_RECORDED_LATE
+    whenever a delivery's `root_recorded_at` is after the night's end, so every world delivery night would read
+    "recorded late" on screen. The world's operator recorded each note when it arrived. The precedent exists:
+    `tools/demo_story_clock.story_commands` sets the work store's `test_db_clock_override` after
+    `prepare_clock.require_prepare_database` (DD1b1-R Q1, Q2). The fix reuses it on merit.
+  - *Guard, widened on merit (`prepare_clock.py`).* `PREPARE_DATABASE` also admits the world rung names
+    (`^assetops_[a-z0-9]{1,24}_audit_(l0|l1|l2)_[0-9a-f]{12}$` and `^assetops_[a-z0-9]{1,24}_audit_c_[a-z0-9]{1,20}$`,
+    the patterns `tools/world.py` makes), and `require_prepare_database` refuses any name for which
+    `database_target.is_operator_name` is true, before the pattern. It is still the one check.
+  - *The file (`world/exports_fuel_records.py`, new; written by `world_history.py exports` when `--telemetry` is
+    given, for each mini-grid tenant, beside `measured.json`'s books).* `<out>/<slug>/fuel-records.json`, schema
+    `assetops.world-fuel-records/1`: `{"schema", "tenant", "sites": [{"site_code", "records": [...]}]}`, each record
+    `{"source_record_id", "kind", "taken_at_local", "litres", "ticket_reference", "recorded_at"}`:
+    - `TANK_DIP`: one per Site at `YYYY-MM-01T00:00` local for 2026-07-01 to 2026-11-01. `litres` is the writer's
+      published tank level at that step (the readings file's `fuel-tank` level row at that instant), exact as the
+      readings print it (at most 3 decimals). `ticket_reference` null; `recorded_at` = the same instant (ISO with
+      offset). `source_record_id` `<site>:dip:<YYYY-MM-DD>`.
+    - `FUEL_DELIVERY`: one per fuel EXPENSE row of the books (D-DD.92, D-DD.130: the restated notes), at the row's
+      `clocks.occurred_at` with its `quantity.value`. `ticket_reference` = `FN-<site code>-<YYYYMMDD>-<k>` (k the
+      note's ordinal that day, from 1; matches `operational_entry.TICKET`). `recorded_at` = `occurred_at`, except the
+      note D-DD.53's module table dates for OOO-1 (Kobo, 26 Oct), whose `recorded_at` is OOO-1's `recorded`
+      (2026-11-04T10:00 local, from the same table, never typed). `source_record_id` = the EXPENSE row's.
+    - A missing level row at a dip instant refuses `EMU_FUEL_RECORDS <site> <instant>` (exit 3).
+  - *The loader (`backend/assetops_backend/load_fuel_records.py`, new; `load_fuel_records(dir, tenant) -> dict` and
+    `python -m assetops_backend.load_fuel_records --dir DIR --tenant SLUG`).* Under `world.env` for the tenant:
+    `require_prepare_database(DATABASE_URL)` first (refusal exit 2, nothing written). A holder clock
+    `RecordClock` is set on the work store built by `work.composition.build_work_store` (the
+    `story_commands` swap pattern, local to this module). Per record, in file order: the clock is set to the record's
+    `recorded_at`; the body `{"entry": kind, "value": litres, "taken_at_local": ..., "ticket_reference": ...,
+    "idempotency_key": "oprec-entry-" + sha256(source_record_id)[:32]}` goes through `validate_entry`,
+    `entry_site_context` and `compose_entry(..., with_actor=True)`, then `post_operational_record(tenant_id, site_id,
+    command, ENTRY_PRINCIPAL)`. 201 or 200 (re-run, same hash) both count; any refusal exits 2 with its code and the
+    record's id. Output: one JSON line `{"tenant", "recorded", "already", "by_kind"}`. D-DD.154's "Shift operator"
+    actor is withdrawn: the product's own entry actor (`ENTRY_ACTOR`) is the actor; the screen shows its words.
+  - *Tests.* `backend/tests/test_dd3d_fuel_records_postgres.py`: one Site's file loads; the night check's read sees
+    each record with `root_recorded_at` = its `recorded_at`; only OOO-1's night carries DELIVERY_RECORDED_LATE; a re-run
+    records nothing new; a database name outside the guard refuses with nothing written (plant: an
+    `assetops_op_*`-style operator name refuses even if it ends `_test`). Writer: `simulator/tests/world/
+    test_dd3d_fuel_records_file.py` (dip count 5 per Site, dip litres equal the readings' level rows, deliveries equal
+    the books' FUEL rows by id and litres).
+
+- **D-DD.169 Lakeside's declared diesel prices are published by the existing assumption publisher, on the served
+  tenant** (model; names D-DD.163's "builder names the function"; 0 u, inside DD3d.4's 0.5).
+  - *Finding.* `publish_assumption fixture --site CODE --file F` is the loader-callable path (PR1/PR2a; the money
+    fallback reads its `diesel_price_per_litre` series, `sources.PRICE_KEYS`). It refuses any `--tenant` other than
+    the development tenant (`publish_assumption.py:127`), so it cannot publish to `lakeside-power`.
+  - *Rule.* The check compares with `config.served_tenant_slug()` (the tenant `ASSETOPS_TENANT_SLUG` configures, the
+    development tenant when unset), and `--tenant` defaults to it. The message keeps its words with "served" for
+    "configured development". Three fixture files, `backend/conversions/world/lakeside-power.diesel-price.<SITE>.json`
+    (`demo-diesel-price-publications` format version 2): one step `v1`, `INITIAL`, `USD`, value from `M`
+    `prices.diesel_usd_per_l` of that Site (a parity test reads `M`), `basis` `AUTHORED_ESTIMATE`, `source_reference`
+    "Declared diesel price per litre for this Site (world declaration); not a fuel invoice", `valid_from`
+    `2026-06-30T21:00:00Z`, `valid_to` null, idempotency key `world-diesel-price-<site lower>-v1`. The fallback's
+    screen words stay `ASSUMPTION_WORDS["diesel_price"]`. DD5b's L1 gains `L1.prices:lakeside-power`, three
+    `publish_assumption fixture` calls under `world.env` (one line in its step list; no unit added). The DDR
+    rehearsal Postgres test publishes the same three files in its setup.
+  - *Tests.* `test_s4_assumptions_postgres.py` gains: with `ASSETOPS_TENANT_SLUG=lakeside-power` a publish to that
+    tenant succeeds; a different `--tenant` refuses (exit 3, nothing written); unset, the development tenant behaves
+    as today.
+
+- **D-DD.170 The run-rate plan leaves are run-written: they leave the scope digest, and D-DD.164's fixed point is
+  proved again after them** (model, W6 class of D-DD.164; amends D-DD.166's "where the figure comes from"; +0.25 u DD3d).
+  - *Why.* D-DD.166 makes October `plan.diesel_l` a function of July-September deliveries, which come from the pure
+    run, which reads `delivered_kwh`, which the history draws with a seed from the scope digest, which hashes
+    `period`, plan included. Writing the plan litres would re-seed the history: D-DD.164's loop on the plan side.
+  - *Rule.* `RUN_WRITTEN["MINI_GRID"]` gains side `plan`: `diesel_l`, `necessary_l`, `candidate_l`,
+    `unexplained_l`, `diesel_cost`, `contribution`, `variance` (a key `M` does not carry is skipped, as today).
+    `dd3_pure_run.py --leaves` records, per Site in `fuel-leaves.json`, `quarter`: `{"tank_open_jul",
+    "deliveries_jul_sep", "tank_open_oct", "consumed_jul_sep", "contingency": "1.10", "plan_diesel_l"}` (fractions as
+    the ledger prints them; `plan_diesel_l` whole litres, half-even), with `tank_open_jul` the run's ledger at
+    2026-07-01 00:00 local and `deliveries_jul_sep` the sum of `fuel-notes.json` notes in July-September. The test of
+    `M` asserts `M`'s plan litres equal `plan_diesel_l` (D-DD.93), never typed. D-DD.164's acceptance steps 1-7 are run
+    again after `M` is written, including step 5 (second generate byte-identical) and step 6 (`--check` exit 0).
+  - *Guard test.* `test_scope_run_written.py` gains the `plan` keys of Kobo, Kisiwa and Mto (digest and July-September
+    jitter unchanged); the plant (Kobo `delivered_kwh`) still moves the digest.
+
+- **D-DD.171 DD3d is renumbered to the build order and split into DD3d-a (2.75 u) and DD3d-b (3.75 u)** (sequencing;
+  amends spec §7 DD3d; W4: a part over 6 u is split).
+  - *Units, in build order.* DD3d.1 the floor (D-DD.153, 1.25); DD3d.2 fuel records (D-DD.154 with D-DD.168,
+    1.25); DD3d.3 H5 on the floor (D-DD.156, 0.25); DD3d.4 fuel cost is burned × price (D-DD.163 with D-DD.169,
+    1.75); DD3d.5 run-rate budget (D-DD.166 with D-DD.170, 2.0). Spec §7's old order (records first) is replaced;
+    D-DD.156's "DD3d.2" reads "DD3d.1" (the `/2` declarations H5 reads).
+  - *Parts.* **DD3d-a** = DD3d.1-3, 2.75 u, branch `task/DD3d-fuel-floor`: the reader's floor and the records it
+    needs. **DD3d-b** = DD3d.4-5, 3.75 u, branch `task/DD3d-b-fuel-cost`: the fuel figure and the budget, re-pinned
+    once at the end of DD3d.5 for the plan-side literals. Both after DD3b merges; DD3d-b merges after DD3d-a; both
+    before DD5b. They may be built side by side (shared files `tools/dd_check.py`, `M`, `check_manifest.py`: merge
+    main, rerun the reach set). Each has one discovery review (money-adjacent readers).
+  - *Size.* DD 58.0 → 59.75 (D-DD.166) → **60.75 u in thirteen parts** (D-DD.167 +0.5, D-DD.168 +0.25, D-DD.170
+    +0.25): DD3d 6.5 (a 2.75, b 3.75), DD5a 4.0, DD5b 4.25.
+
+- **D-DD.172 The story clock WK-SC: operating-world time and system time are two clocks; the story clock moves only
+  the first** (model, owner-approved scope O1; amends D-DD.137's "every command and read that takes `system_clock`";
+  3.0 u, outside DD). Spec: `specs/DD-demo-data/spec-WK-SC.md`; card `cards/WK-SC.md`.
+  - *Why D-DD.137 is narrowed.* Every world row is loaded at wall time: `received_at`, `recorded_at` and `known_at`
+    reads are system time. Decisions read their inputs with `known_at = now` (`decisions/run.py`), so moving every
+    clock to 6 Nov would hide every loaded row from every read. Two quantities had one clock. The rule classes each
+    clock read by what it is compared with or stamped beside:
+    - **World time (story clock):** a person's act time (`agreed_action.created_at`, `decision.prepared_at`,
+      `option_one_off.declared_at`, the 6h option-record time, `option_evaluation_run.run_at`,
+      `decision_choice.chosen_at`), a due or overdue judgement (`agreed.py` step 8, `state_code`), a verification
+      `today` (`verification_families`), and the screen's calendar (range presets).
+    - **System time (unchanged):** `received_at`, `recorded_at`, `command_now`, `known_at` of any read or run,
+      leases, cursors, source health (it compares `received_at`).
+  - *Rule.* `prepare_clock.story_now()` reads `ASSETOPS_STORY_NOW` (ISO instant with offset, whole seconds), only
+    after `require_prepare_database(DATABASE_URL)` (D-DD.168's widened check). Unset gives None (production: wall
+    clock everywhere). Set and refused, malformed, or later than the wall clock: `PrepareClockRefused` at
+    composition; a serve does not start, a CLI exits 2. It runs: value + (monotonic now − monotonic at first read),
+    truncated to whole seconds. Only the world-time sites above read it, through their compositions; system-time
+    sites never import it. Details, guards, tests and gates: the spec.
+  - *Owner.* Approved (O1). Size 2.0 → 3.0 u: the decisions' act times split from `known_at`, the screen calendar,
+    and 6h §7's decisions (the "+0.25 u DD6.2" line, never counted in DD) are inside it. The owner is told.
+
+- **D-DD.173 `demo_workflow` as built by WK-SC: the ten decisions of 6h §7, nine Actions and seven choices, the
+  executive acting, the proposer kept in `M`** (model; O2; amends D-DD.135, 6h spec §7's DD6.2 line).
+  - *Decisions.* The ten rows of `specs/6h-named-option-levers/spec.md` §7 (Kobo, Kisiwa, Mto, Mwea, Thika, Kirinyaga,
+    Embakasi, Kasarani, Ruiru × 2), each through `prepare_decision` (the tenant's analyst), `state_one_off` and
+    `state_option_record --emulated` (the Site's manager, `decision.one_off`/`decision.option_record`) where the row
+    lists them, then `evaluate_options` (the analyst). Values come from `M` by option id, never retyped.
+  - *Actions.* `M`'s nine `demo_workflow.actions`, each `record_action --as <tenant executive> --owner <M owner>
+    --due <M due> --site <item's Site code>`, title the `M` text.
+  - *Choices.* Seven items have a lever: KIS-REPAIR (Kisiwa `generator_redundancy` `repair`), MTO-HULLER (Mto
+    `productive_demand` `new-connection`), THIKA-EPC-STOPGAP (Thika `backup_cover` `stopgap-and-claim`), KIRI-REPAIR
+    (Kirinyaga `chamber_efficiency` `repair`), MWEA-AGG (Mwea `storage_contract` `storage-contract`),
+    KAS-OEM-STOPGAP (Kasarani `charger_restore` `stopgap-and-claim`), EMB-DEADLINE (Embakasi `charging_schedule`
+    `deadline-aware`). Each `choose_option --as <executive> --option <key>`, with `--action` = the item's one
+    Action where it has one (MTO-HULLER has none: `actions_after_approval`). BAT-EVIDENCE and MTO-INV-CLAIM have no
+    decision (rights-anchored, MD-6H-3); their Actions stand alone. KIS-SERVICE has no Action on 6 Nov (`M`).
+    A refused choice (`OPTION_REJECTED`, `NOT_EVALUATED`, ...) is recorded with its code and listed pending; it is
+    never tuned.
+  - *People (O2).* The executive performs every act the product reserves to it. `M`'s `chosen_by` and `created_by`
+    become the executive; the former names move to a new `proposed_by` key; `check_manifest.py` `workflow()` reads
+    OD-16 as "owner = proposed_by". The product has no proposer field, so the proposer is not on screen (owner told).
+  - *DD6.* DD6 keeps the pending listing, now naming "WK-SC" as the closing unit.
+
+- **D-DD.174 Card sweep through D-DD.173** (cards; 0 u). DD5a: D-DD.167's loader rule and four tests, 4.0 u.
+  DD5b: D-DD.167's manifest, C6 and drop rule; D-DD.169's price step; D-DD.168's loader is called under the widened
+  guard; 4.25 u. DD6: closing unit "WK-SC" for the `demo_workflow` items and for C-DD9's Decisions, Actions and
+  Results cells (with "IA-P lane" kept); 6h §7's decisions are WK-SC's; the C-DD17 served table is D-DD.153's states
+  (bands unchanged by D-DD.164's re-seed); D-DD.166 moves no DD6 judge. Nothing else in the three cards disagrees
+  with D-DD.17 to D-DD.173.
