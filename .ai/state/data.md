@@ -715,6 +715,10 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   unit names the window, every unit burns on its own SFC; D-DD.117) and litres (D-DD.113) sum PER_ASSET units under
   roles-5 and keep today's refusals under roles-4; one-unit outputs byte-identical to main (goldens). Kobo's world
   conversion binds roles-5 with stored-Postgres parity of its product outputs against roles-4 (D-DD.114).
+- Fix round (review H1/H2/M1): mini-depth reads roles-5 units as the Site series (`rules.site_series`; fuel per-unit
+  SFC summed; backup reads every unit's power), Kobo's mini-depth hours byte-identical to main (golden); verification
+  takes its units from the bindings, so a silent bound unit is named and the window incomplete; a non-lead policy
+  maps to the existing minimum-runtime limit line. Mini-depth wire has no per-unit field (gap shown as coverage).
 - Left open: the multi-unit night note's blended form and the cost check's multi-unit wire shape (to confirm in
   review); `analytics/service.fuel_basis` first-match on multi-unit Sites (backlog, D-DD.118); Kisiwa's and Mto's
   readings load with DD5.1.

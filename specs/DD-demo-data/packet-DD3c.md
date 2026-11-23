@@ -65,8 +65,7 @@ figures where today they refuse; Kobo now publishes under roles-5 with its store
 3. Night note at a multi-unit Site (`night_text._use_note`): the existing USE note over the Site's summed figure, a
    blended L/kWh = sum(loaded L)/sum(kWh) at 3 dp, summed idle minutes at idle L per idle hour, the lead's declared SFC
    when no kWh ran. No new template; the form is the coordinator's named default, to be confirmed.
-4. minimum-runtime on a non-lead unit raises `UnitRolesRefused` out of `_configuration` rather than adding a limit
-   (D-DD.108 Q6; no new text).
+4. (Superseded by the fix round, M1.) minimum-runtime on a non-lead unit now maps to the existing limit line.
 5. The refusal text "v1 assesses one fuel tank and one generator" is kept (no catalogue move); it now fires for zero
    generators or not one tank.
 6. KOBO-001's conversion `note` still says "First minigrid-roles-4 binding set", as Kisiwa's and Mto's do (DD1.2
@@ -82,3 +81,51 @@ figures where today they refuse; Kobo now publishes under roles-5 with its store
 - `unit_roles.per_asset` deciding when a reader sums (roles-5 PER_ASSET only) vs keeps today's refusal under roles-4.
 - Deviations 2 and 3 (wire shape, blended note) and the one-unit byte-identity goldens' capture provenance.
 - The part 5 parity's normaliser and which digests were compared directly.
+
+## Fix round (review)
+Review `review-DD3c.md` round 1 (H1, H2, M1, L1-L3). Branch merged with main 83a5e577d first (6a0dae620). Each fix
+was written test-first; the red run is the test-only commit 0f732121b (snapshot of that tree): 6 failed, 25 passed,
+each new test failing for the finding's reason (log `/opt/assetecon/evidence/DD3c/fix-red.log`).
+
+- **Q1 (scope) answered yes by the coordinator**: mini-depth summing is in DD3c (D-DD.110 Q3 and spec §7 name the
+  reader), so H1 is fixed on this branch; no ruling moves it to DD3b or DD5.
+- **H1** (491e53e10). `mini_depth/inputs.py`: the pinned set's `role_set` is read (`store.read_hour_rows` selects it);
+  a unit role bound to several assets under roles-5 (`unit_roles.per_asset`) gives the Site's units in declared
+  Foundation order; `generator_asset_id` is the lead unit; every unit's power reaches fuel and backup, each with its
+  own SFC (`FuelInputs.generator_units`, `unit_sfc`; `sfc` stays the lead's). `mini_depth/rules.py`: new
+  `site_series` builds the Site series through `unit_roles.site_power` per step (a unit without a value leaves a
+  gap; a unit's own conflict stays CONFLICTING); renewable reads PV available/used through it, fuel burns each unit
+  on its own SFC and sums with `unit_roles.site_litres`; `projection._role_series` uses the same series. Roles-4 with
+  two assets keeps today's refusal (no units passed; `_one_bound` None). Tests `test_dd3c_mini_depth_units.py`:
+  Mto renewable (39-41 kW, no CONFLICT, full coverage), Kisiwa fuel (10 kWh x 0.3 + 12 kWh x 0.35 = 7.2 L, 24 rows
+  cited), a 10-minute unit gap (COVERAGE_GAP, 3000 s, no CONFLICT), Kisiwa backup chain (all six steps OBSERVED,
+  PASS), roles-4 refusal kept.
+  - Kobo parity: `fixtures/dd3c/kobo-mini-depth-golden.json`, captured by the test's `write()` running on main
+    83a5e577d's `backend/assetops_backend` (git archive) before the fix: Kobo roles-5, Kobo roles-4 and a Kobo
+    generator gap, every domain's full `MiniRevision` and input digest. Byte-identical after the fix.
+  - Not changed, and why: mini-depth reads no generator policy (its Foundation keys are Site properties), so no
+    `lead_policy` call; no mini-depth rule reads `generator_state`, so no `site_generator_state` call; backup events
+    were already the union of every bound unit's rows (the binding filter is per asset), ordered by time then
+    evidence id as before, so `site_events` is not called (a tie between two units' events at one instant is ordered
+    by evidence id, not Foundation order; D-DD.108 Q8 default, no demo file has one). The backup POWER step reads any
+    unit's output > 0 (a unit witness, not a Site sum).
+- **H2** (491e53e10). `verification_rules.window_evidence`: a unit role bound to more than one asset in
+  `role_assets` takes its units from the bindings, whatever reported. Test `test_c6b_...`: both units 26 kWh
+  complete; `gen-2` silent all window: `generator_kwh` None, `complete` False, `gen-2` named on `generator_power`.
+- **M1** (491e53e10, 9f37dceef). `_configuration` catches `UnitRolesRefused` and appends the one existing line
+  `Foundation v<n> minimum-runtime unit '<unit id>' not mapped`, with no runtime control; nothing raises to the
+  worker. The same f-string node is reused, so the statement catalogue sees no new hand-built text. Test `test_m1_...`.
+- **L1** (simulator test, 3rd fix commit). Kept the seed as is and proved it: `test_kobos_readings_do_not_depend_on_
+  the_role_set_label` runs Kobo two days under both labels; the seeds differ, the readings are byte-identical. If a
+  pack ever draws on the seed, it fails. Residual risk: the seed is still taken over the label (D-DD.115's backlog
+  line should name this).
+- **L2** noted: `fuel_balance/rules._sum` and `structure/litres/rules._piece` add units themselves with D-DD.41's
+  any-unknown-gives-unknown behaviour; not rerouted in this round. **L3** noted: the litres-month parity stays weak
+  (all NOT_AVAILABLE at 1.5 days); the pure golden carries the valued month.
+
+Plants (each reverted with `git checkout`, log `/opt/assetecon/evidence/DD3c/plants.log`):
+P1 `site_series` mixes assets as before: 3 mini-depth tests fail. P2 inputs keep only the lead unit: 2 fail.
+P3 verification units from the readings: `test_c6b` fails. P4 refusal not caught: `test_m1` fails.
+
+Checks (fix round): focused pure set (10 files) 162 passed, 1 skipped; simulator `test_dd3_telemetry.py` 18 passed;
+architecture and agent-workflow passed; statement catalogue OK (9 adopted, 3 allowed). Postgres: see below.
