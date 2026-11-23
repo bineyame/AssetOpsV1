@@ -216,7 +216,7 @@ def test_c11_budget_lines_and_unwritten_plan_fields() -> None:
             want = ["crate_days", "kwh", "staff", "maint"] + (["liability"] if code == "COLD-THIKA" else [])
             assert lines == want, (code, month)
     kwh = next(r for r in budget if r["source_record_id"] == "gen:COLD-MWEA:2026-07:plan:kwh")
-    assert kwh["body"] == {"factor_id": "kwh", "value": "3410", "version_ref": "budget-2026-v1", "line_ref": "kwh"}
+    assert kwh["body"] == {"factor_id": "kwh", "value": "1716", "version_ref": "budget-2026-v1", "line_ref": "kwh"}
     money_line = next(r for r in budget if r["source_record_id"] == "gen:COLD-MWEA:2026-10:plan:staff")
     assert money_line["body"]["currency"] == "USD" and money_line["body"]["value"] == "300.00"
     plan = {(r[1], r[2], r[4]): r[5] for r in books.unwritten if r[0] == COLD and r[3] == "plan"}

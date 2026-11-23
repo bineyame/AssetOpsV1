@@ -588,7 +588,7 @@ class EvSiteRun:
         is the band name before `-` (D-DD.61: OFFPEAK-AM and OFFPEAK-PM are OFFPEAK)."""
         text = day.isoformat()
         found = [r for r in self._tariffs if r["clocks"]["effective_from"] <= text
-                 and text <= r["clocks"].get("effective_to", "9999-12-31")]
+                 and text <= r["clocks"].get("effective_to", date.max.isoformat())]
         if len(found) != 1:
             raise _refuse("TEL_BOOKS", f"{self.code} {text} has {len(found)} TARIFF_SCHEDULE records in force")
 

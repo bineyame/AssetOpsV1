@@ -1,9 +1,9 @@
 # Build card: DD5a, sealing and the cold and EV bulk path
 
-Part DD5a = DD5.1 with D-DD.138 to D-DD.140. **3.75 u** (3.5, +0.25 by D-DD.161), branch `task/DD5a-seal`, one discovery review (protected
+Part DD5a = DD5.1 with D-DD.138 to D-DD.140. **4.0 u** (3.5, +0.25 by D-DD.161, +0.25 by D-DD.167), branch `task/DD5a-seal`, one discovery review (protected
 seams: `contracts/`, the binding service, the evidence ledger). Card by the DD lane Architect, 23 Nov, under
 `.ai/ROLE_CONFIG.md` "Fourth audit" (a). Line numbers are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at
-`task/DD-rulings-22`. Read only the lines named here, then the code. A question the lines do not answer stops only
+`task/DD-rulings-22` (D-DD.167 onward: as at `task/DD-cards-2`). Read only the lines named here, then the code. A question the lines do not answer stops only
 the affected unit and goes to the lane Architect (`rulings.md`); count it in the packet.
 
 ## What you build (units of 1 to 3 commits)
@@ -29,8 +29,12 @@ the affected unit and goes to the lane Architect (`rulings.md`); count it in the
 3. **`load_world_inputs` seals and loads (0.75; S430-444 as amended by D-DD.139 and D-DD.140, R2404-2419).**
    - Resolution through `PostgresEvidenceLedger.site_scope(slug, code)`; unknown Site, gateway or source refuses
      `WORLD_TELEMETRY_UNRESOLVED <file> <what>`, **exit 2** (not 3; 3 is DATABASE_ERROR).
-   - Accepts `staged/`, `sealed/` and `disorder/`. Writes `<slug>/sealed/` once; a re-run re-seals and refuses if the
-     bytes differ. `sealed/` is outside the inputs digest. Glob gains `*.readings.json`; `*.batch.json` stays for
+   - Accepts `staged/`, `sealed/` and `disorder/`. Writes `<slug>/sealed/<context12>/` once (D-DD.167, R3260-3284:
+     `context12` = first 12 hex of SHA-256 over the canonical JSON of the sorted `[site_code, gateway_id, source_id,
+     binding_set_id, foundation_digest]` lists of the Sites sealed); a re-run against the same database re-seals and
+     refuses `WORLD_SEALED_BYTES_DIFFER ... re-seal|stray` if the bytes differ; a rebuilt database (new ids) writes a
+     new folder and never reads or deletes a sibling. `sealed/` is outside the inputs digest. The output line adds
+     `"sealed_dir"`. Glob gains `*.readings.json`; `*.batch.json` stays for
      `/1`. Output line adds `"readings_files"` and `"sealed_batches"`. Runs under `world.env` for the tenant (R165).
    - C-DD8 goes live on the store (S962; DD5.1, S903).
 4. **Cold and EV on the bulk path (0.5; S446-453 as amended by D-DD.140, R2416-2419).**
@@ -66,7 +70,7 @@ the affected unit and goes to the lane Architect (`rulings.md`); count it in the
 - D-DD.72 (R874) a reading's `source_id` is its binding row's `device_id` = envelope `device_id`.
 - D-DD.91 (R1455-1477) event rows and their ids; D-DD.103 (R1826-1858) `READINGS_SPAN`, last day file to 06:00.
 - D-DD.118 (R2110-2117): bulk load does not call `analytics/service.fuel_basis`; confirm with one grep, record it.
-- D-DD.138 to D-DD.140 as above, D-DD.138 narrowed and D-DD.139's EV id replaced by D-DD.161; D-DD.162. D-DD.142 (R2436-2445) sizes.
+- D-DD.167 (`sealed/` keyed by the database's seal context; the world.py half is DD5b's). D-DD.138 to D-DD.140 as above, D-DD.138 narrowed and D-DD.139's EV id replaced by D-DD.161; D-DD.162. D-DD.142 (R2436-2445) sizes.
 
 ## Tests (each can fail) and plants
 
@@ -76,6 +80,9 @@ the affected unit and goes to the lane Architect (`rulings.md`); count it in the
   cold event, v4 EV connector energy with session).
 - Batch split: a 5-minute source-day (288 rows) gives two batches, sequences continuous across days.
 - Re-run of `load_world_inputs` writes no new sealed bytes; a changed byte refuses.
+- D-DD.167 (fix round, with the four Lows of `review-DD5a.md`): a fresh database on unchanged inputs beside another
+  context's folder exits 0 and writes a new `<context12>` folder; same-database re-run, same folder, no new bytes; a
+  changed byte refuses `re-seal`; a stray file refuses `stray`.
 - Plants: (a) drop the v4 metadata branch: COLD-THIKA envelope refused `MAPPING_INCOMPATIBLE`; (b) reset the sequence
   per day: message-id collision fails the load; (c) revert :688: cold Site-day refused `BULK_SITE_TYPE_UNPROVEN`.
 
