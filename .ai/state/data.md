@@ -722,3 +722,12 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Left open: the multi-unit night note's blended form and the cost check's multi-unit wire shape (to confirm in
   review); `analytics/service.fuel_basis` first-match on multi-unit Sites (backlog, D-DD.118); Kisiwa's and Mto's
   readings load with DD5.1.
+
+## DD5a part 1: contracts/bindings half (DD5.1 units 1-2; in_review, partial; `specs/DD-demo-data/packet-DD5a.md`)
+- World cold and EV conversions publish v4 channel metadata (D-DD.138); mini-grid conversions stay v3. Closed world EV
+  table generated from each depot's `/2` devices (`world_ev_channel_mappings`); lab tables byte-identical.
+- `evidence/world_seal.seal_readings` seals readings as the gateway would (v3 mini, v4 cold/EV; 256 per batch; one
+  sequence per source over the span; cold ids per D-DD.91); `cold_correlation_id` now in contracts, new
+  `ev_session_id`.
+- Left open: `load_world_inputs` sealing (unit 3), bulk path for cold/EV with parity (unit 4), EV session events
+  (after DD4b); the `site-meter` name and decimal spelling deviations (packet).
