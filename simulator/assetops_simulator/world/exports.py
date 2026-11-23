@@ -14,6 +14,8 @@ parity test against the manifest (`simulator/tests/world/test_dd2b_nodes.py`).
 Fuel notes are purchases (D-DD.92, D-DD.130): for a Site in `config/world/fuel-notes.json` the expense rows are that
 file's notes, litres x the Site's diesel price, and `EMU_FUEL` is the sum of their amounts; the books carry no
 consumption figure (consumption is the readings'). A Site not in the file keeps D-DD.53's cycle of the month's litres.
+At a notes Site `diesel_l` / `diesel_cost` count as written from the purchases (deviation 15, ruled with D-DD.150-152): the file
+carries the fuel bought, so the fields are not in `unwritten`, and no new reason word is used.
 
 Totals must equal the nodes per Site or the emulator stops (`EMU_REVENUE`, `EMU_COLLECTIONS`, `EMU_FUEL`); a price
 or quantity that is not whole in its unit stops it too (`EMU_PRICE`, `EMU_QUANTITY`). ESTIMATED coverage writes
@@ -492,6 +494,7 @@ def build_exports(view: dict, history: dict, *, months: list[str] | tuple[str, .
                             unwritten.append((name, s.code, month, "actual", node, NOT_IN_HISTORY))
                 if s.cov.get("diesel") != "ESTIMATED" and "diesel_l" in s.n and "fuel_cost" in s.n:
                     out["expenses"] += _fuel_records(s, notes_by_site.get(s.code))
+                    # written from the purchases at a notes Site, from the month's litres elsewhere (deviation 15)
                     for field in ("diesel_l", "diesel_cost"):
                         written.add((name, s.code, month, "actual", field))
                 else:

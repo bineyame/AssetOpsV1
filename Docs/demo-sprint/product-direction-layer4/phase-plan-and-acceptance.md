@@ -290,7 +290,7 @@ Every structure evaluation, option evaluation, allocation run and verdict stores
 |---|---|---|
 | R1 Exact economic identities | E1–E10; Protect composition | every identity exact to the cent for all nine manifest sites; units compose at start-up; every Protect measure is Σ of its sites, and money-valued Protect measures share the cost factor ID |
 | R2 Source coverage | N1, N14, GAP-1 | missing leaves shown as *not available yet* with the record that fills them; coverage = share on Recorded leaves; never zero |
-| R3 True negative controls | OR-MG-2, OR-CC-1 (Mwea), OR-EV-2 (CH-R7), MTO-WELDING, N11 | no option, value or priority beyond the oracle |
+| R3 True negative controls | OR-CC-1 (Mwea), OR-EV-2 (CH-R7), MTO-WELDING, N11 | no option, value or priority beyond the oracle (OR-MG-2 left the negative controls by D-DD.151: Kisiwa's candidate time is printed per month) |
 | R4 Third-party remedy conditionality | OR-ENT-1, OR-ENT-2, OR-ENT-3, N6, N7 | potential rights never booked; three contrasting cases give three actions; no legal conclusion |
 | R5 Obligation-protected recommendations | EMB-CHEAPEST, KIS-NOACT | rejected by a bound **before** recommendation, with the bound named |
 | R6 Cross-tenant isolation | TENANT-1, OR-TEN-1, N17 | refused at ingestion; no read, cache or allocation crosses tenants |

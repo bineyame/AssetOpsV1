@@ -3,12 +3,14 @@
     python tools/dd3_pure_run.py --books DIR [--site KOBO-001|KISIWA-001|MTO-001] [--no-load 0.62|3.3]
                                  [--start 2026-07-01 --end 2026-10-31]
     python tools/dd3_pure_run.py --restate-notes [--check] --site CODE [--start --end]
-    python tools/dd3_pure_run.py --leaves --site CODE [--start --end]
+    python tools/dd3_pure_run.py --leaves [--write|--check] --site CODE [--start --end]
 
 `--restate-notes` (D-DD.92): pure run, first crossing below 25 % of the tank, place the reorder notes, rerun, until no
 new crossing in the span; writes the Site's entry of `config/world/fuel-notes.json` (`--check`: exit 1 when the file
 differs from what the rule gives). `--leaves` (D-DD.131) runs the span on the file's notes and prints `M`'s October
-fuel leaves, the fuel balance, the bridge's fuel lines and whether the bridge closes against the restated variance.
+fuel leaves, the fuel balance, the bridge's fuel lines and whether the bridge closes against the restated variance;
+`--write` records the run's October ledger in `config/world/fuel-leaves.json` (what the test of `M` recomputes the
+leaves from), `--check` exits 1 when the record differs from the run.
 
 Kisiwa and Mto run on v9 from their committed `/2` kit (D-DD.70, D-DD.128); `--no-load` is Kobo's only.
 No database. Applies the data-sheet slot to the committed `/2` file in memory (at 3.3 L/h the slot's no-load item is
@@ -45,6 +47,9 @@ SLOT = ROOT / "config/datasheets/kobo-equipment.json"
 MANIFEST = ROOT / "Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml"
 NOTES_FILE = ROOT / "config/world/fuel-notes.json"
 NOTES_SCHEMA = "assetops.world-fuel-notes/1"
+LEAVES_FILE = ROOT / "config/world/fuel-leaves.json"
+LEAVES_SCHEMA = "assetops.world-fuel-leaves/1"
+LEDGER_KEYS = ("tank_open", "tank_close", "modelled_l", "standin_candidate_l")
 REORDER_SHARE = Fraction(1, 4)  # D-DD.92: notes when the level first falls below 25 % of the tank
 MAX_NOTES = 2
 
@@ -276,17 +281,40 @@ def october_leaves(ledger: dict, notes: list[dict], price: Decimal, plan: dict, 
 NECESSARY_DRIVERS = ("EVENING_LOAD_GROWTH", "SOLAR_SHORTFALL_NECESSARY_GEN", "EVENING_NECESSARY_GEN")
 
 
-def restated_bridge(lines: list[dict], leaves: dict) -> list[tuple[str, Decimal, Decimal]]:
-    """`M`'s bridge lines with each fuel line on its stated formula: (driver, old, new)."""
+FUEL_LINES = ("CANDIDATE_RUNNING", "NECESSARY", "UNEXPLAINED_RESIDUAL")  # D-DD.150: every mini-grid bridge, this order
+
+
+def restated_bridge(lines: list[dict], leaves: dict) -> list[tuple[str, Decimal | None, Decimal]]:
+    """`M`'s bridge lines with each fuel line on its stated formula: (driver, old, new). D-DD.150: a fuel line `M`
+    lacks is added (old None) in `FUEL_LINES`' order, around the necessary line."""
     out = []
     for line in lines:
         driver, old = line["driver"], _money(line["amount"])
         key = "NECESSARY" if driver in NECESSARY_DRIVERS else driver
-        out.append((driver, old, leaves["bridge"].get(key, old)))
-    return out
+        out.append((key, driver, old, leaves["bridge"].get(key, old)))
+    present = {key for key, *_ in out}
+    anchor = next((i for i, (key, *_) in enumerate(out) if key == "NECESSARY"), len(out))
+    if "CANDIDATE_RUNNING" not in present:
+        out.insert(anchor, ("CANDIDATE_RUNNING", "CANDIDATE_RUNNING", None, leaves["bridge"]["CANDIDATE_RUNNING"]))
+        anchor += 1
+    if "UNEXPLAINED_RESIDUAL" not in present:
+        out.insert(anchor + 1, ("UNEXPLAINED_RESIDUAL", "UNEXPLAINED_RESIDUAL", None,
+                                leaves["bridge"]["UNEXPLAINED_RESIDUAL"]))
+    return [(driver, old, new) for _, driver, old, new in out]
 
 
-def print_leaves(code: str, first: str, last: str) -> int:
+def ledger_from_record(record: dict) -> dict:
+    """The October ledger a `fuel-leaves.json` entry holds (exact fractions), as `october_leaves` reads it."""
+    return {key: Fraction(record["ledger"][key]) for key in LEDGER_KEYS}
+
+
+def read_leaves_file() -> dict:
+    if LEAVES_FILE.exists():
+        return json.loads(LEAVES_FILE.read_text(encoding="utf-8"))
+    return {"schema": LEAVES_SCHEMA, "rule": "D-DD.131", "sites": []}
+
+
+def print_leaves(code: str, first: str, last: str, write: bool = False, check: bool = False) -> int:
     import yaml
 
     document = read_notes_file()
@@ -313,7 +341,10 @@ def print_leaves(code: str, first: str, last: str) -> int:
                     and 18 <= int(row["start"][11:13]) < 23:
                 peak = max(peak, Fraction(row["value"]))
     period = site["period"]
-    leaves = october_leaves(run.ledger["2026-10"], entry["notes"], price, period["plan"], period["actual"])
+    record = {"site_code": code, "span": [first, last], "month": "2026-10",
+              "ledger": {key: str(Fraction(run.ledger["2026-10"][key])) for key in LEDGER_KEYS},
+              "candidate_days": candidate_days, "peak_evening_generator_kw": str(peak)}
+    leaves = october_leaves(ledger_from_record(record), entry["notes"], price, period["plan"], period["actual"])
     actual, balance = period["actual"], period.get("fuel_balance", {})
     print(f"{code} October leaves from the notes run ({first}..{last}; {len(entry['notes'])} notes; price {price})")
     for leaf in ("diesel_l", "necessary_l", "candidate_l", "unexplained_l", "diesel_cost", "contribution"):
@@ -323,7 +354,7 @@ def print_leaves(code: str, first: str, last: str) -> int:
         print(f"  fuel_balance.{key}: {balance.get(key)} -> {value}")
     bridge = restated_bridge(period.get("bridge", []), leaves)
     for driver, old, new in bridge:
-        print(f"  bridge {driver}: {old} -> {new}")
+        print(f"  bridge {driver}: {'(new line)' if old is None else old} -> {new}")
     total = sum((new for _, _, new in bridge), Decimal(0))
     closes = total == leaves["variance"]
     gap = "" if closes else f" (gap {leaves['variance'] - total})"
@@ -331,7 +362,18 @@ def print_leaves(code: str, first: str, last: str) -> int:
     print(f"  findings_expected GENERATOR_SUPPORT_CANDIDATE days: {candidate_days} of 31, exposure [0, "
           f"{leaves['candidate_l']}] L, [0, {_money(leaves['candidate_l'] * price)}]")
     print(f"  stand-in candidate {float(run.ledger['2026-10']['standin_candidate_l']):.2f} L; "
-          f"peak evening generator power after 30 Oct 18:40: {float(peak):.2f} kW")
+          f"peak evening generator power after 30 Oct 18:40: {float(peak):.2f} kW ({float(peak) / 60 * 100:.1f} % of 60 kW)")
+    document = read_leaves_file()
+    held = next((s for s in document["sites"] if s["site_code"] == code), None)
+    if check:
+        same = held == record
+        print(f"fuel-leaves {code}: {'matches the run' if same else 'DIFFERS from the run'}")
+        return 0 if same else 1
+    if write:
+        document["sites"] = sorted([s for s in document["sites"] if s["site_code"] != code] + [record],
+                                   key=lambda s: s["site_code"])
+        LEAVES_FILE.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {LEAVES_FILE.relative_to(ROOT)}")
     return 0 if closes else 4
 
 
@@ -341,6 +383,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--restate-notes", action="store_true")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--leaves", action="store_true")
+    parser.add_argument("--write", action="store_true", help="with --leaves: record the October ledger")
     parser.add_argument("--site", default="KOBO-001", choices=("KOBO-001", "KISIWA-001", "MTO-001"))
     parser.add_argument("--no-load", default="0.62", choices=("0.62", "3.3"))
     parser.add_argument("--start", default="2026-07-01")
@@ -351,7 +394,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.restate_notes:
         return restate_notes(args.site, args.start, args.end, args.check)
     if args.leaves:
-        return print_leaves(args.site, args.start, args.end)
+        return print_leaves(args.site, args.start, args.end, args.write, args.check)
     if args.books is None:
         parser.error("--books is required for the table")
     return run_table(args.no_load, args.books, args.start, args.end, args.site)

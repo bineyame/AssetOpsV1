@@ -641,7 +641,8 @@ PURE_CHECKS = ("C-DD8", "C-DD17", "C-DD20")
 ONBOARDING_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
 ON_STATES = ("STARTING", "RUNNING")
 CANDIDATE_PV_SHARE = Decimal("1.1")  # dispatch-3.2's candidate rule: PV >= 1.1 x load (domain models §3.4)
-CANDIDATE_SHARE_BOUND = Decimal("0.01")  # D-DD.148: Kisiwa's candidate time under 1 % of generator minutes per month
+PURE_MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")  # the pure run's span by month
+ACCOUNTING_MONTH = "2026-10"  # `M`'s period (its October leaves)
 KOBO_OCTOBER_UNEXPLAINED_L = Decimal(120)  # the manifest's Kobo October residual, printed beside the balance
 KISIWA_STORY = {"site": "KISIWA-001", "restored": "2026-08-17T11:00", "failed": "2026-10-30T18:40"}
 MTO_STORY = {"site": "MTO-001", "at": "2026-10-28T11:02"}
@@ -767,16 +768,19 @@ def generator_minutes(steps: dict[str, dict], step_minutes: int = STEP) -> dict[
     return out
 
 
-def judge_candidate_share(steps: dict[str, dict]) -> tuple[bool, str]:
-    """D-DD.148/149: Kisiwa's candidate minutes under 1 % of its generator minutes in every month, printed."""
+def judge_candidate_share(steps: dict[str, dict], months: tuple[str, ...] = PURE_MONTHS) -> tuple[bool, str]:
+    """D-DD.151 (OR-MG-2): Kisiwa's candidate share of its generator minutes, printed per month with no bound; the
+    clause fails only when a month's minutes were not computed (no readings in it)."""
     candidate, running = candidate_minutes(steps), generator_minutes(steps)
     parts, ok = [], True
-    for month in sorted(running):
-        share = Decimal(candidate[month]) / running[month] if running[month] else Decimal(0)
-        good = share < CANDIDATE_SHARE_BOUND
-        ok &= good
-        parts.append(f"{'' if good else 'FAIL '}{month}: {candidate[month]} of {running[month]} min ({share * 100:.2f} %)")
-    return ok, f"KISIWA-001 candidate time by month (OR-MG-2: under 1 % of generator minutes) {'; '.join(parts)}"
+    for month in months:
+        if month not in running:
+            ok = False
+            parts.append(f"FAIL {month}: no generator minutes computed")
+            continue
+        share = Decimal(candidate.get(month, 0)) / running[month] if running[month] else Decimal(0)
+        parts.append(f"{month}: {candidate.get(month, 0)} of {running[month]} min ({share * 100:.2f} %)")
+    return ok, f"KISIWA-001 candidate time by month (OR-MG-2: printed, no bound) {'; '.join(parts)}"
 
 
 def judge_kisiwa_failure(steps: dict[str, dict], measured: dict) -> tuple[bool, str]:
@@ -878,27 +882,63 @@ def judge_pure_c_dd8(pure: dict, onboarding: dict) -> Result:
     return Result("C-DD8", not failing, [f"FAIL {d}" if d in failing else d for d in dict.fromkeys(detail + failing)])
 
 
+def declared_draws(code: str, manifest: Path = MANIFEST, history: Path = HISTORY) -> dict[str, Decimal]:
+    """D-DD.19: the declared unexplained draw per month, July-September from `history.json`, October from `M`'s
+    `period.actual.unexplained_l` (the litres the writer takes from the tank in equal daily parts)."""
+    doc = yaml.safe_load(Path(manifest).read_text(encoding="utf-8"))
+    for tenant in doc.get("tenants", []):
+        for site in tenant.get("sites", []):
+            if site.get("code") == code:
+                months = json.loads(Path(history).read_text(encoding="utf-8"))["tenants"][tenant["tenant"]][site["site"]]
+                out = {month: Decimal(str(block["actual"].get("unexplained_l", 0))) for month, block in months.items()}
+                out[ACCOUNTING_MONTH] = Decimal(str(site["period"]["actual"].get("unexplained_l", 0)))
+                return dict(sorted(out.items()))
+    raise KeyError(code)
+
+
+def within_tolerance(b: dict[str, Decimal], tolerance: Decimal) -> tuple[bool, Decimal]:
+    """The relative test of the unexplained litres against consumption (D-DD.149's `tolerance_pct`). The one place an
+    absolute floor would join the relative tolerance."""
+    share = b["balance"] / b["consumed"] if b["consumed"] else Decimal(0)
+    return share <= tolerance, share
+
+
+def judge_unexplained_month(month: str, b: dict[str, Decimal], draw: Decimal, tolerance: Decimal,
+                            above_in: str = ACCOUNTING_MONTH) -> tuple[bool, str]:
+    """D-DD.152 for one month: unexplained >= 0 and equal to the declared draw (to 0.1 L, the readings' print); where
+    the generator burned, within the tolerance before `above_in` and above it in `above_in`; where it did not burn,
+    the line states what the product shows."""
+    shown = b["balance"].quantize(Decimal("0.1"))
+    good = b["balance"] >= 0 and shown == draw.quantize(Decimal("0.1"))
+    head = f"{month}: unexplained {b['balance']:.1f} L, declared draw {draw:.0f} L"
+    if b["burned"] <= 0:
+        return good, (f"{'' if good else 'FAIL '}{head}; no burn: {draw:.0f} L unexplained, which the product shows "
+                      f"against a {b['consumed']:.0f} L consumption")
+    inside, share = within_tolerance(b, tolerance)
+    good &= (not inside) if month == above_in else inside
+    return good, (f"{'' if good else 'FAIL '}{head}, consumed {b['consumed']:.1f} ({share * 100:.2f} %, tolerance "
+                  f"{tolerance * 100:.0f} %, M's tolerance_pct, {'above' if month == above_in else 'within'} expected)")
+
+
 def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
-    """C-DD17 pure part: Kobo's unexplained litres (the balance) >= 0 every month, within 2 % of consumed July to
-    September and above it in October."""
+    """C-DD17 pure part (D-DD.152): Kobo's unexplained litres (the balance) >= 0 and equal to the declared draw every
+    month; the tolerance judged only in months the generator burned (within July-September, above in October)."""
     kobo = pure["sites"].get("KOBO-001")
     if kobo is None:
         return Result("C-DD17", False, ["FAIL KOBO-001: no readings"])
     balances = month_balances(kobo["steps"], kobo["manifest"].get("conditions", {}).get("fuel_notes", []),
                               generator_kit(onboarding, "KOBO-001"))
+    draws, tolerance = declared_draws("KOBO-001"), fuel_tolerances()["KOBO-001"]
     detail, ok = [], True
-    tolerance = fuel_tolerances()["KOBO-001"]
-    for month in ("2026-07", "2026-08", "2026-09", "2026-10"):
+    for month in PURE_MONTHS:
         b = balances.get(month)
         if b is None:
             detail.append(f"FAIL {month}: no readings")
             ok = False
             continue
-        share = b["balance"] / b["consumed"] if b["consumed"] else Decimal(0)
-        good = b["balance"] >= 0 and ((share > tolerance) if month == "2026-10" else (share <= tolerance))
+        good, line = judge_unexplained_month(month, b, draws[month], tolerance)
         ok &= good
-        detail.append(f"{'' if good else 'FAIL '}{month}: unexplained {b['balance']:.1f} L of consumed {b['consumed']:.1f} "
-                      f"({share * 100:.2f} %, tolerance {tolerance * 100:.0f} %, M's tolerance_pct)")
+        detail.append(line)
     return Result("C-DD17", ok, detail)
 
 
