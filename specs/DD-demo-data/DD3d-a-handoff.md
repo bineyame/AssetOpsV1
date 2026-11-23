@@ -9,8 +9,9 @@ Branch `task/DD3d-fuel-floor`, worktree `/opt/assetecon/AssetOpsV1-dd3d`, main m
   edit). `/2` file: three tanks declared. `backend/tests/test_dd3d_tolerance_floor.py` (37): 11 failed first
   (`floor-tests-first.log`); the other 26 are parity guards, each shown failing by a mutation
   (`plant-{strict-gt,unfiltered,none-source,band-none,two-tanks,port-none}.log`). Card plant (a) is `plant-port-none`.
-  `test_dd3c_kobo_parity_postgres.py` injection dropped; NOT rerun yet, nor its +5 L plant (packet-DD3c line 37:
-  +5 L on the roles-5 opening level at 18:00 must fail at fuel_balance).
+  `test_dd3c_kobo_parity_postgres.py` injection dropped: passes (`parity.log`), and its +5 L plant fails at
+  fuel_balance (`plant-parity-5L.log`). `test_3b4_observer_postgres.py` and `test_own_g3_operational_entry_postgres.py`
+  pass unedited (`db-1.log`, whose one failure was this test's own edit, fixed in 322bbfeba).
 - **DD3d.2 writer and loader.** `world/exports_fuel_records.py`; `world_history.py exports --telemetry`;
   `exports.DATED_NOTES` gains the recorded date as its sixth field (parity test `test_dd2_nodes.py` updated,
   `dd3_pure_run.py` unpacks it). `test_dd3d_fuel_records_file.py` (13; 12 failed first). `load_fuel_records.py`,
