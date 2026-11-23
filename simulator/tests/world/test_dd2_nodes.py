@@ -17,7 +17,7 @@ import pytest
 import yaml
 
 from assetops_simulator.world import exports
-from assetops_simulator.world.exports import ZERO_LEAVES, build_exports, evaluate_mini_grid
+from assetops_simulator.world.exports import ZERO_LEAVES, build_exports, evaluate_mini_grid, read_fuel_notes
 from assetops_simulator.world.nodes import NODES
 from assetops_simulator.world.history import generate_history
 from assetops_simulator.world.records import PASS_THROUGH, build_records
@@ -137,8 +137,11 @@ def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
     for month in MONTHS:
         for site in SITES:
             assert any(month_of(r) == month and r["site_code"] == site for r in rows(full, "billing")), (month, site)
-            assert any(month_of(r) == month and r["site_code"] == site and r["body"]["category"] == "FUEL"
-                       for r in rows(full, "expenses")), (month, site)
+            # D-DD.130: fuel rows are the notes file's purchases, so a month without a note has none
+            noted = any(n["at"][:7] == month for s in read_fuel_notes()["sites"] if s["site_code"] == site
+                        for n in s["notes"])
+            assert noted == any(month_of(r) == month and r["site_code"] == site and r["body"]["category"] == "FUEL"
+                                for r in rows(full, "expenses")), (month, site)
             assert any(month_of(r) == month and r["site_code"] == site and r["body"]["factor_id"] == "revenue"
                        for r in rows(full, "budget")), (month, site)
 
@@ -209,11 +212,13 @@ def test_the_dated_note_table_is_the_manifests_disorder_test(manifest) -> None:
 def test_kobo_october_notes(full) -> None:
     notes = [(r["clocks"]["occurred_at"], r["quantity"]["value"]) for r in rows(full, "expenses")
              if r["site_code"] == "KOBO-001" and month_of(r) == "2026-10" and r["body"]["category"] == "FUEL"]
-    assert sorted(notes) == [("2026-10-01T10:00:00+03:00", "400"), ("2026-10-08T10:00:00+03:00", "380"),
-                             ("2026-10-26T10:00:00+03:00", "400")]
+    assert sorted(notes) == [("2026-10-26T10:00:00+03:00", "400")]  # D-DD.92: OOO-1 only; the tank needs no reorder
 
 
-def test_other_months_cut_400_l_notes_on_the_fixed_days(full) -> None:
+def test_other_months_cut_400_l_notes_on_the_fixed_days() -> None:
+    """D-DD.53's cycle, kept for a Site not in the notes file (D-DD.130): here a file listing no Site."""
+    view = load_fixture()
+    full = build_exports(view, generate_history(view), fuel_notes={"schema": "assetops.world-fuel-notes/1", "sites": []})
     for month in MONTHS[:3]:
         for site in SITES:
             fuel = [r for r in rows(full, "expenses") if r["site_code"] == site and month_of(r) == month
