@@ -176,7 +176,7 @@ STATEMENTS = {
     "deep_dive.standing_short": {
         "slots": {"reconciled": {"type": "flag"}},
         "variants": [{"id": "reconciled", "when": {"is": ["reconciled", True]},
-                      "text": "Reconciled with the management accounts."},
+                      "text": "Revenue and fuel bought are reconciled with the management accounts."},
                      {"id": "not_reconciled", "text": "Not yet reconciled with the management accounts."}],
     },
     # D-5C.14: the as-of sentence, the standing in a few words, then the budget disagreements by Site.
@@ -194,10 +194,12 @@ STATEMENTS = {
         "variants": [{"id": "share", "when": {"present": "share"}, "text": "Target {target} · {share} of target"},
                      {"id": "target", "text": "Target {target}"}],
     },
-    "deep_dive.cost_received": {
+    # D-DD.182: the share of the cost carried at its budget line; it counts no figure as received.
+    "deep_dive.cost_at_budget": {
         "evidence": "served",
-        "slots": {"share": {"type": "percent", "places": 1}},
-        "variants": [{"id": "share", "text": "{share} of cost from figures received"}],
+        "slots": {"share": {"type": "percent", "places": 1, "optional": True}},
+        "variants": [{"id": "none", "when": {"sign": ["share", "zero"]}, "text": "No cost taken at its budget line"},
+                     {"id": "share", "text": "{share} of cost taken at its budget line"}],
     },
     "deep_dive.tile_split": {
         "evidence": "served",
@@ -468,13 +470,13 @@ STATEMENTS = {
     "deep_dive.assure_line": {
         "evidence": "served",
         "slots": {"disagreements": {"type": "count"},
-                  "cost": {"type": "percent", "places": 1, "optional": True}},
+                  "share": {"type": "percent", "places": 1, "optional": True},
+                  "cost_words": {"type": "part", "key": "deep_dive.cost_at_budget"}},
         "variants": [
-            {"id": "none_cost", "when": {"all": [{"cmp": ["disagreements", "==", {"const": 0}]}, {"present": "cost"}]},
-             "text": "No budget disagreement · {cost} of cost from figures received"},
+            {"id": "none_cost", "when": {"all": [{"cmp": ["disagreements", "==", {"const": 0}]}, {"present": "share"}]},
+             "text": "No budget disagreement · {cost_words}"},
             {"id": "none", "when": {"cmp": ["disagreements", "==", {"const": 0}]}, "text": "No budget disagreement"},
-            {"id": "some_cost", "when": {"present": "cost"},
-             "text": "{disagreements} · {cost} of cost from figures received"},
+            {"id": "some_cost", "when": {"present": "share"}, "text": "{disagreements} · {cost_words}"},
             {"id": "some", "text": "{disagreements}"},
         ],
     },

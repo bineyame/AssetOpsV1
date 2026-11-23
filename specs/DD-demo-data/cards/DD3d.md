@@ -167,10 +167,11 @@ amended to them.**
   `plan.diesel_cost` = litres × declared price; plan necessary = plan litres, candidate and unexplained 0; contribution
   and variance by `M`'s identities; the basis string and class ASSUMED on the fuel plan line (A52-56, A104-107). July-September
   plans by `per_day`. Bridges by their stated formulas (D-DD.131), Portfolio totals.
-- Then D-DD.164's acceptance steps 1-7 (R3206-3215) again: generate, `--restate-notes`, `--leaves --write`, `M`
-  from the tool, **generate again byte-identical**, `--check` exit 0 at all three Sites, the D-DD.30 chain
-  (`history.json`, `derived-values.json`, `missing-records.json`, mock fixtures) and re-pins (D-DD.93). If step 5
-  differs, stop: a run-written key is missing from the table.
+- Repeat D-DD.164's acceptance sequence as amended by D-DD.176 and D-DD.187. Generate before and after writing
+  `M`, then run both notes and leaves `--check` at all three Sites. Generate a third time and require byte equality
+  with the second generation. Audit the first-to-second differences against the side-aware derived-path table.
+  An unlisted change or any input drift stops for the Architect. Run the D-DD.30 chain (`history.json`,
+  `derived-values.json`, `missing-records.json`, mock fixtures) and re-pins (D-DD.93).
 - The first `M` commit writes `dispatch-3.3` in the three litre `leaf_sources` kinds and deletes the `.replace` of 3b1 t1
   and 3b3 t6 (D-DD.183). Plan litres: `Fraction`, one half-even rounding (D-DD.185).
 - The budget export rows (`exports.py` `_budget_records`) follow the new plan; goldens re-pin and are listed. Mto's plan

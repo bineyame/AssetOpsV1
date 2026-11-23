@@ -149,7 +149,7 @@ def test_r2_words_t7_t8_t10() -> None:
     load(w, "A", "B")
     assert standing(w, "KOBO-001").text == ("Not yet reconciled: no closed month has been compared with the "
                                             "management accounts.")
-    none_matched = ("Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts "
+    none_matched = ("Not yet reconciled: no month's recorded revenue and fuel bought match the management accounts "
                     "within 1% (Declared) yet.")
     assert standing(t2_world(), "KOBO-001", "2026-09").text == none_matched  # T8
     record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")  # T10

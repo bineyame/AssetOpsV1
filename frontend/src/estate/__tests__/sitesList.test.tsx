@@ -315,6 +315,26 @@ describe("IA-P P4b: the Sites list on E1", () => {
 });
 
 describe("IA-P P4b: the Outcomes tab", () => {
+  it("shows unavailable figures with the zero-comparisons headline", async () => {
+    const range = "2026-10-01|2026-10-31";
+    const october = BY_RANGE[range];
+    const body: PortfolioSites = {
+      ...october,
+      headline: { text: "No Sites have figures to compare with target in October", evidence: [] },
+      total: { gap: "Not available yet", word: null },
+      without_target: { count: 0, text: null },
+      rows: october.rows.map((row) => ({
+        ...row, contribution: "Not available yet", gap: "Not available yet", gap_word: null,
+        driver: "Not available yet", driver_heading: null, below: false,
+      })),
+    };
+    renderAt(`/portfolio/outcomes?${OCT}`, sitesClient({ [range]: body }));
+    await settledScreen();
+    expect(document.querySelector("[data-sites-headline]")?.textContent).toContain("No Sites have figures to compare with target in October");
+    expect(cells("Kobo")["Contribution"]).toBe("Not available yet");
+    expect(titles()).toContain("Kobo");
+  });
+
   it("L1 is E1's headline, L2 the Sites rows with no tools or tiles, L3 the cards then the objectives in a disclosure", async () => {
     renderAt(`/portfolio/outcomes?${OCT}`);
     await settledScreen();

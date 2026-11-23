@@ -38,11 +38,11 @@ def formulas_for(inputs, tenant: str, site: str, month: str) -> dd_check.Formula
 def test_the_evaluator_gives_kobos_july_by_hand(inputs) -> None:
     f = formulas_for(inputs, "lakeside-power", "Kobo", "2026-07")
     # D-DD.164 (2026-11-23): Lakeside July-September re-seeded once (RUN_WRITTEN left the scope digest)
-    assert f.node("billed_kwh") == Decimal(8200)      # 8632 - 389 - 0 - 43 - 0
-    assert f.node("revenue") == Decimal("3280")      # 8200 x 0.40
-    assert f.node("collected") == Decimal("3016.30")   # 3280.00 - 0 - 263.70
-    assert f.node("diesel_l") == Decimal(513)          # 482 + 19 + 12
-    assert f.node("fuel_cost") == Decimal("641.25")   # 513 x 1.25
+    assert f.node("billed_kwh") == Decimal(8184)      # 8615 - 388 - 0 - 43 - 0
+    assert f.node("revenue") == Decimal("3273.60")   # 8184 x 0.40
+    assert f.node("collected") == Decimal("3010.41")   # 3273.60 - 0 - 263.19
+    assert f.node("diesel_l") == Decimal(509)          # 476 + 21 + 12
+    assert f.node("fuel_cost") == Decimal("636.25")   # 513 x 1.25
 
 
 def test_the_evaluator_gives_cold_revenue_and_received_by_hand(inputs) -> None:

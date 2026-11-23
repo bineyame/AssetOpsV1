@@ -19,9 +19,9 @@
   "standing": {
     "reconciled": false,
     "reason": "THIS_MONTH_NOT_MATCHED",
-    "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
+    "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% (Declared).",
     "details": [
-      "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%)."
+      "Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%)."
     ]
   },
   "headline": {
@@ -40,7 +40,7 @@
       "lines": [
         "Target $2,295.00 · 193% of target",
         "3 of 3 Sites",
-        "86.7% of cost from figures received"
+        "13.3% of cost taken at its budget line"
       ],
       "bar": {
         "actual": "4431.60",
@@ -200,18 +200,18 @@
                     {
                       "key": "necessary_l",
                       "label": "Diesel not shown to be avoidable",
-                      "value": "+$2,681.80",
+                      "value": "+$2,675.30",
                       "sites": "3 of 3 Sites",
-                      "detail": "Actual 1,214 L · Target 3,300 L",
+                      "detail": "Actual 1,219 L · Target 3,300 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
                     {
                       "key": "candidate_l",
                       "label": "Diesel run while solar and battery could carry the load",
-                      "value": "−$279.70",
+                      "value": "−$273.20",
                       "sites": "3 of 3 Sites",
-                      "detail": "Actual 221 L · Target 0 L",
+                      "detail": "Actual 216 L · Target 0 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
@@ -451,12 +451,12 @@
       "label": "Assure performance and returns",
       "value": "Not yet reconciled",
       "word": null,
-      "line": "1 budget disagreement · 86.7% of cost from figures received",
+      "line": "1 budget disagreement · 13.3% of cost taken at its budget line",
       "drawer": {
         "title": "Reconciliation with the management accounts",
         "lines": [
-          "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
-          "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%).",
+          "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% (Declared).",
+          "Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%).",
           "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
         ]
       }

@@ -366,7 +366,7 @@ def test_t8_shipped_catalogue_loads():
                                              "none", "suggest", "currencies", "fresh", "out_only", "grow_line", "assure_line",
                                              "assure_entry", "text", "refused")),
                                          *(f"portfolio_sites.{k}" for k in (
-                                             "headline", "months", "contribution", "driver", "no_driver",
+                                             "headline", "no_comparisons", "months", "contribution", "driver", "no_driver",
                                              "no_figures", "without_target", "group", "text")),
                                          # 6h (D-P6.58): the lever words of the named-option levers.
                                          "decision_lever.title", "decision_lever.question", "decision_lever.no_action",

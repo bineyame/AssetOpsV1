@@ -26,7 +26,7 @@
   ],
   "schema": "assetops.history/1",
   "shape_source": "synthetic",
-  "view_digest": "0f3fe8be740f86374249930adbbd610baad15a0fc773d2fb03ec71134d10f3e4"
+  "view_digest": "d2ad20b122e59f2426712a29640931d1610b718c3183276b9510df19874062a5"
  },
  "tenants": {
   "harvest-cold": {
@@ -267,15 +267,15 @@
     "2026-07": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 56,
-      "delivered_kwh": 7589,
+      "candidate_l": 51,
+      "delivered_kwh": 7582,
       "in_transit": 0,
-      "necessary_l": 802,
+      "necessary_l": 792,
       "om": 70000,
-      "outstanding": 25775,
+      "outstanding": 25749,
       "staff": 50000,
       "technical_loss_kwh": 496,
-      "unexplained_l": 20
+      "unexplained_l": 19
      },
      "coverage": {
       "diesel": "RECORDED",
@@ -287,24 +287,24 @@
      "period_end": "2026-07-31",
      "plan": {
       "billed_kwh": 7500,
-      "diesel_l": 2300,
+      "diesel_l": 1180,
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "643ff8ca3b505ed18d587e6d27b75c0b60f251da33067c6d5dd101a7aec32fce"
+     "scope_digest": "42e385ad34afe8cf47bac02000be52f1abfc556d0ce65661af2a66d28c62abab"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 53,
-      "delivered_kwh": 7622,
+      "candidate_l": 49,
+      "delivered_kwh": 7640,
       "in_transit": 0,
-      "necessary_l": 793,
+      "necessary_l": 813,
       "om": 70000,
-      "outstanding": 25887,
+      "outstanding": 25946,
       "staff": 50000,
-      "technical_loss_kwh": 499,
-      "unexplained_l": 19
+      "technical_loss_kwh": 500,
+      "unexplained_l": 20
      },
      "coverage": {
       "diesel": "RECORDED",
@@ -316,23 +316,23 @@
      "period_end": "2026-08-31",
      "plan": {
       "billed_kwh": 7500,
-      "diesel_l": 2300,
+      "diesel_l": 1180,
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "4263dd0a59ddd742fbffe29bb208d7e832602ebf3a683f0a1f03a423fefb8450"
+     "scope_digest": "5c447d038a861685a8fee86eba5ee3ac7ab3cd54bb1ce2b5b4913727d96ec854"
     },
     "2026-09": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 73,
-      "delivered_kwh": 7773,
+      "candidate_l": 68,
+      "delivered_kwh": 7754,
       "in_transit": 0,
-      "necessary_l": 737,
+      "necessary_l": 741,
       "om": 70000,
-      "outstanding": 26398,
+      "outstanding": 26333,
       "staff": 50000,
-      "technical_loss_kwh": 508,
+      "technical_loss_kwh": 507,
       "unexplained_l": 18
      },
      "coverage": {
@@ -345,25 +345,25 @@
      "period_end": "2026-09-30",
      "plan": {
       "billed_kwh": 7258,
-      "diesel_l": 2226,
+      "diesel_l": 1142,
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "220d20718cdaf160eeacca62ec0d53e20df0cfb83825fc4fb5498ff6eb7910d8"
+     "scope_digest": "f4a3b7667659475c10286b57e5b9bd36c7a14903a8d683d169ba435ece43dc3b"
     }
    },
    "Kobo": {
     "2026-07": {
      "actual": {
       "adjustments_kwh": 43,
-      "candidate_l": 19,
-      "delivered_kwh": 8632,
+      "candidate_l": 21,
+      "delivered_kwh": 8615,
       "in_transit": 0,
-      "necessary_l": 482,
+      "necessary_l": 476,
       "om": 60000,
-      "outstanding": 26370,
+      "outstanding": 26319,
       "staff": 50000,
-      "technical_loss_kwh": 389,
+      "technical_loss_kwh": 388,
       "unexplained_l": 12
      },
      "coverage": {
@@ -376,23 +376,23 @@
      "period_end": "2026-07-31",
      "plan": {
       "billed_kwh": 8550,
-      "diesel_l": 700,
+      "diesel_l": 295,
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "b7eb58ee61a5ad2443294f728f60cf8b790fc27bd2ca81372aeb84f3e66fc5e1"
+     "scope_digest": "f95d89412b13f565b1dcc884bd193630f571d074c46b2f8e046951e6822d4fc2"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 43,
       "candidate_l": 20,
-      "delivered_kwh": 8711,
+      "delivered_kwh": 8653,
       "in_transit": 0,
       "necessary_l": 472,
       "om": 60000,
-      "outstanding": 26613,
+      "outstanding": 26436,
       "staff": 50000,
-      "technical_loss_kwh": 392,
+      "technical_loss_kwh": 390,
       "unexplained_l": 12
      },
      "coverage": {
@@ -405,23 +405,23 @@
      "period_end": "2026-08-31",
      "plan": {
       "billed_kwh": 8550,
-      "diesel_l": 700,
+      "diesel_l": 295,
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "8e6cd109c56d50e44e1d10193ae2f0a1656cf31ab123f7ab5d067cb93a3ae4db"
+     "scope_digest": "731ea2e24279e825f75440560f017b213db0e158364fb65defdb8151ab3a4039"
     },
     "2026-09": {
      "actual": {
       "adjustments_kwh": 43,
       "candidate_l": 26,
-      "delivered_kwh": 8791,
+      "delivered_kwh": 8754,
       "in_transit": 0,
-      "necessary_l": 447,
+      "necessary_l": 445,
       "om": 60000,
-      "outstanding": 26857,
+      "outstanding": 26743,
       "staff": 50000,
-      "technical_loss_kwh": 396,
+      "technical_loss_kwh": 394,
       "unexplained_l": 11
      },
      "coverage": {
@@ -434,11 +434,11 @@
      "period_end": "2026-09-30",
      "plan": {
       "billed_kwh": 8274,
-      "diesel_l": 677,
+      "diesel_l": 285,
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "42b6d0d6b0aa11ca2dee93e62f6c7f089e62aece3f41b7be3217eab26bd776ae"
+     "scope_digest": "6d2f96fd3b354869d4f81ed311f568dd39d3214426ae5c05f7464b1b00348af6"
     }
    },
    "Mto": {
@@ -446,6 +446,68 @@
      "actual": {
       "adjustments_kwh": 39,
       "candidate_l": 25,
+      "delivered_kwh": 5828,
+      "expected_technical_loss_kwh": 291,
+      "in_transit": 0,
+      "necessary_l": 0,
+      "om": 50000,
+      "outstanding": 11655,
+      "staff": 45000,
+      "unbilled_mapping_kwh": 0,
+      "unexplained_kwh": 117,
+      "unexplained_l": 0
+     },
+     "coverage": {
+      "diesel": "RECORDED",
+      "om": "RECORDED",
+      "revenue": "RECORDED",
+      "staff": "RECORDED"
+     },
+     "period_days": 31,
+     "period_end": "2026-07-31",
+     "plan": {
+      "billed_kwh": 5600,
+      "diesel_l": 0,
+      "om": 50000,
+      "staff": 45000
+     },
+     "scope_digest": "dbc414c594702a1916ec0b0c3795581559ffbfb3ce7fef578abca72a21366839"
+    },
+    "2026-08": {
+     "actual": {
+      "adjustments_kwh": 39,
+      "candidate_l": 27,
+      "delivered_kwh": 5826,
+      "expected_technical_loss_kwh": 291,
+      "in_transit": 0,
+      "necessary_l": 0,
+      "om": 50000,
+      "outstanding": 11653,
+      "staff": 45000,
+      "unbilled_mapping_kwh": 0,
+      "unexplained_kwh": 117,
+      "unexplained_l": 0
+     },
+     "coverage": {
+      "diesel": "RECORDED",
+      "om": "RECORDED",
+      "revenue": "RECORDED",
+      "staff": "RECORDED"
+     },
+     "period_days": 31,
+     "period_end": "2026-08-31",
+     "plan": {
+      "billed_kwh": 5600,
+      "diesel_l": 0,
+      "om": 50000,
+      "staff": 45000
+     },
+     "scope_digest": "fc8ec4ef4e37877be5a36e04399cc10a28d07dbe7f9481a3fa36d9f14ebcef87"
+    },
+    "2026-09": {
+     "actual": {
+      "adjustments_kwh": 39,
+      "candidate_l": 32,
       "delivered_kwh": 5858,
       "expected_technical_loss_kwh": 293,
       "in_transit": 0,
@@ -463,77 +525,15 @@
       "revenue": "RECORDED",
       "staff": "RECORDED"
      },
-     "period_days": 31,
-     "period_end": "2026-07-31",
-     "plan": {
-      "billed_kwh": 5600,
-      "diesel_l": 300,
-      "om": 50000,
-      "staff": 45000
-     },
-     "scope_digest": "bbcd5d3e6167543bb9d7490ae83133641cec3fb01a6b0c4b42a9937ee664c37b"
-    },
-    "2026-08": {
-     "actual": {
-      "adjustments_kwh": 38,
-      "candidate_l": 25,
-      "delivered_kwh": 5665,
-      "expected_technical_loss_kwh": 283,
-      "in_transit": 0,
-      "necessary_l": 0,
-      "om": 50000,
-      "outstanding": 11331,
-      "staff": 45000,
-      "unbilled_mapping_kwh": 0,
-      "unexplained_kwh": 113,
-      "unexplained_l": 0
-     },
-     "coverage": {
-      "diesel": "RECORDED",
-      "om": "RECORDED",
-      "revenue": "RECORDED",
-      "staff": "RECORDED"
-     },
-     "period_days": 31,
-     "period_end": "2026-08-31",
-     "plan": {
-      "billed_kwh": 5600,
-      "diesel_l": 300,
-      "om": 50000,
-      "staff": 45000
-     },
-     "scope_digest": "5aca29ff89a1b8b9532884817ae2e4212210af84cd499462f100e2ac15a49e41"
-    },
-    "2026-09": {
-     "actual": {
-      "adjustments_kwh": 39,
-      "candidate_l": 32,
-      "delivered_kwh": 5878,
-      "expected_technical_loss_kwh": 294,
-      "in_transit": 0,
-      "necessary_l": 0,
-      "om": 50000,
-      "outstanding": 11755,
-      "staff": 45000,
-      "unbilled_mapping_kwh": 0,
-      "unexplained_kwh": 118,
-      "unexplained_l": 0
-     },
-     "coverage": {
-      "diesel": "RECORDED",
-      "om": "RECORDED",
-      "revenue": "RECORDED",
-      "staff": "RECORDED"
-     },
      "period_days": 30,
      "period_end": "2026-09-30",
      "plan": {
       "billed_kwh": 5419,
-      "diesel_l": 290,
+      "diesel_l": 0,
       "om": 50000,
       "staff": 45000
      },
-     "scope_digest": "bd56504b0920fd1c8aba0b92c5a30f7a09ff29706cf26f80df0e965c76937964"
+     "scope_digest": "6d70fba35f49f9b5fd06090d6f139b0b500f104c917bdf4d60622d2dd082c1da"
     }
    }
   },

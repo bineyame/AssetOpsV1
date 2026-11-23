@@ -1,5 +1,5 @@
 {
- "history_json_sha256": "d92fc9f1eee5f72ba015939fc76de89b6898fbf94ba1b992d95c99ad73131f37",
+ "history_json_sha256": "b9db7efb888c1f518358dd296d67b153fceab876c757ef30d1790737688951ac",
  "scope_digests": {
   "harvest-cold/Room A \u00b7 Mwea/2026-07": "d868527c49e619bc90dcb09320927a7d834f6a9b2dd76ca6dee668e9ddaabe57",
   "harvest-cold/Room A \u00b7 Mwea/2026-08": "b473dcb0a36487d2a07e5155ee4968dade16607b36152046392179285d05b856",
@@ -10,15 +10,15 @@
   "harvest-cold/Room C \u00b7 Kirinyaga/2026-07": "c4aeca23ae3ebc6d9bd41ae30dcfd8a78f2bd9783c6096f7fb8a72608098fda1",
   "harvest-cold/Room C \u00b7 Kirinyaga/2026-08": "f4ac026ef2e2f470b64cd6f624c9ba15e25236319d2038f448c2685501c88139",
   "harvest-cold/Room C \u00b7 Kirinyaga/2026-09": "d749aa3c3fb0d0bc10933a77bbcf1fecec7debe4e4a4cc8fe1d695bfe681a82f",
-  "lakeside-power/Kisiwa/2026-07": "643ff8ca3b505ed18d587e6d27b75c0b60f251da33067c6d5dd101a7aec32fce",
-  "lakeside-power/Kisiwa/2026-08": "4263dd0a59ddd742fbffe29bb208d7e832602ebf3a683f0a1f03a423fefb8450",
-  "lakeside-power/Kisiwa/2026-09": "220d20718cdaf160eeacca62ec0d53e20df0cfb83825fc4fb5498ff6eb7910d8",
-  "lakeside-power/Kobo/2026-07": "b7eb58ee61a5ad2443294f728f60cf8b790fc27bd2ca81372aeb84f3e66fc5e1",
-  "lakeside-power/Kobo/2026-08": "8e6cd109c56d50e44e1d10193ae2f0a1656cf31ab123f7ab5d067cb93a3ae4db",
-  "lakeside-power/Kobo/2026-09": "42b6d0d6b0aa11ca2dee93e62f6c7f089e62aece3f41b7be3217eab26bd776ae",
-  "lakeside-power/Mto/2026-07": "bbcd5d3e6167543bb9d7490ae83133641cec3fb01a6b0c4b42a9937ee664c37b",
-  "lakeside-power/Mto/2026-08": "5aca29ff89a1b8b9532884817ae2e4212210af84cd499462f100e2ac15a49e41",
-  "lakeside-power/Mto/2026-09": "bd56504b0920fd1c8aba0b92c5a30f7a09ff29706cf26f80df0e965c76937964",
+  "lakeside-power/Kisiwa/2026-07": "42e385ad34afe8cf47bac02000be52f1abfc556d0ce65661af2a66d28c62abab",
+  "lakeside-power/Kisiwa/2026-08": "5c447d038a861685a8fee86eba5ee3ac7ab3cd54bb1ce2b5b4913727d96ec854",
+  "lakeside-power/Kisiwa/2026-09": "f4a3b7667659475c10286b57e5b9bd36c7a14903a8d683d169ba435ece43dc3b",
+  "lakeside-power/Kobo/2026-07": "f95d89412b13f565b1dcc884bd193630f571d074c46b2f8e046951e6822d4fc2",
+  "lakeside-power/Kobo/2026-08": "731ea2e24279e825f75440560f017b213db0e158364fb65defdb8151ab3a4039",
+  "lakeside-power/Kobo/2026-09": "6d2f96fd3b354869d4f81ed311f568dd39d3214426ae5c05f7464b1b00348af6",
+  "lakeside-power/Mto/2026-07": "dbc414c594702a1916ec0b0c3795581559ffbfb3ce7fef578abca72a21366839",
+  "lakeside-power/Mto/2026-08": "fc8ec4ef4e37877be5a36e04399cc10a28d07dbe7f9481a3fa36d9f14ebcef87",
+  "lakeside-power/Mto/2026-09": "6d70fba35f49f9b5fd06090d6f139b0b500f104c917bdf4d60622d2dd082c1da",
   "metro-bus/Embakasi/2026-07": "53731971ac3d29fd37a67b632184b94bea49bfb2c8006e06f3b640e106187c90",
   "metro-bus/Embakasi/2026-08": "30d6ea6cf428d625a97c460cc2cee957674a654de42226043a85bbed4a29ff29",
   "metro-bus/Embakasi/2026-09": "89af87cfc88d04d968ef663dd5716133ab0b2bbef2301b39f94d81533881410b",
@@ -30,6 +30,6 @@
   "metro-bus/Ruiru/2026-09": "90981d935c700b59daf77a7bf679d91709458d081be4103291c73f80c8c86335"
  },
  "source": "main 759759598 (DD3a merge), before D-DD.90; cold digests re-pinned at D-DD.144 on main; every digest re-drawn once at D-DD.164 (DD3b fix round, 2026-11-23: scope.RUN_WRITTEN left the digest), from the tool",
- "tenants_sha256": "da33b494cebc5c21f18c807a4a10dddf65f4fae64144cbcd2968c6c179bdf198",
+ "tenants_sha256": "dec4d5db02d546a6103469f89245455fe1e9f77a508902542e00e447daf59c17",
  "view_digest": "02e57ac889ffa60fb3cfee6456c31581169551c79883c30b67e2d67448fa9a5a"
 }

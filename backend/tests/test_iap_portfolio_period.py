@@ -187,9 +187,9 @@ def test_2_world_p_two_months() -> None:
     assert (assure["value"], assure["word"], assure["line"]) == ("Not yet reconciled", None, "0 of 2 months reconciled")
     assert assure["drawer"] == {"title": "Reconciliation with the management accounts", "lines": [
         "September 2026: Not yet reconciled: September 2026 (the organisation) does not match the management accounts "
-        "within 1%.",
+        "within 1% (Declared).",
         "October 2026: Not yet reconciled: October 2026 (the organisation) does not match the management accounts "
-        "within 1%.", UNTRACKED]}
+        "within 1% (Declared).", UNTRACKED]}
     assert b["actions"] == {"title": "Actions in hand", "connected": False,
                             "text": b["actions"]["text"], "rows": [], "more": 0}
 

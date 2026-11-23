@@ -192,7 +192,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Which sites lost money last month, and why: fuel, billing, collections or losses?
 
-> <!--tag:coming--><!--tag:demo-emulated--> Kobo sold more power than its target in October and still came in −120.50<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, as October's records classify it, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
+> <!--tag:coming--><!--tag:demo-emulated--> Kobo sold more power than its target in October and still came in 385.75<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, as October's records classify it, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
 
 > <!--tag:coming--><!--tag:demo--> A setting is judged by the checks the site lives by, and the rest is shown beside it. A lower battery reserve at Kobo passes the operating checks in a replay: energy served, reserve kept, starts within the maker's limit, a regular full charge. Its dawn battery charge falls below the site's margin on 11<!--fig:options.KOB-RESERVE.information.dawn_days_below--> of 61<!--rec:replay_studies.K8.days--> replayed days, and that is stated beside it, never hidden.
 

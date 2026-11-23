@@ -277,7 +277,7 @@ flowchart LR
 ## 5. Worked structures: a cold room and an EV depot beside Kobo
 <!--derives: §2.1; §2.2; Figure 2; WP §1.1; WP §1.2; WP §1.3-->
 
-**Kobo (mini-grid)** is the design's worked example (Figure 2): contribution 1,445.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution--> targeted and 1,565.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> actual, read upward from billed kWh and the three kinds of generator litres.
+**Kobo (mini-grid)** is the design's worked example (Figure 2): contribution 1,951.25<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution--> targeted and 1,565.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> actual, read upward from billed kWh and the three kinds of generator litres.
 
 **Thika (cold room), October.** Contribution = revenue − cost to serve, read upward:
 

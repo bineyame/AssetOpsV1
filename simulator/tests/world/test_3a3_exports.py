@@ -29,7 +29,7 @@ PINNED = {
     "lakeside-power.billing.csv": "20955b91fe9b94ec8f2c9d3ae5d0be0c617a569752e83afb3759cd3c33125013",
     "lakeside-power.collections.csv": "8b3cd80a03eaf2fa06f8f393189ca353bbd593ad6418b90551b4a3fd1a6352c3",
     "lakeside-power.expenses.csv": "1bb862aff2332581136cda54ad89e87827f6a31ea7849e176e54485f341bbf73",  # D-DD.164: Kisiwa 16 Oct
-    "lakeside-power.budget.csv": "1c10cdb5442e83f3980d7ecfb0dae99229d5b76bbe8155f82aafc128bbd6d368",
+    "lakeside-power.budget.csv": "323e619fb9e77bd92a86d997ea545d2b10bf911b72fe3b0c914d4476071d3f6d",
 }
 #: DD2.1: what `world_history.py exports` writes by default, every month (the packet lists both moves). The receipts
 #: keep `source_version` "1" (the collections layout's constant), so that October file's hash did not move.
@@ -40,10 +40,10 @@ PINNED = {
 #: the notes were restated from the run (Kisiwa 1 Aug / 21 Aug / 16 Sep / 16 Oct; Kobo 25 Sep): billing, collections
 #: and expenses moved; budget did not.
 PINNED_ALL_MONTHS = {
-    "lakeside-power.billing.csv": "a51f49ab0b20239b782038f961f288dd8af196dfc4da594c19fb6dd371337987",
-    "lakeside-power.collections.csv": "dea45b5ddca12dca4762fe308e836186bb0ef60d4663da58c77dc7baf857a683",
-    "lakeside-power.expenses.csv": "acf36047f6ed8e0a9740ee1117f3d133064498b992008c7b37bd6df073550300",
-    "lakeside-power.budget.csv": "e12bcd1f78886ff4c5e13291c7fd3c6636a067f95e6537ca7dd104ce9ea34adc",
+    "lakeside-power.billing.csv": "1de3b31f99d5803081a42751f4e2c22c148c5a1e0358e72dabe4a8496156110e",
+    "lakeside-power.collections.csv": "cec250ad6ec9353a34bb11f0dfa10aafd8901b69d1188cb5bffc557ff6615800",
+    "lakeside-power.expenses.csv": "9e103e9851b0107f9a2b10cae9e0879d0c319ea99590b3c61a308a641faa62b9",
+    "lakeside-power.budget.csv": "61eaca64d3a1092e6470bd7849996183bdc26f191b11cff09705e7a8a0770a44",
 }
 
 
@@ -141,7 +141,7 @@ def test_e6_budget(result) -> None:
     budget = records(result, "budget")
     kobo = {r["body"]["factor_id"]: r["body"]["value"] for r in of_site(budget, "KOBO-001")}
     assert {k: kobo[k] for k in ("revenue", "fuel_cost", "billed_kwh", "diesel_l", "tariff", "diesel_price")} == {
-        "revenue": "3420.00", "fuel_cost": "875.00", "billed_kwh": "8550", "diesel_l": "700", "tariff": "0.40",
+        "revenue": "3420.00", "fuel_cost": "368.75", "billed_kwh": "8550", "diesel_l": "295", "tariff": "0.40",
         "diesel_price": "1.25"}
     assert [r["body"]["factor_id"] for r in of_site(budget, "KOBO-001")] == [
         "revenue", "fuel_cost", "om", "staff", "billed_kwh", "diesel_l", "tariff", "diesel_price"]
@@ -197,6 +197,7 @@ def test_e10_budget_prices_follow_the_evaluated_plan_nodes() -> None:
     mto["billed_kwh"] = 0
     mto["revenue"] = "0.0"  # the node is now 0, and the period records it
     del mto["diesel_l"]
+    del mto["diesel_cost"]
     result = build(view)
     budget = records(result, "budget")
     kobo = {r["body"]["factor_id"]: r["body"]["value"] for r in of_site(budget, "KOBO-001")}

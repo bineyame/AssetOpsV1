@@ -165,10 +165,10 @@ yet". Every step, driver (D-5C.16), tile and card value is money. A figure never
 | headline_na | Contribution for {month_name} is not available yet. |
 | headline_k | (appended when k < n) Compared for {k} of {n} Sites. |
 | status_line | {as_of} {standing_short}{ status_disagreement} (each part a sentence; D-5C.14) |
-| standing_short | Reconciled with the management accounts. \| Not yet reconciled with the management accounts. (by `standing.reconciled`) |
+| standing_short | Revenue and fuel bought are reconciled with the management accounts. \| Not yet reconciled with the management accounts. (by `standing.reconciled`) |
 | status_disagreement | the distinct Sites of `pb.disagreements`, `asked` order: one: "{site}'s budget disagrees with its own lines."; two or three: "The budgets of {join(sites)} disagree with their own lines."; more: "The budgets of {k} Sites disagree with their own lines."; none: omitted |
 | tile1_target | Target {target} · {pct0} of target (the `· …` part only when `pct0` applies) |
-| tile1_cost | {pct1} of cost from figures received |
+| tile1_cost | {pct1} of cost taken at its budget line, or “No cost taken at its budget line” when the share is zero (D-DD.182) |
 | tile2_split | Grow {grow signed} · Optimize {optimize signed} |
 | tile2_rest | All of it split to its drivers \| {abs rest} of it not split to its drivers yet (rest with the gap's sign) \| {abs rest} not split to its drivers yet, offsetting the gap (opposite sign) |
 | tile3 | label "Plan spend", value "Not available yet", line "No plan has been made yet" |
@@ -257,7 +257,7 @@ as the tiles' words, D-5C.20) §2.5 from the root row `R = pb.rows["contribution
 | `actions` | `{"title": "Actions in hand", "connected", "text", "rows", "more"}`: not connected `actions_off`, rows [], more 0; connected and none `actions_none`; else text null, one row `{"title", "owner", "agreed", "state"}` per Action in the port's order (newest first), at most 3, `more` the rest (0 when none) |
 | `not_available` | `{"rows": [{"needs", "fills", "sites"}], "not_built": not_built}` (§3.4) |
 
-**tile1_cost** = `(C.actual − Σ carried) / C.actual` with `C = pb.rows["contribution"]["cost_to_serve"]` and `Σ
+**tile1_cost** = `Σ carried / C.actual` (D-DD.182) with `C = pb.rows["contribution"]["cost_to_serve"]` and `Σ
 carried` the actual values of every carried leaf of every included Site (`sb[c].actual.values[leaf].value` for leaf in
 `sb[c].carried`); omitted when `C.actual` is None or 0. **tile2_rest** = Σ over included Sites of the effects of
 `lowest(sb[c].roots["contribution"])` rows with split `NOT_SPLIT` or kind `RESIDUAL`; its words by its sign against

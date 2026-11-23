@@ -26,6 +26,8 @@ RUN_WRITTEN: dict[str, dict[str, tuple[str, ...]]] = {
     "MINI_GRID": {
         # D-DD.131's restated October fuel leaves and the identities computed from them
         "actual": ("diesel_l", "necessary_l", "candidate_l", "diesel_cost", "contribution", "variance"),
+        # D-DD.170's run-rate fuel budget and its dependent plan figures
+        "plan": ("diesel_l", "necessary_l", "candidate_l", "unexplained_l", "diesel_cost", "contribution", "variance"),
         # the blocks D-DD.131 restates
         "period": ("fuel_balance", "bridge", "findings_expected"),
     },

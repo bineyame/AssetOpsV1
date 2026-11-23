@@ -648,7 +648,7 @@ class TestServedTenant:
         for command in commands:
             assert publish_main([*command, "--tenant", other]) == 2
             out = capsys.readouterr()
-            assert out.out == "" and other in out.err
+            assert (out.out, out.err) == ("", f"TENANT_NOT_SERVED {other}\n")
         assert built == [] and counts(engine) == (0, 0)
 
     @pytest.mark.parametrize("named", [(), ("--tenant", "demo")])
@@ -667,4 +667,5 @@ class TestServedTenant:
         monkeypatch.setenv(TENANT_ENV, slug)
         assert publish_main(["fixture", "--site", "KOBO-001", "--file", str(world_file("KOBO-001"))]) == 2
         out = capsys.readouterr()
-        assert out.out == "" and TENANT_ENV in out.err and counts(engine) == (0, 0)
+        assert (out.out, out.err) == ("", f"CONFIGURATION {TENANT_ENV}\n")
+        assert counts(engine) == (0, 0)

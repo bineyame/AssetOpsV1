@@ -29,7 +29,7 @@ def test_7_the_generator_writes_the_committed_bytes(tmp_path, capsys) -> None:
     assert written.read_bytes() == committed
     expect = json.loads((FIXTURES / "lakeside-2026-10.expect.json").read_text(encoding="utf-8"))
     assert hashlib.sha256(committed).hexdigest() == expect["profile"]["sample_sha256"] == \
-        "2f629a1fc77a087932dbf565969b67ddd290395dcfb010a214782dd62576ad75"
+        "5e34e3a9c34105119b6d69ddcd91d494897a758eb49c95d7524a06a3977fc434"
 
 
 def test_6_portfolio_history_is_every_portfolio_row_by_as_of_memory() -> None:
@@ -95,6 +95,7 @@ class Reads:
         self.built_by = [f"person:{WANJIRU}", f"person:{WANJIRU}"]
         self.key_error: Exception | None = None
         self.collected = {}
+        self.fuel_cost = {}
         self.owners = ["Peter"]
         self.body = self._body()
 
@@ -144,19 +145,21 @@ class Reads:
         return tuple(NS(site_code=c) for c in self.x["stated"])
 
     def _value(self, code, factor):
-        v = self.collected.get(code) if factor == "collected" else None
+        overrides = {"collected": self.collected, "fuel_cost": self.fuel_cost}
+        v = overrides.get(factor, {}).get(code)
         v = v or self.x["stated"][code][factor]
         missing = NS(cause=self.x["absent_causes"].get(code, {}).get(factor))
         return NS(value=None if v is None else D(v), missing=missing if v is None else None, sources=())
 
     def site_inputs(self, site, month):
         c = site.site_code
-        price = NS(value=D("1.50"), missing=None, sources=("commercial:expense",))
-        return NS(stated={f: self._value(c, f) for f in ("revenue", "fuel_cost")},
+        source = "assumption:price" if c == "MTO-001" else "commercial:expense"
+        price = NS(value=D("1.50"), missing=None, sources=(source,))
+        return NS(stated={f: self._value(c, f) for f in ("revenue",)},
                   leaves={**{f: self._value(c, f) for f in ("om", "staff", "in_transit")}, "diesel_price": price})
 
     def site_actual(self, site, month):
-        return NS(values={"collected": self._value(site.site_code, "collected")})
+        return NS(values={f: self._value(site.site_code, f) for f in ("collected", "fuel_cost")})
 
     def site_targets(self, site, month):
         c = site.site_code
@@ -242,8 +245,8 @@ def test_8c_g9_ignores_the_clock_and_fails_on_a_figure(env, capsys) -> None:  # 
     reads.body["bridge"]["by_site"]["rows"][1][3] = "−$563.00"
     code, lines, _ = run(reads, capsys)
     assert failed(lines) == {"G9": ("SCREEN", {"path": "$.bridge.by_site.rows[1][3]"})}
-    assert EXPECT["screen"]["bridge"]["by_site"]["rows"][1][:4] == ["Kobo mini-grid", "$883.00", "$1,445.00",
-                                                                     "−$562.00"]
+    assert EXPECT["screen"]["bridge"]["by_site"]["rows"][1][:4] == ["Kobo mini-grid", "$1,565.50", "$1,951.25",
+                                                                     "−$385.75"]
 
 
 def _derived_untracked() -> str:
@@ -289,12 +292,25 @@ def test_8i_g9_fails_on_another_untracked_text(env, capsys, found) -> None:  # p
     assert failed(lines) == {"G9": ("UNTRACKED", {})} and err == ["DDR_GATE_FAILED G9 UNTRACKED"]
 
 
+@pytest.mark.parametrize(("value", "passes"), [("1173.9015", True), ("1173.906", False)])
+def test_g4_compares_computed_fuel_cost_to_the_cent(env, capsys, value, passes) -> None:
+    reads = Reads()
+    reads.fuel_cost["KISIWA-001"] = value
+    _, lines, _ = run(reads, capsys)
+    if passes:
+        assert "G4" not in failed(lines)
+    else:
+        assert failed(lines) == {"G4": ("FIGURE", {
+            "site": "KISIWA-001", "factor": "fuel_cost", "expected": "1173.90", "found": "1173.91",
+        })}
+
+
 def test_8d_g4_fails_on_kobo_collected(env, capsys) -> None:  # plant P13
     reads = Reads()
-    reads.collected["KOBO-001"] = "3000.00"
+    reads.collected["KOBO-001"] = "3180.001"
     _, lines, err = run(reads, capsys)
     assert failed(lines) == {"G4": ("FIGURE", {"site": "KOBO-001", "factor": "collected", "expected": "3180.00",
-                                               "found": "3000.00"})}
+                                               "found": "3180.00"})}
     assert err == ["DDR_GATE_FAILED G4 FIGURE"]
 
 

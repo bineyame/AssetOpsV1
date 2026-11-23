@@ -131,7 +131,7 @@ def test_q2_t1_t2_t4_give_r2s_literals(w) -> None:
     (row,) = w["store"].accounts_statements(w["tid"])
     assert (row.id, row.result_at_record, row.tolerance_at_record, row.site_id) == (s1.statement_id, "MATCHED",
                                                                                     "0.01", None)
-    assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
+    assert standing(w, "KOBO-001").text == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management "
                                             "accounts within 1% (Declared).")
     load(w, "C")
     assert only(w).headings[1].text == T2_FUEL

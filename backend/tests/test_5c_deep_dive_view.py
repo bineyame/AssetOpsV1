@@ -39,12 +39,12 @@ AS_OF = t3.AS_OF
 NAMES = {"KOBO-001": "Kobo", "KISIWA-001": "Kisiwa", "MTO-001": "Mto"}
 NOT_MATCHED = SimpleNamespace(
     reconciled=False, reason="THIS_MONTH_NOT_MATCHED",
-    text="Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
-    details=("Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 "
+    text="Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% (Declared).",
+    details=("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $2,100.00 and the records say $2,006.40, $93.60 "
              "less (4.46%), beyond the $21.00 allowed (1%).",))  # re-pinned 2026-11-23 with the records (M rev 16.23)
 RECONCILED = SimpleNamespace(
     reconciled=True, reason="RECONCILED",
-    text="Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1%.", details=())
+    text="Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared).", details=())
 OFF = AgreedActions(False, ())
 
 EMS = ("the EMS interval export (generator running and output, solar available power, battery charge)")
@@ -229,11 +229,11 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
         ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", None), ("Mto", "+$335.00", None)]
     # DD3d.4: a fuel cost is litres times a price, so it splits at every Site that serves one. Kobo 211 x 1.25 +
-    # Kisiwa 1,486 x 1.30 + Mto 300 x 1.25 = 2,570.55; 25 x 1.25 + 69 x 1.30 + 32 x 1.25 = 160.95; 120 x 1.25 + 20 x 1.30
+    # Kisiwa 1,481 x 1.30 + Mto 300 x 1.25 = 2,564.05; 25 x 1.25 + 64 x 1.30 + 32 x 1.25 = 154.45; 120 x 1.25 + 20 x 1.30
     # = 176.00.
     assert fuel["drivers"] == drivers("3 of 3 Sites", ("+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
-                                      ("+$2,570.55", "Actual 1,303 L · Target 3,300 L"),
-                                      ("−$160.95", "Actual 126 L · Target 0 L"),
+                                      ("+$2,564.05", "Actual 1,308 L · Target 3,300 L"),
+                                      ("−$154.45", "Actual 121 L · Target 0 L"),
                                       ("−$176.00", "Actual 140 L · Target 0 L"))
     om = step(v, "om")["drawer"]
     assert om["lines"] == ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00",
@@ -386,6 +386,12 @@ def test_4_a2_a_budget_that_cannot_be_added(monkeypatch) -> None:
     assert v["status_line"] == view()["status_line"]
 
 
+def test_sub_cent_money_does_not_report_a_negative_gap() -> None:
+    dust = D("-0.004")
+    assert W.amount(dust, "USD", "SIGNED") == "$0.00"
+    assert W.named(dust, dust, None) == (None, None)
+
+
 def test_cost_at_budget_is_what_is_carried_over_the_cost() -> None:
     """D-DD.182: Σ carried / cost; nothing carried says so in words; None without a cost."""
     def ratio(actual, carried, out=()):
@@ -533,8 +539,8 @@ def test_4_h_kobo_litres() -> None:
         ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", None), ("Mto", "+$335.00", None)]
     # Kobo's own 400, 120 and 114 L (A: 489, 25 and 120 L) beside Kisiwa's and Mto's: the total is A's, the split is not
     assert fuel["drivers"] == drivers("3 of 3 Sites", ("+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
-                                      ("+$2,681.80", "Actual 1,214 L · Target 3,300 L"),
-                                      ("−$279.70", "Actual 221 L · Target 0 L"),
+                                      ("+$2,675.30", "Actual 1,219 L · Target 3,300 L"),
+                                      ("−$273.20", "Actual 216 L · Target 0 L"),
                                       ("−$168.50", "Actual 134 L · Target 0 L"))
     assert v["fresh"]["untracked_text"] == UNTRACKED
     assert v["outcomes"][3]["drawer"]["lines"] == [NOT_MATCHED.text, *NOT_MATCHED.details, UNTRACKED]

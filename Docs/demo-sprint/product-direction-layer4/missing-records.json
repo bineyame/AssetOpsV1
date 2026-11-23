@@ -161,7 +161,6 @@
      "unexplained_loss_kwh",
      "adjustments_kwh",
      "unmapped_kwh",
-     "necessary_l",
      "candidate_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",

@@ -56,13 +56,13 @@ def bridge_bars(effects: Sequence[Decimal | None], gap: Decimal | None) -> tuple
     """Spec section 3.2 "Bars" (D-5C.27): each step's bar on the gap's scale and the scale's two marks, as percentages
     of the step track (plain strings, two places, half even). `effects` in JSON order; None for a step with no
     figure in R's currency. No gap (None or 0): no bar and no scale."""
-    if gap is None or gap == 0:
+    if gap is None or W.cents(gap) == 0:
         return [None] * len(effects), None
     with localcontext(Context(prec=34, rounding=ROUND_HALF_EVEN)):
         spans: list[tuple[Decimal, Decimal, Decimal] | None] = []
         p = Decimal(0)
         for e in effects:
-            if e is None or e == 0:
+            if e is None or W.cents(e) == 0:
                 spans.append(None)
                 continue
             a, b = p, p + e / gap * 100
@@ -290,6 +290,7 @@ class _View:
         return head, title
 
     def cost_ratio(self) -> Decimal | None:
+        """D-DD.182: the share of the cost carried at its budget line."""
         C = self.rows.get(T.COST)
         if C is None or C.actual is None or C.actual == 0:
             return None
@@ -300,7 +301,7 @@ class _View:
             for leaf in sb.carried:
                 value = sb.actual.values[leaf].value
                 carried += value if value is not None else Decimal(0)
-        return (C.actual - carried) / C.actual
+        return carried / C.actual
 
     def rest(self) -> Decimal:
         total = Decimal(0)
@@ -322,7 +323,7 @@ class _View:
             lines.append(W.tile_target(W.money(R.target, cur), share))
         lines.append(W.sites(R.k, self.n))
         if ratio is not None:
-            lines.append(W.cost_received(ratio))
+            lines.append(W.cost_at_budget(ratio))
         contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, cur),
                         "word": self.figure_word(R.actual, cur, R.evidence, R.origins), "lines": lines,
                         "bar": ({"actual": W.plain(R.actual), "target": W.plain(R.target)}
@@ -331,7 +332,7 @@ class _View:
         if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:
             gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.group_cur(T.GROW)),
                                           W.money(sums[T.OPTIMIZE], self.group_cur(T.OPTIMIZE))))
-        if R.effect is not None and R.effect != 0:  # KD2 ruling: a gap of 0 has no rest line (nothing to offset)
+        if R.effect is not None and W.cents(R.effect) != 0:  # KD2 ruling: a gap of 0 has no rest line (nothing to offset)
             gap_lines.append(W.tile_rest(W.money(self.rest(), cur), W.money(R.effect, cur)))
         gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, cur, "SIGNED"),
                "word": self.figure_word(R.effect, cur, R.evidence, R.origins), "lines": gap_lines, "bar": None}
@@ -357,10 +358,10 @@ class _View:
     def shares(self) -> dict[str, str]:
         """Section 3.2: each step's share of what widens the gap; none when R has no gap (None or 0, D-5C.28)."""
         gap = self.R.effect
-        if gap is None or gap == 0:
+        if gap is None or W.cents(gap) == 0:
             return {}
         widening = [self.rows[s].effect for s in self.steps if s in self.rows and self.rows[s].effect is not None
-                    and self.rows[s].effect != 0 and (self.rows[s].effect < 0) == (gap < 0)]
+                    and W.cents(self.rows[s].effect) != 0 and (self.rows[s].effect < 0) == (gap < 0)]
         total = sum((abs(e) for e in widening), Decimal(0))
         out = {}
         for s in self.steps:
@@ -368,8 +369,8 @@ class _View:
             if row is None or row.effect is None:
                 continue
             e = row.effect
-            if e == 0 or total == 0:
-                value = Decimal(0) if e == 0 else Decimal(-1)
+            if W.cents(e) == 0 or total == 0:
+                value = Decimal(0) if W.cents(e) == 0 else Decimal(-1)
             elif (e < 0) == (gap < 0):
                 value = abs(e) / total
             else:

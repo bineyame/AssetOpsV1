@@ -56,8 +56,8 @@ function worldH(): DeepDiveMonthBody {
     {
       ...leaf("diesel_l", "Diesel used", "+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
       children: [
-        leaf("necessary_l", "Diesel not shown to be avoidable", "+$2,681.80", "Actual 1,214 L · Target 3,300 L"),
-        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$279.70", "Actual 221 L · Target 0 L"),
+        leaf("necessary_l", "Diesel not shown to be avoidable", "+$2,675.30", "Actual 1,219 L · Target 3,300 L"),
+        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$273.20", "Actual 216 L · Target 0 L"),
         leaf("unexplained_l", "Unexplained fuel", "−$168.50", "Actual 134 L · Target 0 L"),
       ],
     },

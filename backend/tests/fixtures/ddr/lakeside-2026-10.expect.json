@@ -1,6 +1,6 @@
 {
   "format": "ddr-rehearsal-expect-1",
-  "source": "Hand-written (spec DDR §3.4, 3A3 E2-E5; screen from 5c's World A fixture with §3.4's and World B's edits)",
+  "source": "October books and litres from the scenario manifest. The board budget follows the manifest's run-rate plan.",
   "tenant": "lakeside-power",
   "month": "2026-10",
   "sites": [
@@ -33,7 +33,7 @@
     "version": 1,
     "admitted_by": "wanjiru@lakeside-power.example",
     "profile_sha256": "3752d604dbffefabf46095b2d45810273b8ba38eb23217d6ed6c4c4539ec82ff",
-    "sample_sha256": "2f629a1fc77a087932dbf565969b67ddd290395dcfb010a214782dd62576ad75"
+    "sample_sha256": "5e34e3a9c34105119b6d69ddcd91d494897a758eb49c95d7524a06a3977fc434"
   },
   "readers": {
     "accepted": [
@@ -51,7 +51,7 @@
   "stated": {
     "KISIWA-001": {
       "revenue": "4070.00",
-      "fuel_cost": "1040.00",
+      "fuel_cost": "1173.90",
       "om": null,
       "staff": "500.00",
       "collected": "3800.00",
@@ -59,7 +59,7 @@
     },
     "KOBO-001": {
       "revenue": "3458.00",
-      "fuel_cost": "500.00",
+      "fuel_cost": "792.50",
       "om": "600.00",
       "staff": "500.00",
       "collected": "3180.00",
@@ -67,7 +67,7 @@
     },
     "MTO-001": {
       "revenue": "2160.00",
-      "fuel_cost": null,
+      "fuel_cost": "40.00",
       "om": "500.00",
       "staff": "450.00",
       "collected": "1890.00",
@@ -85,15 +85,15 @@
     }
   },
   "target_contribution": {
-    "KISIWA-001": "-65.00",
-    "KOBO-001": "1445.00",
-    "MTO-001": "915.00"
+    "KISIWA-001": "1391.00",
+    "KOBO-001": "1951.25",
+    "MTO-001": "1290.00"
   },
   "target_checks": {
     "KISIWA-001": {
       "factor_id": "contribution",
-      "stated": "-60.00",
-      "computed": "-65.00",
+      "stated": "1396.00",
+      "computed": "1391.00",
       "currency": "USD",
       "agrees": false
     }
@@ -101,13 +101,13 @@
   "statements": [
     {
       "revenue": "9700.00",
-      "fuel_cost": "5100.00",
+      "fuel_cost": "1645.00",
       "recorded_by": "joseph@lakeside-power.example",
       "result": "NOT_MATCHED"
     },
     {
       "revenue": "9700.00",
-      "fuel_cost": "5000.00",
+      "fuel_cost": "1545.00",
       "recorded_by": "joseph@lakeside-power.example"
     }
   ],
@@ -137,9 +137,9 @@
       "details": []
     },
     "headline": {
-      "text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
+      "text": "Contribution is $200.65 below target in October; cost and efficiency explain $103.65 of it.",
       "evidence": [
-        "Estimated"
+        "Modelled"
       ]
     },
     "status_line": "Revenue and fuel bought are reconciled with the management accounts. Kisiwa mini-grid's budget disagrees with its own lines.",
@@ -147,26 +147,26 @@
       {
         "key": "contribution",
         "label": "Contribution",
-        "value": "$1,443.00",
-        "word": "Estimated",
+        "value": "$4,431.60",
+        "word": "Modelled",
         "lines": [
-          "Target $2,295.00 · 63% of target",
+          "Target $4,632.25 · 96% of target",
           "3 of 3 Sites",
-          "91.5% of cost from figures received"
+          "13.3% of cost taken at its budget line"
         ],
         "bar": {
-          "actual": "1443.00",
-          "target": "2295.00"
+          "actual": "4431.60",
+          "target": "4632.25"
         }
       },
       {
         "key": "gap",
         "label": "Gap to target",
-        "value": "−$852.00",
-        "word": "Estimated",
+        "value": "−$200.65",
+        "word": "Modelled",
         "lines": [
-          "Grow −$97.00 · Optimize −$755.00",
-          "$852.00 of it not split to its drivers yet"
+          "Grow −$97.00 · Optimize −$103.65",
+          "$97.00 of it not split to its drivers yet"
         ],
         "bar": null
       },
@@ -192,15 +192,15 @@
       }
     ],
     "notices": [
-      "Kisiwa mini-grid's budget states a contribution of −$60.00; its budget lines add to −$65.00. The target used is −$65.00."
+      "Kisiwa mini-grid's budget states a contribution of $1,396.00; its budget lines add to $1,391.00. The target used is $1,391.00."
     ],
     "bridge": {
-      "title": "Cost and efficiency explain $755.00 of the $852.00 gap. Open a step for what is behind it.",
+      "title": "Cost and efficiency explain $103.65 of the $200.65 gap. Open a step for what is behind it.",
       "totals": {
         "actual_label": "Contribution, October",
-        "actual": "$1,443.00",
+        "actual": "$4,431.60",
         "target_label": "Target",
-        "target": "$2,295.00"
+        "target": "$4,632.25"
       },
       "scale": {
         "target_at": "0.00",
@@ -216,12 +216,12 @@
               "key": "revenue",
               "label": "Revenue",
               "value": "−$97.00",
-              "share": "11% of what widens the gap",
+              "share": "48% of what widens the gap",
               "word": "Emulated",
               "sites": "3 of 3 Sites",
               "bar": {
                 "left": "0.00",
-                "width": "11.38",
+                "width": "48.34",
                 "tone": "lowers"
               },
               "drawer": {
@@ -259,48 +259,95 @@
         {
           "key": "OPTIMIZE_COST",
           "label": "Optimize cost and efficiency",
-          "value": "−$755.00",
+          "value": "−$103.65",
           "steps": [
             {
               "key": "fuel_cost",
               "label": "Fuel cost",
-              "value": "−$755.00",
-              "share": "89% of what widens the gap",
-              "word": "Emulated",
+              "value": "−$103.65",
+              "share": "52% of what widens the gap",
+              "word": "Modelled",
               "sites": "3 of 3 Sites",
               "bar": {
-                "left": "11.38",
-                "width": "88.62",
+                "left": "48.34",
+                "width": "51.66",
                 "tone": "lowers"
               },
               "drawer": {
                 "title": "Fuel cost",
                 "lines": [
-                  "Actual $4,995.00 · Target $4,240.00 · Difference +$755.00",
-                  "Effect on contribution −$755.00",
+                  "Actual $2,006.40 · Target $1,902.75 · Difference +$103.65",
+                  "Effect on contribution −$103.65",
                   "3 of 3 Sites"
                 ],
                 "sites": [
                   {
                     "site": "Kisiwa mini-grid",
-                    "value": "−$130.00",
-                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                    "value": "+$360.10",
+                    "text": null
                   },
                   {
                     "site": "Kobo mini-grid",
-                    "value": "−$600.00",
-                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                    "value": "−$423.75",
+                    "text": null
                   },
                   {
                     "site": "Mto mini-grid",
-                    "value": "−$25.00",
-                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                    "value": "−$40.00",
+                    "text": null
                   }
                 ],
                 "carried": [],
                 "out": [],
                 "lines_org": [],
-                "drivers": []
+                "drivers": [
+                  {
+                    "key": "diesel_l",
+                    "label": "Diesel used",
+                    "value": "−$103.65",
+                    "sites": "3 of 3 Sites",
+                    "detail": "Actual 1,569 L · Target 1,475 L",
+                    "word": "Modelled",
+                    "children": [
+                      {
+                        "key": "necessary_l",
+                        "label": "Diesel not shown to be avoidable",
+                        "value": "+$226.80",
+                        "sites": "3 of 3 Sites",
+                        "detail": "Actual 1,308 L · Target 1,475 L",
+                        "word": "Modelled",
+                        "children": []
+                      },
+                      {
+                        "key": "candidate_l",
+                        "label": "Diesel run while solar and battery could carry the load",
+                        "value": "−$154.45",
+                        "sites": "3 of 3 Sites",
+                        "detail": "Actual 121 L · Target 0 L",
+                        "word": "Modelled",
+                        "children": []
+                      },
+                      {
+                        "key": "unexplained_l",
+                        "label": "Unexplained fuel",
+                        "value": "−$176.00",
+                        "sites": "3 of 3 Sites",
+                        "detail": "Actual 140 L · Target 0 L",
+                        "word": "Modelled",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "key": "diesel_price",
+                    "label": "Diesel price",
+                    "value": "$0.00",
+                    "sites": "3 of 3 Sites",
+                    "detail": null,
+                    "word": "Modelled",
+                    "children": []
+                  }
+                ]
               }
             },
             {
@@ -400,42 +447,42 @@
         "rows": [
           [
             "Kisiwa mini-grid",
-            "−$250.00",
-            "−$65.00",
-            "−$185.00",
+            "$1,696.10",
+            "$1,391.00",
+            "+$305.10",
             "−$55.00",
-            "−$130.00",
+            "+$360.10",
             "$0.00 (at budget)",
             "$0.00"
           ],
           [
             "Kobo mini-grid",
-            "$883.00",
-            "$1,445.00",
-            "−$562.00",
+            "$1,565.50",
+            "$1,951.25",
+            "−$385.75",
             "+$38.00",
-            "−$600.00",
+            "−$423.75",
             "$0.00",
             "$0.00"
           ],
           [
             "Mto mini-grid",
-            "$810.00",
-            "$915.00",
-            "−$105.00",
+            "$1,170.00",
+            "$1,290.00",
+            "−$120.00",
             "−$80.00",
-            "−$25.00",
+            "−$40.00",
             "$0.00",
             "$0.00"
           ]
         ],
         "total": [
           "3 of 3 Sites",
-          "$1,443.00",
-          "$2,295.00",
-          "−$852.00",
+          "$4,431.60",
+          "$4,632.25",
+          "−$200.65",
           "−$97.00",
-          "−$755.00",
+          "−$103.65",
           "$0.00",
           "$0.00"
         ]
@@ -498,8 +545,8 @@
       {
         "key": "optimize",
         "label": "Optimize cost and efficiency",
-        "value": "−$755.00",
-        "word": "Estimated",
+        "value": "−$103.65",
+        "word": "Modelled",
         "line": "Fuel, O&M and staff against target; cash collected is shown apart",
         "drawer": null
       },
@@ -516,7 +563,7 @@
         "label": "Assure performance and returns",
         "value": "Reconciled",
         "word": null,
-        "line": "1 budget disagreement · 91.5% of cost from figures received",
+        "line": "1 budget disagreement · 13.3% of cost taken at its budget line",
         "drawer": {
           "title": "Reconciliation with the management accounts",
           "lines": [
@@ -563,34 +610,9 @@
           "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
         },
         {
-          "needs": "the EMS interval export (generator running and output, solar available power, battery charge)",
-          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
-        },
-        {
-          "needs": "the generator's fuel curve (litres per kWh; litres per hour idle)",
-          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
-        },
-        {
-          "needs": "tank dips at the start and end of the month",
-          "fills": "Unexplained fuel",
-          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
-        },
-        {
-          "needs": "fuel delivery notes",
-          "fills": "Unexplained fuel",
-          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
-        },
-        {
           "needs": "the service contractor's invoices",
           "fills": "O&M (taken at its budget line meanwhile)",
           "sites": "Kisiwa mini-grid"
-        },
-        {
-          "needs": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)",
-          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
         },
         {
           "needs": "budget lines for energy delivered and productive-use price",

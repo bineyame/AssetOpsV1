@@ -1280,11 +1280,11 @@ def empty_states(root, doc):
 # Re-based (23 Nov) for the merge of main (DD4b, M rev 16.20/16.21) into DD3b (M rev 16.20), M rev 16.22: DD3b3's mini-grid fuel and DD4b's EV charger bound and cold energy model together; history.json, derived-values.json and the mock regenerated (D-DD.30 chain). The previous H8_DERIVED_SHA was eedf75f35ebb085cae419f8368ab1599c0b047e5fb85e9210d706ab5b9b5fb2d (main) and 9414efb237b20bfc5d8870ab3c7a3b1f23715a19fd71b1d40a01c7e23f4aacb1 (DD3b);
 # H10_MANIFEST_SHA e167155eddbe27587773285db0533db89fc033da7d6419f548b3e8de76ef8fe4 (main) and a32a5b4ff5a40b78f29a85ee77166b31cdf75b2193d32b6da7b23def7424319f (DD3b).
 # Re-based (23 Nov) for the DD3b fix round (D-DD.164, M rev 16.23): run-written October keys leave the scope digest; Lakeside Jul-Sep re-drawn once, notes and leaves restated (Kisiwa 903 L). The previous H8_DERIVED_SHA was a6ea5e52b59da93924de565db42866406359bbbeccf48cb752d65d4cf026efab; H10_MANIFEST_SHA aa8f1a07f76731ce54905353be17ba30f5c158c20d3de2b5210c81ca4cfd5d94.
-H8_DERIVED_SHA = "74fe3acec6ca1b575bb92f67c32ef38f704dae8ca155297d7ba1423d1845ebb8"   # derived-values.json at the DD3b fix round (M rev 16.23)
-H8_MISSING_SHA = "5f36e886dde61cf9efbb352956540fe0a2cfd54c9bddc7bd9f3b07353c46b66c"   # missing-records.json at the DD3b3 base (was the 0K4m base)
+H8_DERIVED_SHA = "7767229d4f706dbd959dfb7482bebb753db7c77e2ad96c6d9cc78837ce74d680"  # DD3d.5, manifest rev 16.25 (D-DD.187–188)
+H8_MISSING_SHA = "b097616c4c2c1bed4024e39c096091765380fe498fd838f91fea9ada365b2aa0"  # DD3d.5, manifest rev 16.25 (D-DD.187–188)
 # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17663a.
 # Re-based (23 Nov) for DD3d-a (D-DD.156, M rev 16.24): two tolerance wordings and the rev line; no figure, derived value or history moves. The previous value was 28b61ec5645395c533e23bf30d99455b367f2bbb1b149cccdf60adab4e068d1a.
-H10_MANIFEST_SHA = "4493ce316502a13c085b8b57432b0b8c32213d56329b47a9bedba93805bf1760"  # the manifest at the DS1p base, plus
+H10_MANIFEST_SHA = "0726e34fe0a223daafbc793deced4b1fa6c349ddbee18a6b19c40ae6c9897861"  # DD3d.5, manifest rev 16.25 (D-DD.187–188)
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
@@ -2153,7 +2153,7 @@ RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "day
 OPTION_ONLY_SOURCE = "admission_parts_failed"
 KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
 KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
-K8_HISTORY_SHA = "d92fc9f1eee5f72ba015939fc76de89b6898fbf94ba1b992d95c99ad73131f37"   # history.json at the 0K4m base (K8);
+K8_HISTORY_SHA = "b9db7efb888c1f518358dd296d67b153fceab876c757ef30d1790737688951ac"  # DD3d.5, manifest rev 16.25 (D-DD.187–188)
 # Re-based (23 Nov) for the DD3b fix round (D-DD.164): history.json regenerated with the run-written keys out of the scope digest; that value was 23013f57b12bcb369e634d2c6c48b04ca736bf3ea146dccda1ca6abe3c533e43.
 # Re-based (23 Nov) for the merge of main (DD4b, M rev 16.20/16.21) into DD3b (M rev 16.20), M rev 16.22: DD3b3's mini-grid fuel and DD4b's EV charger bound and cold energy model together; history.json, derived-values.json and the mock regenerated (D-DD.30 chain). The previous base was a20d9db298c7dccf26579413c0c5732012402bceb6185a72bec69d25c5d75a72 (main) and 77430f1d4338e64722ed67f7ca561be59c58f29af81d32142db01751d2219a22 (DD3b).
 # Re-based (23 Nov) for DD4b DD4.6: history.json regenerated (cold-room energy). The previous base was d2498a9c5a0ea766022aa084682b43652698e65e39924be038a8b62e6f375f0b.
@@ -2681,7 +2681,7 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     # portfolio fcfacc9c5514b96cef82a3ed422f60ab3ecb66a4351fa09a599c81b80de3d78a, history 57bac43ddcc498d26f73724da183ca66251f77e0d2b453e175c2bc9428ec41be.
     ("manifest", "structures"): "f81838dce369cb1080be69922b83458eaebe0e9db82992c30c9617e3802bd717",
     ("manifest", "factor_map"): "20f69d057d769d19728b5e16e46427871fdca8e75d6eceb98fe5b46ca06e6c36",
-    ("manifest", "empty_states.leaf_sources"): "a71fcf305a2e80a01509c3b6af40d7b17785f942aabbe500d15847834f8ee566",
+    ("manifest", "empty_states.leaf_sources"): "9d3e1a33ac0b4fb6ba225a950f1010bd3c95726db01f32296fe4c4924e856ede",  # DD3d.5
     ("manifest", "home_categories.nodes"): "1162c720a8d91d8330c4c1cec88e635361610732357d1f7466d2f4a92511669b",
     ("manifest", "home_categories.findings"): "d271fabbb142ebe177e049ad5760a1cc2d53d2cb149f495a2356cdf185f865e7",
     ("manifest", "chain_model"): "cfa3ebdb879fab1f9884cfc961c95e0df5417a6daf098e4062df2535c2cbbe4f",
@@ -2692,11 +2692,11 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was a1a0a337156fdc6f93334e5a99899ba469fc1522f200ad0a0966b357f63b7972.
     # Re-based (23 Nov) for the DD3b + main merge (M rev 16.22). The previous value was 506e6d5e161e9d3cec17976636b603772e0cf72f7ff153c0c61bd63d60bcd5e1 (main).
     # Re-based (23 Nov) for the DD3b fix round (D-DD.164, M rev 16.23). The previous value was b87ebabb98bc4fe9c54c57432428dbd5016c2139c695e052feeb0ebbc8a7674d.
-    ("derived-values.json", "sites"): "2ddcebc4ceacf5a8232238d9f360d1d3871943c427a66cbef98f827ade7b13ad",
+    ("derived-values.json", "sites"): "7d8fd6132c84b01f1be68afc519c5f0333cfcf3710c54a4f52911fea898c1627",  # DD3d.5
     # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was eb7962798fb0ac05e38906ee70544fd6b2cc853810209bb6632d3867a127f2ce.
     # Re-based (23 Nov) for the DD3b + main merge (M rev 16.22). The previous value was 0747afb414e2c692f8d8fe5efded0203327026a5c167157915fa13d7b196065a (main).
     # Re-based (23 Nov) for the DD3b fix round (D-DD.164, M rev 16.23). The previous value was a86884940335050432f901f3feddc454a762c695454ac5a7d5424b285d8a8ee4.
-    ("derived-values.json", "portfolio"): "aa55534340e5cead584bdabffa0a19c2382d037ecd480329e248bba9b0738851",
+    ("derived-values.json", "portfolio"): "2e4f1e4bc33e175eee8c19cc7c6d457c6e731eec34b7cc67d8f5446783c83672",  # DD3d.5
     # Re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view, so history.json and this part
     # were regenerated (evaluate_structure.py). The previous value was de3fbbaed74207bc3273bfd84453caed3e99432c2d235fe8c092b2409289fc09.
     # Re-based (22 Nov) for DD3a's fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's
@@ -2704,8 +2704,8 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144): cold-room energy model. The previous value was 73db129eefb4f0d9d054736d70d45f90d8a84d770b2c91b3c7a3aade9aa37249.
     # Re-based (23 Nov) for the DD3b + main merge (M rev 16.22). The previous value was 11780a8e1e9b2db16a47df1862d90ceeff35f72c05dbc2dbc1d540736c19aa98 (main).
     # Re-based (23 Nov) for the DD3b fix round (D-DD.164, M rev 16.23). The previous value was 3ba73d5d56f41f0249ee7c0cdae750fbfbc665419a21681611d2c0f0816f8657.
-    ("derived-values.json", "history"): "17ed3bff6ae3410848fb72b86dba4c107ca0752e2d908d78f6fb0ca92fc28989",
-    ("missing-records.json", "sites"): "1fa63b9c60f1063dc2efbbfc2d4951b127b4a98e091c6d2e90c5f04fc05b5314",
+    ("derived-values.json", "history"): "b7de547738768a15a2bee18f954c4a218f936fb289d381e2c0366e5e0ea0cc16",  # DD3d.5
+    ("missing-records.json", "sites"): "eb576754e3f2bd34a3c4c34913d9bbcdab85beb8eb47ed35e2adea411279f8ab",  # DD3d.5
 }
 
 

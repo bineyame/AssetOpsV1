@@ -97,7 +97,7 @@ CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piec
          "Target $2,295.00 · 63% of target", EV),
     Case("deep_dive.tile_target", "target", {"target": usd("0.00"), "share": Absent("TARGET_NOT_POSITIVE")},
          "Target $0.00", EV),
-    Case("deep_dive.cost_at_budget", "none", {"share": pct("0")}, "No cost taken at its budget line", []),
+    Case("deep_dive.cost_at_budget", "none", {"share": pct("0")}, "No cost taken at its budget line", ["Emulated"]),
     Case("deep_dive.cost_at_budget", "share", {"share": pct("0.1332")}, "13.3% of cost taken at its budget line", EV),
     Case("deep_dive.cost_at_budget", "share", {"share": pct("1")}, "100.0% of cost taken at its budget line", EV),
     Case("deep_dive.tile_split", "split", {"grow": usd("-80.00"), "optimize": usd("-482.00")},

@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Callable, Sequence
 
+from assetops_backend.deep_dive.words import cents
+
 DEFAULT_EXPECT = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "ddr" / "lakeside-2026-10.expect.json"
 GATES = ("G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10")
 STEPS = {"G1": "S1", "G2": "S2", "G3": "S4", "G4": "S4", "G5": "S5", "G6": "S6", "G7": "S8", "G8": "S9", "G9": None,
@@ -55,6 +57,7 @@ KEY_DIR_ENV = "ASSETOPS_PSEUDONYM_KEY_DIR"
 ORG_STATEMENT = None  # `site_id` of the organisation's statement
 PRICE = "diesel_price"
 PRICE_SOURCE = "commercial:"
+DECLARED_PRICE_SOURCE = "assumption:"
 PERSON = "person:"
 #: Spec §3.4: the body keys G9 compares, in order (D-DDR.7). `status_line` is compared after its first sentence.
 SCREEN_KEYS = ("schema", "operator", "month", "month_words", "state", "standing", "headline", "status_line", "tiles",
@@ -373,7 +376,8 @@ class Run:
         for code, factors in self.x["stated"].items():
             for factor, expected in factors.items():
                 value = found[code][factor].value if found[code][factor] is not None else None
-                if expected is not None and not _same_money(expected, value):
+                compared = cents(value) if factor == "fuel_cost" and value is not None else value
+                if expected is not None and not _same_money(expected, compared):
                     raise Fail("FIGURE", site=code, factor=factor, expected=expected, found=_money(value))
         for code, factors in self.x["stated"].items():
             for factor, expected in factors.items():
@@ -390,8 +394,10 @@ class Run:
             price = _leaf(read[code], PRICE)
             if price is None or price.value is None or not price.sources:
                 raise Fail("PRICE_SOURCE", site=code, source=None)
+            bought = self.x.get("fuel_bought", {}).get(code)
+            prefix = DECLARED_PRICE_SOURCE if bought is not None and Decimal(bought) == 0 else PRICE_SOURCE
             for source in price.sources:
-                if not source.startswith(PRICE_SOURCE):
+                if not source.startswith(prefix):
                     raise Fail("PRICE_SOURCE", site=code, source=source)
         targets = {code: self.s.site_targets(refs[code], self.month) for code in self.x["target_contribution"]}
         for code, expected in self.x["target_contribution"].items():

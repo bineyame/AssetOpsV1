@@ -895,7 +895,8 @@ C4_CONTRACT = {
 # override outlives DD5b's lift. Mto buys no diesel: its price is blank until the declared one is published (D-DD.177);
 # lifted by DD5b L1.prices.
 C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}},
-                   "MTO-001": {"actual": {"diesel_price": "B"}}}
+                   "MTO-001": {"actual": {"diesel_price": "B"},
+                               "plan": {"diesel_price": "B", "necessary_l": "B", "diesel_l": "B"}}}
 # Filled only by the Architect (D-DS4.16). D-DS4.27: emptied once 5a fix F1 merged (do not re-add).
 C4_KNOWN_FINDINGS: tuple[str, ...] = ()
 CHECK_CLONE_LABEL = "check"

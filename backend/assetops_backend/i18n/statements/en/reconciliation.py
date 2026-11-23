@@ -73,7 +73,8 @@ STATEMENTS = {
         },
         "variants": [
             {"id": "matched", "when": {"is": ["state", "MATCHED"]},
-             "text": "{month} ({scope_words}) matches the management accounts within {tolerance}."},
+             "text": "Revenue and fuel bought for {month} ({scope_words}) match the management accounts within "
+                     "{tolerance}."},
             {"id": "not_matched", "when": {"is": ["state", "NOT_MATCHED"]},
              "text": "{month} ({scope_words}) does not match the management accounts within {tolerance}."},
             {"id": "not_comparable", "when": {"is": ["state", "NOT_COMPARABLE"]},
@@ -92,7 +93,8 @@ STATEMENTS = {
         },
         "variants": [
             {"id": "reconciled", "when": {"is": ["reason", "RECONCILED"]}, "requires": {"present": "month"},
-             "text": "Reconciled: {month} ({scope_words}) matches the management accounts within {tolerance}."},
+             "text": "Reconciled: revenue and fuel bought for {month} ({scope_words}) match the management accounts "
+                     "within {tolerance}."},
             {"id": "this_month_not_matched", "when": {"is": ["reason", "THIS_MONTH_NOT_MATCHED"]},
              "requires": {"present": "month"},
              "text": "Not yet reconciled: {month} ({scope_words}) does not match the management accounts within "
@@ -104,7 +106,7 @@ STATEMENTS = {
             {"id": "no_statement", "when": {"is": ["reason", "NO_STATEMENT"]},
              "text": "Not yet reconciled: no closed month has been compared with the management accounts."},
             {"id": "none_matched", "when": {"is": ["reason", "NONE_MATCHED"]},
-             "text": "Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts "
+             "text": "Not yet reconciled: no month's recorded revenue and fuel bought match the management accounts "
                      "within {tolerance} yet."},
         ],
         "exhaustive": "reason",

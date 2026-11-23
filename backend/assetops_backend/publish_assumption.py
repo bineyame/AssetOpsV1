@@ -102,11 +102,6 @@ def fixture_publications(path: Path, steps: Sequence[str], resolve_prior) -> lis
 
 
 def main(argv: Sequence[str] | None = None, *, store: PostgresAssumptionStore | None = None) -> int:
-    try:
-        served = served_tenant_slug()
-    except ConfigurationError:  # as `provision_gateway`: before any store is built
-        print("CONFIGURATION", TENANT_SLUG_ENV, file=sys.stderr)
-        return 2
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.publish_assumption")
     sub = parser.add_subparsers(dest="command", required=True)
     one = sub.add_parser("publish")
@@ -127,8 +122,15 @@ def main(argv: Sequence[str] | None = None, *, store: PostgresAssumptionStore | 
     fix.add_argument("--file", required=True)
     fix.add_argument("--step", action="append", default=[])
     for p in (one, fix):
-        p.add_argument("--tenant", default=served)
+        p.add_argument("--tenant")
     args = parser.parse_args(argv)
+    try:
+        served = served_tenant_slug()
+    except ConfigurationError:  # as `provision_gateway`: before any store is built
+        print("CONFIGURATION", TENANT_SLUG_ENV, file=sys.stderr)
+        return 2
+    if args.tenant is None:
+        args.tenant = served
     if args.tenant != served:
         print("TENANT_NOT_SERVED", args.tenant, file=sys.stderr)
         return 2

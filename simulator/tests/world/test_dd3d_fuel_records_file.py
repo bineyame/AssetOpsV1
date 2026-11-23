@@ -108,7 +108,7 @@ def test_deliveries_are_the_books_fuel_rows_by_id_and_litres() -> None:
 
 def test_tickets_number_the_notes_of_a_day_from_one() -> None:
     got = {(d["taken_at_local"], d["ticket_reference"]) for d in by_site(build(), "FUEL_DELIVERY")["KOBO-001"]}
-    assert got == {("2026-09-25T10:00", "FN-KOBO-001-20260925-1"), ("2026-09-25T10:00", "FN-KOBO-001-20260925-2"),
+    assert got == {("2026-09-26T10:00", "FN-KOBO-001-20260926-1"), ("2026-09-26T10:00", "FN-KOBO-001-20260926-2"),
                    ("2026-10-26T10:00", "FN-KOBO-001-20261026-1")}
 
 

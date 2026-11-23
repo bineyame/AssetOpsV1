@@ -194,7 +194,7 @@ def driver(effects: Sequence[tuple[str, Decimal | None, str | None]], home) -> t
     earlier step) names the driver and its heading; with none, `portfolio_sites.no_driver` and no heading."""
     best = None
     for step, effect, cur in effects:
-        if effect is not None and effect < 0 and (best is None or effect < best[1]):
+        if effect is not None and W.cents(effect) < 0 and (best is None or effect < best[1]):
             best = (step, effect, cur)
     if best is None:
         return render(message("portfolio_sites.no_driver")), None

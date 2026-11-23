@@ -8,7 +8,7 @@ WK's world build and check, then WK, then DDR's merge and rehearsal; DDR builds 
 review (W5) of a non-product check, discovery for the one store read it adds.
 - **What it proves.** A person in the Analyst role takes Lakeside's exports, with the budget in a shape the product has
   never seen, from onboarding to the one screen with no code change, by the runbook alone; the screen meets step 5's
-  gate (Lakeside October 1,443.00 against 2,295.00, −852.00; Kobo −562.00 as +38.00 and −600.00, to the cent);
+  gate (Lakeside October 4,431.60 against 4,632.25, −200.65; Kobo −385.75 as +38.00 and −423.75, to the cent);
   "not yet reconciled" is shown honestly first and lifted only by a matching statement; the first agreed change is an
   Action (RC9). A verifier fails if any step that leaves a record was skipped.
 - **Builds on (all merged before DDR builds):** `ON1` (`onboard_operator`, the Lakeside onboarding fixture, the
@@ -44,10 +44,10 @@ review (W5) of a non-product check, discovery for the one store read it adds.
 | S2 | Admit the board's budget layout | `source_profile admit --tenant lakeside-power --profile backend/tests/fixtures/ddr/ddr-board-budget.profile.json --sample backend/tests/fixtures/ddr/ddr-board-budget.xlsx --expected backend/tests/fixtures/ddr/ddr-board-budget.expected.json --as wanjiru@lakeside-power.example` (its output's `admitted_by` is Wanjiru's id, used in S6) | admitted profile |
 | S3 | Write the exports; put the board budget in place of the emulated one | `python tools/world_history.py exports --manifest Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml --out "$DIR" --tenant lakeside-power`; `rm "$DIR/lakeside-power.budget.csv"`; `cp backend/tests/fixtures/ddr/ddr-board-budget.xlsx "$DIR/lakeside-power.profile.ddr-board-budget.xlsx"` | files only |
 | S4 | Submit and accept | `load_emulated_exports --dir "$DIR" --tenant lakeside-power --submit-as wanjiru@lakeside-power.example --accept-as joseph@lakeside-power.example` | accepted uploads, records |
-| S5 | The finance lead's first figures | `reconcile_month record --tenant lakeside-power --as joseph@lakeside-power.example --period 2026-10 --currency USD --revenue 9700.00 --fuel-cost 5100.00 --source-ref "Management accounts, October 2026, draft"` | statement 1 (not matched) |
+| S5 | The finance lead's first figures | `reconcile_month record --tenant lakeside-power --as joseph@lakeside-power.example --period 2026-10 --currency USD --revenue 9700.00 --fuel-cost 1645.00 --source-ref "Management accounts, October 2026, draft"` | statement 1 (not matched) |
 | S6 | Prepare the month | `build_structure_snapshot build --tenant lakeside-power --month 2026-10 --by person:<Wanjiru's id from S2>` | snapshot A |
 | S7 | Read the screen | `GET /api/portfolio/month?month=2026-10` (browser: `/portfolio?from=2026-10-01&to=2026-10-31`; IA-P2 P3b) | none (a read) |
-| S8 | The corrected figures | as S5 with `--fuel-cost 5000.00 --source-ref "Management accounts, October 2026, final"` | statement 2 (opens) |
+| S8 | The corrected figures | as S5 with `--fuel-cost 1545.00 --source-ref "Management accounts, October 2026, final"` | statement 2 (opens) |
 | S9 | Prepare the month again | as S6 | snapshot B |
 | S10 | Read the screen | as S7 | none |
 | S11 | Record the agreed change | `record_action --tenant lakeside-power --as amina@lakeside-power.example --title "Lower the generator stop setting at Kobo to 70% battery charge" --owner peter@lakeside-power.example --due 2026-12-15 --site KOBO-001 --factor candidate_l` | an Action |
@@ -77,12 +77,12 @@ only (D-DDR.11). It writes nothing, and it prints no path under the key folder a
 | G1 | S1 | the tenant exists; its Sites are exactly KISIWA-001, KOBO-001, MTO-001, each MINIGRID; held grants give exactly one OPERATOR_EXECUTIVE (amina), at least one FINANCE_AND_COMMERCIAL_LEAD (joseph) and ANALYST (wanjiru), granted by `service:onboarding`; the tenant's pseudonym key is usable through 3A2's `PseudonymKeys` port over `ASSETOPS_PSEUDONYM_KEY_DIR` (`commercial/pseudonym.py:126-138`; missing, erased or unusable is FAIL `KEY_STATE`) |
 | G2 | S2 | the latest `ddr-board-budget` profile of the tenant is ADMITTED, version 1, admitted by Wanjiru, its profile and sample SHA-256 equal the fixture files' |
 | G3 | S3, S4 | the tenant's accepted uploads (3A3 §2.8's held read) include readers `billing-illustrative-1`, `collections-illustrative-1`, `expenses-illustrative-1` and `profile.ddr-board-budget.v1`, and none `budget-illustrative-1`; each was submitted by Wanjiru and accepted by Joseph |
-| G4 | S4 | for 2026-10, through `build_structure_read(url).read.site_inputs` and `build_target_read(url)`: the expectation file's stated revenue, fuel cost, O&M and staff per Site (Kisiwa O&M absent, cause NOT_RECEIVED), `collected` and `in_transit` per Site, `diesel_price` valued with every source `commercial:`, target contributions, and Kisiwa's `TargetCheck` compared by field name (`structure/targets/read.py:43`): `factor_id` contribution, `stated` −60.00, `computed` −65.00, `currency` USD, `agrees` False (I4) |
-| G5 | S5 | the tenant's earliest organisation statement for the month has revenue 9700.00 and fuel cost 5100.00, `recorded_by_script` true, recorded by Joseph, stored result NOT_MATCHED |
+| G4 | S4 | for 2026-10, through `build_structure_read(url).read.site_inputs` and `build_target_read(url)`: the expectation file's stated revenue, computed fuel cost compared to the cent, O&M and staff per Site (Kisiwa O&M absent, cause NOT_RECEIVED), `collected` and `in_transit` per Site, `diesel_price` valued from invoices (`commercial:`), or a declared price (`assumption:`) in a month without fuel invoices, target contributions, and Kisiwa's `TargetCheck` compared by field name (`structure/targets/read.py:43`): `factor_id` contribution, `stated` 1,396.00, `computed` 1,391.00, `currency` USD, `agrees` False (I4) |
+| G5 | S5 | the tenant's earliest organisation statement for the month has revenue 9700.00 and fuel bought 1645.00, `recorded_by_script` true, recorded by Joseph, stored result NOT_MATCHED |
 | G6 | S6 | some portfolio snapshot of the month built by `person:<Wanjiru's id>` has `as_of` after G5's statement and, when a later organisation statement exists, before G7's, with `asked` the three codes |
 | G7 | S8 | a later organisation statement for the month, recorded by Joseph, opens the gate (3A7 `check(...).opens`) |
 | G8 | S9 | the latest portfolio snapshot was built by `person:<Wanjiru's id>`, its `as_of` is after G7's statement and after every accepted upload, and it is served current |
-| G9 | — | `read, dispose = build_deep_dive_read(url)` (disposed in `finally`); `read.month(TenantRef(id, slug, name), "2026-10", names)`, the `TenantRef` and `names` through `ImportedSiteRegistry` (`sites/cutover.py`) as the route does (`deep_dive_api.py:49,58`; I3), equals the expectation file's `screen` entries on §3.4's compared keys; `state` SERVED, `fresh.current` true, `fresh.untracked_text` null (D-DDR.7) |
+| G9 | — | `read, dispose = build_deep_dive_read(url)` (disposed in `finally`); `read.month(TenantRef(id, slug, name), "2026-10", names)`, the `TenantRef` and `names` through `ImportedSiteRegistry` (`sites/cutover.py`) as the route does (`deep_dive_api.py:49,58`; I3), equals the expectation file's `screen` entries on §3.4's compared keys; `state` SERVED, `fresh.current` true, `fresh.untracked_text` equal to the expectation file (D-DD.181) |
 | G10 | S11 | `build_agreed_actions(url).service.for_tenant(tenant)[0]` is titled as S11, created by Amina, owned by Peter, due 2026-12-15, at KOBO-001 on `candidate_l`; the body's `actions.rows[0].title` is that title (D-DDR.9) |
 
 ### 2.3 The one store read (`structure_snapshot`)
@@ -122,27 +122,27 @@ zip whose members keep one fixed order, each `ZipInfo` with `date_time (2026, 7,
 | r | A | B | C | D | E | F |
 |---|---|---|---|---|---|---|
 | 1 | Lakeside Power – Board budget FY2026 | | | | | |
-| 2 | Approved 2 July 2026 | | | | | |
+| 2 | October revision approved 1 October 2026 | | | | | |
 | 3 | Line ID | Site | Period | Budget line | Amount | Ccy |
 | 4 | BB-01 | KOBO-001 | October 2026 | Revenue | 3,420.00 | USD |
-| 5 | BB-02 | KOBO-001 | October 2026 | Fuel | 875.00 | USD |
+| 5 | BB-02 | KOBO-001 | October 2026 | Fuel | 368.75 | USD |
 | 6 | BB-03 | KOBO-001 | October 2026 | O&M | 600.00 | USD |
 | 7 | BB-04 | KOBO-001 | October 2026 | Salaries | 500.00 | USD |
-| 8 | BB-05 | KOBO-001 | October 2026 | Contribution | 1,445.00 | USD |
+| 8 | BB-05 | KOBO-001 | October 2026 | Contribution | 1,951.25 | USD |
 | 9 | BB-06 | KISIWA-001 | October 2026 | Revenue | 4,125.00 | USD |
-| 10 | BB-07 | KISIWA-001 | October 2026 | Fuel | 2,990.00 | USD |
+| 10 | BB-07 | KISIWA-001 | October 2026 | Fuel | 1,534.00 | USD |
 | 11 | BB-08 | KISIWA-001 | October 2026 | O&M | 700.00 | USD |
 | 12 | BB-09 | KISIWA-001 | October 2026 | Salaries | 500.00 | USD |
-| 13 | BB-10 | KISIWA-001 | October 2026 | Contribution | (60.00) | USD |
+| 13 | BB-10 | KISIWA-001 | October 2026 | Contribution | 1,396.00 | USD |
 | 14 | BB-11 | MTO-001 | October 2026 | Revenue | 2,240.00 | USD |
-| 15 | BB-12 | MTO-001 | October 2026 | Fuel | 375.00 | USD |
+| 15 | BB-12 | MTO-001 | October 2026 | Fuel | 0.00 | USD |
 | 16 | BB-13 | MTO-001 | October 2026 | O&M | 500.00 | USD |
 | 17 | BB-14 | MTO-001 | October 2026 | Salaries | 450.00 | USD |
-| 18 | BB-15 | MTO-001 | October 2026 | Contribution | 915.00 | USD |
+| 18 | BB-15 | MTO-001 | October 2026 | Contribution | 1,290.00 | USD |
 | 19 | BB-16 | (empty) | October 2026 | Salaries | 1,200.00 | USD |
 
 (The lines are 5a's `targets_lakeside.json` steps 1 and 2, less Kobo's unused `diesel_cost`; the Kisiwa contribution
-line −60.00 is the deliberate disagreement with its lines' −65.00. Do not correct it.)
+line 1,396.00 is the deliberate disagreement with its lines' 1,391.00. Do not correct it.)
 
 ### 3.2 `ddr-board-budget.profile.json` (3A6 §2.1)
 
@@ -160,17 +160,17 @@ FY26", "header_row": 3}`, `values` `{"decimal_mark": ".", "thousands_mark": ",",
 
 Sixteen BUDGET_LINE records in row order: `format_version` 1, `source_record_id` the Line ID, `source_version` "1",
 `site_code` the Site (absent for BB-16), `clocks.recognition_period` "2026-10", `body` `{"factor_id", "line_ref" (the
-native text: "Revenue", "Fuel", "O&M", "Salaries", "Contribution"), "value" (plain: "3420.00", "875.00", "600.00",
-"500.00", "1445.00", "4125.00", "2990.00", "700.00", "500.00", "-60.00", "2240.00", "375.00", "500.00", "450.00",
-"915.00", "1200.00"), "currency": "USD", "version_ref": "board-budget-fy26"}` (3A6 §2.4: marks removed, parentheses
+native text: "Revenue", "Fuel", "O&M", "Salaries", "Contribution"), "value" (plain: "3420.00", "368.75", "600.00",
+"500.00", "1951.25", "4125.00", "1534.00", "700.00", "500.00", "1396.00", "2240.00", "0.00", "500.00", "450.00",
+"1290.00", "1200.00"), "currency": "USD", "version_ref": "board-budget-fy26"}` (3A6 §2.4: marks removed, parentheses
 negative, fraction digits kept).
 
 ### 3.4 `lakeside-2026-10.expect.json` (the checker's literals)
 
 `sites`, `people` (G1); `profile` with the two SHA-256 of §3.1 and §3.2's files, computed by `make_board_budget.py`
 and written in by hand (G2); `readers` (G3); per Site `stated` {revenue, fuel_cost, om, staff, collected, in_transit}
-and `target_contribution` (G4): KISIWA-001 4070.00, 3120.00, absent, 500.00, 3800.00, 0.00, −65.00; KOBO-001 3458.00,
-1475.00, 600.00, 500.00, 3180.00, 0.00, 1445.00; MTO-001 2160.00, 400.00, 500.00, 450.00, 1890.00, 150.00, 915.00 (3A3
+and `target_contribution` (G4): KISIWA-001 4070.00, 1173.90, absent, 500.00, 3800.00, 0.00, 1391.00; KOBO-001 3458.00,
+792.50, 600.00, 500.00, 3180.00, 0.00, 1951.25; MTO-001 2160.00, 40.00, 500.00, 450.00, 1890.00, 150.00, 1290.00 (3A3
 E2 to E5); `statements` (G5, G7); `action` (G10: the title, "Amina", "Peter", "2026-12-15", "KOBO-001",
 "candidate_l").
 
@@ -315,7 +315,7 @@ is D-DDR.15's: the layout is admitted **before** the exports are written and loa
   "build_structure_snapshot build", "record_action", "rehearsal_check", "commercial.pseudonym_key erase"]`; `_parsers`
   gains `source_profile`, `reconcile_month`, `build_structure_snapshot`, `record_action` and `rehearsal_check` (each
   module's `build_parser`); `VALUES` gains `"ADMITTED_BY": "00000000-0000-0000-0000-000000000002"`, `"PERIOD":
-  "2026-10"`, `"REVENUE": "9700.00"`, `"FUEL_COST": "5100.00"`, `"SOURCE_REF": "Management accounts, October 2026,
+  "2026-10"`, `"REVENUE": "9700.00"`, `"FUEL_COST": "1645.00"`, `"SOURCE_REF": "Management accounts, October 2026,
   draft"`, and `KEY_DIR` becomes `/opt/assetecon/keys/assetops_rehearsal_ddr1_test`. No other line of that file
   changes.
 

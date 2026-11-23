@@ -151,6 +151,26 @@ def test_4b_world_x_degrades(monkeypatch) -> None:
     monkeypatch.setattr(V, "site_bridge", lambda inputs, targets: _x(real(inputs, targets)))
     got = sites({"2026-10": world("H")[0]}, "2026-10-01", "2026-10-31")
     assert [r["gap"] for r in got["rows"]] == [NA, NA, NA]
+    assert got["headline"] == {"text": "No Sites have figures to compare with target in October", "evidence": []}
+    assert got["total"] == {"gap": NA, "word": None}
+    assert got["without_target"] == {"count": 0, "text": None}
+    assert all(not row["below"] and row["driver_heading"] is None for row in got["rows"])
+
+
+def test_zero_comparisons_preserve_range_and_domain_reasons(monkeypatch) -> None:
+    real = V.site_bridge
+    monkeypatch.setattr(V, "site_bridge", lambda inputs, targets: _x(real(inputs, targets)))
+    depot = SiteRef("EV-001", "Depot", "EV_CHARGING")
+    got = sites(_world_p("H"), "2026-09-01", "2026-10-31", (*REFS, THIKA, depot))
+    assert got["mode"] == "period"
+    assert got["headline"] == {
+        "text": f"No Sites have figures to compare with target in {got['period_words']}", "evidence": [],
+    }
+    assert got["total"] == {"gap": NA, "word": None}
+    assert got["without_target"] == {"count": 0, "text": None}
+    assert [row["contribution"] for row in got["rows"]] == [
+        NA, NA, NA, "No monthly figures for cold-chain Sites yet", "No monthly figures for EV charging Sites yet",
+    ]
 
 
 def test_5_route() -> None:
@@ -192,8 +212,9 @@ def test_6_every_site_on_target_and_heading_words(monkeypatch) -> None:
     got = sites({"2026-10": world("A")[0]}, "2026-10-01", "2026-10-31")
     assert got["headline"]["text"] == "Every Site is on or above target in October"
     monkeypatch.undo()
-    kisiwa = sites({"2026-10": world("A")[0]}, "2026-10-01", "2026-10-31")["rows"][1]
-    assert kisiwa["driver_heading"] == V.W.heading_label(T.OPTIMIZE)
+    rows = sites({"2026-10": world("A")[0]}, "2026-10-01", "2026-10-31")["rows"]
+    kisiwa = next(row for row in rows if row["site_code"] == "KISIWA-001")
+    assert kisiwa["driver_heading"] == V.W.heading_label(T.GROW)
 
 
 def test_7_world_p_two_months() -> None:
@@ -221,7 +242,7 @@ def test_8_a_site_compared_in_one_month() -> None:
     got = sites(months, "2026-09-01", "2026-10-31")
     mto_row = next(r for r in got["rows"] if r["site"] == "Mto")
     assert mto_row["months_text"] == "Compared in 1 of 2 months"
-    assert (mto_row["gap"], mto_row["contribution"]) == ("−$105.00", "$810.00 against a target of $915.00")
+    assert (mto_row["gap"], mto_row["contribution"]) == ("+$255.00", "$1,170.00 against a target of $915.00")
     z = P.Sums(read_of(months)._months(LAKESIDE, ("2026-09", "2026-10")), NAMES)
     assert P.exact_sum([S._Site(z, r.code).effect for r in REFS]) == P.exact_sum([R.effect for R in z.Rs])
 

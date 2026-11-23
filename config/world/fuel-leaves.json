@@ -10,14 +10,22 @@
       ],
       "month": "2026-10",
       "ledger": {
-        "tank_open": "672672537/400000",
-        "tank_close": "631443517/400000",
-        "modelled_l": "17661451/20000",
-        "standin_candidate_l": "138873/2000"
+        "tank_open": "672650309/400000",
+        "tank_close": "947018711/600000",
+        "modelled_l": "211982701/240000",
+        "standin_candidate_l": "25432127/400000"
       },
-      "candidate_days": 9,
+      "candidate_days": 8,
       "peak_evening_generator_kw": "41867/1000",
-      "inputs_sha256": "fefe163f1742a302c0f49275285fe53d37c8376fa8db18a208a6e0e32ea1f3ef"
+      "inputs_sha256": "92358e4b387ff411d6e0513ca331816aa8613a16d86dd042934d3f52a4d27aa3",
+      "quarter": {
+        "tank_open_jul": "2500",
+        "deliveries_jul_sep": "2400",
+        "tank_open_oct": "672650309/400000",
+        "consumed_jul_sep": "1287349691/400000",
+        "contingency": "1.10",
+        "plan_diesel_l": 1180
+      }
     },
     {
       "site_code": "KOBO-001",
@@ -27,14 +35,22 @@
       ],
       "month": "2026-10",
       "ledger": {
-        "tank_open": "268023086471/216000000",
-        "tank_close": "135894218429/135000000",
+        "tank_open": "84028343333/67500000",
+        "tank_close": "218298361681/216000000",
         "modelled_l": "185120561641/360000000",
         "standin_candidate_l": "13261940101/540000000"
       },
       "candidate_days": 5,
       "peak_evening_generator_kw": "0",
-      "inputs_sha256": "9dc7abdc2c2de74ef36dc1e1d37c3167db5000c8509459dd74a5814992912d73"
+      "inputs_sha256": "77ab32e3aaf244329cd2c6bd07b9afe16eee5b415a4397480fed1de1e45a4fe4",
+      "quarter": {
+        "tank_open_jul": "1250",
+        "deliveries_jul_sep": "800",
+        "tank_open_oct": "84028343333/67500000",
+        "consumed_jul_sep": "54346656667/67500000",
+        "contingency": "1.10",
+        "plan_diesel_l": 295
+      }
     },
     {
       "site_code": "MTO-001",
@@ -51,7 +67,15 @@
       },
       "candidate_days": 1,
       "peak_evening_generator_kw": "0",
-      "inputs_sha256": "c0cd4c05d5e0c680920c624cb4b2965c8b293a8c16a05483b156c520aeaae50c"
+      "inputs_sha256": "264796f5f5234f56ce3fecb886d88e3be498565a3362cf20fde2c0fc871bc308",
+      "quarter": {
+        "tank_open_jul": "500",
+        "deliveries_jul_sep": "0",
+        "tank_open_oct": "500",
+        "consumed_jul_sep": "0",
+        "contingency": "1.10",
+        "plan_diesel_l": 0
+      }
     }
   ]
 }

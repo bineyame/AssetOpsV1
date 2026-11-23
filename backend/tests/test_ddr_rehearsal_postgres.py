@@ -9,16 +9,19 @@ the literals below (W2), never a run's output.
 """
 from __future__ import annotations
 
+import csv
 import json
 import os
 import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
@@ -32,11 +35,15 @@ if URL:
     from assetops_backend import build_structure_snapshot as snapshot_cmd
     from assetops_backend import load_emulated_exports as loader
     from assetops_backend import onboard_operator as onboard
+    from assetops_backend import publish_assumption
     from assetops_backend import reconcile_month as reconcile
     from assetops_backend import record_action as action_cmd
     from assetops_backend import rehearsal_check as check
     from assetops_backend import source_profile as profile_cmd
     from assetops_backend.database_target import PG_TARGET_ENV
+    from assetops_backend.structure.evaluate import ORIGIN_UNKNOWN, LeafValue
+    from assetops_backend.structure.litres.rules import LITRE_ORDER, LitreMonth
+    from assetops_backend.structure.litres.source import LitreLeafSource
 
 BACKEND = Path(__file__).resolve().parents[1]
 REPO = BACKEND.parent
@@ -65,7 +72,7 @@ def test_url_is_a_test_database() -> None:
 
 
 @pytest.fixture()
-def rehearsal(store, engine, tmp_path, monkeypatch, capsys):  # noqa: F811 - `store` empties the tenant closure
+def rehearsal_without_litres(store, engine, tmp_path, monkeypatch, capsys):  # noqa: F811 - `store` empties the tenant closure
     keys = tmp_path / "keys"
     keys.mkdir(mode=0o700)
     os.chmod(keys, 0o700)
@@ -76,6 +83,50 @@ def rehearsal(store, engine, tmp_path, monkeypatch, capsys):  # noqa: F811 - `st
     monkeypatch.setenv("ASSETOPS_TENANT_SLUG", SLUG)
     monkeypatch.setenv("ASSETOPS_PSEUDONYM_KEY_DIR", str(keys))
     return Rehearsal(keys, tmp_path / "exports", capsys)
+
+
+@pytest.fixture()
+def rehearsal(rehearsal_without_litres, monkeypatch):
+    tenant = lakeside_manifest()
+    actuals = {site["code"]: site["period"]["actual"] for site in tenant["sites"]}
+    read_month = LitreLeafSource._month
+
+    def month(source, ctx):
+        actual = actuals.get(ctx.site.site_code)
+        if ctx.month != "2026-10" or actual is None:
+            return read_month(source, ctx)
+        values = {
+            factor: LeafValue(Decimal(actual[factor]), "MODELLED", ("test:M-october-litres",),
+                              None, None, None, (ORIGIN_UNKNOWN,))
+            for factor in LITRE_ORDER
+        }
+        return LitreMonth(values, None, None, None, None)
+
+    monkeypatch.setattr(LitreLeafSource, "_month", month)
+    return rehearsal_without_litres
+
+
+def lakeside_manifest():
+    return next(tenant for tenant in yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))["tenants"]
+                if tenant["tenant"] == SLUG)
+
+
+def test_october_board_budget_matches_the_manifest() -> None:
+    expected = json.loads((DDR / "ddr-board-budget.expected.json").read_text(encoding="utf-8"))
+    lines = {(row.get("site_code"), row["body"]["factor_id"]): Decimal(row["body"]["value"]) for row in expected}
+    for site in lakeside_manifest()["sites"]:
+        code = site["code"]
+        plan = site["period"]["plan"]
+        contribution = Decimal(str(plan["contribution"]))
+        assert lines[code, "fuel_cost"] == Decimal(str(plan["diesel_cost"]))
+        assert lines[code, "contribution"] == contribution + (5 if code == "KISIWA-001" else 0)
+        assert Decimal(EXPECT["target_contribution"][code]) == contribution
+
+
+def statement_fuel(offset: int, literal: str) -> str:
+    total = sum(map(Decimal, EXPECT["fuel_bought"].values())) + offset
+    assert str(total) == literal
+    return literal
 
 
 class Rehearsal:
@@ -129,6 +180,19 @@ class Rehearsal:
     def s4(self) -> None:
         self._main("S4", loader.main, ["--dir", str(self.dir), "--tenant", SLUG, "--submit-as", WANJIRU,
                                        "--accept-as", JOSEPH])
+        self.publish_prices()
+
+    def publish_prices(self) -> None:
+        tenant = lakeside_manifest()
+        for site in tenant["sites"]:
+            code = site["code"]
+            price = tenant["prices"]["diesel_usd_per_l"][site["site"]]
+            self._main("S4", publish_assumption.main, [
+                "publish", "--tenant", SLUG, "--site", code, "--change-kind", "INITIAL", "--currency", "USD",
+                "--value", str(price), "--basis", "AUTHORED_ESTIMATE", "--source", "Demo scenario manifest",
+                "--valid-from", "2026-07-01T00:00:00Z", "--expected-prior", "none",
+                "--idempotency-key", f"ddr-{code.lower()}-diesel-price",
+            ])
 
     def _statement(self, step: str, fuel: str, ref: str) -> None:
         self._main(step, reconcile.main, ["record", "--tenant", SLUG, "--as", JOSEPH, "--period", "2026-10",
@@ -136,7 +200,7 @@ class Rehearsal:
                                           "--source-ref", ref])
 
     def s5(self) -> None:
-        self._statement("S5", "5100.00", "Management accounts, October 2026, draft")
+        self._statement("S5", statement_fuel(105, "1645.00"), "Management accounts, October 2026, draft")
 
     def _build(self, step: str, by: str | None = None) -> None:
         if by is None:
@@ -162,7 +226,7 @@ class Rehearsal:
         self._read("S7")
 
     def s8(self) -> None:
-        self._statement("S8", "5000.00", "Management accounts, October 2026, final")
+        self._statement("S8", statement_fuel(5, "1545.00"), "Management accounts, October 2026, final")
 
     def s9(self) -> None:
         self._build("S9")
@@ -225,7 +289,16 @@ def test_1_the_rehearsal_with_progress(rehearsal) -> None:  # plants P5, P6, P9,
         seen[step] = r.check()
     assert UNIT2, "D-DDR.14: review only from a base holding 3C2 unit 2"
     want = dict(PROGRESS)
-    assert {s: c.first for s, c in seen.items()} == want, {s: c.failed for s, c in seen.items()}
+    assert {s: c.first for s, c in seen.items()} == want, {
+        step: {"failure": result.failed.get(result.first), "untracked": r.bodies.get(step, {}).get("fresh", {}).get("untracked_text")}
+        for step, result in seen.items() if result.first != want[step]
+    }
+    with (r.dir / f"{SLUG}.expenses.csv").open(encoding="utf-8", newline="") as invoices:
+        oct_fuel = {code: Decimal("0.00") for code in EXPECT["asked"]}
+        for row in csv.DictReader(invoices):
+            if row["Month"] == "2026-10" and row["Category"] == "Diesel":
+                oct_fuel[row["Site"]] += Decimal(row["Amount"])
+    assert oct_fuel == {code: Decimal(value) for code, value in EXPECT["fuel_bought"].items()}
     assert seen["S9"].failed["G10"] == ("ACTION_MISSING", {})  # "no S11 -> G10" (D-DDR.10)
 
     s7, s10, s12 = r.bodies["S7"], r.bodies["S10"], r.bodies["S12"]
@@ -304,11 +377,45 @@ def test_4a_records_written_without_an_upload_fail_g3(rehearsal) -> None:  # pla
     finally:
         accounts._store.dispose()
         reads.dispose()
+    r.publish_prices()
     for step in STEPS[4:]:
         getattr(r, step.lower())()
     c = r.check()
     assert c.first == "G3" and c.failed["G3"] == ("READER_MISSING", {"reader": "billing-illustrative-1"}), c.failed
     assert "G4" not in c.failed  # the record set is complete: only the uploads are missing
+
+
+def test_7_without_litres_fuel_is_not_available(rehearsal_without_litres) -> None:
+    from fastapi.testclient import TestClient
+
+    from assetops_backend.main import create_app
+
+    r = rehearsal_without_litres
+    for step in STEPS[:7]:
+        getattr(r, step.lower())()
+        assert r.exits[step] == 0, (step, r.errors.get(step))
+    assert r.check().failed["G4"] == ("FIGURE", {
+        "site": "KISIWA-001", "factor": "fuel_cost", "expected": "1173.90", "found": None,
+    })
+    body = r.bodies["S7"]
+    assert body["tiles"][0]["value"] == "Not available yet"
+    assert all("taken at its budget line" not in line for line in body["tiles"][0]["lines"])
+    assert body["fresh"]["untracked_text"] == "Not checked for later changes: Diesel price (Mto mini-grid)."
+    params = {"from": "2026-10-01", "to": "2026-10-31"}
+    with TestClient(create_app()) as client:
+        period = client.get("/api/portfolio/period", params=params)
+        sites = client.get("/api/portfolio/sites", params=params)
+    assert (period.status_code, sites.status_code) == (200, 200)
+    assert (period.json()["mode"], period.json()["body"]) == ("month", None)
+    sites_body = sites.json()
+    assert sites_body["headline"] == {
+        "text": "No Sites have figures to compare with target in October", "evidence": [],
+    }
+    assert sites_body["total"] == {"gap": "Not available yet", "word": None}
+    assert sites_body["without_target"] == {"count": 0, "text": None}
+    rows = sites_body["rows"]
+    assert {row["site_code"] for row in rows} == set(EXPECT["asked"])
+    assert all(row["contribution"] == row["gap"] == "Not available yet" for row in rows)
 
 
 def test_4b_a_snapshot_built_by_a_service_fails_g6(rehearsal) -> None:  # plant P12

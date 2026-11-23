@@ -165,9 +165,11 @@ accepted export counts.
 ## 8. Record the management-accounts figures
 
 The finance lead reads the month's figures from the management accounts; the command records them in their name.
-In the rehearsal the first figures are the draft (`PERIOD=2026-10`, `REVENUE=9700.00`, `FUEL_COST=5100.00`,
+Until October readings are loaded, fuel cost shows “Not available yet” and the rehearsal checker stops at G4.
+
+In the rehearsal the first figures are the draft (`PERIOD=2026-10`, `REVENUE=9700.00`, `FUEL_COST=1645.00`,
 `SOURCE_REF="Management accounts, October 2026, draft"`); after step 10 the final figures follow
-(`FUEL_COST=5000.00`, `SOURCE_REF="Management accounts, October 2026, final"`), and the block is run again.
+(`FUEL_COST=1545.00`, `SOURCE_REF="Management accounts, October 2026, final"`), and the block is run again.
 
 ```sh
 (

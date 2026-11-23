@@ -157,8 +157,8 @@
         "drawer": {
           "title": "Reconciliation with the management accounts",
           "lines": [
-            "September 2026: Not yet reconciled: September 2026 (the organisation) does not match the management accounts within 1%.",
-            "October 2026: Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
+            "September 2026: Not yet reconciled: September 2026 (the organisation) does not match the management accounts within 1% (Declared).",
+            "October 2026: Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% (Declared).",
             "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
           ]
         }

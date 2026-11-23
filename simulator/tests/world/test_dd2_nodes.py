@@ -31,7 +31,7 @@ MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")
 OCTOBER_OLD_PINS = {  # test_3a3_exports.PINNED before DD2.1, with SOURCE_VERSION "1"
     "billing": "7111a18fdf8ed36ad19c7339e1266395d70065886008b2839cbc0bacd4e16534",
     "collections": "8b3cd80a03eaf2fa06f8f393189ca353bbd593ad6418b90551b4a3fd1a6352c3",
-    "budget": "5b03eb3e849031311c40bc13accd13c278867ddbf81bb0443e0c34d1c3bfcb7e",
+    "budget": "c87eb166877f48d9677b95ed8587a1cf40cb2e21f0099960e8511aef0b91bb1a",
 }
 
 
@@ -89,12 +89,12 @@ def test_october_evaluated_equals_recorded_on_both_sides_at_every_site() -> None
     tenant = tenant_of(view, TENANT)
     expected = {  # by hand: the period's own nodes (October litres: the notes run's, D-DD.131/150, M rev 16.20)
         "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 634,
-                  "fuel_cost": "792.5"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
+                  "fuel_cost": "792.5"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 295, "fuel_cost": "368.75"}),
         # D-DD.164 (2026-11-23): Kisiwa's October litres restated from the run, 904 -> 903 L (M rev 16.23)
         "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 903, "fuel_cost": "1173.9"},
-                   {"billed_kwh": 7500, "revenue": "4125", "fuel_cost": "2990"}),
+                   {"billed_kwh": 7500, "revenue": "4125", "fuel_cost": "1534.00"}),
         "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 32, "fuel_cost": "40"},
-                {"billed_kwh": 5600, "revenue": "2240", "fuel_cost": "375"}),
+                {"billed_kwh": 5600, "revenue": "2240", "fuel_cost": "0.00"}),
     }
     for name, (actual, plan) in expected.items():
         site = site_of(view, TENANT, name)
@@ -127,12 +127,12 @@ def test_a_changed_october_plan_leaf_stops_it_too() -> None:
 
 def test_july_at_kobo_is_derived_from_the_pinned_leaves(full) -> None:
     july = [r for r in rows(full, "billing") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    # D-DD.164 (2026-11-23): Lakeside July-September re-seeded once (RUN_WRITTEN left the digest): 8190 -> 8200 kWh
-    assert sum(int(r["quantity"]["value"]) for r in july) == 8200
-    assert total(july) == Decimal("3280.00")
+    # D-DD.170: plan keys leave the digest and Kobo July re-seeds once.
+    assert sum(int(r["quantity"]["value"]) for r in july) == 8184
+    assert total(july) == Decimal("3273.60")
     receipts = [r for r in rows(full, "collections") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3016.30")
-    assert total(receipts) == Decimal("3016.30")  # no in transit in July
+    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3010.41")
+    assert total(receipts) == Decimal("3010.41")  # no in transit in July
 
 
 def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
@@ -165,7 +165,7 @@ def test_history_money_is_in_cents_and_october_in_dollars(full) -> None:
 def test_the_plan_side_is_evaluated_every_month(full) -> None:
     kobo = {(month_of(r), r["body"]["factor_id"]): r["body"]["value"] for r in rows(full, "budget")
             if r["site_code"] == "KOBO-001"}
-    assert kobo[("2026-07", "revenue")] == "3420.00" and kobo[("2026-07", "fuel_cost")] == "875.00"  # 8550 x .40, 700 x 1.25
+    assert kobo[("2026-07", "revenue")] == "3420.00" and kobo[("2026-07", "fuel_cost")] == "368.75"  # 8550 x .40, 295 x 1.25
     assert kobo[("2026-07", "tariff")] == "0.40" and kobo[("2026-07", "diesel_price")] == "1.25"
 
 
@@ -182,7 +182,7 @@ def test_months_selects_and_default_is_history_plus_the_period() -> None:
 
 # --- October bytes are unchanged by the node derivation (D-DD.48 "one mechanism") --------------------------------------
 
-def test_october_billing_collections_and_budget_bytes_are_unchanged(monkeypatch) -> None:
+def test_october_billing_collections_and_budget_bytes_match_the_plan(monkeypatch) -> None:
     monkeypatch.setattr(exports, "SOURCE_VERSION", "1")
     view = load_fixture()
     result = build_exports(view, generate_history(view), months=["2026-10"])
@@ -232,7 +232,7 @@ def test_other_months_cut_400_l_notes_on_the_fixed_days() -> None:
             assert [r["quantity"]["value"] for r in fuel[:-1]] == ["400"] * (len(fuel) - 1)
     kobo_july = [r for r in rows(full, "expenses") if r["site_code"] == "KOBO-001" and month_of(r) == "2026-07"
                  and r["body"]["category"] == "FUEL"]
-    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 482 + 19 + 12  # necessary + candidate + unexplained (D-DD.164 re-seed)
+    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 476 + 21 + 12  # necessary + candidate + unexplained (D-DD.164 re-seed)
     assert "remainder" in kobo_july[-1]["body"]["document_ref"]
 
 

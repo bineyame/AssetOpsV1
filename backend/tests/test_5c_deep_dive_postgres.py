@@ -47,21 +47,16 @@ def at(hour: int, minute: int = 0) -> datetime:
 
 #: Keys of the payload that name the read's instants; every other key is World A's fixture.
 TIMED = ("as_of", "as_of_text", "status_line")
-#: 3A7's organisation standing as `CommercialReconciliation.standing` words it on this database: it names the evidence
-#: of the statement it compares, in the shared vocabulary after SC-1f (D-SC1F.1: the accounts statement is Declared);
-#: unit 1's injected literal (spec section 3.5) has no evidence (MBQ1). The view passes it through unchanged (PF11).
-A_FIXTURE_TEXT = "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%."
+#: The finance standing is served with the evidence of the accounts and invoice figures.
 A_TEXT = ("Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
           "(Declared).")
-#: The same for the fuel-cost detail: unit 1's injected literal keeps 3A7's pre-SC-1f evidence words.
-A_FIXTURE_DETAIL = "Fuel cost (Recorded and Emulated): "
-A_DETAIL = "Fuel cost (Recorded, Emulated and Declared): "
-A_WORDS = ["Estimated, not yet reconciled", "Estimated, not yet reconciled", None, None,
-           "Emulated, not yet reconciled", "Emulated, not yet reconciled", "Estimated, not yet reconciled",
+A_DETAIL = "Fuel bought (invoices) (Recorded, Emulated and Declared): "
+A_WORDS = ["Modelled, not yet reconciled", "Modelled, not yet reconciled", None, None,
+           "Emulated, not yet reconciled", "Modelled, not yet reconciled", "Estimated, not yet reconciled",
            "Emulated, not yet reconciled", "Estimated, not yet reconciled", "Emulated, not yet reconciled",
-           "Estimated, not yet reconciled", None, None]
-B_WORDS = ["Estimated", "Estimated", None, None, "Emulated", "Emulated", "Estimated", "Emulated", "Estimated",
-           "Emulated", "Estimated", None, None]
+           "Modelled, not yet reconciled", None, None]
+B_WORDS = ["Modelled", "Modelled", None, None, "Emulated", "Modelled", "Estimated", "Emulated", "Estimated",
+           "Emulated", "Modelled", None, None]
 
 
 def money_words(v: dict) -> list:
@@ -108,10 +103,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     x = lakeside
     record(x, at(10), revenue="9700.00", fuel="2100.00")  # S1, the finance lead (re-pinned 2026-11-23: records fuel is 2,006.40 on M rev 16.23; was 5100 on 4,995.00)
     build(x, at(11))
-    raw = FIXTURE.read_text(encoding="utf-8")
-    assert raw.count(A_FIXTURE_TEXT) == 2  # the standing and the Assure drawer's first line
-    assert raw.count(A_FIXTURE_DETAIL) == 2
-    fixture = json.loads(raw.replace(A_FIXTURE_TEXT, A_TEXT).replace(A_FIXTURE_DETAIL, A_DETAIL))
+    fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
 
     # (a) read at 11:30: World A's standing and money words, as of the build.
     a = read(x, at(11, 30))
@@ -141,9 +133,9 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert c["status_line"] == ("Figures as of 19 November 2026, 13:00 UTC. Revenue and fuel bought are reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
     assert money_words(c) == B_WORDS
-    assert c["standing"]["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts "
+    assert c["standing"]["text"] == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts "
                                      "within 1% (Declared).")
-    assert (c["outcomes"][3]["value"], c["outcomes"][3]["drawer"]["lines"]) == ("Reconciled", [c["standing"]["text"]])
+    assert (c["outcomes"][3]["value"], c["outcomes"][3]["drawer"]["lines"]) == ("Reconciled", [c["standing"]["text"], fixture["outcomes"][3]["drawer"]["lines"][-1]])
 
 
 def test_9_the_composition_reads_the_database(lakeside) -> None:

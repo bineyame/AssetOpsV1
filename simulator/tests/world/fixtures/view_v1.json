@@ -262,9 +262,9 @@
       },
       "plan": {
        "billed_kwh": 8550,
-       "contribution": "1445.0",
-       "diesel_cost": "875.0",
-       "diesel_l": 700,
+       "contribution": "1951.25",
+       "diesel_cost": "368.75",
+       "diesel_l": 295,
        "om": "600.0",
        "revenue": "3420.0",
        "staff": "500.0"
@@ -295,7 +295,7 @@
       "actual": {
        "adjustments_kwh": 30,
        "billed_kwh": 7400,
-       "candidate_l": 69,
+       "candidate_l": 64,
        "collected": "3800.0",
        "contribution": "1696.1",
        "delivered_kwh": 7950,
@@ -303,7 +303,7 @@
        "diesel_l": 903,
        "in_transit": "0.0",
        "metered_kwh": 7430,
-       "necessary_l": 814,
+       "necessary_l": 819,
        "om": "700.0",
        "outstanding": "270.0",
        "revenue": "4070.0",
@@ -319,9 +319,9 @@
       },
       "plan": {
        "billed_kwh": 7500,
-       "contribution": "-65.0",
-       "diesel_cost": "2990.0",
-       "diesel_l": 2300,
+       "contribution": "1391.0",
+       "diesel_cost": "1534.0",
+       "diesel_l": 1180,
        "om": "700.0",
        "revenue": "4125.0",
        "staff": "500.0"
@@ -377,9 +377,9 @@
       },
       "plan": {
        "billed_kwh": 5600,
-       "contribution": "915.0",
-       "diesel_cost": "375.0",
-       "diesel_l": 300,
+       "contribution": "1290.0",
+       "diesel_cost": "0.0",
+       "diesel_l": 0,
        "om": "500.0",
        "revenue": "2240.0",
        "staff": "450.0"

@@ -43,9 +43,9 @@ ANCHOR = "anchor"
 #: `test_scope_run_written.py`: changing a run-written October key moves only these paths. Generate 1 to 2 may move
 #: only these values and `meta.view_digest`; generates 2 and 3 are byte-identical.
 RUN_DERIVED: dict[str, tuple[str, ...]] = {
-    "MINI_GRID": ("necessary_l", "candidate_l"),
-    "COLD_CHAIN": ("kwh",),
-    "EV_DEPOT": ("peak_kwh", "offpeak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw"),
+    "MINI_GRID": ("actual.necessary_l", "actual.candidate_l", "plan.diesel_l"),
+    "COLD_CHAIN": ("actual.kwh",),
+    "EV_DEPOT": ("actual.peak_kwh", "actual.offpeak_kwh", "actual.kwh_2200_2400", "actual.kwh_0000_0500", "actual.max_kw"),
 }
 
 #: D-DD.176: per vertical, the history `actual`/`plan` keys a writer reads: `telemetry.books_for` (delivered kWh and
@@ -64,7 +64,8 @@ def _run_derived_is_never_read_back() -> None:
     for vertical, derived in RUN_DERIVED.items():
         if vertical not in RUN_WRITTEN:
             raise ValueError(f"RUN_DERIVED_VERTICAL {vertical}")
-        for key in derived:
+        for path in derived:
+            _, key = path.split(".")
             if key in physical or key in WRITER_READS.get(vertical, ()):
                 raise ValueError(f"RUN_DERIVED_READ_BACK {vertical} {key}")
 
