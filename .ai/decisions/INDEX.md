@@ -54,7 +54,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-28.md` | Demo-sprint and later rulings | `D-P6.42` to `D-P6.67`, `D-DD.48` to `D-DD.66` (46) |
 | `index-rulings-29.md` | Demo-sprint and later rulings | `D-DD.67` to `D-DD.96` (30) |
 | `index-rulings-30.md` | Demo-sprint and later rulings | `D-IA.61` to `D-IA.81`, `D-P6.68` to `D-P6.81`, `D-IAP.34`, `D-DD.97` to `D-DD.107` (47) |
-| `index-rulings-31.md` | Demo-sprint and later rulings | `D-IAP.35` to `D-IAP.51`, `D-P6.82` to `D-P6.87` (23) |
+| `index-rulings-31.md` | Demo-sprint and later rulings | `D-IAP.35` to `D-IAP.51`, `D-P6.82` to `D-P6.93` (29) |
 | `index-rulings-32.md` | Demo-sprint and later rulings | `D-DD.108` to `D-DD.145`, `D-T1.19` to `D-T1.26` (46) |
 | `index-rulings-33.md` | Demo-sprint and later rulings | `D-DD.146` to `D-DD.174` (29) |
 
