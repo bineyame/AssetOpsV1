@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.176)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.146 to D-DD.180)
 
 - `D-DD.146` C-DD6 reads each unit's admitted channel (no binding added): Kisiwa GEN-KS-01 state FAILED at 18:40, Mto INV-MT-02 power to 0 with the instant from the O&M book; inverter_state role to backlog; +0.25 u DD3b2 · live · specs/DD-demo-data/rulings.md
 - `D-DD.147` DD3b bound hit is ordering (reorder rule resolves); Kisiwa/Mto fuel story typed like Kobo's, restated by D-DD.131 (Kisiwa ~904 L, contribution ~+1,695); plan stays budget; owner asked · live · specs/DD-demo-data/rulings.md
@@ -31,3 +31,7 @@
 - `D-DD.174` Card sweep through D-DD.173: DD5a 4.0 u, DD5b 4.25 u, DD6 closing unit WK-SC · live · specs/DD-demo-data/rulings.md
 - `D-DD.175` DD3b BLOCKER: a trading month with no fuel bought states fuel 0.00 (fuel bought, never burned x price); figures_from_rows takes cost_key, ZERO_WHEN_NONE fuel only; energy bill absence still refused; +0.25 u DD3b · live · specs/DD-demo-data/rulings.md
 - `D-DD.176` D-DD.164 step 5 restated: generates 2 and 3 byte-identical + all --check 0; generate 1 to 2 moves only RUN_DERIVED values (history.RUN_DERIVED, guard); move honest; +0.25 u, DD3b 7.75, DD 61.25 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.177` DDR test supplies M's October litres at `LitreLeafSource._month`, reading-less case pinned (G4 fails, fuel not available); C4 "B" classes until DD5b; plant (a) amended; fuel projected 2,006.40, headline about −195.30 · live · specs/DD-demo-data/rulings.md
+- `D-DD.178` Budget line states its heading's target: `evaluate(stated_nodes=)`, `BUDGET_STATED` from `MAIN_OF` · live · specs/DD-demo-data/rulings.md
+- `D-DD.179` Publisher refuses another tenant with exit 2 (corrects D-DD.169's test line) · live · specs/DD-demo-data/rulings.md
+- `D-DD.180` C-DD4 fuel clause: October stored dips/deliveries = M (whole litre, cent), live and failing until DD5b; history litres not judged · live · specs/DD-demo-data/rulings.md
