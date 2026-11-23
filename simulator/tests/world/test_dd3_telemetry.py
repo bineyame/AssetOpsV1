@@ -252,10 +252,15 @@ def test_books_carry_the_views_solar_surplus_weights() -> None:
 
 
 #: D-DD.76's storage sizes, in order; the rule rounds two months of the largest month up to the next one.
+STANDARD_TANKS_L = (500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 10000)
+#: D-DD.76, books of 22 Nov; not re-run on restated books, D-DD.92.
+SIZED_ON = {"KOBO-001": 1180, "KISIWA-001": 2400, "MTO-001": 320}
 
-def test_each_lakeside_tank_is_the_declared_owner_size() -> None:
-    """D-DD.155 (D-DD.76, D-DD.92): the tanks are the owner-approved sizes, source SITE, version 1. The sizing rule is
-    not re-run on later fuel figures; the test pins the declared sizes only, and no figure of M moves them."""
+
+def test_each_lakeside_tank_is_declared_at_its_d_dd_76_size() -> None:
+    """D-DD.155 (D-DD.76, D-DD.92): the tanks are the owner-approved sizes, source SITE, version 1, and D-DD.76's rule
+    on its own inputs (`SIZED_ON`) gives them. The rule is not re-run on later fuel figures: no `history.json` or `M`
+    figure is read here."""
     onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
     declared = {}
     for site in onboarding["sites"]:
@@ -263,6 +268,8 @@ def test_each_lakeside_tank_is_the_declared_owner_size() -> None:
         declared[site["code"]] = [(p["value"], p["source"], p["source_version"]) for p in tank["properties"]
                                   if p["property_key"] == "tank-capacity"]
     assert declared == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
+    sized = {code: [(next(s for s in STANDARD_TANKS_L if s >= 2 * litres), "SITE", 1)] for code, litres in SIZED_ON.items()}
+    assert sized == declared
 
 
 def test_kobos_readings_do_not_depend_on_the_role_set_label() -> None:
