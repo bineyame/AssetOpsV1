@@ -1,8 +1,8 @@
 # Build card: DD5b, disorder and the world ladder
 
-Part DD5b = DD5.2 and DD5.3 with D-DD.141 (and the one-line call D-DD.154 adds). **4.0 u** (3.75, +0.25 by D-DD.160), branch
+Part DD5b = DD5.2 and DD5.3 with D-DD.141 (and the one-line call D-DD.154 adds). **4.25 u** (3.75, +0.25 by D-DD.160, +0.25 by D-DD.167), branch
 `task/DD5b-ladder`, one discovery review. Card by the DD lane Architect, 23 Nov, under `.ai/ROLE_CONFIG.md` "Fourth
-audit" (a). Line numbers are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22`. Read
+audit" (a). Line numbers are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22` (D-DD.167 onward: as at `task/DD-cards-2`). Read
 only the lines named here, then the code. A question the lines do not answer stops only the affected unit and goes to
 the lane Architect; count it in the packet.
 
@@ -37,13 +37,19 @@ the lane Architect; count it in the packet.
    - L1 adds `L1.admit:<slug>:<profile>`, `L1.staged:<slug>` (after the commercial step), `L1.site-inputs`,
      `L1.telemetry` (copies only `*.readings.json` and `measured.json` into `inputs/<digest>/<slug>/telemetry/`; the
      readings manifests stay out, they hold `private_parameters`), `L1.measured-books`, the disorder steps, and, per
-     mini-grid tenant, a call to DD3d's `load_fuel_records(dir, tenant)` (D-DD.154, R2887 onward; no unit added).
+     mini-grid tenant, a call to DD3d-a's `load_fuel_records(dir, tenant)` (D-DD.154 with D-DD.168, R3286-3328; it
+     records each record at its own time and runs only under `prepare_clock`'s check, which admits the world rung
+     names; no unit added), and `L1.prices:lakeside-power`: three `publish_assumption fixture --site <SITE> --file
+     backend/conversions/world/lakeside-power.diesel-price.<SITE>.json` calls under `world.env` (D-DD.169,
+     R3330-3347; no unit added).
      F is `inputs/<digest>/site-inputs.json`.
    - L2 adds the drain (enrol, then `scheduling.run tick` to done); the drain joins `L2_STEPS`. Snapshot and observer
      run per tenant's `snapshot_months`.
    - Inputs digest covers every input file listed in S917-919 plus `fuel-records.json`; `sealed/` is not in it.
-   - World check: C5 runs the two parity files as two `harness_run` calls (D-DD.140); C6 globs `*/sealed/*.batch.json`;
-     C4 judges October only.
+   - World check: C5 runs the two parity files as two `harness_run` calls (D-DD.140); C4 judges October only.
+   - (0.25 u, D-DD.167, R3260-3284.) The rung manifest records every `sealed_dir` from the load step's output line;
+     C6 globs only those (`<dir>/*.batch.json`); `drop_db(name)` removes the `sealed_dir`s recorded in that rung's
+     manifest unless another live rung's manifest records the same folder (the check clone shares L2's).
    - `CODE_PATHS` and `CHECK_CODE` gain the paths of S920-924.
    - (0.25 u added by D-DD.160, R round 23.) `stored_books` also fetches TARIFF_SCHEDULE, FLEET_ROSTER and DEPARTURE.
      C-DD7's mini-grid clause goes live here, its only owner: load served + unserved = `delivered_kwh`, exactly, with
@@ -67,7 +73,8 @@ the lane Architect; count it in the packet.
 
 D-DD.25, D-DD.28, D-DD.40, D-DD.51, D-DD.53, D-DD.60, D-DD.61, D-DD.66, D-DD.74 (R890-940: L1.exports passes `--tenant
 <slug>` per definition tenant; DD5.3 places cold and EV by naming their tenants, R921), D-DD.93, D-DD.103, D-DD.140,
-D-DD.141, D-DD.142 (R2436-2445), D-DD.154 (the load call only), D-DD.160 (C-DD7 mini clause, the fetch), D-DD.161, D-DD.162.
+D-DD.141, D-DD.142 (R2436-2445), D-DD.154 (the load call only), D-DD.160 (C-DD7 mini clause, the fetch), D-DD.161, D-DD.162,
+D-DD.167 (sealed folders), D-DD.168 (the loader's check), D-DD.169 (the price step).
 
 ## Checks that go live or change
 
@@ -82,6 +89,8 @@ D-DD.141, D-DD.142 (R2436-2445), D-DD.154 (the load call only), D-DD.160 (C-DD7 
 - Disorder: each step's recorded exit equals S624-637; TENANT-1 stores no row in either tenant.
 - MAP-1 module table equals `M` (parity); FX-1/LATE-SETTLE-1 goldens re-pinned and listed.
 - Inputs digest: changing one byte of any input file (incl. `fuel-records.json`) changes it; `sealed/` does not.
+- D-DD.167: C6 judges only recorded folders (a planted extra folder with a bad batch is not judged); dropping L1
+  removes L1's folder and keeps L2's. `L1.prices` publishes three revisions; a re-run answers with the stored ones.
 - Plants: (a) TENANT-1 with the right tenant code: step exits 0, C-DD14 FAILs; (b) drop `L1.staged`: C-DD2 FAILs on
   the rate cards; (c) put a readings manifest in `telemetry/`: a test refuses (private parameters staged).
 
@@ -94,9 +103,9 @@ goldens). Plus statement catalogue (D-DD.96), check-decision-index, check-agent-
 
 ## Merge order and shared files
 
-- Starts after DD5a, DD3b3, DD4.4 (DD4b) and DD3d are on main.
+- Starts after DD5a, DD3b3, DD4.4 (DD4b), DD3d-a and DD3d-b are on main.
 - Shared: `tools/world_history.py` and `world/exports.py` (DD4a → DD3b3 → DD4b → DD5b), `tools/dd_check.py` (… →
-  DD3d → DD5b → DD6), `tools/world.py` and `tools/walk_world.py` (DD5b → DD6). Merge main, rerun the reach set.
+  DD3d-a → DD3d-b → DD5b → DD6), `tools/world.py` and `tools/walk_world.py` (DD5b → DD6). Merge main, rerun the reach set.
 - Guards S1013-1024; evidence under `/opt/assetecon/evidence/DD5b/`.
 
 ## Done when
