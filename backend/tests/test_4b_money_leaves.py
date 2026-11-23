@@ -201,7 +201,7 @@ def check_kobo_october(w) -> Recording:
     v = read.site(site(w, "KOBO-001"), "2026-10").values
     expect = {  # factor: (text, currency, evidence, sources, origins)
         "revenue": ("3458.00", "USD", "RECORDED", (KV,), (E,)),
-        "fuel_cost": ("1475.00", "USD", "RECORDED", (LF,), (OF,)),
+        "fuel_cost": ("792.50", "USD", "RECORDED", (LF,), (OF,)),
         "diesel_price": ("1.25", "USD", "DERIVED", (LF,), (OF,)),
         "om": ("600.00", "USD", "RECORDED", (GEN,), (E,)),
         "staff": ("500.00", "USD", "RECORDED", (GEN,), (E,)),
@@ -209,8 +209,8 @@ def check_kobo_october(w) -> Recording:
         "in_transit": ("0", "USD", "RECORDED", (KV,), (E,)),
         "outstanding": ("278.00", "USD", "DERIVED", (KV,), (E,)),
         "collected": ("3180.00", "USD", "DERIVED", (KV,), (E,)),
-        "cost_to_serve": ("2575.00", "USD", "RECORDED", (GEN, LF, NEUTRAL), (OF, E)),
-        "contribution": ("883.00", "USD", "RECORDED", (GEN, KV, LF, NEUTRAL), (OF, E)),
+        "cost_to_serve": ("1892.50", "USD", "RECORDED", (GEN, LF, NEUTRAL), (OF, E)),
+        "contribution": ("1565.50", "USD", "RECORDED", (GEN, KV, LF, NEUTRAL), (OF, E)),
     }
     for factor_id, (value, currency, evidence, sources, origins) in expect.items():
         got = v[factor_id]
@@ -238,7 +238,7 @@ def check_kisiwa_october(w) -> Recording:
     v = read.site(site(w, "KISIWA-001"), "2026-10").values
     expect = {
         "revenue": ("4070.00", "USD", "RECORDED", (KB,), (E,)),
-        "fuel_cost": ("3120.00", "USD", "RECORDED", (LA,), (E,)),
+        "fuel_cost": ("1175.20", "USD", "RECORDED", (LA,), (E,)),
         "staff": ("500.00", "USD", "RECORDED", (GEN,), (E,)),
         "outstanding": ("270.00", "USD", "DERIVED", (KB,), (E,)),
         "collected": ("3800.00", "USD", "DERIVED", (KB,), (E,)),
@@ -336,12 +336,12 @@ def check_portfolio(w) -> None:
     p = read.portfolio(w["tid"], sites, "2026-10")
     expect = {
         "revenue": ("7528.00", 2, (("MTO-001", REVENUE_NINE),)),
-        "fuel_cost": ("4595.00", 2, (("MTO-001", ("candidate_l", "fuel_cost", "necessary_l", "unexplained_l")),)),
+        "fuel_cost": ("1967.70", 2, (("MTO-001", ("candidate_l", "fuel_cost", "necessary_l", "unexplained_l")),)),
         "om": ("1100.00", 2, (("KISIWA-001", ("om",)),)),
         "staff": ("1450.00", 3, ()),
         "outstanding": ("548.00", 2, (("MTO-001", ("outstanding",)),)),
         "collected": ("6980.00", 2, (("MTO-001", tuple(sorted(REVENUE_NINE + ("in_transit", "outstanding")))),)),
-        "contribution": ("883.00", 1, (("KISIWA-001", ("om",)), ("MTO-001", MTO_MISSING))),
+        "contribution": ("1565.50", 1, (("KISIWA-001", ("om",)), ("MTO-001", MTO_MISSING))),
     }
     for factor_id, (value, k, out) in expect.items():
         got = p.composition.values[factor_id].value
@@ -479,9 +479,9 @@ def test_8_a_quote_revised_to_an_invoice_becomes_cost():
     ingest(w, LATER, envelope(1, [quote]))
     read, _ = reader(w)
     v = read.site(site(w, "KOBO-001"), "2026-10").values
-    assert text(v["fuel_cost"].value) == "1835.00"
+    assert text(v["fuel_cost"].value) == "1152.50"
     with decimal.localcontext(Context(prec=34, rounding=decimal.ROUND_HALF_EVEN)):
-        expected = Decimal("1835.00") / Decimal("1480")
+        expected = Decimal("1152.50") / Decimal("934")
     assert v["diesel_price"].value == expected
 
 
@@ -568,7 +568,7 @@ def test_11b_sums_ignore_the_ambient_context():
     with decimal.localcontext(Context(prec=3)):
         v = read.site(site(w, "KOBO-001"), "2026-10").values
     assert (text(v["revenue"].value), text(v["fuel_cost"].value), text(v["outstanding"].value)) == (
-        "3458.00", "1475.00", "278.00")
+        "3458.00", "792.50", "278.00")
     assert v["diesel_price"].value == Decimal("1.25")
 
 

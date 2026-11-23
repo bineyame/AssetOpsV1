@@ -37,9 +37,9 @@ CLAIM_KEYS = {"format", "structure_key", "structure_version", "factor_id", "home
               "direction", "state", "unit", "currency", "actual", "target", "gap", "band", "tolerance",
               "actual_evidence", "target_evidence", "sources", "origins", "also_pinned", "snapshot_id",
               "snapshot_as_of", "tolerance_known_at"}
-#: Spec §6 F1, Kobo October: the five raised leaves and their gaps (pack figures).
-KOBO_RAISED = {"adjustments_kwh": "45", "outstanding": "278", "necessary_l": "30", "candidate_l": "330",
-               "unexplained_l": "120"}
+#: Spec §6 F1, Kobo October: the four raised leaves and their gaps (pack figures at M rev 16.20, D-DD.150-152:
+#: necessary_l 489 against the plan's 700 is FAVOURABLE and is not written).
+KOBO_RAISED = {"adjustments_kwh": "45", "outstanding": "278", "candidate_l": "25", "unexplained_l": "120"}
 
 if URL:
     import pg_harness
@@ -321,7 +321,7 @@ def test_11_lifecycle(world, capsys) -> None:
             "structure", None, None, None)
     unexplained = _revision(world, next(w.revision_id for w in first.sites["KOBO-001"].written
                                         if w.factor_id == "unexplained_l"))
-    assert Decimal(unexplained.claim["band"]) == Decimal("23.6") and unexplained.claim["tolerance"]["source"] == \
+    assert Decimal(unexplained.claim["band"]) == Decimal("12.68") and unexplained.claim["tolerance"]["source"] == \
         "STRUCTURE"
     outstanding = _revision(world, next(w.revision_id for w in first.sites["KOBO-001"].written
                                         if w.factor_id == "outstanding"))
@@ -337,19 +337,19 @@ def test_11_lifecycle(world, capsys) -> None:
     for w in result.sites["KOBO-001"].written:
         digests[w.revision_id] = changed.site_digest
     put = world.put(values={"candidate_l": 340})
-    code, out, err = world.declare("set", "--tenant", SLUG, "--site", "KOBO-001", "--factor", "necessary_l",
-                                   "--of", "diesel_l", "--pct", "5", "--from", OCT, "--as", "sam@lakeside.example",
+    code, out, err = world.declare("set", "--tenant", SLUG, "--site", "KOBO-001", "--factor", "adjustments_kwh",
+                                   "--of", "delivered_kwh", "--pct", "5", "--from", OCT, "--as", "sam@lakeside.example",
                                    capsys=capsys)
     assert code == 0, err
     result = world.run()
-    assert result.sites["KOBO-001"].states["necessary_l"] == "INSIDE_TOLERANCE"
-    assert _written(result) == [("necessary_l", "NO_LONGER_SUPPORTED")]   # P11: never UNCONFIRMED here
+    assert result.sites["KOBO-001"].states["adjustments_kwh"] == "INSIDE_TOLERANCE"
+    assert _written(result) == [("adjustments_kwh", "NO_LONGER_SUPPORTED")]   # P11: never UNCONFIRMED here
     digests[result.sites["KOBO-001"].written[0].revision_id] = put.site_digest
-    code, _, err = world.declare("clear", "--tenant", SLUG, "--site", "KOBO-001", "--factor", "necessary_l",
+    code, _, err = world.declare("clear", "--tenant", SLUG, "--site", "KOBO-001", "--factor", "adjustments_kwh",
                                  "--from", OCT, "--as", "sam@lakeside.example", capsys=capsys)
     assert code == 0, err
     result = world.run()
-    assert _written(result) == [("necessary_l", "REOPENED")]
+    assert _written(result) == [("adjustments_kwh", "REOPENED")]
     digests[result.sites["KOBO-001"].written[0].revision_id] = put.site_digest
     put = world.put(values={"candidate_l": 340}, drop=("outstanding",))
     result = world.run()
@@ -387,7 +387,7 @@ def test_12_one_run_per_site_month_basis_one_assessment_per_revision(world) -> N
 
     world.put()
     # candidate_l also moves unexplained_l's band (2 % of diesel_l), so each change writes two revisions
-    for values, expected in ((None, 5), (None, 0), ({"candidate_l": 340}, 2), ({"candidate_l": 340}, 0),
+    for values, expected in ((None, 4), (None, 0), ({"candidate_l": 340}, 2), ({"candidate_l": 340}, 0),
                              ({"candidate_l": 350}, 2)):
         before = counts()
         world.put(values=values)
@@ -412,7 +412,7 @@ def test_13_readers(world, engine) -> None:  # noqa: F811
     fence_before = world.findings.fence(world.t, world.s, "dispatch-shortfall-1")
     world.put()
     written = world.run().sites["KOBO-001"].written
-    assert len(written) == 5
+    assert len(written) == 4
     a, b = written[0], written[1]
     with engine.begin() as c:   # a merge and an evidence link on structure revisions, so the last two lists are tested
         c.execute(text("INSERT INTO finding_merge (superseded_finding_id, canonical_finding_id, tenant_id, site_id, "
@@ -487,7 +487,7 @@ def test_14_command_line(world, capsys, monkeypatch) -> None:
     out, err = capsys.readouterr()
     line = json.loads(out)
     assert err == "" and set(line) == {"month", "snapshot_id", "as_of", "sites", "excluded"}
-    assert sorted(w["transition"] for w in line["sites"]["KOBO-001"]["written"]) == ["OPENED"] * 5
+    assert sorted(w["transition"] for w in line["sites"]["KOBO-001"]["written"]) == ["OPENED"] * 4
     assert line["excluded"] == {"COLD-001": ["STRUCTURE_OTHER_KEY"]}
 
 
@@ -558,34 +558,34 @@ def test_15_tolerance_command(world, capsys, monkeypatch) -> None:
     assert declare_tolerance.main(_set("necessary_l", "diesel_l", "5", "sam")) == 2
     assert capsys.readouterr() == ("", "NO_DATABASE\n")
     assert world.count("structure_tolerance") == held                         # refusals wrote nothing
-    code, out, err = world.declare(*_set("necessary_l", "diesel_l", "0", "sam"), capsys=capsys)
+    code, out, err = world.declare(*_set("candidate_l", "diesel_l", "0", "sam"), capsys=capsys)
     assert code == 0 and json.loads(out)["pct"] == "0", err                    # P20: 0 is accepted
     code, out, err = world.declare("show", "--tenant", SLUG, "--site", "KOBO-001", "--month", OCT, capsys=capsys)
     assert code == 0, err
     shown = {r["factor_id"]: r for r in json.loads(out)}
     assert list(shown) == list(rules.OBSERVED["MINI_GRID"])
-    latest = world.q("SELECT id FROM structure_tolerance WHERE factor_id = 'necessary_l' AND pct = '0'")[0][0]
-    assert shown["necessary_l"] == {"factor_id": "necessary_l", "source": "SITE", "of_factor": "diesel_l",
+    latest = world.q("SELECT id FROM structure_tolerance WHERE factor_id = 'candidate_l' AND pct = '0'")[0][0]
+    assert shown["candidate_l"] == {"factor_id": "candidate_l", "source": "SITE", "of_factor": "diesel_l",
                                     "pct": "0", "declaration_id": str(latest)}
     assert (shown["outstanding"]["source"], shown["outstanding"]["pct"]) == ("SITE", "10")
     assert shown["unexplained_l"] == {"factor_id": "unexplained_l", "source": "STRUCTURE", "of_factor": "diesel_l",
                                       "pct": "2.0", "declaration_id": None}
-    assert shown["candidate_l"] == {"factor_id": "candidate_l", "source": "NONE", "of_factor": None, "pct": None,
-                                    "declaration_id": None}
+    assert {k: v for k, v in shown["necessary_l"].items() if k != "declaration_id"} == {   # sam's earlier 5 %
+        "factor_id": "necessary_l", "source": "SITE", "of_factor": "diesel_l", "pct": "5"}
     code, out, _ = world.declare("show", "--tenant", SLUG, "--site", "KOBO-001", "--month", "2026-09",
                                  capsys=capsys)
-    assert {r["factor_id"]: r["source"] for r in json.loads(out)}["necessary_l"] == "NONE"   # read by month
+    assert {r["factor_id"]: r["source"] for r in json.loads(out)}["candidate_l"] == "NONE"   # read by month
     rows = world.q("SELECT recorded_by, recorded_role, recorded_by_script, recorded_at FROM structure_tolerance "
                    "ORDER BY recorded_at")
     assert all(r.recorded_by_script and r.recorded_at is not None for r in rows)
     with pytest.raises(DBAPIError, match="append-only"):
         with world.engine.begin() as c:
             c.execute(text("UPDATE structure_tolerance SET pct = '9' WHERE id = :i"), {"i": latest})
-    # pct 0 in force at run time: Kobo necessary_l is RAISED with band 0 (D-3B4.19)
+    # pct 0 in force at run time: Kobo candidate_l is RAISED with band 0 (D-3B4.19; necessary_l is FAVOURABLE at M rev 16.20)
     world.put()
     result = world.run()
-    assert result.sites["KOBO-001"].states["necessary_l"] == "RAISED"
-    rid = next(w.revision_id for w in result.sites["KOBO-001"].written if w.factor_id == "necessary_l")
+    assert result.sites["KOBO-001"].states["candidate_l"] == "RAISED"
+    rid = next(w.revision_id for w in result.sites["KOBO-001"].written if w.factor_id == "candidate_l")
     claim = _revision(world, rid).claim
     assert Decimal(claim["band"]) == 0 and claim["tolerance"]["source"] == "SITE"
     assert (claim["tolerance"]["pct"], claim["tolerance"]["declaration_id"]) == ("0", str(latest))

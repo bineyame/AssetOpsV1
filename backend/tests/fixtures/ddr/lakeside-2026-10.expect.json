@@ -51,7 +51,7 @@
   "stated": {
     "KISIWA-001": {
       "revenue": "4070.00",
-      "fuel_cost": "3120.00",
+      "fuel_cost": "1040.00",
       "om": null,
       "staff": "500.00",
       "collected": "3800.00",
@@ -59,7 +59,7 @@
     },
     "KOBO-001": {
       "revenue": "3458.00",
-      "fuel_cost": "1475.00",
+      "fuel_cost": "500.00",
       "om": "600.00",
       "staff": "500.00",
       "collected": "3180.00",
@@ -67,7 +67,7 @@
     },
     "MTO-001": {
       "revenue": "2160.00",
-      "fuel_cost": "400.00",
+      "fuel_cost": null,
       "om": "500.00",
       "staff": "450.00",
       "collected": "1890.00",

@@ -125,9 +125,13 @@ def test_t1_every_row_home_equals_home_categories():
 
 def test_t1_manifest_fuel_balance_tolerance_is_the_structure_default():
     sites = [s for t in MANIFEST["tenants"] if t["vertical"] == "MINI_GRID" for s in t["sites"]]
-    # MTO-001 declares no fuel balance; every Site that declares one is pinned (two today).
-    tolerances = [s["period"]["fuel_balance"]["tolerance_pct"] for s in sites if "fuel_balance" in s["period"]]
-    assert len(tolerances) >= 2 and all(Decimal(str(t)) == Decimal("2.0") for t in tolerances)
+    # M rev 16.20 (D-DD.150): every mini Site declares a fuel balance; Kobo and Kisiwa pin 2.0, Mto's (32 L burned,
+    # residual 0) carries no tolerance.
+    balances = {s["code"]: s["period"]["fuel_balance"] for s in sites if "fuel_balance" in s["period"]}
+    assert set(balances) == {"KOBO-001", "KISIWA-001", "MTO-001"}
+    assert {c for c, b in balances.items() if "tolerance_pct" not in b} == {"MTO-001"}
+    tolerances = [b["tolerance_pct"] for b in balances.values() if "tolerance_pct" in b]
+    assert len(tolerances) == 2 and all(Decimal(str(t)) == Decimal("2.0") for t in tolerances)
     tolerated = {r.factor_id: r.tolerance for r in MG.rows if r.tolerance is not None}
     assert tolerated == {"unexplained_l": Tolerance(of_factor="diesel_l", pct=Decimal("2.0"))}
 

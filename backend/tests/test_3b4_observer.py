@@ -83,14 +83,16 @@ def _observe(name: str, declarations: dict | None = None, *, drop_actual=(), dro
 # Spec §6 F1, written in the test: leaf -> (state, gap, kind); every other observed leaf is NO_GAP.
 F1 = {
     "Kobo": {"adjustments_kwh": ("RAISED", "45", "BOTTOM_LINE"), "outstanding": ("RAISED", "278", "CASH"),
-             "necessary_l": ("RAISED", "30", "BOTTOM_LINE"), "candidate_l": ("RAISED", "330", "BOTTOM_LINE"),
+             "necessary_l": ("FAVOURABLE", "-211", "BOTTOM_LINE"), "candidate_l": ("RAISED", "25", "BOTTOM_LINE"),
              "unexplained_l": ("RAISED", "120", "BOTTOM_LINE"), "delivered_kwh": ("FAVOURABLE", "550", "BOTTOM_LINE")},
     "Kisiwa": {"adjustments_kwh": ("RAISED", "30", "BOTTOM_LINE"), "outstanding": ("RAISED", "270", "CASH"),
-               "necessary_l": ("RAISED", "80", "BOTTOM_LINE"), "reduced_days": ("RAISED", "2", "PROTECT"),
+               "necessary_l": ("FAVOURABLE", "-1483", "BOTTOM_LINE"), "reduced_days": ("RAISED", "2", "PROTECT"),
                "delivered_kwh": ("FAVOURABLE", "450", "BOTTOM_LINE"),
-               "unexplained_l": ("INSIDE_TOLERANCE", "20", "BOTTOM_LINE")},
+               "candidate_l": ("RAISED", "67", "BOTTOM_LINE"),
+               "unexplained_l": ("RAISED", "20", "BOTTOM_LINE")},
     "Mto": {"unexplained_loss_kwh": ("RAISED", "120", "BOTTOM_LINE"), "adjustments_kwh": ("RAISED", "40", "BOTTOM_LINE"),
-            "unmapped_kwh": ("RAISED", "140", "BOTTOM_LINE"), "necessary_l": ("RAISED", "20", "BOTTOM_LINE"),
+            "unmapped_kwh": ("RAISED", "140", "BOTTOM_LINE"), "necessary_l": ("FAVOURABLE", "-300", "BOTTOM_LINE"),
+            "candidate_l": ("RAISED", "32", "BOTTOM_LINE"),
             "in_transit": ("RAISED", "150", "CASH"), "outstanding": ("RAISED", "120", "CASH"),
             "reduced_days": ("RAISED", "4", "PROTECT"), "delivered_kwh": ("FAVOURABLE", "400", "BOTTOM_LINE")},
 }
@@ -249,8 +251,8 @@ def test_4_pack_sides(name: str) -> None:
 
 def test_4_bands_are_two_percent_of_the_actual_diesel() -> None:
     kobo, kisiwa = _observe("Kobo")["unexplained_l"], _observe("Kisiwa")["unexplained_l"]
-    assert kobo.band == D("23.6") and kobo.tolerance.source == "STRUCTURE"
-    assert kisiwa.band == D("48") and kisiwa.state == "INSIDE_TOLERANCE"
+    assert kobo.band == D("12.68") and kobo.tolerance.source == "STRUCTURE"
+    assert kisiwa.band == D("18.08") and kisiwa.state == "RAISED"
     assert _observe("Kobo")["outstanding"].band == D(0)
     assert _observe("Kobo")["outstanding"].currency == "USD" and _observe("Kobo")["necessary_l"].currency is None
 
@@ -262,10 +264,10 @@ def _site(of: str, pct: str) -> obs.ToleranceInForce:
 
 
 def test_5_tolerance() -> None:
-    o = _observe("Kobo", {"necessary_l": _site("diesel_l", "5")})["necessary_l"]
-    assert (o.state, o.band, o.tolerance.source) == ("INSIDE_TOLERANCE", D("59"), "SITE")
-    o = _observe("Kobo", {"necessary_l": _site("diesel_l", "2")})["necessary_l"]
-    assert (o.state, o.band) == ("RAISED", D("23.6"))
+    o = _observe("Kobo", {"candidate_l": _site("diesel_l", "5")})["candidate_l"]
+    assert (o.state, o.band, o.tolerance.source) == ("INSIDE_TOLERANCE", D("31.7"), "SITE")
+    o = _observe("Kobo", {"candidate_l": _site("diesel_l", "2")})["candidate_l"]
+    assert (o.state, o.band) == ("RAISED", D("12.68"))
     o = _observe("Kisiwa", {"unexplained_l": _site("unexplained_l", "100")})["unexplained_l"]
     assert (o.state, o.band, o.gap) == ("INSIDE_TOLERANCE", D("20"), D("20"))  # equal is inside (strict outside)
     o = _observe("Mto", {"unexplained_loss_kwh": _site("delivered_kwh", "1")},
@@ -273,17 +275,17 @@ def test_5_tolerance() -> None:
     assert (o.state, o.band, o.gap) == ("TOLERANCE_NOT_AVAILABLE", None, D("120"))
     # a SITE declaration beats the row's default
     o = _observe("Kobo", {"unexplained_l": _site("diesel_l", "20")})["unexplained_l"]
-    assert (o.state, o.band, o.tolerance.source) == ("INSIDE_TOLERANCE", D("236"), "SITE")
+    assert (o.state, o.band, o.tolerance.source) == ("INSIDE_TOLERANCE", D("126.8"), "SITE")
 
 
 def test_5_pct_zero_is_band_zero_without_reading_of_factor() -> None:  # D-3B4.19
-    o = _observe("Kobo", {"necessary_l": _site("diesel_l", "0")})["necessary_l"]
-    assert (o.state, o.band, o.gap) == ("RAISED", D(0), D("30"))
-    # diesel_l unknown (candidate_l actual removed): band 0 is still known
-    got = _observe("Kobo", {"necessary_l": _site("diesel_l", "0.00")}, drop_actual=("candidate_l",))
-    assert got["necessary_l"].band == D(0) and got["necessary_l"].state == "RAISED"
-    got = _observe("Kobo", {"necessary_l": _site("diesel_l", "5")}, drop_actual=("candidate_l",))
-    assert got["necessary_l"].state == "TOLERANCE_NOT_AVAILABLE"
+    o = _observe("Kobo", {"candidate_l": _site("diesel_l", "0")})["candidate_l"]
+    assert (o.state, o.band, o.gap) == ("RAISED", D(0), D("25"))
+    # diesel_l unknown (unexplained_l actual removed): band 0 is still known
+    got = _observe("Kobo", {"candidate_l": _site("diesel_l", "0.00")}, drop_actual=("unexplained_l",))
+    assert got["candidate_l"].band == D(0) and got["candidate_l"].state == "RAISED"
+    got = _observe("Kobo", {"candidate_l": _site("diesel_l", "5")}, drop_actual=("unexplained_l",))
+    assert got["candidate_l"].state == "TOLERANCE_NOT_AVAILABLE"
     o = _observe("Kisiwa", {"unexplained_l": _site("diesel_l", "0")})["unexplained_l"]
     assert (o.state, o.gap, o.band) == ("RAISED", D("20"), D(0))
 

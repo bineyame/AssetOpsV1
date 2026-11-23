@@ -47,4 +47,4 @@ def test_pg_2_build_structure_read_reads_the_records(pgworld):  # noqa: F811
     revenue, contribution = values["revenue"], values["contribution"]
     assert (format(revenue.value, "f"), revenue.stated, revenue.evidence) == ("3458.00", True, "RECORDED")
     assert (contribution.value, format(contribution.value, "f"), contribution.evidence) == (
-        Decimal("883.00"), "883.00", "RECORDED")
+        Decimal("1565.50"), "1565.50", "RECORDED")
