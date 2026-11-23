@@ -193,14 +193,14 @@ def test_r1_kobo_before_and_after_the_corrections() -> None:
     k = record(w, S1_AT, site="KOBO-001", revenue="500.00", fuel="780.00")
     assert k.state == "NOT_MATCHED" and k.opens is False and k.tolerance == D("0.01")
     assert heads(k) == {"revenue": ("NOT_MATCHED", None, "500.00", "505.50", "5.50", "5.0000"),
-                        "fuel_cost": ("NOT_MATCHED", None, "780.00", "762.50", "-17.50", "7.8000")}
+                        "fuel_bought": ("NOT_MATCHED", None, "780.00", "762.50", "-17.50", "7.8000")}
     assert w["store"].statement_rows[0].result_at_record == "NOT_MATCHED"
     for s in kobo_steps()[4:6]:  # E and F
         ingest(w, s["at"], s["batch"])
     after = only(w)
     assert after.state == "MATCHED" and after.opens is True
     assert heads(after) == {"revenue": ("MATCHED", None, "500.00", "495.50", "-4.50", "5.0000"),
-                            "fuel_cost": ("MATCHED", None, "780.00", "775.00", "-5.00", "7.8000")}
+                            "fuel_bought": ("MATCHED", None, "780.00", "775.00", "-5.00", "7.8000")}
     assert w["store"].statement_rows[0].result_at_record == "NOT_MATCHED"  # what was seen, never rewritten
 
 
@@ -229,7 +229,7 @@ def test_r2_t1_t2_t4_t5_t6_in_order() -> None:
     assert (t1.statement_id, t1.site_id, t1.site_code, t1.state, t1.opens) == (s1.statement_id, None, None,
                                                                                "MATCHED", True)
     assert heads(t1) == {"revenue": ("MATCHED", None, "755.00", "750.00", "-5.00", "7.5500"),
-                         "fuel_cost": ("MATCHED", None, "505.00", "500.00", "-5.00", "5.0500")}
+                         "fuel_bought": ("MATCHED", None, "505.00", "500.00", "-5.00", "5.0500")}
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
         assert (st.reconciled, st.reason, st.tolerance) == (True, "RECONCILED", D("0.01"))
@@ -238,7 +238,7 @@ def test_r2_t1_t2_t4_t5_t6_in_order() -> None:
     load(w, "C")
     t2 = only(w)
     assert t2.state == "NOT_MATCHED" and t2.opens is False
-    assert heads(t2)["fuel_cost"] == ("NOT_MATCHED", None, "505.00", "512.50", "7.50", "5.0500")
+    assert heads(t2)["fuel_bought"] == ("NOT_MATCHED", None, "505.00", "512.50", "7.50", "5.0500")
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
         assert (st.reconciled, st.reason, st.cited) == (False, "THIS_MONTH_NOT_MATCHED", None)
@@ -248,18 +248,18 @@ def test_r2_t1_t2_t4_t5_t6_in_order() -> None:
     s2 = record(w, S2_AT, site=None, revenue="755.00", fuel="510.00")
     t4 = only(w)
     assert t4.statement_id == s2.statement_id and t4.state == "MATCHED" and t4.opens is True
-    assert heads(t4)["fuel_cost"] == ("MATCHED", None, "510.00", "512.50", "2.50", "5.1000")
+    assert heads(t4)["fuel_bought"] == ("MATCHED", None, "510.00", "512.50", "2.50", "5.1000")
     st = standing(w, "KOBO-001")
     assert (st.reconciled, st.reason, st.cited.statement_id) == (True, "RECONCILED", s2.statement_id)
     # T5: MTO-001, fuel stated as 0.00 with no fuel record
     s3 = record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")
     assert (s3.state, s3.opens, s3.site_code, s3.site_id) == ("MATCHED", False, "MTO-001", w["sites"]["MTO-001"])
     assert heads(s3) == {"revenue": ("MATCHED", None, "250.00", "250.00", "0.00", "2.5000"),
-                         "fuel_cost": ("MATCHED", "NONE_RECORDED_ZERO_STATED", "0.00", None, None, "0.0000")}
+                         "fuel_bought": ("MATCHED", "NONE_RECORDED_ZERO_STATED", "0.00", None, None, "0.0000")}
     # T6: S4 is current for MTO-001; fuel stated, none recorded
     s4 = record(w, S4_AT, site="MTO-001", revenue="250.00", fuel="40.00")
     assert (s4.state, s4.opens) == ("NOT_COMPARABLE", False)
-    assert heads(s4)["fuel_cost"] == ("NOT_COMPARABLE", "NOT_RECEIVED", "40.00", None, None, "0.4000")
+    assert heads(s4)["fuel_bought"] == ("NOT_COMPARABLE", "NOT_RECEIVED", "40.00", None, None, "0.4000")
     assert [c.statement_id for c in w["recon"].statements(w["tid"])] == [s2.statement_id, s4.statement_id]
     st = standing(w, "MTO-001")
     assert (st.reconciled, st.reason, st.this_month.statement_id) == (False, "THIS_MONTH_NOT_COMPARABLE",
@@ -285,7 +285,7 @@ def test_r2_t3_a_wider_tolerance_set_by_the_owner(tmp_path) -> None:
     (row,) = w["store"].tolerance_rows
     assert (row.tolerance, row.owner_ref, row.set_at) == ("0.02", OWNER_REF, T3_SET_AT)
     assert row.owner_ref_sha256 == hashlib.sha256(path.read_bytes()).hexdigest()
-    assert heads(only(w))["fuel_cost"] == ("MATCHED", None, "505.00", "512.50", "7.50", "10.1000")
+    assert heads(only(w))["fuel_bought"] == ("MATCHED", None, "505.00", "512.50", "7.50", "10.1000")
     st = standing(w, "KOBO-001")
     assert (st.reconciled, st.reason, st.tolerance) == (True, "RECONCILED", D("0.02"))
     assert w["recon"].tolerance(w["tid"]) == D("0.02")
@@ -352,7 +352,7 @@ def test_r3_the_boundary(accounts, recorded, state) -> None:
     (dict(currency="usd"), "RECON_CURRENCY", {}),
     (dict(revenue="755"), "RECON_AMOUNT", {"heading": "revenue"}),
     (dict(revenue="1,200.00"), "RECON_AMOUNT", {"heading": "revenue"}),
-    (dict(fuel="05.00"), "RECON_AMOUNT", {"heading": "fuel_cost"}),
+    (dict(fuel="05.00"), "RECON_AMOUNT", {"heading": "fuel_bought"}),
     (dict(source_ref=""), "RECON_SOURCE_REF", {}),
     (dict(source_ref="x" * 201), "RECON_SOURCE_REF", {}),
     (dict(source_ref=" padded"), "RECON_SOURCE_REF", {}),
@@ -430,20 +430,22 @@ def test_r7_the_recorded_figures_are_the_screens() -> None:
 
     def stated(code: str, factor: str):
         site = SiteRef(w["tid"], w["sites"][code], code, "MINIGRID", "Africa/Nairobi")
-        return leaves.stated(ReadContext(site, "2026-10", None), factor).value
+        ctx = ReadContext(site, "2026-10", None)
+        # D-DD.163: the invoices are the `fuel_bought` leaf; only `revenue` is a stated node
+        return (leaves.leaf(ctx, factor) if factor == "fuel_bought" else leaves.stated(ctx, factor)).value
 
     def mine(code: str) -> dict:
         check = w["recon"].check(w["tid"], row(w, uuid4(), fuel="1.00", site_id=w["sites"][code]))
         return {h.heading: h for h in check.headings}
 
     kobo, mto = mine("KOBO-001"), mine("MTO-001")
-    assert (stated("KOBO-001", "revenue"), stated("KOBO-001", "fuel_cost")) == (D("500.00"), D("512.50"))
-    assert (kobo["revenue"].recorded, kobo["fuel_cost"].recorded) == (D("500.00"), D("512.50"))
+    assert (stated("KOBO-001", "revenue"), stated("KOBO-001", "fuel_bought")) == (D("500.00"), D("512.50"))
+    assert (kobo["revenue"].recorded, kobo["fuel_bought"].recorded) == (D("500.00"), D("512.50"))
     assert stated("MTO-001", "revenue") == mto["revenue"].recorded == D("250.00")
-    assert stated("MTO-001", "fuel_cost") is None and mto["fuel_cost"].reason == "NOT_RECEIVED"
+    assert stated("MTO-001", "fuel_bought") is None and mto["fuel_bought"].reason == "NOT_RECEIVED"
     assert kobo["revenue"].sources == ("commercial:kobo-vending",)
-    assert kobo["fuel_cost"].sources == ("commercial:lakeside-accounts",)
-    assert kobo["fuel_cost"].origins == ("source-emulated",)
+    assert kobo["fuel_bought"].sources == ("commercial:lakeside-accounts",)
+    assert kobo["fuel_bought"].origins == ("source-emulated",)
 
 
 # ---------------------------------------------------------------- R8: reads per standing
@@ -500,7 +502,7 @@ def test_r9_the_standing_at_an_instant(tmp_path) -> None:
     at = datetime(2026, 11, 6, tzinfo=timezone.utc)
     st = standing(w, "KOBO-001", known_at=at)
     assert (st.reconciled, st.reason, st.known_at) == (True, "RECONCILED", at)
-    assert heads(st.cited)["fuel_cost"] == ("MATCHED", None, "505.00", "500.00", "-5.00", "5.0500")
+    assert heads(st.cited)["fuel_bought"] == ("MATCHED", None, "505.00", "500.00", "-5.00", "5.0500")
     assert all(c[2] == at for c in w["months"].calls[-2:])
     st = standing(w, "KOBO-001")
     assert (st.reconciled, st.reason, st.known_at) == (False, "THIS_MONTH_NOT_MATCHED", None)

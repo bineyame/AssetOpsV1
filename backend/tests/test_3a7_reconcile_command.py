@@ -17,7 +17,7 @@ from assetops_backend.database_target import PG_TARGET_ENV
 from test_3a7_reconciliation import ANA, FIONA, OWNER_REF, S1_AT, load, t2_world, two_sites_world
 
 URL = "postgresql+psycopg://u:p@rc4.invalid:1/assetops_test"
-T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+T2_FUEL = ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
            "more (1.49%), beyond the $5.05 allowed (1%).")
 
 
@@ -79,10 +79,10 @@ def test_m1_record_prints_the_statement(capsys) -> None:
     assert list(fuel) == ["heading", "state", "reason", "accounts", "recorded", "difference", "allowed",
                           "record_currencies", "sources", "origins", "text"]
     assert {k: fuel[k] for k in ("heading", "state", "reason", "accounts", "recorded", "difference", "allowed")} == {
-        "heading": "fuel_cost", "state": "MATCHED", "reason": None, "accounts": "505.00", "recorded": "500.00",
+        "heading": "fuel_bought", "state": "MATCHED", "reason": None, "accounts": "505.00", "recorded": "500.00",
         "difference": "-5.00", "allowed": "5.0500"}
     assert (fuel["record_currencies"], fuel["origins"]) == (["USD"], ["source-emulated"])
-    assert fuel["text"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records "
+    assert fuel["text"] == ("Fuel bought (invoices) (Recorded, Emulated and Declared): the accounts say $505.00 and the records "
                             "say $500.00, $5.00 less, within the $5.05 allowed (1%).")
 
 

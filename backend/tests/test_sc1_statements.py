@@ -813,7 +813,7 @@ def test_t13_evidence_on_the_page():
     assert say(c9).startswith("Revenue (Recorded, Emulated and Declared): ")
     c7, c10 = worked.CASES[6], worked.CASES[-1]
     assert "tolerance" not in c7.facts and c10.facts["tolerance"].evidence.evidence == "DECLARED"
-    assert say(c10) == say(c7) == "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."
+    assert say(c10) == say(c7) == "Fuel bought (invoices) (Recorded): the accounts say $0.00 and no fuel invoices are recorded."
 
 
 C1 = worked.CASES[0].facts
