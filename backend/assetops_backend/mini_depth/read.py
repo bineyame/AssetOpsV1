@@ -49,7 +49,7 @@ from assetops_backend.mini_depth.store import (
     _ACCEPTED, _COLUMNS, _KNOWN, _OVERLAPS, DOMAINS, JOB_DOMAIN, NO_PV_BINDING, DaylightHours, daylight_hours,
     read_hour_rows,
 )
-from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
+from assetops_backend.sites.binding_roles import MINI_DEPTH_ROLE_SETS
 
 HOUR = timedelta(hours=1)
 SUPPLY_USE, PRODUCTIVE = "supply-use", "PRODUCTIVE"  # WALK1-3 §4.2 (sites/models.py STATE_PROPERTY_VALUES)
@@ -217,7 +217,7 @@ def _cutoff_sha(c: Connection, tenant_id: UUID, site_id: UUID, window: rules.Win
 
 
 def _hour_ids(c: Connection, tenant_id: UUID, site_id: UUID, window: rules.Window, known: datetime) -> list[str]:
-    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, known, role_set=ROLE_SET_MINIGRID_4,
+    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, known, role_sets=MINI_DEPTH_ROLE_SETS,
                          roles=QUERY_ROLES, supply_role=rules.SITE_SUPPLY)
     return sorted({str(r[0]).lower() for r in (*raw.accepted, *raw.prior_supply)})
 
@@ -477,15 +477,15 @@ class MiniDepthRead:
 
     def feeder_month(self, *, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
                      known_at: datetime | None) -> FeederMonthRows:
-        """4a (spec §4.2): the `minigrid-roles-4` binding sets and their `feeder_demand` bindings, the Site's assets,
-        the Foundation revisions and the accepted feeder interval readings, all known at the cutoff and overlapping
-        `[lo, hi)`. SELECT only; a refusal or an outage propagates (D-4A.23)."""
+        """4a (spec §4.2): the `minigrid-roles-4` or `-5` binding sets (D-DD.109) and their `feeder_demand` bindings,
+        the Site's assets, the Foundation revisions and the accepted feeder interval readings, all known at the cutoff
+        and overlapping `[lo, hi)`. SELECT only; a refusal or an outage propagates (D-4A.23)."""
         def work(c: Connection, known: datetime) -> FeederMonthRows:
             p = {"t": tenant_id, "s": site_id, "k": known, "lo": lo, "hi": hi}
             sets = c.execute(text(
                 "SELECT id, valid_from, valid_to FROM signal_binding_set_revision WHERE tenant_id = :t "
-                f"AND site_id = :s AND role_set = :rs AND {_KNOWN} AND {_OVERLAPS} ORDER BY valid_from, id"),
-                {**p, "rs": ROLE_SET_MINIGRID_4}).all()
+                f"AND site_id = :s AND role_set = ANY(:rs) AND {_KNOWN} AND {_OVERLAPS} ORDER BY valid_from, id"),
+                {**p, "rs": list(MINI_DEPTH_ROLE_SETS)}).all()
             bindings = c.execute(text(
                 "SELECT binding_set_revision_id, asset_id, valid_from, valid_to FROM signal_binding_revision "
                 "WHERE tenant_id = :t AND site_id = :s AND binding_set_revision_id = ANY(:ids) AND role = :role "

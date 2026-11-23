@@ -1,6 +1,8 @@
 """DIESEL-K3 (`specs/DIESEL-1/` §9d.4): assess one named night, explicitly (no tick stage in v1).
 
-`assess_night` runs in one store transaction: the Site's one active FUEL_TANK and one active GENERATOR, the night
+`assess_night` runs in one store transaction: the Site's one active FUEL_TANK and its active GENERATOR units (at
+least one; D-DD.117: the window is keyed on the lead unit, the first in declared Foundation order, and every unit
+burns on its own SFC and no-load rate), the night
 window in the Site timezone, the closed-window check, the per-night lock, the inputs as known at the transaction's
 `known_at`, `rules.assess`, the inputs digest, and an append only when the digest differs from the latest revision's.
 """
@@ -61,6 +63,32 @@ def no_load_basis(revisions: Iterable[Any], revision_id: str) -> str | None:
     return None
 
 
+def declared_order(generators: list[Any], tx: Any, start: datetime, end: datetime) -> list[Any]:
+    """The GENERATOR assets in declared Foundation order (D-DD.43: the first is the lead unit). One unit needs no
+    order; a unit the Foundation does not list sorts after the listed ones, by asset code (the adapter's order)."""
+    if len(generators) == 1:
+        return generators
+    order = {code: i for i, code in enumerate(tx.component_order(start, end))}
+    return sorted(generators, key=lambda g: order.get(g.asset_code, len(order)))
+
+
+def _unit(tx: Any, gen: Any, facts: WindowFacts, start: datetime, end: datetime) -> rules.GeneratorUnit:
+    """One unit's SFC and no-load rate in force over the window (v1's reads, per unit)."""
+    sfc_value = sfc_for(facts, tx.sfc_history(gen.id, start, end))
+    sfc = None if sfc_value is None else rules.Declared(
+        Fraction(sfc_value.value_l_per_kwh), None, str(sfc_value.property_revision_id), sfc_value.valid_from,
+        sfc_value.valid_to)
+    rate = no_load_for(facts, tx.no_load_history(gen.id, start, end))
+    no_load = None
+    if rate is not None:
+        basis = no_load_basis(tx.properties(gen.asset_code, (NO_LOAD_BASIS_KEY,), start, end),
+                              str(rate.foundation_revision_id))
+        if basis in NO_LOAD_BASES:
+            no_load = rules.Declared(Fraction(rate.value_l_per_h), basis, str(rate.foundation_revision_id),
+                                     rate.valid_from, rate.valid_to)
+    return rules.GeneratorUnit(gen.id, sfc, no_load)
+
+
 class FuelBalanceService:
     def __init__(self, store: Any) -> None:
         self.store = store
@@ -73,10 +101,10 @@ class FuelBalanceService:
         assets = tx.active_assets()
         tanks = [a for a in assets if a.asset_type == "FUEL_TANK"]
         generators = [a for a in assets if a.asset_type == "GENERATOR"]
-        if len(tanks) != 1 or len(generators) != 1:
+        if len(tanks) != 1 or not generators:
             raise FuelBalanceRefused(ASSETS_UNSUPPORTED, f"v1 assesses one fuel tank and one generator; the Site has "
                                                          f"{len(tanks)} active tanks and {len(generators)} generators")
-        tank, gen = tanks[0], generators[0]
+        tank = tanks[0]
         start, end = rules.night_window(night_date, tx.timezone())
         known_at: datetime = tx.known_at
         if known_at < end + _CLOSING_SEARCH:
@@ -93,29 +121,18 @@ class FuelBalanceService:
                                       start, end, rules.ACCURACY_BASES)
         facts = WindowFacts(evidence_ids=(), complete=False, generator_kwh=None, feeder_demand_kwh=None,
                             start=start, end=end)
-        sfc_value = sfc_for(facts, tx.sfc_history(gen.id, start, end))
-        sfc = None if sfc_value is None else rules.Declared(
-            Fraction(sfc_value.value_l_per_kwh), None, str(sfc_value.property_revision_id), sfc_value.valid_from,
-            sfc_value.valid_to)
-        rate = no_load_for(facts, tx.no_load_history(gen.id, start, end))
-        no_load = None
-        if rate is not None:
-            basis = no_load_basis(tx.properties(gen.asset_code, (NO_LOAD_BASIS_KEY,), start, end),
-                                  str(rate.foundation_revision_id))
-            if basis in NO_LOAD_BASES:
-                no_load = rules.Declared(Fraction(rate.value_l_per_h), basis, str(rate.foundation_revision_id),
-                                         rate.valid_from, rate.valid_to)
+        units = tuple(_unit(tx, gen, facts, start, end) for gen in declared_order(generators, tx, start, end))
+        lead = units[0].asset_id
         readings = rules.relevant_readings(tx.readings(start - _CLOSING_SEARCH, end + _CLOSING_SEARCH, rules.ROLES),
-                                           tank.id, gen.id)
-        result = rules.assess(start=start, end=end, tank_asset_id=tank.id, generator_asset_id=gen.id,
-                              readings=readings, records=records, accuracy=accuracy, sfc=sfc, no_load=no_load)
+                                           tank.id, [u.asset_id for u in units])
+        result = rules.assess(start=start, end=end, tank_asset_id=tank.id, units=units, readings=readings,
+                              records=records, accuracy=accuracy)
         evidence_ids = sorted({r.id for r in readings})
-        digest = rules.input_sha256(night_date=night_date, start=start, end=end, tank_asset_id=tank.id,
-                                    generator_asset_id=gen.id, accuracy=accuracy, sfc=sfc, no_load=no_load,
-                                    evidence_ids=evidence_ids, records=records)
+        digest = rules.input_sha256(night_date=night_date, start=start, end=end, tank_asset_id=tank.id, units=units,
+                                    accuracy=accuracy, evidence_ids=evidence_ids, records=records)
         if latest is not None and latest.input_sha256 == digest:
             return AssessResult(latest, False)
-        row = {"tank_asset_id": tank.id, "generator_asset_id": gen.id, "night_date": night_date,
+        row = {"tank_asset_id": tank.id, "generator_asset_id": lead, "night_date": night_date,
                "window_start": start, "window_end": end, "state": result.state, "reason": result.reason,
                "residual_low": rules.fmt(result.residual_low), "residual_high": rules.fmt(result.residual_high),
                "gap_minutes": result.gap_minutes,

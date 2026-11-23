@@ -55,7 +55,7 @@ def _books(first_note_l: int = 100, delivered_kwh: int = 8592, unexplained_l: in
 def test_site_inputs_joins_the_foundation_with_its_bindings(sites_file: dict) -> None:
     assert sites_file["schema"] == "assetops.world-site-inputs/1"
     kobo = _kobo(sites_file)
-    assert (kobo["tenant"], kobo["timezone"], kobo["role_set"]) == ("lakeside-power", "Africa/Nairobi", "minigrid-roles-4")
+    assert (kobo["tenant"], kobo["timezone"], kobo["role_set"]) == ("lakeside-power", "Africa/Nairobi", "minigrid-roles-5")  # D-DD.114
     assert len(kobo["bindings"]) == 12 and len(kobo["foundation"]["components"]) == 10
     assert len(kobo["foundation_digest"]) == 64
     alone = tel.site_inputs(json.loads(ONBOARDING.read_text()), {"KOBO-001": _bindings()})
@@ -272,3 +272,27 @@ def test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month() -
         expected[site["code"]] = [(next(s for s in STANDARD_TANKS_L if s >= 2 * max(months)), "SITE", 1)]
     assert expected == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
     assert declared == expected
+
+
+def test_kobos_readings_do_not_depend_on_the_role_set_label() -> None:
+    """DD3c review L1: `foundation_digest` is taken over `role_set`, and the frozen run's seed is the digest's head, so
+    D-DD.114's move to roles-5 changed Kobo's seed. No draw consumes the seed today: two days of Kobo's readings are
+    byte-identical under both labels while the seeds differ. If a pack ever draws on the seed (D-DD.102/115's
+    class), this fails and the seed must be taken off the label."""
+    onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
+    roles4 = {**_bindings(), "role_set": "minigrid-roles-4"}
+    runs = []
+    for binding in (_bindings(), roles4):
+        site = next(s for s in tel.site_inputs(onboarding, {"KOBO-001": binding})["sites"] if s["code"] == "KOBO-001")
+        components = {c["id"]: c for c in site["foundation"]["components"]}
+        components["generator"]["properties"] += [
+            {"property_key": "generator-no-load-fuel-rate", "value": "0.62", "unit": "L/h"},
+            {"property_key": "generator-minimum-load", "value": "30", "unit": "%"}]
+        components["battery"]["properties"].append(
+            {"property_key": "battery-charge-taper-start", "value": "95", "unit": "%"})
+        run = tel.SiteRun(site, _books()["KOBO-001"], "2026-07-01", "2026-07-02")
+        runs.append((tel.frozen_inputs(site, _books()["KOBO-001"], "2026-07-01", "2026-07-02").seed,
+                     tel.readings_bytes(run.next_day_readings() + run.next_day_readings())))
+    (seed5, bytes5), (seed4, bytes4) = runs
+    assert seed5 != seed4  # the label does move the seed (the coupling is real)
+    assert len(bytes5) > 0 and bytes5 == bytes4

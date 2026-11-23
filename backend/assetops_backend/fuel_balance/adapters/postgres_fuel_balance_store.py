@@ -146,6 +146,14 @@ class _Tx:
                                         values))
         return out
 
+    def component_order(self, lo: datetime, hi: datetime) -> list[str]:
+        """The component ids in declared order on the latest Foundation revision overlapping `[lo, hi)` as known at
+        `known_at` (D-DD.117: the lead unit is the first GENERATOR declared)."""
+        rows = list(self.c.execute(text(_REVISIONS), {**self._p, "lo": lo, "hi": hi, "k": self.known_at}))
+        if not rows:
+            return []
+        return [str(c.get("component_id")) for c in (rows[-1].content or {}).get("components") or ()]
+
     def readings(self, lo: datetime, hi: datetime, roles: tuple[str, ...]) -> list[Reading]:
         """Accepted evidence of these roles touching `[lo, hi]` as accepted by `known_at`, as
         `verification_rules.Reading` exactly as `actions/verification.py:653-658` builds them."""

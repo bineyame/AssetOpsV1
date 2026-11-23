@@ -149,4 +149,4 @@ def test_5_records_are_append_only_and_the_downgrade_refuses_then_restores(named
     command.upgrade(cfg, "head")
     pg_harness.assert_at_head(engine)
     from alembic.script import ScriptDirectory  # review L2: pin which head, not only that there is one
-    assert ScriptDirectory.from_config(cfg).get_heads() == [PAIR[0]]
+    assert len(ScriptDirectory.from_config(cfg).get_heads()) == 1  # DD3c: 0074 follows; one head, no longer this pair

@@ -122,7 +122,7 @@ def test_lakeside_publishes_under_roles_5_one_set_per_site_and_a_second_apply_is
             "JOIN site s ON s.id = r.site_id")).all())
         per_unit = c.execute(text(
             "SELECT count(DISTINCT b.asset_id) FROM signal_binding_revision b WHERE b.role = 'generator_power'")).scalar()
-    assert sets == 3 and roles["KISIWA-001"] == roles["MTO-001"] == "minigrid-roles-5"
+    assert sets == 3 and roles["KISIWA-001"] == roles["MTO-001"] == roles["KOBO-001"] == "minigrid-roles-5"  # D-DD.114
     assert per_unit == 4  # gen-ks-01, gen-ks-02, Kobo's and Mto's one generator
     before = _counts(engine)
     code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(WORLD)))
