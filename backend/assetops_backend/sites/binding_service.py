@@ -28,6 +28,7 @@ from uuid import UUID, uuid4
 from assetops_contracts.source_envelope_v4 import (
     V4_CHANNEL_MAPPINGS,
     V4_CHANNEL_MAPPINGS_BY_PROFILE,
+    V4_WORLD_EV_CHANNEL_MAPPINGS,
     V4_EV_MAPPING_PROFILE_ID,
     V4_EV_MAPPING_PROFILE_VERSION,
     V4_MINI_MAPPING_PROFILE_ID,
@@ -241,6 +242,24 @@ _MIXED_V4_ROLES_BY_ROLE_SET: Mapping[str, frozenset[str]] = {
 }
 
 
+#: D-DD.138: the role sets whose every channel is v4. A conversion of one of these publishes v4 metadata from the
+#: set's closed table; mini-grid role sets (mixed, W4-02) keep v3 conversions.
+_V4_CONVERSION_ROLE_SETS = frozenset({ROLE_SET_COLD_1, ROLE_SET_EV_1})
+
+#: D-DD.138: `ev-roles-1` checks a binding against the lab table and the closed world depot table. The Foundation
+#: check below still requires each channel to be declared by the Site's own Foundation, so a Site binds only its
+#: own connectors. `_V4_TABLE_BY_ROLE_SET` (and so the registered EV profile) is unchanged.
+_V4_VALIDATION_TABLE_BY_ROLE_SET: Mapping[str, Mapping[tuple[str, str], Any]] = {
+    **_V4_TABLE_BY_ROLE_SET,
+    ROLE_SET_EV_1: {**_V4_TABLE_BY_ROLE_SET[ROLE_SET_EV_1], **V4_WORLD_EV_CHANNEL_MAPPINGS},
+}
+
+
+def publishes_v4_metadata(role_set: str, origin: str) -> bool:
+    """D-DD.138: a published set carries v4 metadata; a conversion does only for an all-v4 role set."""
+    return origin != "CONVERSION" or role_set in _V4_CONVERSION_ROLE_SETS
+
+
 def v4_mapping_profile(role_set: str) -> tuple[str, int] | None:
     """W2-06 Q8: the one registered public mapping profile `(id, version)` whose closed channel table this role
     set's bindings are checked against, or None when the role set has no such table or it is not exactly one
@@ -408,7 +427,7 @@ def validate_bindings(
                 # W2-01 (W2-00 review Low 2, design section 3 channel closure): a channel of the closed v4
                 # table serves exactly the role it names, with exactly the role's event kinds. W2-05a: the
                 # same rule for ev-roles-1 against the EV profile's table.
-                entry = _V4_TABLE_BY_ROLE_SET[role_set].get(channel)
+                entry = _V4_VALIDATION_TABLE_BY_ROLE_SET[role_set].get(channel)
                 mixed_v4 = _MIXED_V4_ROLES_BY_ROLE_SET.get(role_set)
                 if mixed_v4 is not None and role.role not in mixed_v4:
                     # q1 ruling 1: a v3 role of a mixed set may not take an authored v4 tuple.
@@ -709,7 +728,7 @@ class BindingService:
                 )
             overlapping = [r for r in after if _overlaps(r.valid_from, r.valid_to, effective_from, period_to)]
             bindings = validate_bindings(site, role_set, requests, registrations, overlapping,
-                                         v4_metadata=origin != "CONVERSION")
+                                         v4_metadata=publishes_v4_metadata(role_set, origin))
             digest = bindings_digest(role_set, bindings)
             if replaced is not None and digest == replaced.bindings_sha256 and not rev_inserts:
                 raise BindingRefused(
