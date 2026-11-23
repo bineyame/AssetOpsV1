@@ -135,3 +135,23 @@ acceptable for D-DD.114 together with the golden. No action beyond the packet's 
   so Kisiwa and Mto read CONFLICTING or absent there. Default applied in this review: it is in DD3c, so fix it on the
   branch before merge (about +0.5 u). The alternative is a ruling that moves it to DD3b or DD5 before DD5.1 loads
   their readings.
+
+## Re-review (fix round), 2026-11-23, branch `task/DD3c-unit-roles` at 7b0f1e0f8
+
+Summary (verdict: **ACCEPT**)
+- Read: the fix-round packet section and `git diff 34def56ed..HEAD` (mini_depth inputs/rules/projection/store, verification_rules,
+  postgres_assessment_store, the new tests, the golden); main-merge-only changes ignored.
+- H1 closed: `load_hour_inputs` takes PER_ASSET units of the pinned set (roles-5 only; roles-4 keeps its refusal), `site_series`
+  builds the Site series through `unit_roles.site_power`, fuel burns each unit on its own SFC through `site_litres`. A silent or
+  gapped unit leaves the Site value absent there (gap, COVERAGE_GAP/MISSING), never mixed or dropped.
+- H2 closed: units of a unit role come from `allowed[role]` whenever more than one is bound; a silent unit is named, Site absent,
+  `complete` False (test `test_c6b`).
+- M1 closed: `UnitRolesRefused` is caught in `_configuration` and reuses the one existing minimum-runtime limit line.
+- L1 proved by test (readings identical under both labels); L2/L3 stay noted, acceptable as Lows.
+- Disclosed limits judged: no mini-depth rule reads generator policy or `generator_state` (grep), so no figure depends on them;
+  backup events were already the union of bound units, a same-instant tie only reorders by evidence id (no demo file has one);
+  no per-unit field means a silent unit is stated as a coverage gap, not named: a hidden name, not a wrong or hidden figure.
+- Checks: pure DD3c set (mini-depth units incl. the Kobo golden byte-identity test, cost check, readers, unit_roles, golden,
+  fuel balance, litres, migration 0074): 98 passed. Postgres not rerun; builder's 665 passed at 9f37dceef cited (later commits
+  touch only packet and state). Guards not rerun (builder's pass cited).
+- Remaining findings: none. Residual: a silent mini-depth unit is not named on the wire (low, UI can say "a generator unit").
