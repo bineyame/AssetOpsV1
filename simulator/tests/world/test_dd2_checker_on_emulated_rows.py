@@ -92,7 +92,8 @@ def test_c_dd4_fails_when_a_history_node_is_not_the_manifests_evaluation(inputs,
     assert dd_check.judge_identities(inputs, bent, LAKESIDE).passed
     result = dd_check.judge_leaves_and_nodes(inputs, bent, LAKESIDE)
     assert not result.passed
-    assert any("KOBO-001 2026-07: billed_kwh stored 8191 != evaluated 8190" in line for line in result.detail)
+    # D-DD.164 (2026-11-23): Kobo July re-seeded once, 8190 -> 8200 kWh
+    assert any("KOBO-001 2026-07: billed_kwh stored 8201 != evaluated 8200" in line for line in result.detail)
 
 
 def test_c_dd4_fails_on_a_leaf_and_on_octobers_recorded_node(inputs, mini_rows) -> None:

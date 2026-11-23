@@ -2,79 +2,79 @@
   "base": "108af5378",
   "fixture_view": {
     "harvest-cold/Room A · Mwea/2026-07": {
-      "block_sha256": "348075a76a6a578672c8b4396c5bfcc806c83a842bf2cbd4c86f301c840fa218",
-      "scope_digest": "6d95bfc3c82290736a3b56d7ab6ef807a5093ea95373414f12fecb79cbd8a89d"
+      "block_sha256": "6129bfadbf32b3ffe9be286ad0ccd04c6ff0058ea16f0398fd23c0ad9d35c7b9",
+      "scope_digest": "d868527c49e619bc90dcb09320927a7d834f6a9b2dd76ca6dee668e9ddaabe57"
     },
     "harvest-cold/Room A · Mwea/2026-08": {
-      "block_sha256": "dbcdc063e39f63be0817a7a2057857956ce7962c89fd64db98c737a6874b4a33",
-      "scope_digest": "bb555cf6e4de5b66ab7ae876afd4eef1f11e7bc50bb568748031042bbf656db2"
+      "block_sha256": "ac957acb745245c95b120e3981d127276c64a2bb766c82c4c825ca0275bea245",
+      "scope_digest": "b473dcb0a36487d2a07e5155ee4968dade16607b36152046392179285d05b856"
     },
     "harvest-cold/Room A · Mwea/2026-09": {
-      "block_sha256": "a7215e8537f12e7e5bb9fbce24e4f4824f4655205d4bff31326633d88113b4f6",
-      "scope_digest": "efaf9e012d57e6cd04fb823efcc7de495bf03e386c47594c5eff3633e15fe16d"
+      "block_sha256": "7b63358e9491b6548524a7209110dcceae2d3ffc3cf802a77cd6221dcb138649",
+      "scope_digest": "c0e06f2cbe4efa3ba3021922db83a1194c5c391ba9f2edf92c40077ee1586a70"
     },
     "harvest-cold/Room B · Thika/2026-07": {
-      "block_sha256": "5c3a860dc198ae60fc3ec4c7ee3ea4733d38cd6a29b3f21280efd2292c656d50",
-      "scope_digest": "960488054ff1df79e0c07c3f4af34af4c72e4755b65ca77e87eb769e2b5c5fd2"
+      "block_sha256": "e0d076c61774928f721cd3422cbf68efec9b24b3c7c1bff8e3bca0397d398f81",
+      "scope_digest": "69bfc5d5d3267fd32de9cd37c002618f557c12f7308a12c92b2dc45ae0120f5d"
     },
     "harvest-cold/Room B · Thika/2026-08": {
-      "block_sha256": "64eb5377d5060a08e17376e0cd0b782a095aef5e4a6c0d3adb07ce4a7c08494a",
-      "scope_digest": "99ad69f33eff9ce767aab7546f599b3eb4c20951d32b9ac1cdb1abb05f1f04d6"
+      "block_sha256": "1874e64cdb2e6e7389fbc0472c95f526c2efdc429ff33df72fb45053caf1f695",
+      "scope_digest": "f64ea2eb7239315354095cb9dd31bca80c90fca500b98eb8bfc2eea677d975f8"
     },
     "harvest-cold/Room B · Thika/2026-09": {
-      "block_sha256": "207beebc09be85ede9a61545853c994d3e4347d892a535cb02011f67c5cccf64",
-      "scope_digest": "8e0bc6c2e722aaa1b1849509fec20ffb206ab1e8853cfe5f6b86f2d2c1c37d0d"
+      "block_sha256": "e14f0675a43f8b0169f5ee204925a137300ce87c196e38e12850c7e90c80ca71",
+      "scope_digest": "5a57fc27f94a71df20496614c43b20d5f43cf653e52e61ee36871ed96f487877"
     },
     "harvest-cold/Room C · Kirinyaga/2026-07": {
-      "block_sha256": "7771d4f3c12b9d3ea52c5b7d3d9e60c2e7c033bd7eaafad7688f400a1a86197d",
-      "scope_digest": "04a661539fcf13090b9ba30b28ae38c099147b6e086020c1c4ad5285f28dc089"
+      "block_sha256": "5069e5266fada61206951ece2fa9f84e74d1e9e9d3bf85bc20f76e76a2ff4523",
+      "scope_digest": "c4aeca23ae3ebc6d9bd41ae30dcfd8a78f2bd9783c6096f7fb8a72608098fda1"
     },
     "harvest-cold/Room C · Kirinyaga/2026-08": {
-      "block_sha256": "29af1acd011e6e253b1d953e26fd85b4d3137ee2430b40c3243c83d05d2a55b0",
-      "scope_digest": "47b379a3acd2f4610576d105fea37bb6cc061fd91f47e522308673a36ed81358"
+      "block_sha256": "a957cf199c081c415116757a2813e852d7ce5554745fe1cb297e6935d0ebb6a2",
+      "scope_digest": "f4ac026ef2e2f470b64cd6f624c9ba15e25236319d2038f448c2685501c88139"
     },
     "harvest-cold/Room C · Kirinyaga/2026-09": {
-      "block_sha256": "0f82e90ba4b5fed164abf6dd885261fd8dfcf89ffe367ded4ec80068d915f890",
-      "scope_digest": "898de63a9da544ae0761c311eb862f280e86ef5e393ce8462e6d266a3ffa3a75"
+      "block_sha256": "530f9e4563502fd2db5c46bcb19280787a466f9ceb34e1457d00b6fdd40d65d0",
+      "scope_digest": "d749aa3c3fb0d0bc10933a77bbcf1fecec7debe4e4a4cc8fe1d695bfe681a82f"
     }
   },
   "history_json": {
     "harvest-cold/Room A · Mwea/2026-07": {
-      "block_sha256": "348075a76a6a578672c8b4396c5bfcc806c83a842bf2cbd4c86f301c840fa218",
-      "scope_digest": "6d95bfc3c82290736a3b56d7ab6ef807a5093ea95373414f12fecb79cbd8a89d"
+      "block_sha256": "6129bfadbf32b3ffe9be286ad0ccd04c6ff0058ea16f0398fd23c0ad9d35c7b9",
+      "scope_digest": "d868527c49e619bc90dcb09320927a7d834f6a9b2dd76ca6dee668e9ddaabe57"
     },
     "harvest-cold/Room A · Mwea/2026-08": {
-      "block_sha256": "dbcdc063e39f63be0817a7a2057857956ce7962c89fd64db98c737a6874b4a33",
-      "scope_digest": "bb555cf6e4de5b66ab7ae876afd4eef1f11e7bc50bb568748031042bbf656db2"
+      "block_sha256": "ac957acb745245c95b120e3981d127276c64a2bb766c82c4c825ca0275bea245",
+      "scope_digest": "b473dcb0a36487d2a07e5155ee4968dade16607b36152046392179285d05b856"
     },
     "harvest-cold/Room A · Mwea/2026-09": {
-      "block_sha256": "a7215e8537f12e7e5bb9fbce24e4f4824f4655205d4bff31326633d88113b4f6",
-      "scope_digest": "efaf9e012d57e6cd04fb823efcc7de495bf03e386c47594c5eff3633e15fe16d"
+      "block_sha256": "7b63358e9491b6548524a7209110dcceae2d3ffc3cf802a77cd6221dcb138649",
+      "scope_digest": "c0e06f2cbe4efa3ba3021922db83a1194c5c391ba9f2edf92c40077ee1586a70"
     },
     "harvest-cold/Room B · Thika/2026-07": {
-      "block_sha256": "5c3a860dc198ae60fc3ec4c7ee3ea4733d38cd6a29b3f21280efd2292c656d50",
-      "scope_digest": "960488054ff1df79e0c07c3f4af34af4c72e4755b65ca77e87eb769e2b5c5fd2"
+      "block_sha256": "e0d076c61774928f721cd3422cbf68efec9b24b3c7c1bff8e3bca0397d398f81",
+      "scope_digest": "69bfc5d5d3267fd32de9cd37c002618f557c12f7308a12c92b2dc45ae0120f5d"
     },
     "harvest-cold/Room B · Thika/2026-08": {
-      "block_sha256": "64eb5377d5060a08e17376e0cd0b782a095aef5e4a6c0d3adb07ce4a7c08494a",
-      "scope_digest": "99ad69f33eff9ce767aab7546f599b3eb4c20951d32b9ac1cdb1abb05f1f04d6"
+      "block_sha256": "1874e64cdb2e6e7389fbc0472c95f526c2efdc429ff33df72fb45053caf1f695",
+      "scope_digest": "f64ea2eb7239315354095cb9dd31bca80c90fca500b98eb8bfc2eea677d975f8"
     },
     "harvest-cold/Room B · Thika/2026-09": {
-      "block_sha256": "207beebc09be85ede9a61545853c994d3e4347d892a535cb02011f67c5cccf64",
-      "scope_digest": "8e0bc6c2e722aaa1b1849509fec20ffb206ab1e8853cfe5f6b86f2d2c1c37d0d"
+      "block_sha256": "e14f0675a43f8b0169f5ee204925a137300ce87c196e38e12850c7e90c80ca71",
+      "scope_digest": "5a57fc27f94a71df20496614c43b20d5f43cf653e52e61ee36871ed96f487877"
     },
     "harvest-cold/Room C · Kirinyaga/2026-07": {
-      "block_sha256": "7771d4f3c12b9d3ea52c5b7d3d9e60c2e7c033bd7eaafad7688f400a1a86197d",
-      "scope_digest": "04a661539fcf13090b9ba30b28ae38c099147b6e086020c1c4ad5285f28dc089"
+      "block_sha256": "5069e5266fada61206951ece2fa9f84e74d1e9e9d3bf85bc20f76e76a2ff4523",
+      "scope_digest": "c4aeca23ae3ebc6d9bd41ae30dcfd8a78f2bd9783c6096f7fb8a72608098fda1"
     },
     "harvest-cold/Room C · Kirinyaga/2026-08": {
-      "block_sha256": "29af1acd011e6e253b1d953e26fd85b4d3137ee2430b40c3243c83d05d2a55b0",
-      "scope_digest": "47b379a3acd2f4610576d105fea37bb6cc061fd91f47e522308673a36ed81358"
+      "block_sha256": "a957cf199c081c415116757a2813e852d7ce5554745fe1cb297e6935d0ebb6a2",
+      "scope_digest": "f4ac026ef2e2f470b64cd6f624c9ba15e25236319d2038f448c2685501c88139"
     },
     "harvest-cold/Room C · Kirinyaga/2026-09": {
-      "block_sha256": "0f82e90ba4b5fed164abf6dd885261fd8dfcf89ffe367ded4ec80068d915f890",
-      "scope_digest": "898de63a9da544ae0761c311eb862f280e86ef5e393ce8462e6d266a3ffa3a75"
+      "block_sha256": "530f9e4563502fd2db5c46bcb19280787a466f9ceb34e1457d00b6fdd40d65d0",
+      "scope_digest": "d749aa3c3fb0d0bc10933a77bbcf1fecec7debe4e4a4cc8fe1d695bfe681a82f"
     }
   },
-  "note": "D-DD.102: cold scopes (no `physical` block) from main at the DD3a fix round's base; must stay byte-identical; re-pinned at D-DD.144 (cold energy restated, whole-kWh plan kwh)"
+  "note": "D-DD.102: cold scopes (no `physical` block) from main at the DD3a fix round's base; must stay byte-identical; re-pinned at D-DD.144 (cold energy restated, whole-kWh plan kwh); DD3b fix round (D-DD.164, 2026-11-23): scope.RUN_WRITTEN (cold actual.kwh) left the scope digest, so the cold digests were re-drawn once and Mwea/Thika history actual.kwh moved; values regenerated from the tool, D-DD.30 chain / D-DD.93 rule"
 }

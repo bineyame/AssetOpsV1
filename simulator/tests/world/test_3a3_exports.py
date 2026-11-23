@@ -28,7 +28,7 @@ TENANT = "lakeside-power"
 PINNED = {
     "lakeside-power.billing.csv": "20955b91fe9b94ec8f2c9d3ae5d0be0c617a569752e83afb3759cd3c33125013",
     "lakeside-power.collections.csv": "8b3cd80a03eaf2fa06f8f393189ca353bbd593ad6418b90551b4a3fd1a6352c3",
-    "lakeside-power.expenses.csv": "298773a4946d07cc7a9b80954045a730691828b012fd942a41c672b7e26e6dc5",
+    "lakeside-power.expenses.csv": "1bb862aff2332581136cda54ad89e87827f6a31ea7849e176e54485f341bbf73",  # D-DD.164: Kisiwa 16 Oct
     "lakeside-power.budget.csv": "1c10cdb5442e83f3980d7ecfb0dae99229d5b76bbe8155f82aafc128bbd6d368",
 }
 #: DD2.1: what `world_history.py exports` writes by default, every month (the packet lists both moves). The receipts
@@ -36,10 +36,13 @@ PINNED = {
 #: DD3a commit 2: Kobo `physical` from its data sheets reseeds Kobo's July-September; billing, collections and expenses moved.
 #: DD3a fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's July-September once; the same three moved.
 #: DD3b3 (D-DD.130): the fuel rows are `config/world/fuel-notes.json`'s notes; expenses moved (here and in PINNED).
+#: DD3b fix round (D-DD.164, 2026-11-23): `RUN_WRITTEN` leaves the digest, so Lakeside July-September re-seeded once and
+#: the notes were restated from the run (Kisiwa 1 Aug / 21 Aug / 16 Sep / 16 Oct; Kobo 25 Sep): billing, collections
+#: and expenses moved; budget did not.
 PINNED_ALL_MONTHS = {
-    "lakeside-power.billing.csv": "a61c37b8b3fbd1b6c8595b1b769cd6531fc49d79eae6574721c97db6c6297234",
-    "lakeside-power.collections.csv": "fe1ca6a47b459af1019dcccb3e40c39470dee7a3f7971b1288711f65df124525",
-    "lakeside-power.expenses.csv": "ab112234af0e87a2af3ad12bfb09ee7a8d40a3866425dd9bdc1538b179e37dd9",
+    "lakeside-power.billing.csv": "a51f49ab0b20239b782038f961f288dd8af196dfc4da594c19fb6dd371337987",
+    "lakeside-power.collections.csv": "dea45b5ddca12dca4762fe308e836186bb0ef60d4663da58c77dc7baf857a683",
+    "lakeside-power.expenses.csv": "acf36047f6ed8e0a9740ee1117f3d133064498b992008c7b37bd6df073550300",
     "lakeside-power.budget.csv": "e12bcd1f78886ff4c5e13291c7fd3c6636a067f95e6537ca7dd104ce9ea34adc",
 }
 
@@ -113,7 +116,7 @@ def test_e3_receipts(result) -> None:
 
 
 def test_e4_fuel(result) -> None:
-    """D-DD.130: October's fuel rows are the notes file's purchases (Kisiwa two 15 Oct reorders, Kobo OOO-1's dated
+    """D-DD.130: October's fuel rows are the notes file's purchases (Kisiwa two 16 Oct reorders since D-DD.164, Kobo OOO-1's dated
     note, Mto none), litres x the Site's price; consumption is the readings', never the books'."""
     fuel = [r for r in records(result, "expenses") if r["body"]["category"] == "FUEL"]
     by = {s: of_site(fuel, s) for s in SITES}
@@ -121,7 +124,7 @@ def test_e4_fuel(result) -> None:
     assert [money(by[s]) for s in SITES] == [Decimal("1040.00"), Decimal("500.00"), Decimal("0")]
     assert [(r["clocks"]["occurred_at"], r["quantity"]["value"]) for r in by["KOBO-001"]] == [
         ("2026-10-26T10:00:00+03:00", "400")]
-    assert [r["clocks"]["occurred_at"] for r in by["KISIWA-001"]] == ["2026-10-15T10:00:00+03:00"] * 2
+    assert [r["clocks"]["occurred_at"] for r in by["KISIWA-001"]] == ["2026-10-16T10:00:00+03:00"] * 2
 
 
 def test_e5_gap_1_estimated_om_is_absent(result) -> None:

@@ -9,6 +9,9 @@ moves").
 Re-pinned at DD3b3 (D-DD.131/150/151, M rev 16.20): October's Lakeside litres moved in `period.actual`, which every scope
 digest of a Lakeside Site reads, so the Lakeside scope digests were re-drawn once and the golden holds the regenerated
 values (D-DD.30 chain, D-DD.93 rule); the depots' and cold rooms' digests are main's still.
+
+Re-pinned at the DD3b fix round (D-DD.164, 2026-11-23): `scope.RUN_WRITTEN` leaves every scope digest, so all 27
+digests were re-drawn once from the tool; the D-DD.90 property (a season past the anchor moves none) is unchanged.
 """
 
 from __future__ import annotations

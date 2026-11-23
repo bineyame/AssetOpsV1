@@ -90,7 +90,8 @@ def test_october_evaluated_equals_recorded_on_both_sides_at_every_site() -> None
     expected = {  # by hand: the period's own nodes (October litres: the notes run's, D-DD.131/150, M rev 16.20)
         "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 634,
                   "fuel_cost": "792.5"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
-        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 904, "fuel_cost": "1175.2"},
+        # D-DD.164 (2026-11-23): Kisiwa's October litres restated from the run, 904 -> 903 L (M rev 16.23)
+        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 903, "fuel_cost": "1173.9"},
                    {"billed_kwh": 7500, "revenue": "4125", "fuel_cost": "2990"}),
         "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 32, "fuel_cost": "40"},
                 {"billed_kwh": 5600, "revenue": "2240", "fuel_cost": "375"}),
@@ -126,11 +127,12 @@ def test_a_changed_october_plan_leaf_stops_it_too() -> None:
 
 def test_july_at_kobo_is_derived_from_the_pinned_leaves(full) -> None:
     july = [r for r in rows(full, "billing") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert sum(int(r["quantity"]["value"]) for r in july) == 8190
-    assert total(july) == Decimal("3276.00")
+    # D-DD.164 (2026-11-23): Lakeside July-September re-seeded once (RUN_WRITTEN left the digest): 8190 -> 8200 kWh
+    assert sum(int(r["quantity"]["value"]) for r in july) == 8200
+    assert total(july) == Decimal("3280.00")
     receipts = [r for r in rows(full, "collections") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3012.62")
-    assert total(receipts) == Decimal("3012.62")  # no in transit in July
+    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3016.30")
+    assert total(receipts) == Decimal("3016.30")  # no in transit in July
 
 
 def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
@@ -229,7 +231,7 @@ def test_other_months_cut_400_l_notes_on_the_fixed_days() -> None:
             assert [r["quantity"]["value"] for r in fuel[:-1]] == ["400"] * (len(fuel) - 1)
     kobo_july = [r for r in rows(full, "expenses") if r["site_code"] == "KOBO-001" and month_of(r) == "2026-07"
                  and r["body"]["category"] == "FUEL"]
-    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 476 + 20 + 12  # necessary + candidate + unexplained
+    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 482 + 19 + 12  # necessary + candidate + unexplained (D-DD.164 re-seed)
     assert "remainder" in kobo_july[-1]["body"]["document_ref"]
 
 
