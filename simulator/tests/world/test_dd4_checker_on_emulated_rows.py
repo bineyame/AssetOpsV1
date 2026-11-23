@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 import pytest
 
@@ -118,6 +119,26 @@ def test_c7_on_the_writers_rows(kasarani, ruiru, mwea) -> None:
     demand = next(r for r in rows if r["site_code"] == "EV-RUI" and r["body"].get("band") == "DEMAND")
     demand["quantity"]["value"] = str(float(demand["quantity"]["value"]) + 0.001)
     assert not dd_check.judge_meter_books({}, readings, rows, sites).passed
+
+
+def test_c7_ev_windows_equal_the_site_meter_over_the_same_minutes(kasarani, ruiru) -> None:
+    """D-DD.158: C-DD7's EV clause: each `measured.json` window equals the sum of `site-meter/import` over its minutes,
+    exactly (Kasarani 1-2 Nov, Ruiru 6 Oct, on the writer's own rows); a window 0.001 kWh off fails."""
+    dd_check = _dd_check()
+    readings = {"EV-KAS": kasarani[0], "EV-RUI": ruiru[0]}
+    rows = _ev_books("EV-KAS", kasarani[1]) + _ev_books("EV-RUI", ruiru[1])
+    measured = {**kasarani[1]["sites"], **ruiru[1]["sites"]}
+    assert all("windows" in b for months in measured.values() for b in months.values())
+    assert any(w != "0" for months in measured.values() for b in months.values() for w in b["windows"].values())
+    sites = ("EV-KAS", "EV-RUI")
+    result = dd_check.judge_meter_books({}, readings, rows, sites, measured=measured)
+    assert result.passed, result.detail[:5]
+    assert not any("kwh_2200_2400" in p for p in result.pending)  # the clause is live, no longer pending
+    planted = json.loads(json.dumps(measured))
+    w = planted["EV-RUI"]["2026-10"]["windows"]
+    w["0000_0500"] = str(Decimal(w["0000_0500"]) + Decimal("0.001"))
+    failed = dd_check.judge_meter_books({}, readings, rows, sites, measured=planted)
+    assert not failed.passed and any("EV-RUI 2026-10 window 0000_0500" in d for d in failed.detail), failed.detail
 
 
 def test_c20_on_the_measured_books_of_the_plant_fixtures() -> None:

@@ -86,11 +86,29 @@ def test_m2_ev_bands_demand_and_import_from_the_depot_meter(emb) -> None:
     assert set(months["2026-10"]["bands"]) == {"PEAK", "OFFPEAK"}  # the classes of the schedule in force that month
     assert set(months["2026-11"]["bands"]) == {"PEAK", "OFFPEAK", "NIGHT"}
     for month, m in months.items():
-        assert set(m) == {"bands", "demand_kw", "import_kwh"}
+        assert set(m) == {"bands", "demand_kw", "import_kwh", "windows"}
         assert {k: v for k, v in m["bands"].items() if v} == bands[month]
         assert m["import_kwh"] == sum(m["bands"].values())
         assert m["demand_kw"] == max(v for (mo, _), v in windows.items() if mo == month) / 30
     assert months["2026-11"]["bands"]["NIGHT"] > 0 and months["2026-10"]["bands"]["PEAK"] > 0
+
+
+def test_m8_ev_windows_are_the_depot_import_over_22_to_24_and_00_to_05_local(emb) -> None:
+    """D-DD.158: `windows` = the depot import summed over local minutes [22:00, 24:00) and [00:00, 05:00) of each day
+    in the month, exact; the frame rounds once. Computed here from the import by minute with the hours as literals."""
+    expected: dict[str, dict[str, Fraction]] = {}
+    for t, kw in emb.import_by_minute().items():
+        lt = t.astimezone(ZONE)
+        w = expected.setdefault(lt.strftime("%Y-%m"), {"2200_2400": Fraction(0), "0000_0500": Fraction(0)})
+        if lt.hour >= 22:
+            w["2200_2400"] += kw / 60
+        elif lt.hour < 5:
+            w["0000_0500"] += kw / 60
+    months = emb.measured_months()
+    assert {m: v["windows"] for m, v in months.items()} == expected
+    assert all(w["2200_2400"] > 0 for w in expected.values()) and expected["2026-11"]["0000_0500"] > 0
+    doc = tel.measured_for("metro-bus", [emb])["sites"]["EV-EMB"]
+    assert doc["2026-10"]["windows"] == {k: tel._decimal(v) for k, v in sorted(expected["2026-10"].items())}
 
 
 def test_m3_ev_bands_refuse_a_minute_no_schedule_prices() -> None:
