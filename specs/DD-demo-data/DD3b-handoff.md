@@ -94,3 +94,36 @@ Probe (statements.py patched to cost 0 for that month, reverted, not committed):
 8 re-pins of the re-seeded world; `world-tests-probe.log`). Not built until ruled: pure DIR, `dd_check --pure`, Kisiwa's
 final candidate share (D-DD.165 needs it), re-pins, reach set, packet section, spec status. Next: Architect rules the
 July statement (D-DD.163's "fuel bought" makes a month without purchases legitimate), then pure DIR, D-DD.165, re-pins.
+
+## Fix round 2 (D-DD.175/176 + re-pins): PARTIAL, stopped at the context limit
+
+Evidence `/opt/assetecon/evidence/DD3b/fix2/`. Done (commits b1476e387..HEAD):
+- `b1476e387` merge main (D-DD.175/176, main simfix). One conflict, `golden/scope_seasons_main.json`; later re-drawn from the tool.
+- `461cedfd6` D-DD.175: `statements.ZERO_WHEN_NONE`, `figures_from_rows(..., cost_key)` (fuel 0.00 when no purchase; energy
+  absence and cost-without-revenue refused; unknown key `STATEMENT_COST_KEY`); `exports.py` passes `"fuel_cost"`. Four tests
+  first in `test_dd2_nodes.py` (`tests-first.log`: 5 failed + 2 errors before the code). Lakeside July statement: fuel 0.00.
+- World tests after D-DD.175 (`world-tests-pre-repin.log`): **12 failed, 458 passed**; every one a re-pin of the D-DD.164
+  re-seed / restated notes (none main-identical any more: main's simfix fixed its 7). STOP condition not met.
+- `4b00f2400` D-DD.176: `history.RUN_DERIVED` (MINI_GRID necessary_l/candidate_l; COLD_CHAIN kwh and EV_DEPOT's five metered
+  leaves, because the code shows them: `cold_kwh` reads October kwh, EV leaves are October x weight), `WRITER_READS`, and an
+  import-time check `_run_derived_is_never_read_back` (disjoint from PHYSICAL_READS and writer reads). Guard in
+  `test_scope_run_written.py`: every run-written key of all nine Sites moves only RUN_DERIVED paths, no physical read moves;
+  plant (delivered_kwh scaled by necessary_l) fails it; writers' books unchanged when every derived value is bumped. 27 passed.
+- `step1-vs-step2.txt`: generate 1 (M at b3478de5f^, sha 0b09dd25...) vs generate 2 (history.json, d92fc9f1...): only
+  `meta.view_digest` and Kisiwa Jul-Sep necessary 805/796/739 -> 802/793/737, candidate 54/51/71 -> 56/53/73; 0 STOP paths.
+  Post-merge generate equals the committed history.json byte for byte.
+- `e39c370a4` simulator re-pins (dated): export shas, Kisiwa 16 Oct and 903 L, Kobo July 8200 kWh / 3,280.00 / 3,016.30,
+  482+19+12, C-DD4 plant 8201/8200, cold and seasons goldens re-drawn. Touched files: 107 passed.
+- `138e09045` backend re-pins (b), dated: fixture Kisiwa 903 L 1,173.90; 4b portfolio fuel 1,966.40; 5b Kisiwa 1,696.10 /
+  1,761.10 / 1,816.10, portfolio 4,431.60 / 2,136.60, cost and fuel 5,256.40 / 2,006.40 / 2,233.60, 8a 3,261.60 / 1,881.60;
+  observer Kisiwa -1486 / 69, band 18.06; dd2_check Kobo July 8200 / 3280 / 3016.30 / 513 L / 641.25; 5b postgres 2,136.60.
+  Non-DB reach files (`backend-nodb-1.log` before re-pins: 7 failed, 1172 passed): now only 3b1 t1 and 3b3 t6 fail, both
+  pre-existing on main (`dispatch-3.3` vs `dispatch-3.2`).
+- Six `--check`s and generate 3: `checks.log` (see the line appended below).
+
+Next (in this order): full `simulator/tests/world` rerun (expect 0 failed); pure DIR + `dd_check --pure` (fix/pure-run.sh with
+E=fix2); Kisiwa final candidate share per month three ways (accepted, run 2, final; D-DD.165); check_manifest (= main's 6 + six
+H5); reach set ONCE (`tools/heavy-slot.sh --db-lane -- bash reach.sh`, cite `.agent/main-baseline/`; postgres files will show
+the remaining DB-side re-pins: observer_postgres, money_leaves_postgres, ddr_rehearsal, ds4 t12); guards; packet section with
+July's served standing (D-DD.175: Lakeside July fuel heading MATCHED / NONE_RECORDED_ZERO_STATED, gate opened by Aug/Sep),
+final figures; spec in_review; state entry.
