@@ -778,3 +778,10 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Open: six H5 history checks fail (unexplained litres above 2 % of the lower diesel); the D-DD.76 storage rule now gives
   1,500 / 2,000 / 500 L against the ruled 2,500 / 5,000 / 1,000; vNEXT mock sentences left for the alignment pass.
 - Merged main (DD4b) as `M` rev 16.22: both restatements stand; generated files regenerated, digests re-based; open: DDR x7 and ds4 t12 (fuel cost ruling).
+
+## DD3b fix round 2 (in_review; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: D-DD.175 (a month with no fuel bought states fuel 0.00; energy absence still refused), D-DD.176 (`history.RUN_DERIVED`,
+  disjoint from every physical read, guarded for all nine Sites), D-DD.164 re-pins; Kisiwa candidate share printed
+  20.67 / 16.05 / 0 / 10.55 % (threshold sensitivity, D-DD.165); world suite 484 passed; `dd_check --pure` exit 0.
+- Open: six H5 history checks; DDR rehearsal x7 and ds4 t12 on the DB side.

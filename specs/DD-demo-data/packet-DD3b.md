@@ -476,3 +476,48 @@ Rule: (b) = the test pinned a hand figure that M rev 16.20 moved (D-DD.150-152),
 - Still open (not touched; the Architect is ruling fuel cost purchases vs consumption): the 7 DDR rehearsal tests and
   `test_ds4_world_postgres` t12.
 
+
+## Fix round 2 (23 Nov; D-DD.164 re-seed, D-DD.165, D-DD.175, D-DD.176; evidence `/opt/assetecon/evidence/DD3b/fix2/`)
+
+Commits `b1476e387` (merge main) to this one. Code: `statements.ZERO_WHEN_NONE` and `figures_from_rows(..., cost_key)` (D-DD.175: a trading
+month with no fuel bought states fuel 0.00; an energy bill's absence is still refused; four tests first, `tests-first.log`);
+`history.RUN_DERIVED` with an import-time disjointness check and a guard in `test_scope_run_written.py` (D-DD.176, plant fails
+it). Re-pins dated in `e39c370a4` (simulator) and `138e09045` (backend), class (b), no assertion weakened.
+
+**Deviation (b), RUN_DERIVED**: D-DD.176 named mini-grid `necessary_l`/`candidate_l`; the list also carries cold chain `kwh`
+and EV depot's five metered leaves, because the code shows them: `cold_kwh` reads October `kwh`, and the EV leaves are October
+x weight, so they are run-written derived values, not physical reads. Each is proved disjoint from PHYSICAL_READS and the
+writers' reads by the import-time check; the guard moves every run-written key of all nine Sites and checks no physical read moves.
+
+| Check | Result (log) |
+|---|---|
+| `simulator/tests/world`, `tools/heavy-slot.sh`, PYTHONPATH=simulator:contracts:backend:host | **484 passed** 302 s (`world-final.log`) |
+| Six `--check`s; generate 3 vs generate 2 | exit 0; byte-identical `d92fc9f1...` (`checks.log`) |
+| Pure DIR rebuilt (`pure-run.sh`) + `dd_check --pure` | **exit 0**: C-DD8, C-DD17, C-DD20 PASS (`dd_check-pure.log`) |
+| `check_manifest.py` | 12 failed = main's 6 (H9, A1, A2, A3, A5, walkthroughs 3,184) + six H5 (Kobo 12/12/11, Kisiwa 20/19/18) (`check_manifest.log`) |
+| Reach set, one `--db-lane` call (`reach.log`); main: `.agent/main-baseline/23d2cd9f6.md` | backend 81-file list: **10 failed, 1234 passed, 1 skipped** 278 s; host 3 files **40 passed** 48 s. The simulator world directory is refused by the host runner (run via heavy-slot above). |
+| Guards | `check-architecture.ps1`, `check-agent-workflow.ps1`, `statement_catalogue.py` all exit 0 |
+
+Reach failures: 2 are main's own (`test_3b1 t1`, `test_3b3 t6`, `dispatch-3.3` vs `dispatch-3.2`); 8 are the open DB-side items
+already listed in run 3: `test_ddr_rehearsal_postgres` x7 (G4 PRICE_SOURCE for MTO-001, statement literals) and
+`test_ds4_world_postgres t12` (D-DD.130 purchases vs M's consumption). `observer_postgres` and `money_leaves_postgres` now pass.
+
+**D-DD.165, Kisiwa candidate time per month (printed, no bound, OR-MG-2)**
+
+| Month | As accepted | Run 2 | Final (this round) |
+|---|---|---|---|
+| 2026-07 | 0.36 % (20 of 5555 min) | 18.80 % | 20.67 % (1170 of 5660) |
+| 2026-08 | 11.27 % (625 of 5545) | 17.77 % | 16.05 % (890 of 5545) |
+| 2026-09 | 0 % | 0.00 % | 0.00 % (0 of 3000) |
+| 2026-10 | 10.17 % (400 of 3935) | 10.67 % | 10.55 % (415 of 3935) |
+
+Cause: the candidate rule is a threshold (PV >= 1.1 x load, dispatch-3.2), so a few litres of re-drawn July-September load
+(D-DD.164 re-seed, then main's simfix) move many minutes across it; the generator minutes are almost unchanged, the share is
+not a smooth function of load. Final history figures: Kisiwa Jul-Sep necessary 802/793/737 L, candidate 56/53/73 L
+(generate 1 to 2 differ only in `meta.view_digest` and those six values, `step1-vs-step2.txt`).
+
+**July's served standing (D-DD.175)**: Lakeside's July statement states fuel 0.00 (the empty sum of July's FUEL rows; revenue
+equals the billing rows). Served: fuel heading MATCHED with reason NONE_RECORDED_ZERO_STATED (as `test_3a7` T5), and the
+gate is opened by the August and September statements, not by July.
+
+Ready for re-review; the DDR x7 and ds4 t12 items remain for the Architect.
