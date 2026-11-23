@@ -22,6 +22,7 @@ import pytest
 import test_5a_targets as t5a
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.structure.attribution import rules
+from assetops_backend.deep_dive.words import plain as served_text
 from assetops_backend.structure.attribution.bridge import BridgeRow, bridge, by_home, lowest
 from assetops_backend.structure.attribution.carry import CARRIED_TEXT, NO_TARGET_LINE, carry_at_target
 from assetops_backend.structure.attribution.portfolio import PortfolioBridge, portfolio_bridge
@@ -489,9 +490,9 @@ def lakeside_portfolio(w: dict) -> PortfolioBridge:
 
 
 def money(v: Decimal | None, literal: str) -> None:
-    # D-DD.177: fuel cost is litres (to the millilitre) times a price, so a figure may carry a third decimal; the value
-    # is still exact to the cent, and the text is the cent's.
-    assert v == D(literal) and format(v.quantize(D("0.01")), "f") == literal, (v, literal)
+    # DD3d.4: litres are to the millilitre, so a stored figure may carry a third decimal (1565.500). The value is compared
+    # exactly; the text is the product's own serving rule (`deep_dive.words.plain`), never a rounding made here.
+    assert v == D(literal) and served_text(v) == literal, (v, literal)
 
 
 # --- test 5: carrying (pure; Kisiwa's real inputs and targets, then one field replaced) -------------------------------
@@ -619,7 +620,7 @@ def check_site(sb: SiteBridge, code: str, w: dict) -> None:
         assert o.evidence == "ESTIMATED"
     grow, cut = SITE_HOMES[code]
     assert dict(sb.by_home) == {"GROW_REVENUE": D(grow), "OPTIMIZE_COST": D(cut)}
-    assert [format(v.quantize(D("0.01")), "f") for v in sb.by_home.values()] == [grow, cut]  # litres: 3 places
+    assert [served_text(v) for v in sb.by_home.values()] == [grow, cut]
     # the cash root
     ca, ct, cg, transit, outstanding = SITE_CASH[code]
     cash = sb.roots["collected"]

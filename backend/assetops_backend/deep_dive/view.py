@@ -308,7 +308,7 @@ class _View:
             lines.append(W.cost_received(ratio))
         contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, cur),
                         "word": self.figure_word(R.actual, cur, R.evidence, R.origins), "lines": lines,
-                        "bar": ({"actual": str(R.actual), "target": str(R.target)}
+                        "bar": ({"actual": W.plain(R.actual), "target": W.plain(R.target)}
                                 if R.actual is not None and R.target is not None else None)}
         gap_lines = []
         if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:

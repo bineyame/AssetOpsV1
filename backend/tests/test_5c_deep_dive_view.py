@@ -30,6 +30,7 @@ from assetops_backend.structure.registry import REGISTRIES
 from assetops_backend.structure.targets.read import TargetCheck
 from assetops_backend.structure_snapshot.model import Freshness, Served
 from test_3a4_commercial_months import new_world
+from pack_litres import with_litres
 from deep_dive_worlds import gone, in_kes, world_h, world_x
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "5c" / "deep_dive_lakeside_2026-10.json"
@@ -317,6 +318,48 @@ def test_3_headline_evidence_is_the_figures_words(case, monkeypatch) -> None:  #
     assert set(v["headline"]["evidence"]) == want
     if case == "L2":  # Grow named: R's word and Grow's (Emulated) differ, so both are served
         assert want == {"Estimated, not yet reconciled", "Emulated, not yet reconciled"}
+
+
+# --- DD3d.4: served money is whole cents (fuel cost is litres to the millilitre times a price) --------------------------
+
+#: A figure's digits, as served: no money figure carries more than two places (a price per unit may carry four).
+LONG_MONEY = re.compile(r"(?:[$€£]|[A-Z]{3} )[\d,]+\.\d{3,}(?! per )")
+
+
+def world_c():
+    """World A with Kobo's 634 L replaced by 739.383 L, so its fuel cost is 924.22875 and the portfolio's 2,138.12875."""
+    if "C" not in _CACHE:
+        litres = {"KOBO-001": {"necessary_l": D("739.383"), "candidate_l": D(0), "unexplained_l": D(0)}}
+        _CACHE["C"] = served_world(fb=with_litres(litres=litres))
+    return _CACHE["C"]
+
+
+def test_served_money_is_whole_cents() -> None:
+    sv, _, _ = world_c()
+    fuel = sv.snapshot.sites["KOBO-001"].actual.values["fuel_cost"].value
+    assert fuel == D("924.22875") and len(format(fuel, "f").split(".")[1]) > 2  # the stored value stays exact
+    v = view("C", served=sv)
+    assert v["tiles"][0]["value"] == "$4,299.87"
+    assert v["tiles"][0]["bar"] == {"actual": "4299.87", "target": "2295.00"}
+    assert [(r["site"], r["value"]) for r in step(v, "fuel_cost")["drawer"]["sites"]] == [
+        ("Kobo", "−$49.23"), ("Kisiwa", "+$1,816.10"), ("Mto", "+$335.00")]
+    assert step(v, "fuel_cost")["drawer"]["lines"][0] == ("Actual $2,138.13 · Target $4,240.00 · "
+                                                          "Difference −$2,101.87")
+    assert v["bridge"]["by_site"]["rows"][0][:3] == ["Kobo", "$1,433.77", "$1,445.00"]
+    for payload in (v, view("A")):
+        assert [x for x in strings(payload) if LONG_MONEY.search(x)] == []
+        assert all(len(x.partition(".")[2]) == 2 for x in payload["tiles"][0]["bar"].values())
+
+
+@pytest.mark.parametrize("value,text", [
+    ("1565.500", "1565.50"), ("924.2285", "924.23"), ("924.225", "924.22"), ("924.235", "924.24"), ("-0.004", "0.00"),
+    ("2295", "2295.00"), ("-65.00", "-65.00"), ("1234567.125", "1234567.12")])
+def test_bar_text_is_moneys_rule(value: str, text: str) -> None:
+    """The bar's plain decimals round as `deep_dive.money` does (cents, half-even), so the two never disagree."""
+    assert W.plain(D(value)) == text
+    shown = W.amount(D(value), "USD")
+    if D(text) != 0:
+        assert shown.replace("$", "").replace(",", "").replace("−", "-") == text
 
 
 # --- test 4: the other worlds -----------------------------------------------------------------------------------

@@ -7,6 +7,7 @@ values (`derived-values.json`, the file `M` derives), never typed here. Each is 
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from decimal import Decimal
 from pathlib import Path
 
@@ -27,19 +28,23 @@ def pack_litres(site_code: str) -> dict[str, Decimal]:
 
 
 class PackLitres:
-    """`LeafSource` for the lakeside mini-grids' October: their litre leaves from the pack, the rest from `inner`."""
+    """`LeafSource` for the lakeside mini-grids' October: their litre leaves from the pack, the rest from `inner`.
 
-    def __init__(self, inner) -> None:
-        self._inner = inner
+    `litres` (Site code to its three leaves) replaces the pack's for the Sites it names; a test that needs other litres
+    than the pack's states them there, beside what it asserts."""
+
+    def __init__(self, inner, litres: Mapping[str, Mapping[str, Decimal]]) -> None:
+        self._inner, self._litres = inner, litres
 
     def leaf(self, ctx: ReadContext, factor_id: str) -> LeafValue:
-        if factor_id in LEAVES and ctx.month == "2026-10" and ctx.site.site_code in _NAME:
-            return LeafValue(pack_litres(ctx.site.site_code)[factor_id], "MODELLED", SOURCE, None, None, None,
-                             (ORIGIN_UNKNOWN,))
+        code = ctx.site.site_code
+        if factor_id in LEAVES and ctx.month == "2026-10" and (code in self._litres or code in _NAME):
+            held = self._litres[code] if code in self._litres else pack_litres(code)
+            return LeafValue(held[factor_id], "MODELLED", SOURCE, None, None, None, (ORIGIN_UNKNOWN,))
         return self._inner.leaf(ctx, factor_id)
 
 
-def with_litres(inner=None) -> PackLitres:
+def with_litres(inner=None, litres: Mapping[str, Mapping[str, Decimal]] | None = None) -> PackLitres:
     from test_4b_money_leaves import fallback
 
-    return PackLitres(inner or fallback())
+    return PackLitres(inner or fallback(), litres or {})

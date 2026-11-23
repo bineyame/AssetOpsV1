@@ -328,7 +328,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
         gap_lines.append(W.tile_split(W.money(grow, grow_cur), W.money(opt, opt_cur)))
     tiles = [{"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(A, cur),
               "word": word(A, cur, Rs), "lines": lines,
-              "bar": {"actual": str(A), "target": str(Tg)} if A is not None and Tg is not None else None},
+              "bar": {"actual": W.plain(A), "target": W.plain(Tg)} if A is not None and Tg is not None else None},
              {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": z.gap()[0], "word": z.gap()[1],
               "lines": gap_lines, "bar": None},
              *latest.tiles()[2:]]
