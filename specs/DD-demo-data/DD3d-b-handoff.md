@@ -135,3 +135,34 @@ Open, with defaults (none acted on):
 - (d) 3b1 t1 / 3b3 t6 replace `dispatch-3.2`: default keep until the owner's pack names dispatch-3.3 (D-0K4.10), then delete.
 - (e) World A pins no Site below target (D-DD.164's figures); DD3d.5 moves them again, then iap 6 and 8 and the turned world go.
 - (f) `publish_assumption`'s refusal is now `TENANT_NOT_SERVED <slug>` (the catalogue refuses a new hand-built sentence).
+
+## Run 4 (23 Nov): the parts run 3's open questions do not block. DD3d.5 not started
+Commits on 39c9fd2de: publisher tests, C4 classes, C-DD4's fuel clause, DD3d-a's Lows, the price SQL's boundary test.
+
+1. **Publisher Postgres tests** (D-DD.169, D-DD.179; `test_s4_assumptions_postgres.py`, class `TestServedTenant`): the three world
+   files publish to the served tenant (named and by default, twice, the second writes nothing); another `--tenant` exits 2 before
+   any store is built; unset is the development tenant. The refusal's words are not pinned. A malformed `ASSETOPS_TENANT_SLUG`
+   was a traceback: exit 2, `CONFIGURATION ASSETOPS_TENANT_SLUG` (failed first, `s4-first.log`). Two mutations (`s4-mut1/2.log`).
+2. **C4 classes** (D-DD.177): actual `fuel_cost`, `cost_to_serve`, `contribution` "B"; `MTO-001` actual `diesel_price` "B". Plan
+   classes untouched. `C4_KNOWN_FINDINGS` empty. `c4-first.log` (2 failed), `c4-green.log`.
+3. **C-DD4's fuel clause** (D-DD.180): `judge_october_fuel`, `stored_diesel_prices` (the checker's own SQL: the current assignment
+   covering the Site's whole local month, USD), live in `check_leaves_and_nodes`. 8 tests, failed first (`cdd4-first.log`); the SQL
+   is tested on Postgres in `TestServedTenant`. On the real run's records (`/opt/assetecon/evidence/DD3d/dir` and `pure`) with the
+   emulator's books and Mto's declared price: PASS, no detail (`real_run.py`). A pure caller that gives no records reads pending,
+   as C-DD2 does; the live check never does. The dead `diesel` ESTIMATED skip is removed (no node of that name is judged there).
+4. **L1** floor read over July to October at the three Sites, none in June. **L2** "FAIL <code>: a declared draw and no
+   tolerance_pct". **L3** every record is read before the first is written; a malformed one or a naive instant is
+   `FUEL_RECORDS_FILE <id> record`, another shape `FUEL_RECORDS_FILE - <what>`, an unreachable store `FUEL_RECORDS_STORE <id or ->`,
+   all exit 2. **L4, L6** `packet-DD3d-a.md` (three files is right, the log's name is wrong). **L5** left: the baseline pins the text
+   (`statement-handbuilt-baseline.json` `require_prepare_database`).
+5. **ds4 t12 passes** as it is (`t12-1.log`, and again in `db-r4.log`): no cell outside the named ones is blank.
+6. **Plants** `plants-r4.log`, `plant-*.log`, all failed and reverted. The card's plant (a): four `test_dd3d_fuel_cost.py` tests,
+   12 of 4b money and 2 of 4b1, and t12 (4 lines: `fuel_cost class=B product=1040.00` at Kisiwa; Kobo's fuel cost 500.00 and the
+   two figures over it). Mto is not among them: with no fuel row its figure stays blank in this plant, so the ruling's and the
+   card's "Mto reads 0" is not what happens, and unit test (i) fails on the structure, not on a 0.
+7. **Results.** One `--db-lane` call, nine files (`db-r4.log`, 119 s): 186 passed, 1 failed, `test_5c_deep_dive_postgres::test_9`
+   (listed as main's; here it fails on its own canned words "Fuel cost" against the served "Fuel bought (invoices)": run 3's open
+   (c), held). Pure (`pure-r4.log`, 77 s): 2,373 passed, 1 skipped, 2 failed, iap sites 6 and 8, held for DD3d.5. World checker
+   files, wk excluded: 437 passed. Architecture, agent-workflow, statement catalogue and decision index exit 0. The other Postgres
+   files of the reach set (3b, 4a, 4b, 4d, 5a, 5b, 6a, DDR ...) have not run on this branch: step 6's one reach-set run.
+   Next: run 3's open questions (ruled by the Architect), then DD3d.5, whose commit adds `MTO-001`'s plan classes.
