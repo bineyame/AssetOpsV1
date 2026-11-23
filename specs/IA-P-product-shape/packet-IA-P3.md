@@ -375,3 +375,16 @@ tests failed before the fix (9 failed / 64 passed across `homeLists`, `sitesList
 - **Lows**: R800 added (COLD/EV "Records · Analysis · Uploads"); R328 restated against the object-page trail (D-IAP.38 Q20);
   Site scope matching is case-blind in `homeListModel.inScope` and `scopeWord` (test: `scope=site:cold-lab-001`).
 - Plants (each run, watched fail, reverted): see section 11.1.
+
+### 11.1 Fix round 1: plants and checks (evidence in `/opt/assetecon/evidence/IA-P/IA-P3/fix1/`)
+
+- Plant `nodomain` (both `domain` lines dropped): 4 of the 6 new `homeLists` cases fail (rows, rows, refusal-retry, no-entry
+  row). Plant `chiplist` (the five-page list restored): the `/incidents` case fails. Both reverted (`plants.log`).
+- vitest `src/estate src/shell src/ui src/sites` at fix head: 190 files, 14 failed / 4151 passed (4165) before the three
+  test-wording fixes; after them the three `homeLists` cases pass. Remaining failures are main's `12e618be3` set (12 failed /
+  4081 passed): s502 (flaky within the file: 2 on main, 1 or 2 here), siteRangeMatrix 2, sr2RequestUrls, domainActionVerification,
+  evActionFixRound, evSiteMoneyRoutes 2, siteWorkCases. `coldWorkCases` and `outcomeBoard` failed once in the full run and pass
+  on rerun with `homeLists` (`rerun.log`). `sr2RequestUrls` does not count `/results`, so no row is re-pinned.
+- `test_iap_*` 88 passed (84 s). `tsc` clean. Fresh `npm run build` clean. `iap_gates.cjs`: 64/64 (`gates.log`).
+  `check-architecture`, `check-agent-workflow`, `statement_catalogue.py`: pass. No server or job left running.
+- `USER_REVIEW_REQUIRED`: no.
