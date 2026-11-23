@@ -106,7 +106,9 @@ function Invoke-ConfigurationPersistenceCheck {
                 "$backendRoot/evidence/adapters/json_evidence_store.py",
                 "$backendRoot/evidence/adapters/gateway_credential_file.py",
                 # S2-02 phase 3a: immutable legacy comparison reports (Q14 default).
-                "$backendRoot/evidence/adapters/legacy_comparison_file.py"
+                "$backendRoot/evidence/adapters/legacy_comparison_file.py",
+                # DD5a (D-DD.140): sealed Batch V2 files beside a generated world's inputs, written once.
+                "$backendRoot/evidence/adapters/sealed_batch_files.py"
             )
             UserRootVar = "EVIDENCE_STORE_ROOT"
             UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"

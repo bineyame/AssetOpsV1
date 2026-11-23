@@ -13,6 +13,7 @@ from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceS
 from assetops_backend.evidence.adapters.legacy_comparison_file import ComparisonReportFiles
 from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
 from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
+from assetops_backend.evidence.adapters.sealed_batch_files import SealedBatchFiles
 from assetops_backend.evidence.ledger import EvidenceLedger
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.source_provenance import SourceProvenanceResolver
@@ -128,3 +129,8 @@ def health_registration():
     """SR-6a (D-SR.23): the source-health registration read (`_health_registration(c, tenant_id, site_id)`), called
     on the caller's connection (the estate snapshot's), not copied."""
     return PostgresGatewayAccess._health_registration
+
+
+def build_sealed_batch_files(folder):
+    """DD5a (D-DD.140): a tenant's `sealed/` folder beside the world's inputs."""
+    return SealedBatchFiles(folder)

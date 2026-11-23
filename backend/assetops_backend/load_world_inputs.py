@@ -98,7 +98,7 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
         first = days[0][2]
         digest = digests.get((tenant.name, code))
         if digest is None:
-            raise _Refused("WORLD_TELEMETRY_UNRESOLVED", first, f"foundation_digest {code} not in {SITE_INPUTS}")
+            raise _Refused("WORLD_TELEMETRY_UNRESOLVED", first, f"foundation_digest {code}")
         rows = [r for _, day_rows, _ in days for r in day_rows]
         if not rows:
             continue
@@ -109,18 +109,17 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
         except WorldSealRefused as refused:
             raise _Refused(refused.code, first, refused.detail) from None
         sealed += [(b.name, b.text.encode("utf-8")) for b in batches]
-    folder = tenant / SEALED
-    present = {p.name for p in folder.glob("*.batch.json")} if folder.is_dir() else set()
+    from assetops_backend.evidence.composition import build_sealed_batch_files
+
+    files_out = build_sealed_batch_files(tenant / SEALED)
+    present = files_out.existing()
     names = {name for name, _ in sealed}
     for name, body in sealed:
-        if name in present and (folder / name).read_bytes() != body:
-            raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "the sealed file is not the re-seal of the inputs")
-    for name in sorted(present - names):
-        raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "the sealed file is no batch of the inputs")
-    for name, body in sealed:
-        if name not in present:
-            folder.mkdir(exist_ok=True)
-            (folder / name).write_bytes(body)
+        if name in present and present[name] != body:
+            raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "re-seal")
+    for name in sorted(set(present) - names):
+        raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "stray")
+    files_out.write_new(sealed)
     return len(files), [body for _, body in sealed]
 
 

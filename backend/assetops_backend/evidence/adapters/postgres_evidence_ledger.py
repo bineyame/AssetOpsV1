@@ -690,9 +690,7 @@ class PostgresEvidenceLedger:
             # D-DD.9, D-DD.140: a type is lifted only with its parity file (MINIGRID `test_ds3_parity_postgres.py`;
             # COLDCHAIN and EV_CHARGING `test_dd_parity_cold_ev_postgres.py`); any other type stays refused.
             if site_type not in BULK_PROVEN_SITE_TYPES:
-                raise refused("BULK_SITE_TYPE_UNPROVEN",
-                              f"bulk admission is proved by parity for {', '.join(sorted(BULK_PROVEN_SITE_TYPES))} "
-                              f"Sites only, not {site_type}")
+                raise refused("BULK_SITE_TYPE_UNPROVEN", str(site_type))
             batch_id = uuid4()
             inserted = c.execute(_BULK_BATCH_SQL, {
                 "id": batch_id, "t": tenant_id, "site": site_id, "g": principal.gateway_id,
