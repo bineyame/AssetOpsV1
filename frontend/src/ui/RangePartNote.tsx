@@ -5,13 +5,20 @@
 import { FOCUS_INSIDE, focusSpanLabel } from "./rangeFocus";
 import { capWindow, type DayRange } from "./sharedRange";
 
-export function RangePartNote({ range }: { range: DayRange | null }) {
+/** The note's words, or null when the window is the whole range (IA-P P4b: also the Sites list's column note). */
+export function rangePartWords(range: DayRange | null): string | null {
   if (range === null) return null;
   const window = capWindow(range);
   if (window.from === range.from) return null;
+  return `Showing ${focusSpanLabel(window.from, window.to)} ${FOCUS_INSIDE}`;
+}
+
+export function RangePartNote({ range }: { range: DayRange | null }) {
+  const words = rangePartWords(range);
+  if (words === null) return null;
   return (
     <p className="range-part" role="note">
-      {`Showing ${focusSpanLabel(window.from, window.to)} ${FOCUS_INSIDE}`}
+      {words}
     </p>
   );
 }

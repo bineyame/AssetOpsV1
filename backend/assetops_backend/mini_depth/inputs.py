@@ -27,7 +27,8 @@ from assetops_backend.mini_depth.store import read_hour_rows
 from assetops_backend.mini_depth.rules import (
     FuelInputs, LoadAsset, Observation, Reading, RenewableInputs, SfcValue, Window,
 )
-from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
+from assetops_backend.sites import unit_roles
+from assetops_backend.sites.binding_roles import MINI_DEPTH_ROLE_SETS
 
 #: Migration 0029's closed mini-depth gate roles: the only roles the hour query selects.
 QUERY_ROLES: tuple[str, ...] = (
@@ -134,17 +135,27 @@ class HourInputs:
     def evidence_ids(self) -> tuple[UUID, ...]:
         return tuple(sorted({r.evidence_id for r in self.selected}, key=str))
 
+    @property
+    def generator_ids(self) -> frozenset[UUID]:
+        """The pinned generator, or (DD3c, roles-5) every bound generator unit; empty when none is pinned."""
+        if self.fuel.generator_units:
+            return frozenset(self.fuel.generator_units)
+        return frozenset() if self.generator_asset_id is None else frozenset({self.generator_asset_id})
+
     def fuel_readings(self) -> list[Reading]:
-        """q4 ruling 3: only the pinned generator's power and the pinned tank's level reach the fuel rule."""
+        """q4 ruling 3: only the pinned generator's (DD3c: units') power and the pinned tank's level reach the fuel
+        rule."""
+        gens = self.generator_ids
         return [r for r in self.readings
-                if (r.role == rules.GENERATOR_POWER and r.asset_id == self.generator_asset_id is not None)
+                if (r.role == rules.GENERATOR_POWER and r.asset_id in gens)
                 or (r.role == "fuel_level" and r.asset_id == self.tank_asset_id is not None)]
 
     def backup_readings(self) -> list[Reading]:
-        """q4 ruling 3 / q5 ruling 4: the pinned generator and pinned critical rows; unrelated assets' rows are cited
-        by the hour basis, not judged (the rule pins the critical asset too)."""
+        """q4 ruling 3 / q5 ruling 4: the pinned generator (DD3c: units) and pinned critical rows; unrelated assets'
+        rows are cited by the hour basis, not judged (the rule pins the critical asset too)."""
+        gens = self.generator_ids
         return [r for r in self.readings
-                if (r.role == rules.GENERATOR_POWER and r.asset_id == self.generator_asset_id is not None)
+                if (r.role == rules.GENERATOR_POWER and r.asset_id in gens)
                 or (r.role in CRITICAL_ROLES and r.asset_id == self.critical_asset_id is not None)]
 
     def digest_basis(self) -> dict[str, Any]:
@@ -213,7 +224,7 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
                      knowledge_cutoff: datetime) -> HourInputs:
     """Select (on the caller's connection) and adapt every input of one Site-local hour known at the cutoff."""
     k = knowledge_cutoff
-    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, k, role_set=ROLE_SET_MINIGRID_4,
+    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, k, role_sets=MINI_DEPTH_ROLE_SETS,
                          roles=QUERY_ROLES, supply_role=rules.SITE_SUPPLY)
     tz_name = raw.timezone
     zone(tz_name)
@@ -224,8 +235,9 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
     f_id, content = foundations[0][0], _content(foundations[0][3])
     sets = raw.binding_sets
     if len(sets) != 1 or sets[0][1] > window.start or (sets[0][2] is not None and sets[0][2] < window.end):
-        raise MiniInputsRefused(CONFIGURATION_MISSING, f"exactly one {ROLE_SET_MINIGRID_4} set must cover the hour")
-    set_id = sets[0][0]
+        raise MiniInputsRefused(CONFIGURATION_MISSING,
+                                f"exactly one {MINI_DEPTH_ROLE_SETS[0]} or {MINI_DEPTH_ROLE_SETS[1]} set must cover the hour")
+    set_id, role_set = sets[0][0], sets[0][3]
     bindings = raw.bindings
     by_id = {b[0]: b for b in bindings}
     assets = dict(raw.assets)
@@ -251,7 +263,21 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
     requested = {b[2] for b in bindings if b[1] == rules.FEEDER_REQUESTED}
     loads = tuple(LoadAsset(a, codes.get(a, ""), str((by_code.get(codes.get(a)) or {}).get("display_name") or ""),
                             a == critical, a in requested) for a in feeders)
-    generator, tank = _one_bound(bindings, rules.GENERATOR_POWER), _one_bound(bindings, "fuel_level")
+    order = {x.get("component_id"): i for i, x in enumerate(components)}
+
+    def units(role: str) -> tuple[UUID, ...]:
+        """DD3c (D-DD.41): a unit role of the pinned set bound to several assets is read as the Site's units, in
+        declared Foundation order; otherwise () and the role reads as before (one asset, or roles-4's refusal)."""
+        bound = {b[2] for b in bindings if b[1] == role}
+        if len(bound) < 2 or not unit_roles.per_asset(role_set, role):
+            return ()
+        return tuple(sorted(bound, key=lambda a: (order.get(codes.get(a), len(order)), str(a))))
+
+    gen_units = units(rules.GENERATOR_POWER)
+    # The lead unit (first in declared order) stands for the Site's generator where one asset id is named.
+    generator = gen_units[0] if gen_units else _one_bound(bindings, rules.GENERATOR_POWER)
+    tank = _one_bound(bindings, "fuel_level")
+    gen_set = set(gen_units) or ({generator} - {None})
 
     rows, prior = raw.accepted, raw.prior_supply
     readings: list[Reading] = []
@@ -275,26 +301,32 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
                                             r[9], r[10], r[11]))
         else:
             readings.append(Reading(r[0], r[12], r[1], r[2], r[3], r[4], r[5], r[6], _decimal(r[7]), r[8]))
-            if r[1] == rules.GENERATOR_POWER and r[2] == generator:
+            if r[1] == rules.GENERATOR_POWER and r[2] in gen_set:
                 foundation_ids.add(r[14])
 
     # SFC per `fuel_cost`: each as-accepted Foundation revision of the generator rows (and the pinned one), with
     # its validity range; the rule requires one in force over each whole interval.
-    sfc: list[SfcValue] = []
-    gen_code = codes.get(generator) if generator is not None else None
-    for fr in sorted((raw.row_foundations[i] for i in foundation_ids if i in raw.row_foundations),
-                     key=lambda x: str(x[0])):
-        value = _sfc(_content(fr[3]), gen_code)
-        if value is not None:
-            sfc.append(SfcValue(fr[0], value, fr[1], fr[2]))
+    # DD3c (D-DD.113): above one unit, each unit's own SFC; `sfc` stays the lead unit's.
+    def unit_sfc(asset: UUID | None) -> tuple[SfcValue, ...]:
+        found: list[SfcValue] = []
+        gen_code = codes.get(asset) if asset is not None else None
+        for fr in sorted((raw.row_foundations[i] for i in foundation_ids if i in raw.row_foundations),
+                         key=lambda x: str(x[0])):
+            value = _sfc(_content(fr[3]), gen_code)
+            if value is not None:
+                found.append(SfcValue(fr[0], value, fr[1], fr[2]))
+        return tuple(found)
+
+    sfc = unit_sfc(generator)
+    per_unit = tuple((u, unit_sfc(u)) for u in gen_units)
 
     return HourInputs(
         tenant_id=tenant_id, site_id=site_id, window=window, local_day=local_day_of(window, tz_name),
         site_timezone=tz_name, knowledge_cutoff=k, foundation_revision_id=f_id, binding_set_revision_id=set_id,
         readings=tuple(readings), observations=tuple(observations), selected=tuple(selected),
         renewable=RenewableInputs(values["pv-available-uncertainty"], values["renewable-retained-margin"],
-                                  tuple(feeders), critical),
-        loads=loads, fuel=FuelInputs(tuple(sfc), fuel_cost.MULTIPLIER), generator_asset_id=generator,
+                                  tuple(feeders), critical, units(rules.PV_AVAILABLE), units(rules.PV_POWER)),
+        loads=loads, fuel=FuelInputs(sfc, fuel_cost.MULTIPLIER, gen_units, per_unit), generator_asset_id=generator,
         tank_asset_id=tank, critical_asset_id=critical, recovery_target_min=values["backup-recovery-target"],
         property_revision_ids=property_revision_ids,
         as_accepted_binding_set_revision_ids=tuple(sorted(used_sets - {set_id}, key=str)))

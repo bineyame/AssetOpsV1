@@ -19,7 +19,7 @@ import pytest
 from assetops_backend.structure.evaluate import LeafValue, Missing
 from assetops_backend.structure.litres import rules
 from assetops_backend.structure.litres.rules import (
-    DispatchDay, FuelCurve, LitreInputs, LitreMonth, RunSpan, SpanUse, TankRecord, month_litres)
+    DispatchDay, FuelCurve, LitreInputs, LitreMonth, RunSpan, SpanUse, TankRecord, UnitFuel, month_litres)
 from assetops_backend.structure.registry import REGISTRIES
 
 D = Decimal
@@ -102,8 +102,8 @@ class World:
                                     spans))
             d += timedelta(days=1)
         held = self.held if self.held is not None else (lambda a, b: True)
-        return LitreInputs("2026-10", LO, HI, self.known_at, self.assets, tuple(days), self.use, held, self.curve,
-                           tuple(self.tank))
+        return LitreInputs("2026-10", LO, HI, self.known_at, self.assets, tuple(days),
+                           (UnitFuel("gen", self.use, self.curve),), held, tuple(self.tank))  # D-DD.113: one unit
 
 
 def kobo_tank() -> list[TankRecord]:

@@ -1,0 +1,261 @@
+{
+  "coverage": {
+    "sites": [
+      {
+        "committed_watermark": "2026-11-01T18:51:56Z",
+        "days": null,
+        "job_state": "SETTLED",
+        "match_state": "NOT_APPLICABLE",
+        "selection_id": "00000000-0000-4000-a000-000000000298",
+        "site_id": "00000000-0000-4000-a000-000000000001",
+        "source_freshness": "RECENT",
+        "state": "CURRENT"
+      }
+    ],
+    "state": "COMPLETE"
+  },
+  "lens": "all",
+  "next_cursor": null,
+  "opportunities": [],
+  "order": "episode_start desc, finding_id asc",
+  "rows": [
+    {
+      "categories": {
+        "items": [
+          {
+            "category": "PROTECT_ASSET",
+            "label": "Protect asset and capital",
+            "outcomes": [
+              {
+                "key": "CC-1",
+                "label": "Stock kept saleable"
+              }
+            ],
+            "role": "MOVES"
+          }
+        ],
+        "policy_version": "outcome-map/1",
+        "state": "MAPPED"
+      },
+      "confidence": null,
+      "confidence_reasons": [],
+      "consequence": {
+        "amount": null,
+        "amount_high": null,
+        "amount_low": null,
+        "currency": null,
+        "source_revision_id": null,
+        "state": "UNPRICED"
+      },
+      "episode_start": "2026-10-31T16:15:00Z",
+      "finding_id": "00000000-0000-4000-8000-000000000002",
+      "finding_label": "Cold room temperature outside its policy band",
+      "finding_revision_id": "00000000-0000-4000-8000-000000000003",
+      "lens_flags": [
+        "RISK"
+      ],
+      "lifecycle": "SUPPORTED",
+      "link_refs": {
+        "finding": {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "kind": "FINDING",
+          "site": "COLD-LAB-001",
+          "window": {
+            "from": "2026-10-31T16:00:00.000000Z",
+            "known_at": "2026-11-01T18:51:56.286129Z",
+            "to": "2026-10-31T17:05:00.000000Z"
+          }
+        },
+        "site": {
+          "kind": "SITE",
+          "site": "COLD-LAB-001"
+        }
+      },
+      "links": {
+        "finding": "/sites/COLD-LAB-001/findings/00000000-0000-4000-8000-000000000002?from=2026-10-31T16%3A00%3A00.000000Z&to=2026-10-31T17%3A05%3A00.000000Z&known_at=2026-11-01T18%3A51%3A56.286129Z",
+        "site": "/sites/COLD-LAB-001"
+      },
+      "priority": null,
+      "site_code": "COLD-LAB-001",
+      "site_id": "00000000-0000-4000-a000-000000000001",
+      "site_name": "Cold replay lab",
+      "source_provenance": {
+        "basis_sha256": "sha256:6c1b171a497b8a63748e8b69af5df77618f5756925e597daf47dcc8908d77f2d",
+        "classification": "REGISTERED_SIMULATION",
+        "evidence_ids": [
+          "00000000-0000-4000-a000-000000000012",
+          "00000000-0000-4000-a000-000000000018",
+          "00000000-0000-4000-a000-000000000035",
+          "00000000-0000-4000-a000-000000000036",
+          "00000000-0000-4000-a000-000000000040",
+          "00000000-0000-4000-a000-000000000065",
+          "00000000-0000-4000-a000-000000000068",
+          "00000000-0000-4000-a000-000000000072",
+          "00000000-0000-4000-a000-000000000085",
+          "00000000-0000-4000-a000-000000000095",
+          "00000000-0000-4000-a000-000000000102"
+        ],
+        "reasons": [],
+        "source_ids": [
+          "00000000-0000-4000-a000-000000000004"
+        ],
+        "state": "REGISTERED_SIMULATION"
+      },
+      "status": "CURRENT",
+      "title": "Cold room temperature outside its policy band"
+    },
+    {
+      "categories": {
+        "items": [
+          {
+            "category": "PROTECT_ASSET",
+            "label": "Protect asset and capital",
+            "outcomes": [
+              {
+                "key": "CC-6",
+                "label": "Cooling continuity"
+              },
+              {
+                "key": "CC-1",
+                "label": "Stock kept saleable"
+              }
+            ],
+            "role": "MOVES"
+          },
+          {
+            "category": "PROTECT_ASSET",
+            "label": "Protect asset and capital",
+            "outcomes": [
+              {
+                "key": "CC-5",
+                "label": "Compressor life"
+              }
+            ],
+            "role": "CHECKED"
+          },
+          {
+            "category": "OPTIMIZE_COST",
+            "label": "Optimize cost and efficiency",
+            "outcomes": [
+              {
+                "key": "CC-3",
+                "label": "Cost per cooling unit"
+              }
+            ],
+            "role": "CHECKED"
+          }
+        ],
+        "policy_version": "outcome-map/1",
+        "state": "MAPPED"
+      },
+      "confidence": null,
+      "confidence_reasons": [],
+      "consequence": {
+        "amount": null,
+        "amount_high": null,
+        "amount_low": null,
+        "currency": null,
+        "source_revision_id": null,
+        "state": "UNPRICED"
+      },
+      "episode_start": "2026-10-31T16:00:00Z",
+      "finding_id": "00000000-0000-4000-8000-000000000001",
+      "finding_label": "Backup generator did not start when the grid failed",
+      "finding_revision_id": "00000000-0000-4000-8000-000000000004",
+      "lens_flags": [
+        "RISK"
+      ],
+      "lifecycle": "SUPPORTED",
+      "link_refs": {
+        "finding": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "kind": "FINDING",
+          "site": "COLD-LAB-001",
+          "window": {
+            "from": "2026-10-31T16:00:00.000000Z",
+            "known_at": "2026-11-01T18:51:56.286129Z",
+            "to": "2026-10-31T17:05:00.000000Z"
+          }
+        },
+        "site": {
+          "kind": "SITE",
+          "site": "COLD-LAB-001"
+        }
+      },
+      "links": {
+        "finding": "/sites/COLD-LAB-001/findings/00000000-0000-4000-8000-000000000001?from=2026-10-31T16%3A00%3A00.000000Z&to=2026-10-31T17%3A05%3A00.000000Z&known_at=2026-11-01T18%3A51%3A56.286129Z",
+        "site": "/sites/COLD-LAB-001"
+      },
+      "priority": null,
+      "site_code": "COLD-LAB-001",
+      "site_id": "00000000-0000-4000-a000-000000000001",
+      "site_name": "Cold replay lab",
+      "source_provenance": {
+        "basis_sha256": "sha256:6c32a9f321d00a7cefbfba78eb32203802d0fb227c743d7970a657b644517409",
+        "classification": "REGISTERED_SIMULATION",
+        "evidence_ids": [
+          "00000000-0000-4000-a000-000000000041",
+          "00000000-0000-4000-a000-000000000043",
+          "00000000-0000-4000-a000-000000000073",
+          "00000000-0000-4000-a000-000000000092",
+          "00000000-0000-4000-a000-000000000094",
+          "00000000-0000-4000-a000-000000000096",
+          "00000000-0000-4000-a000-000000000104"
+        ],
+        "reasons": [],
+        "source_ids": [
+          "00000000-0000-4000-a000-000000000004",
+          "00000000-0000-4000-a000-000000000005",
+          "00000000-0000-4000-a000-000000000007",
+          "00000000-0000-4000-a000-000000000008",
+          "00000000-0000-4000-a000-000000000009"
+        ],
+        "state": "REGISTERED_SIMULATION"
+      },
+      "status": "CURRENT",
+      "title": "Backup generator did not start when the grid failed"
+    }
+  ],
+  "schema_version": "estate-finding-index-2",
+  "scope": {
+    "access_basis": "sha256:1d86a552af9aa3f98948d75c5154fa64252ef1e24db3b0b8e3251707a0ee2b2b",
+    "authorized_site_count": 1,
+    "covered_site_count": 1,
+    "tenant_id": "00000000-0000-4000-a000-000000000297"
+  },
+  "selection_token": "sha256:aced007ad3589ba4269a2a6b8130652aa640b9ce57ef58958f7efbb5918ffbba",
+  "state_filter": "all",
+  "status": "CURRENT",
+  "summary": {
+    "awaiting_verification": 0,
+    "basis_count": 2,
+    "claims": {
+      "count.opportunities": {
+        "basis": "NOT_KNOWN",
+        "days": {
+          "complete": 0,
+          "expected": 31,
+          "low": 0,
+          "no_data": 31,
+          "partial": 0,
+          "pending": 0
+        },
+        "key": "count.opportunities",
+        "text": "Not known yet",
+        "value": 0
+      }
+    },
+    "high_priority": null,
+    "low_confidence": null,
+    "opportunity_count": 0,
+    "supported_findings": 2,
+    "unconfirmed_findings": 0
+  },
+  "total_count": 2,
+  "window": {
+    "bounds": "[from, to)",
+    "from": "2026-10-01T00:00:00Z",
+    "known_at": "2026-11-01T18:52:04Z",
+    "to": "2026-11-01T00:00:00Z"
+  }
+}

@@ -16,6 +16,7 @@ import type {
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { COLD_SITE, SITE as COLD_CODE, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 
 /**
@@ -138,6 +139,7 @@ function renderAt(
         siteDirectory={directoryWith(sites)}
         siteDetail={detailClientFor(sites)}
         siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        portfolioSites={sitesE1()} estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -174,7 +176,8 @@ function stripQuickActions(markup: string): string {
 describe("a site is opened from a Sites row", () => {
   it("renders the site the row addresses", async () => {
     renderAt("/sites", ENABLED);
-    await screen.findByRole("table", { name: "Site inventory" });
+    // IA-P P4b (spec §6 P4b): the row is the Sites list's.
+    await settledScreen();
 
     fireEvent.click(screen.getByRole("link", { name: SITE.display_name }));
 
@@ -236,13 +239,13 @@ describe("a site is opened from a Sites row", () => {
       ["/sites", "Sites"],
       ["/sites/MG-002", "Kalangala Mini-Grid"],
       ["/sites/MG-002", "Overview"],
-      ["/sites/MG-002/foundation", "Foundation"],
-      ["/sites/MG-002/health", "Health"],
+      // IA-P P5 (spec §2.3): the row is six tabs (Overview, Operations, Performance, Financials, Evidence, Setup);
+      // Health, Findings, Foundation and Work left it (Health, Changes, Assets, Uploads now live in the section lines).
+      ["/sites/MG-002/work", "Operations"],
       ["/sites/MG-002/performance", "Performance"],
-      ["/sites/MG-002/findings", "Findings"],
-      ["/sites/MG-002/work", "Work"],
       ["/sites/MG-002/financials", "Financials"],
       ["/sites/MG-002/evidence", "Evidence"],
+      ["/sites/MG-002/foundation", "Setup"],
     ]);
   });
 

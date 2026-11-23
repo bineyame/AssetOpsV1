@@ -33,7 +33,8 @@ describe("post-W6 W2-EV: OperatorSiteTabs href override and selected-window quer
     expect(map.Overview).toBe(`/sites/EV-LAB-001/ev${search}`);
     expect(map.Evidence).toBe(`/sites/EV-LAB-001/ev/evidence${search}`);
     expect(map.Financials).toBe(`/sites/EV-LAB-001/ev/financials${search}`);
-    expect(map.Foundation).toBe(`/sites/EV-LAB-001/foundation${search}`);
+    // IA-P P5 (spec §2.3): Foundation is now the Setup tab (same /foundation path).
+    expect(map.Setup).toBe(`/sites/EV-LAB-001/foundation${search}`);
     for (const [, href] of hrefs()) {
       expect(href).not.toMatch(/^\/sites\/EV-LAB-001\/(evidence|financials)(\?|$)/);
       expect(href).toContain("known_at=");

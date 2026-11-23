@@ -4,6 +4,7 @@
  * the Fuel page (v69 `fuel`) and the Backup page (v69 `backup`), all from the q9 page dry-read.
  * Every number is the selected read's; a missing value reads `Unknown`, never a mock literal.
  */
+import { SiteSectionItem } from "../ui/SiteSections";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -97,18 +98,22 @@ export function MiniPerformanceSubtabs({
   profile,
   current,
   subtabHref,
+  healthHref,
 }: {
   client: MiniDepthClient | undefined;
   siteCode: string;
   profile: DomainPresentationProfile | null;
   current: string;
   subtabHref: (id: string) => string;
+  /** IA-P P5 (spec §2.3): the line ends with Health. */
+  healthHref?: string;
 }) {
   const mini = useMiniCapabilities(client, siteCode);
   const served = [{ id: "dispatch", display_name: "Dispatch" }, ...mini];
   const subtabs = performanceSubtabs(profile, served);
   return (
-    <nav className="site-tabs site-subtabs" aria-label={PERFORMANCE_SUBTABS_LABEL}>
+    <nav className="site-tabs site-subtabs site-sections" aria-label={PERFORMANCE_SUBTABS_LABEL}>
+      <span className="site-sections__lead">In Performance:</span>
       <ol className="site-tabs__list">
         {subtabs.map((item) =>
           item.id !== "dispatch" && item.known && !BUILT_MINI_PAGES.has(item.id) ? null : (
@@ -126,6 +131,7 @@ export function MiniPerformanceSubtabs({
           </li>
           ),
         )}
+        {healthHref === undefined ? null : <SiteSectionItem link={{ label: "Health", href: healthHref, current: false }} />}
       </ol>
     </nav>
   );

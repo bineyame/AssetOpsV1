@@ -474,11 +474,8 @@ export function asOfText(instant: string | null | undefined): string {
  * words, never "error" and never a code. One table, so a reviewer checks every roadmap line in one place.
  */
 export const ROADMAP_WORDS = {
-  coldFindingsNotGlobal: "Cold-room findings are listed here; the estate list adds them later",
-  evFindingsNotGlobal: "EV charging findings are listed here; the estate list adds them later",
   coldWorkNotGlobal: "Cold-room actions are listed here; the estate list adds them later.",
   evWorkNotGlobal: "EV charging actions are listed here; the estate list adds them later.",
-  manageFindings: "Managing findings from this list is coming",
   reviewRecommendation: "Reviewing a recommendation needs sign-in, which is coming",
   portfolioRollUp: "Rolling EV money up to the estate is coming",
   evCollectionsValue: "Not connected yet",

@@ -2,5 +2,9 @@
   "_note": "IA-P (handshake I11): API pathname -> fixture file in this folder; any other /api/* answers 404. P2 adds the three estate list bodies (8 Decisions rows: tier 1, so a set lens is a chip, L3).",
   "/api/estate/portfolio": "portfolio.json",
   "/api/estate/findings": "findings.json",
-  "/api/estate/actions": "actions.json"
+  "/api/estate/actions": "actions.json",
+  "_note_p5": "IA-P3 P5 (D-IAP.38): the T1/T2 Site detail bodies, made from shell/__tests__/kobo-site-detail.json with site_id, site_type and (COLD, EV) display_name replaced (packet-IA-P3 §P5).",
+  "/api/sites/KOBO-001": "site-mini.json",
+  "/api/sites/COLD-LAB-001": "site-cold.json",
+  "/api/sites/EV-LAB-001": "site-ev.json"
 }

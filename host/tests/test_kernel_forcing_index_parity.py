@@ -123,6 +123,10 @@ def _writer_case():
     onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
     bindings = {code: json.loads((BINDINGS / f"{code}-bindings.json").read_text(encoding="utf-8"))
                 for code in ("KISIWA-001", "KOBO-001", "MTO-001")}
+    # D-DD.114: Kobo's conversion moved to roles-5 after W1's digest was taken on main (roles-4); the role-set name is
+    # the only change in the file and enters the frozen inputs, so W1 runs on main's label.
+    assert bindings["KOBO-001"]["role_set"] == "minigrid-roles-5"
+    bindings["KOBO-001"] = {**bindings["KOBO-001"], "role_set": "minigrid-roles-4"}
     kobo = copy.deepcopy(next(s for s in tel.site_inputs(onboarding, bindings)["sites"] if s["code"] == "KOBO-001"))
     for component in kobo["foundation"]["components"]:
         for key, value, unit in W1_ROWS.get(component["type"], ()):

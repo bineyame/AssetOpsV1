@@ -62,8 +62,8 @@ def _role_series(domain: str, inputs: HourInputs) -> dict[str, list[Series]]:
 
     if domain == "renewable":
         return {
-            rules.PV_AVAILABLE: [rules.series(rows, rules.PV_AVAILABLE, None, w, any_asset=True)],
-            rules.PV_POWER: [rules.series(rows, rules.PV_POWER, None, w, any_asset=True)],
+            rules.PV_AVAILABLE: [rules.site_series(rows, rules.PV_AVAILABLE, inputs.renewable.pv_available_units, w)],
+            rules.PV_POWER: [rules.site_series(rows, rules.PV_POWER, inputs.renewable.pv_power_units, w)],
             rules.FEEDER_DEMAND: [rules.series(rows, rules.FEEDER_DEMAND, a, w)
                                   for a in sorted(set(inputs.renewable.feeder_asset_ids), key=str)],
             rules.CHARGE_REQUEST: [rules.series(rows, rules.CHARGE_REQUEST, None, w, any_asset=True)],
@@ -83,10 +83,10 @@ def _role_series(domain: str, inputs: HourInputs) -> dict[str, list[Series]]:
         return {k: v for k, v in out.items() if v or k == rules.FEEDER_DEMAND}
     if domain == "fuel":
         fr = inputs.fuel_readings()
-        return {rules.GENERATOR_POWER: [rules.series(fr, rules.GENERATOR_POWER, None, w, any_asset=True)],
+        return {rules.GENERATOR_POWER: [rules.site_series(fr, rules.GENERATOR_POWER, inputs.fuel.generator_units, w)],
                 "fuel_level": [rules.series(fr, "fuel_level", None, w, any_asset=True)]}
     br = inputs.backup_readings()
-    return {rules.GENERATOR_POWER: [rules.series(br, rules.GENERATOR_POWER, None, w, any_asset=True)],
+    return {rules.GENERATOR_POWER: [rules.site_series(br, rules.GENERATOR_POWER, inputs.fuel.generator_units, w)],
             **{role: [pinned(role, crit)] for role in CRITICAL_ROLES}}
 
 

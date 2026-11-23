@@ -306,7 +306,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cause).toContain("Requested power, allocated limit, site import and charger diagnostics are needed to test competing explanations.");
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
     // r7 P8 / W5-03a E2-E3: exact tab order, live Sessions, Availability and Energy / site power; no inert entry.
-    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", false]]);
+    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", false], ["Health", false]]); // IA-P P5 (spec §2.3): trailing Health link
     for (const label of ["Availability", "Energy / site power"]) expect(document.querySelector(`[data-tab-unavailable="${label}"]`)).toBeNull();
     const availabilityTab = document.querySelector('[data-performance-subtab="availability"]') as HTMLAnchorElement;
     expect(rangeless(availabilityTab.getAttribute("href"))).toBe(`/sites/${CODE}/performance/availability`);
@@ -874,6 +874,16 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
   });
 });
 
+// IA-P P5 (D-IAP.38 Q20): a Finding is an object page: no Site tab row, and the three-part `Findings › Site › title` trail.
+function expectEvFindingObjectPage(label?: string) {
+  expect(document.querySelector('nav[aria-label="Site sections"]'), label).toBeNull();
+  const items = Array.from(screen.getByRole("navigation", { name: "Breadcrumb" }).querySelectorAll("li"));
+  expect(items, label).toHaveLength(3);
+  expect(rangeless(items[0].querySelector("a")?.getAttribute("href") ?? ""), label).toBe("/findings");
+  expect(rangeless(items[1].querySelector("a")?.getAttribute("href") ?? ""), label).toBe(`/sites/${CODE}`);
+  expect(items[2].querySelector('[aria-current="page"]'), label).not.toBeNull();
+}
+
 describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the selected read's window", () => {
   const SEL = `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
   const tabHrefs = () =>
@@ -886,7 +896,9 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
     expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
     expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
     expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
-    expect(tabs.Findings).toBe(`/sites/${CODE}/findings${SEL}`);
+    // IA-P P5 (spec §2.3): Findings left the Site tab row (it lives on the Findings home), so the row has no Findings link.
+    expect(tabs.Findings).toBeUndefined();
+    expect(tabs.Setup).toBe(`/sites/${CODE}/foundation${SEL}`);
     expect(Object.values(tabs).some((h) => (h ?? "").includes("gateway"))).toBe(false);
   });
 
@@ -902,19 +914,16 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
     expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(Object.values(tabHrefs()).some((h) => (h ?? "").includes("?"))).toBe(false);
     cleanup();
+    // IA-P P5 (D-IAP.38 Q20): a refused Finding is still an object page; it carries no Site tab row to range.
     renderEv(FINDING_PATH, ok(STATES.complete), refused(404, "EV_FINDING_NOT_FOUND"));
     await settledScreen();
-    expect(tabHrefs().Overview).toBe(`/sites/${CODE}/ev?${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
-    expect(tabHrefs().Findings).toBe(`/sites/${CODE}/findings?${DAY_Q}&known_at=${encodeURIComponent(KNOWN)}`);
+    expectEvFindingObjectPage();
   });
 
-  it("finding: EV destinations at the Finding read's selected window", async () => {
+  it("finding: an object page with no Site tab row (IA-P P5, D-IAP.38 Q20; was: EV main tabs at the selected window)", async () => {
     renderEv(FINDING_PATH, ok(STATES.complete));
     await settledScreen();
-    const tabs = tabHrefs();
-    expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
-    expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
-    expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
+    expectEvFindingObjectPage();
   });
 });
 
@@ -999,7 +1008,7 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · No window selected");
   });
 
-  it("R280 (Q8): EV child and unknown child addresses use the common section copy and EV main tabs", async () => {
+  it("R280 (Q8): EV child and unknown child addresses use the common section copy and draw the object-page trail", async () => {
     for (const child of ["evidence", "history", "not-a-section"]) {
       renderEv(`/sites/${CODE}/findings/${FINDING}/${child}?from=${FROM}&to=${TO}`, ok(STATES.complete));
       await settledScreen();
@@ -1008,11 +1017,8 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
       expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
         `/sites/${CODE}/findings/${FINDING}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`,
       );
-      const tabs = document.querySelector('nav[aria-label="Site sections"]') as HTMLElement;
-      // SR-4: the tabs carry the range, so the tab is found by its range-less address.
-      const tabPaths = Array.from(tabs.querySelectorAll("a")).map((a) => rangeless(a.getAttribute("href") ?? ""));
-      expect(tabPaths, child).toContain("/sites/EV-LAB-001/ev/evidence");
-      expect(tabPaths, child).not.toContain("/sites/EV-LAB-001/evidence");
+      // IA-P P5 (D-IAP.38 Q20): every Finding view is an object page; the EV main tabs it used to carry are gone.
+      expectEvFindingObjectPage(child);
       cleanup();
     }
   });

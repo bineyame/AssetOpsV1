@@ -19,7 +19,9 @@ import {
   queryFromParams,
 } from "./estateShared";
 import { createEstateClient, type EstateActionRow, type EstateClient, type EstateCoverageSite, type EstateFindingRow, type EstatePortfolioBody, type EstatePortfolioRow } from "./estateClient";
-import { TRUNCATED_LINE, useEstateRead } from "./estateReadCache";
+import { TRUNCATED_LINE, useEstateRead, useProvidedSiteDirectory } from "./estateReadCache";
+import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
+import { useSiteDomains, type SiteDomains } from "./siteDomains";
 import { barBody, consequenceFirst } from "./EstatePortfolio";
 import { DECISIONS_PATH, DOMAIN_WORD, PLACEMENT_GROUP_LABEL } from "./portfolioWords";
 import { LIFECYCLE_WORDS, findingLinkLive } from "./findingIndex";
@@ -29,6 +31,13 @@ export { DECISIONS_PATH };
 export const FINDINGS_LIST_PATH = "/findings";
 export const ACTIONS_LIST_PATH = "/actions";
 export const NOT_AVAILABLE_YET = "Not available yet";
+/** D-IAP.48: the directory read behind a group scope on Findings and Actions is refused. */
+export const GROUP_SCOPE_UNAVAILABLE = "The Site list cannot be read right now, so this group cannot be applied.";
+
+/** The chip word of a scope: a domain by `DOMAIN_WORD` (never the raw enum), a Site by its code. */
+export function scopeChipWord(scope: string): string {
+  return scope.startsWith("group:") ? (DOMAIN_WORD as Record<string, string>)[scope.slice(6)] ?? scope.slice(6) : scope.slice(scope.indexOf(":") + 1);
+}
 
 // ---- Decisions ---------------------------------------------------------------------------------------------------
 
@@ -89,6 +98,20 @@ function bySite<T>(name: (i: T) => string) {
   return (a: T, b: T) => name(a).localeCompare(name(b));
 }
 
+/**
+ * IA-P P6 (D-IAP.37 Q13): the one waiting total. The Decisions tile "Waiting for a choice" and the shell's "Waiting for
+ * you" badge both read it, so badge = tile in every case: `total` (the server's `waiting_count`, given when the read
+ * was truncated) when set, else the rows in `waiting`. 6f1 U2 (tile = E0, D-P6.78) re-sources this one function.
+ */
+export function waitingForAChoice(items: readonly DecisionItem[], total: number | null): number {
+  return total !== null ? total : items.filter((i) => i.state === "waiting").length;
+}
+
+/** The `total` `waitingForAChoice` takes for a loaded Decisions read: `waiting_count` when the read was truncated. */
+export function waitingTotalOf(loaded: { truncated: boolean; first: EstatePortfolioBody }): number | null {
+  return loaded.truncated ? (loaded.first.summary.waiting_count ?? null) : null;
+}
+
 /** `waitingTotal`: the server's `waiting_count`, used by the tile when the read was truncated. */
 export function decisionsDef(waitingTotal: number | null = null): HomeListDef<DecisionItem> {
   return {
@@ -127,7 +150,7 @@ export function decisionsDef(waitingTotal: number | null = null): HomeListDef<De
     domain: (i) => i.row.domain,
     scopeWord: (s) => (s.startsWith("group:") ? (DOMAIN_WORD as Record<string, string>)[s.slice(6)] ?? s : s.slice(5)),
     tiles: (_m, rows, whole) => [
-      { label: "Waiting for a choice", role: "part" as const, value: whole && waitingTotal !== null ? waitingTotal : rows.filter((i) => i.state === "waiting").length },
+      { label: "Waiting for a choice", role: "part" as const, value: waitingForAChoice(rows, whole ? waitingTotal : null) },
     ],
     none: "No decisions in this range.",
   };
@@ -158,7 +181,7 @@ export function findingItems(
 /** M2: the Decisions read behind the Findings list is `loading`, `unavailable` (refused) or `ready`; never a false none. */
 export type DecisionsReadState = "loading" | "unavailable" | "ready";
 
-export function findingsDef(decisions: DecisionsReadState = "ready"): HomeListDef<FindingItem> {
+export function findingsDef(decisions: DecisionsReadState = "ready", domainOf?: (siteCode: string) => string | null): HomeListDef<FindingItem> {
   const heading = (i: FindingItem) => {
     const labels = i.row.categories?.state === "MAPPED" ? i.row.categories.items.map((c) => c.label) : [];
     return labels.length > 0 ? labels.join(" · ") : NOT_AVAILABLE_YET;
@@ -196,7 +219,8 @@ export function findingsDef(decisions: DecisionsReadState = "ready"): HomeListDe
     ],
     text: (i) => `${i.row.title} ${i.row.finding_label} ${i.row.site_name} ${heading(i)} ${decision(i)}`,
     site: (i) => i.row.site_code,
-    scopeWord: (s) => s.slice(s.indexOf(":") + 1),
+    domain: (i) => domainOf?.(i.row.site_code) ?? null,
+    scopeWord: scopeChipWord,
     tiles: (_m, rows) => [
       {
         label: "Decision waiting for a choice",
@@ -230,7 +254,7 @@ export function actionsCaption(summary: ActionsSummary): string {
   return `Open actions ${f(summary.open_actions)} · Due / overdue ${summary.due_overdue === null ? "Not set" : summary.due_overdue} · Verification window ${f(summary.verification_window)} · Verified in 30 days ${f(summary.verified_in_30_days)}`;
 }
 
-export function actionsDef(summary: ActionsSummary | null = null): HomeListDef<EstateActionRow> {
+export function actionsDef(summary: ActionsSummary | null = null, domainOf?: (siteCode: string) => string | null): HomeListDef<EstateActionRow> {
   return {
     key: "actions",
     path: ACTIONS_LIST_PATH,
@@ -262,7 +286,8 @@ export function actionsDef(summary: ActionsSummary | null = null): HomeListDef<E
     ],
     text: (r) => `${r.action_title} ${r.action_code} ${r.site_name} ${r.owner ?? ""} ${r.success_criterion ?? ""}`,
     site: (r) => r.site_code,
-    scopeWord: (s) => s.slice(s.indexOf(":") + 1),
+    domain: (r) => domainOf?.(r.site_code) ?? null,
+    scopeWord: scopeChipWord,
     tiles: (_m, rows) =>
       APPLICATION_ORDER.filter((s) => rows.some((r) => r.application_state === s)).map((s) => ({
         label: APPLICATION_STATE_WORD[s],
@@ -283,6 +308,7 @@ function ListPage({
   children,
   refused,
   cutoff,
+  directoryRefused = null,
 }: {
   root: string;
   title: string;
@@ -290,6 +316,8 @@ function ListPage({
   children: React.ReactNode;
   refused: { code: string; copy: string; to: string } | null;
   cutoff: React.ReactNode;
+  /** D-IAP.48: the Site directory behind a group scope is refused; the retry reads it again. */
+  directoryRefused?: { retry(): void } | null;
 }) {
   const [params] = useSearchParams();
   const query = queryFromParams(params);
@@ -301,11 +329,26 @@ function ListPage({
         <p className="estate-loading">{loading}</p>
       ) : refused !== null ? (
         <EstateRefusal code={refused.code} copy={refused.copy} window={query} firstPage={refused.to} />
+      ) : directoryRefused !== null ? (
+        <div className="dd-state" data-directory-refused>
+          <p>{GROUP_SCOPE_UNAVAILABLE}</p>
+          <button type="button" className="dd-button" onClick={directoryRefused.retry}>
+            Try again
+          </button>
+        </div>
       ) : (
         children
       )}
     </div>
   );
+}
+
+/** D-IAP.48: the Site directory, read only while the scope is a group; `loading` and `unavailable` never reach the list. */
+function useGroupDomains(directory: SiteDirectoryClient | undefined): SiteDomains {
+  const provided = useProvidedSiteDirectory();
+  const [params] = useSearchParams();
+  const scope = params.get("scope") ?? "all";
+  return useSiteDomains(directory ?? provided, scope.startsWith("group:"));
 }
 
 function Truncated({ truncated }: { truncated: boolean }) {
@@ -323,7 +366,7 @@ export function DecisionsListPage({ client }: { client?: EstateClient }) {
   const read = useEstateRead(reads, "portfolio", query);
   const loaded = read?.status === "loaded" ? read.value : null;
   const items = useMemo(() => (loaded === null ? [] : decisionItems(loaded.first, loaded.rows)), [loaded]);
-  const def = useMemo(() => decisionsDef(loaded?.truncated ? (loaded.first.summary.waiting_count ?? null) : null), [loaded]);
+  const def = useMemo(() => decisionsDef(loaded === null ? null : waitingTotalOf(loaded)), [loaded]);
   return (
     <ListPage
       root="decisions"
@@ -342,7 +385,7 @@ export function DecisionsListPage({ client }: { client?: EstateClient }) {
   );
 }
 
-export function FindingsListPage({ client }: { client?: EstateClient }) {
+export function FindingsListPage({ client, directory }: { client?: EstateClient; directory?: SiteDirectoryClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
   const query = queryFromParams(params);
@@ -353,12 +396,15 @@ export function FindingsListPage({ client }: { client?: EstateClient }) {
   const decided = useMemo(() => (dec === null ? [] : decisionItems(dec.first, dec.rows)), [dec]);
   const items = useMemo(() => (loaded === null ? [] : findingItems(loaded.rows, loaded.first.coverage.sites, decided)), [loaded, decided]);
   const decisionsState: DecisionsReadState = dec !== null ? "ready" : decisions?.status === "refused" ? "unavailable" : "loading";
-  const def = useMemo(() => findingsDef(decisionsState), [decisionsState]);
+  const domains = useGroupDomains(directory);
+  const domainOf = domains.state === "ready" ? domains.domainOf : undefined;
+  const def = useMemo(() => findingsDef(decisionsState, domainOf), [decisionsState, domainOf]);
   return (
     <ListPage
       root="findings"
       title="Findings"
-      loading={read === null ? "Loading Findings…" : null}
+      loading={read === null || domains.state === "loading" ? "Loading Findings…" : null}
+      directoryRefused={domains.state === "unavailable" ? domains : null}
       refused={read?.status === "refused" ? { code: read.code, copy: read.copy, to: estateHref(FINDINGS_LIST_PATH, query) } : null}
       cutoff={<EstateCutoffLine query={query} body={loaded?.first ?? null} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />}
     >
@@ -372,18 +418,21 @@ export function FindingsListPage({ client }: { client?: EstateClient }) {
   );
 }
 
-export function ActionsListPage({ client }: { client?: EstateClient }) {
+export function ActionsListPage({ client, directory }: { client?: EstateClient; directory?: SiteDirectoryClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
   const query = queryFromParams(params);
   const read = useEstateRead(reads, "actions", query);
   const loaded = read?.status === "loaded" ? read.value : null;
-  const def = useMemo(() => actionsDef(loaded?.first.summary ?? null), [loaded]);
+  const domains = useGroupDomains(directory);
+  const domainOf = domains.state === "ready" ? domains.domainOf : undefined;
+  const def = useMemo(() => actionsDef(loaded?.first.summary ?? null, domainOf), [loaded, domainOf]);
   return (
     <ListPage
       root="actions"
       title="Actions"
-      loading={read === null ? "Loading Actions…" : null}
+      loading={read === null || domains.state === "loading" ? "Loading Actions…" : null}
+      directoryRefused={domains.state === "unavailable" ? domains : null}
       refused={read?.status === "refused" ? { code: read.code, copy: read.copy, to: estateHref(ACTIONS_LIST_PATH, query) } : null}
       cutoff={<EstateCutoffLine query={query} body={loaded?.first ?? null} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />}
     >
@@ -414,7 +463,7 @@ export function DecisionsRows({ client, title }: { client?: EstateClient; title:
   const read = useEstateRead(reads, "portfolio", query);
   const loaded = read?.status === "loaded" ? read.value : null;
   const items = useMemo(() => (loaded === null ? [] : decisionItems(loaded.first, loaded.rows)), [loaded]);
-  const def = useMemo(() => decisionsDef(loaded?.truncated ? (loaded.first.summary.waiting_count ?? null) : null), [loaded]);
+  const def = useMemo(() => decisionsDef(loaded === null ? null : waitingTotalOf(loaded)), [loaded]);
   const range = readSharedRange(params);
   return (
     <section className="dd-panel" aria-labelledby="dd-decisions-h" data-overview-decisions>

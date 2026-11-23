@@ -493,7 +493,9 @@ describe("condition_matrix: the composed cold Health page", () => {
       const { main, requests, getHealth, titles } = await renderPage(loaded(undefined, state));
       expect(getHealth).toHaveBeenCalledWith(SITE_CODE, WINDOW);
       expect(main.querySelector("h1")?.textContent).toContain("Kobo vaccine cold store");
-      expect(main.querySelector('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Health");
+      // IA-P P5 (spec §2.3): Health lights the Performance tab and is the current link of Performance's section line.
+      expect(main.querySelector('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Performance");
+      expect(main.querySelector('nav[aria-label="Performance sections"] a[aria-current="page"]')?.textContent).toBe("Health");
       expect(titles).toEqual(["Condition and evidence"]);
       const order = [
         main.querySelector("ul.v69-cards"),

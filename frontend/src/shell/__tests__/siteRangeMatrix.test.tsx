@@ -12,7 +12,7 @@
  * - A Site route in `App.tsx` with no matrix row fails, and so does a row whose route is not in `App.tsx`.
  */
 import { render } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
@@ -120,7 +120,7 @@ describe("SR-5e every Site route is classified", () => {
 });
 
 describe("SR-5e R rows: every data read carries the range, and the bar says All pages", () => {
-  it.each(RANGE_MATRIX.filter((e) => e.class === "R").map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
+  it.each(RANGE_MATRIX.filter((e) => e.class === "R" && !e.alias).map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
     const got = await open(entry);
     expect(got.focus, "the bar declares nothing").toBeNull();
     expect(got.text).toBe("All pages");
@@ -130,6 +130,33 @@ describe("SR-5e R rows: every data read carries the range, and the bar says All 
     expect(bad, "data reads without the range").toEqual([]);
     // A known gap that is no longer read unranged must leave the list.
     for (const read of allowed) expect(got.requests.filter(unranged).some((u) => u.split("?", 1)[0].endsWith(read)), `${read} still unranged`).toBe(true);
+  });
+});
+
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-location>{`${location.pathname}${location.search}`}</div>;
+}
+
+describe("SR-5e alias rows (D-IAP.47): the redirect keeps from, to and known_at", () => {
+  const aliases = RANGE_MATRIX.filter((e) => e.alias);
+  const KNOWN = "2026-11-10T06:00:00Z";
+  it("the matrix has alias rows (the set is not empty)", () => expect(aliases.length).toBeGreaterThan(0));
+  it.each(aliases.map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
+    const view = render(
+      <MemoryRouter initialEntries={[`/sites/${CODE[entry.site]}${entry.path}?${RANGE}&known_at=${encodeURIComponent(KNOWN)}`]}>
+        <App flags={featureFlagsWith(false)} siteDetail={DETAIL} siteDirectory={DIRECTORY} />
+        <LocationProbe />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const url = new URL(document.querySelector("[data-location]")!.textContent!, "http://x");
+    view.unmount();
+    expect(url.pathname).toBe("/findings");
+    expect(url.searchParams.get("scope")).toBe(`site:${CODE[entry.site]}`);
+    expect(url.searchParams.get("from")).toBe(FROM);
+    expect(url.searchParams.get("to")).toBe(TO);
+    expect(url.searchParams.get("known_at")).toBe(KNOWN);
   });
 });
 

@@ -13,6 +13,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectOneHeadline } from "../../test/headline";
+import { isShellInboxRead } from "../../test/shellReads";
 
 /*
  * W4-02 unit 6: a MINIGRID Site's Performance/Service route renders the v69 `service` panels from the q9 public
@@ -172,6 +173,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       ["Fuel", null],
       ["Renewable", null],
       ["Backup", null],
+      ["Health", null], // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line
     ]);
     // Q5 / handoff Run 15: the local 12:00-13:00 hour of the local date of the shell's UTC day.
     expect(client.getService).toHaveBeenCalledWith(CODE, {
@@ -395,7 +397,7 @@ describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values an
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
         const url = String(input);
-        fetched.push(url);
+        if (!isShellInboxRead(url)) fetched.push(url);
         const body = { schema_version: "site-service-range-1", site: { site_code: CODE, timezone: "Africa/Nairobi" }, window: {}, days: [],
           totals: { days_counted: 0, days_requested: 0, partial: false, served_kwh: null, unserved_kwh: null, demand_kwh: null } };
         return Promise.resolve(new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } }));

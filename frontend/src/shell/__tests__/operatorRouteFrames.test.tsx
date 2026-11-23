@@ -10,6 +10,7 @@ import {
   EMPTY_ANALYTICS_STATEMENT,
 } from "../../sites/__tests__/analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
@@ -49,6 +50,8 @@ function renderAt(path: string, flags: FeatureFlags = simulatorLabDisabled) {
         flags={flags}
         siteDirectory={EMPTY_SITE_DIRECTORY}
         siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        portfolioSites={sitesE1()}
+        estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -81,19 +84,13 @@ describe("operator route frames", () => {
 
 describe("operator route frame empty states", () => {
   it("states that no sites are configured on the Sites frame", async () => {
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory table's two; no row stands in.
     renderAt("/sites");
 
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /No site has been configured, so there is nothing to list/i,
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("main").textContent).toMatch(
-      /no example site stands in for one/i,
-    );
+    expect(document.querySelectorAll('[data-home-list="sites"] tbody tr')).toHaveLength(0);
   });
 
   it("distinguishes an unreadable store from an empty one", async () => {
@@ -104,15 +101,22 @@ describe("operator route frame empty states", () => {
           siteDirectory={{
             listSites: () => Promise.resolve({ status: "unavailable" }),
           }}
+          portfolioSites={{
+            fetchSites: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "DEEP_DIVE_UNAVAILABLE", text: "The figures cannot be read right now." }),
+          }}
+          estateIndex={estateE0({})}
         />
       </MemoryRouter>,
     );
 
+    // IA-P P4b: the list's rows come from E1, so an unreadable E1 is the unreadable store (pre-flight Q8: its served
+    // text and Try again), never the empty sentence.
     expect(
-      await screen.findByText("Sites unavailable"),
+      await screen.findByText("The figures cannot be read right now."),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
     expect(screen.getByRole("main").textContent).not.toMatch(
-      /No sites configured/i,
+      /No Sites in this scope/i,
     );
   });
 
@@ -145,6 +149,7 @@ describe("operator route frame empty states", () => {
     async (path) => {
       const { container } = renderAt(path);
       await screen.findByRole("main");
+      await settledScreen();
 
       expect(container.querySelectorAll("svg:not(.nav-rail__icon), canvas, img")).toHaveLength(0);
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
@@ -155,15 +160,20 @@ describe("operator route frame empty states", () => {
       // to the record under test - see `sitesIndex.test.tsx` for the index,
       // `siteDetail.test.tsx` for a site page, and
       // `siteConfiguration.test.tsx` for a foundation.
-      expect(
-        within(screen.getByRole("main")).queryAllByText(/\d/),
-      ).toHaveLength(0);
+      // IA-P P4b (spec §5.2): the Sites list's first tile counts its rows, so on an empty build the one digit is that
+      // count, 0. Every other digit rule stands.
+      const digits = within(screen.getByRole("main")).queryAllByText(/\d/);
+      if (path === "/sites") {
+        expect(digits.map((d) => [d.closest("[data-tile]")?.getAttribute("data-tile"), d.textContent])).toEqual([["total", "0"]]);
+      } else {
+        expect(digits).toHaveLength(0);
+      }
     },
   );
 
   it("renders no table on an empty Sites index", async () => {
     const { container } = renderAt("/sites");
-    await screen.findByText("No sites configured");
+    await screen.findByText("No Sites in this scope.");
 
     expect(container.querySelectorAll("table")).toHaveLength(0);
   });

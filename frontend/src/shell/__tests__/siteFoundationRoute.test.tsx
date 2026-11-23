@@ -204,7 +204,8 @@ describe("a site's Foundation is addressed under that site", () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 
-    const link = screen.getByRole("link", { name: "Foundation" });
+    // IA-P P5 (spec §2.3): the Foundation page is reached by the Setup tab (path unchanged).
+    const link = screen.getByRole("link", { name: "Setup" });
 
     expect(rangeless(link.getAttribute("href"))).toBe("/sites/MG-002/foundation");
 

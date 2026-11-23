@@ -97,8 +97,8 @@ def record(kind: str, at: datetime, litres, *, root_recorded_at: datetime | None
 
 
 def assess(readings, records=(), accuracy=A, sfc=SFC, no_load=R):
-    return rules.assess(start=START, end=END, tank_asset_id=TANK, generator_asset_id=GEN, readings=readings,
-                        records=list(records), accuracy=accuracy, sfc=sfc, no_load=no_load)
+    return rules.assess(start=START, end=END, tank_asset_id=TANK, units=(rules.GeneratorUnit(GEN, sfc, no_load),),
+                        readings=readings, records=list(records), accuracy=accuracy)
 
 
 def band(opening, closing, loaded, deliveries=(), idle_h=0, a=10, r=Fraction(49, 10)):
@@ -392,8 +392,9 @@ def test_a12_digest() -> None:
     recs = [record("TANK_DIP", START + SLOT, 700)]
 
     def digest(evidence):
-        return rules.input_sha256(night_date=NIGHT, start=START, end=END, tank_asset_id=TANK, generator_asset_id=GEN,
-                                  accuracy=A, sfc=SFC, no_load=R, evidence_ids=evidence, records=recs)
+        return rules.input_sha256(night_date=NIGHT, start=START, end=END, tank_asset_id=TANK,
+                                  units=(rules.GeneratorUnit(GEN, SFC, R),), accuracy=A, evidence_ids=evidence,
+                                  records=recs)
 
     assert digest(["e2", "e1"]) == digest(["e1", "e2"])
     assert re.fullmatch(r"[0-9a-f]{64}", digest(["e1"]))

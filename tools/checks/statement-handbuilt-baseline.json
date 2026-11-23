@@ -3191,7 +3191,7 @@
   "g:closed_gate:8752cac0ebb9"
  ],
  "backend/assetops_backend/mini_depth/inputs.py": [
-  "a:load_hour_inputs:9583b4388d8a",
+  "a:load_hour_inputs:520cb3259def",
   "a:local_hour:d992a132de32",
   "a:zone:9558c6cf1c44",
   "g:load_hour_inputs:2e8ba8a74280",

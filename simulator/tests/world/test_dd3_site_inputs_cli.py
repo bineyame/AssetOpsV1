@@ -16,7 +16,11 @@ from .conftest import CLI, REPOSITORY_ROOT
 ON1 = REPOSITORY_ROOT / "backend/tests/fixtures/on1"
 BINDINGS = REPOSITORY_ROOT / "backend/conversions/world"
 # Golden: sha256 of `F` built from the `/2` Lakeside file alone, from the branch's /2-only run (no main equivalent).
-LAKESIDE_ALONE_SHA256 = "2534556818b0c10d8879e85c97fa7c546c4787a445a6356fa3ec4e3cfc8936c4"
+# D-DD.114: Kobo binds minigrid-roles-5 (was 4e36563d6bc81cccc9dee28b67a69520bab22fef6f865d89e740cb957d6333d9 under roles-4;
+# the role-set name and the foundation digest over it are the only changes in the file)
+# DD3b merge: the branch's /2 file adds Kisiwa and Mto kit (DD3b2 part 1) on top of main's roles-5
+# (742a75d1edbf80a9f6daf8684817a3ad6984c1d4dcf5badb9a4c73167124e0bd on main)
+LAKESIDE_ALONE_SHA256 = "7d582e06819c3c9117e9e818b144a92e22dcef7aeb475b5c9e299ec7ee3131ba"
 
 
 def _run(onboarding: Path, out: Path) -> subprocess.CompletedProcess:

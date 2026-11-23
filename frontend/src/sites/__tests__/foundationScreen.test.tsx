@@ -306,6 +306,7 @@ function renderViewRow(current: FoundationView = "model") {
       <FoundationSubtabs
         current={current}
         hrefFor={(view) => `/sites/KOBO-001/foundation${view === "model" ? "" : `/${view}`}?at=X`}
+        withChanges /* IA-P P5 (R797): the option is off by default now; the component's entry is still tested */
       />
     </MemoryRouter>,
   );

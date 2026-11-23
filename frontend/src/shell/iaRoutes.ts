@@ -29,7 +29,7 @@ export type RailLabel =
 
 export type IaTabGroup = "Portfolio" | "Evidence & records" | "Site" | null;
 
-export const IA_LANDED = new Set<string>(["IA-P1", "IA-P2"]);
+export const IA_LANDED = new Set<string>(["IA-P1", "IA-P2", "IA-P3"]);
 
 export interface IaHome {
   pattern: RegExp;

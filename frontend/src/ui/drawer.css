@@ -1,0 +1,76 @@
+/*
+ * IA-P P6 (D-IAP.37 Q14): the drawer's rules, moved unchanged from `estate/deepDiveMonth.css` with `ui/Drawer.tsx`.
+ * The two values the live token set has no name for (the scrim and the shadow) stay tokens here.
+ */
+:root {
+  --dd-overlay: rgb(15 23 42 / 40%);
+  --dd-shadow-drawer: 0 8px 24px rgb(15 23 42 / 18%);
+}
+
+/* Rev 4 (L2): the page behind an open drawer does not scroll (vNEXT `ux-locked`). */
+body.dd-locked {
+  overflow: hidden;
+}
+
+/* ---------- drawers (vNEXT .ux-drawer*) ---------- */
+.dd-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+.dd-drawer__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--dd-overlay);
+}
+.dd-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  background: var(--surface-raised);
+  box-shadow: var(--dd-shadow-drawer);
+  border-radius: 12px 0 0 12px;
+}
+.dd-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dd-drawer__head h2 {
+  margin: 0;
+  font-size: var(--font-size-400);
+  line-height: 24px;
+  font-weight: var(--weight-semibold);
+}
+.dd-drawer__body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-5);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+}
+.dd-drawer__body h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  font-weight: var(--weight-semibold);
+}
+@media (max-width: 600px) {
+  .dd-drawer__panel {
+    width: 100%;
+    border-radius: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dd-drawer__scrim,
+  .dd-drawer__panel {
+    transition: none;
+  }
+}

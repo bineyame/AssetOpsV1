@@ -232,3 +232,36 @@
 .estate-portfolio .pf-top3 li{grid-template-columns:28px minmax(0,1fr)}
 .estate-portfolio .pf-top3 li > :nth-child(3),.estate-portfolio .pf-top3 li > :nth-child(4){grid-column:2}
 }
+
+/* IA-P P4b (spec §6 P4b): Outcomes L1, E1's headline with its evidence words, and the Sites notes. */
+.pf-outcomes-lead {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+.pf-outcomes-headline {
+  margin: 0;
+  font-size: var(--font-size-600);
+  font-weight: var(--weight-semibold);
+}
+.pf-outcomes-headline small {
+  display: block;
+  font-size: var(--font-size-200);
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+.pf-outcomes-line {
+  margin: 0;
+  font-size: var(--font-size-300);
+  color: var(--text-secondary);
+}
+.sites-notes {
+  display: grid;
+  gap: var(--space-1);
+  margin-block: var(--space-2);
+}
+.sites-notes p {
+  margin: 0;
+  font-size: var(--font-size-300);
+  color: var(--text-secondary);
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "portfolio-sites-1",
+  "from": "2026-10-01",
+  "to": "2026-10-31",
+  "mode": "month",
+  "months": [
+    {
+      "month": "2026-10",
+      "month_words": "October 2026",
+      "from": "2026-10-01",
+      "to": "2026-10-31",
+      "state": "SERVED"
+    }
+  ],
+  "served": [
+    "2026-10"
+  ],
+  "period_words": "October",
+  "notes": [],
+  "shown": null,
+  "nav": {
+    "previous": {
+      "month_words": "September 2026",
+      "from": "2026-09-01",
+      "to": "2026-09-30"
+    },
+    "next": null
+  },
+  "suggest": null,
+  "as_of_text": "Figures as of 20 November 2026, 08:00 UTC.",
+  "headline": {
+    "text": "3 of 3 Sites are below target in October",
+    "evidence": [
+      "Estimated, not yet reconciled"
+    ]
+  },
+  "columns": [
+    "Site",
+    "Group",
+    "Contribution",
+    "Gap to target",
+    "Largest driver against target",
+    "Waiting for a choice"
+  ],
+  "rows": [
+    {
+      "site_code": "KOBO-001",
+      "site": "Kobo",
+      "group": "Mini-grid",
+      "contribution": "$883.00 against a target of $1,445.00",
+      "gap": "−$562.00",
+      "gap_word": "Emulated, not yet reconciled",
+      "driver": "Fuel cost −$600.00",
+      "driver_heading": "Optimize cost and efficiency",
+      "below": true,
+      "months_text": null
+    },
+    {
+      "site_code": "KISIWA-001",
+      "site": "Kisiwa",
+      "group": "Mini-grid",
+      "contribution": "−$250.00 against a target of −$65.00",
+      "gap": "−$185.00",
+      "gap_word": "Estimated, not yet reconciled",
+      "driver": "Fuel cost −$130.00",
+      "driver_heading": "Optimize cost and efficiency",
+      "below": true,
+      "months_text": null
+    },
+    {
+      "site_code": "MTO-001",
+      "site": "Mto",
+      "group": "Mini-grid",
+      "contribution": "$810.00 against a target of $915.00",
+      "gap": "−$105.00",
+      "gap_word": "Emulated, not yet reconciled",
+      "driver": "Revenue −$80.00",
+      "driver_heading": "Grow revenue",
+      "below": true,
+      "months_text": null
+    },
+    {
+      "site_code": "THIKA-001",
+      "site": "Thika",
+      "group": "Cold-chain",
+      "contribution": "No monthly figures for cold-chain Sites yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    }
+  ],
+  "total": {
+    "gap": "−$852.00",
+    "word": "Estimated, not yet reconciled"
+  },
+  "without_target": {
+    "count": 1,
+    "text": "1 Site without a target is not in this figure"
+  }
+}

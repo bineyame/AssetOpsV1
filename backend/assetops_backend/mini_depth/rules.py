@@ -15,6 +15,9 @@ Shared reading rules (base "New model and computation"):
   picks the favourable row.
 - A role with no usable row is MISSING; a role whose usable rows leave part of the hour uncovered is PARTIAL.
 - Amounts are `None` when not established, never a zero substitute.
+- DD3c (D-DD.41, D-DD.110 Q3): a unit role bound to several assets under `minigrid-roles-5` (the caller passes the
+  units) is the Site series through `sites/unit_roles` (`site_series`); fuel burns each unit on its own SFC and sums
+  the litres. No units passed (one unit, or roles-4): the role reads exactly as before.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ from decimal import Decimal
 from typing import Iterable, Sequence
 from uuid import UUID
 
+from assetops_backend.sites import unit_roles
 from assetops_backend.sites.binding_roles import MINI_BUS_STATES, MINI_SUPPLY_STATES
 
 GOOD = "GOOD"
@@ -247,6 +251,39 @@ def series(readings: Iterable[Reading], role: str, asset_id: UUID | None, w: Win
     return Series(role, asset_id, state, segments, coverage, cited, covered, unusable, sources)
 
 
+def site_series(readings: Iterable[Reading], role: str, units: Sequence[UUID], w: Window) -> Series:
+    """D-DD.41: the Site series of a unit role over `w`. Fewer than two units: `series(..., any_asset=True)`, exactly
+    as before. Several: each unit's own series, then at every step between the units' segment boundaries the Site
+    value is `unit_roles.site_power` of the units' values (a unit with no value there leaves the Site value absent,
+    so that span is a gap). A unit whose own rows conflict makes the Site series CONFLICTING. Citations, unusable
+    rows and sources are the units' union."""
+    if len(units) < 2:
+        return series(readings, role, None, w, any_asset=True)
+    rows = list(readings)
+    parts = [series(rows, role, u, w) for u in units]
+    cited = _ids(i for p in parts for i in p.cited)
+    unusable = _ids(i for p in parts for i in p.unusable)
+    sources = _ids(s for p in parts for s in p.source_ids)
+    if any(p.state == CONFLICTING for p in parts):
+        covered: list[tuple[datetime, datetime]] = [(w.start, w.end)]
+        for p in parts:
+            covered = _intersect(covered, p.covered)
+        return Series(role, None, CONFLICTING, (), _coverage(w, covered, set(sources)), cited, tuple(covered),
+                      unusable, sources)
+    cuts = sorted({w.start, w.end} | {t for p in parts for seg in p.segments for t in (seg.start, seg.end)})
+    segments: list[Segment] = []
+    for lo, hi in zip(cuts, cuts[1:]):
+        values = {u: next((seg.value for seg in p.segments if seg.start <= lo and hi <= seg.end), None)
+                  for u, p in zip(units, parts)}
+        site = unit_roles.site_power(values)
+        if site.value is not None:
+            segments.append(Segment(lo, hi, site.value))
+    covered_spans = tuple(_union((seg.start, seg.end) for seg in segments))
+    coverage = _coverage(w, covered_spans, set(sources))
+    state = MISSING if not segments else PARTIAL if coverage.gaps else COMPLETE
+    return Series(role, None, state, tuple(segments), coverage, cited, covered_spans, unusable, sources)
+
+
 def _aligned(a: Series, b: Series) -> bool:
     """Both complete over the same interval boundaries, so their means are comparable interval by interval."""
     return (a.complete and b.complete
@@ -291,6 +328,9 @@ class RenewableInputs:
     #: The single LOAD asset named by the selected in-force `critical-load-priority` property and its binding;
     #: `None` when none or several (q4 ruling 2).
     critical_asset_id: UUID | None
+    #: DD3c: the Site's PV units (declared order) when the role is a unit role bound to several assets; else ().
+    pv_available_units: tuple[UUID, ...] = ()
+    pv_power_units: tuple[UUID, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -321,8 +361,8 @@ def _decision(codes: set[str]) -> str:
 
 def assess_renewable_hour(day: date, w: Window, readings: Sequence[Reading], inputs: RenewableInputs) -> RenewableHour:
     """Closure 1 Q4/Q9 and closure 2: physical headroom of one noon hour and its eligibility."""
-    cap = series(readings, PV_AVAILABLE, None, w, any_asset=True)
-    pv = series(readings, PV_POWER, None, w, any_asset=True)
+    cap = site_series(readings, PV_AVAILABLE, inputs.pv_available_units, w)
+    pv = site_series(readings, PV_POWER, inputs.pv_power_units, w)
     feeders = [series(readings, FEEDER_DEMAND, a, w) for a in sorted(set(inputs.feeder_asset_ids), key=str)]
     charge = series(readings, CHARGE_REQUEST, None, w, any_asset=True)
     crit_req = _pinned(readings, CRITICAL_REQUESTED, inputs.critical_asset_id, w)
@@ -643,6 +683,10 @@ class FuelInputs:
     sfc: tuple[SfcValue, ...]
     #: `fuel-cost-1/sfc-upper-multiplier/v1` (1.10), supplied by the caller from `financials/fuel_cost.py`.
     upper_multiplier: Decimal
+    #: DD3c (D-DD.113): the Site's generator units (declared order, lead first) when several are bound under
+    #: roles-5, each with its own SFC values; empty for one unit (then `sfc` is that unit's, as before).
+    generator_units: tuple[UUID, ...] = ()
+    unit_sfc: tuple[tuple[UUID, tuple[SfcValue, ...]], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -708,25 +752,35 @@ def _instant_coverage(w: Window, sources: Iterable[UUID]) -> Coverage:
     return Coverage(int(w.seconds), 0, len(set(sources)), (Gap(w.start, w.end),))
 
 
+def _burn(segments: Sequence[Segment], sfc: Sequence[SfcValue], sfc_ids: set[UUID]) -> Decimal | None:
+    """Litres over `segments` at the in-force SFC of each; `None` when a segment has none (ids seen stay noted)."""
+    total = _ZERO
+    for seg in segments:
+        chosen = _sfc_for(seg, sfc)
+        if chosen is None:
+            return None
+        sfc_ids.add(chosen.property_revision_id)
+        total += seg.value * seg.seconds / _HOUR_SECONDS * chosen.value_l_per_kwh
+    return total
+
+
 def assess_fuel_hour(w: Window, readings: Sequence[Reading], inputs: FuelInputs) -> FuelHour:
     """Closure 1 Q16 as amended by closure 2: modelled expected use from accepted `generator_power` interval means
     times the in-force SFC, `{low: 0, high: multiplier x nominal}`; inventory terms stay null in W4-02."""
-    gen = series(readings, GENERATOR_POWER, None, w, any_asset=True)
+    gen = site_series(readings, GENERATOR_POWER, inputs.generator_units, w)
     level = [r for r in readings if r.role == FUEL_LEVEL and _in_window(r, w)]
 
     nominal: Decimal | None = None
     sfc_ids: set[UUID] = set()
     # q4 ruling 3: an in-window unusable bound generator row withholds the modelled use even when GOOD rows cover.
     if gen.complete and not gen.unusable:
-        total = _ZERO
-        for seg in gen.segments:
-            chosen = _sfc_for(seg, inputs.sfc)
-            if chosen is None:
-                total = None  # type: ignore[assignment]
-                break
-            sfc_ids.add(chosen.property_revision_id)
-            total += seg.value * seg.seconds / _HOUR_SECONDS * chosen.value_l_per_kwh
-        nominal = total
+        if len(inputs.generator_units) < 2:
+            nominal = _burn(gen.segments, inputs.sfc, sfc_ids)
+        else:  # D-DD.113: each unit on its own curve, the litres summed through `unit_roles`
+            unit_sfc = dict(inputs.unit_sfc)
+            nominal = unit_roles.site_litres({
+                u: _burn(series(readings, GENERATOR_POWER, u, w).segments, unit_sfc.get(u, ()), sfc_ids)
+                for u in inputs.generator_units}).value
     expected = Bound(_ZERO, inputs.upper_multiplier * nominal) if nominal is not None else None
 
     if expected is not None:

@@ -497,7 +497,7 @@ describe("cooling_nav_and_routes", () => {
   it("Cooling is a live subtab between Temperature and Backup, keeping the window; the breadcrumb ends Performance › Cooling", async () => {
     const { coldAssessment } = renderCooling(COOLING_PATH, () => Promise.resolve(loaded(coolingBody())));
     await settledCooling();
-    expect(Array.from(subtabs().querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Temperature", "Cooling", "Backup"]);
+    expect(Array.from(subtabs().querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Temperature", "Cooling", "Backup", "Health"]); // IA-P P5 (spec §2.3): trailing Health link
     const cooling = subtabs().querySelector('a[data-performance-subtab="cooling"]') as HTMLElement;
     expect(cooling.getAttribute("href")).toBe(`/sites/${SITE_CODE}/performance/cooling?${Q}`);
     expect(cooling.getAttribute("aria-current")).toBe("page");

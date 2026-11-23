@@ -155,6 +155,7 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
       ["Fuel", "page"],
       ["Renewable", null],
       ["Backup", null],
+      ["Health", null], // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line
     ]);
     expect(client.getFuel).toHaveBeenCalledWith(CODE, {
       from: "2026-10-06T09:00:00.000Z",

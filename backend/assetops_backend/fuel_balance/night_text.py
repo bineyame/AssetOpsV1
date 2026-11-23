@@ -174,6 +174,29 @@ def record_rows(records: Iterable[Any], tz: str) -> list[dict[str, Any]]:
             for r in sorted(records, key=lambda r: (r.occurred_at, r.root_id))]
 
 
+def _decimal3(value: Fraction) -> Decimal:
+    return Decimal(round(value * 1000)) / 1000
+
+
+def _use_note(t: Mapping[str, Any]) -> str:
+    """The USE card's note. One unit: the stored SFC and rate, as before. Several (`terms.units`, D-DD.117): the
+    same note over the Site's summed figure: the summed kWh at the Site's L/kWh (every unit's loaded litres over the
+    summed kWh; the lead unit's declared SFC when no kWh ran), and the summed idle minutes at the units' idle litres
+    per idle hour. The top-level SFC and rate are None there and never shown."""
+    units = t.get("units")
+    idle = int(t.get("idle_seconds") or 0)
+    sfc, rate, kwh = t.get("sfc_l_per_kwh"), t.get("no_load_l_per_h"), kwh1(t.get("generator_kwh"))
+    if units:
+        run = sum((_exact(u.get("generator_kwh")) for u in units), Fraction(0))
+        loaded = sum((_exact(u.get("loaded_litres")) for u in units), Fraction(0))
+        sfc = _decimal3(loaded / run) if run else units[0].get("sfc_l_per_kwh")
+        idle_l = sum((int(u.get("idle_seconds") or 0) * _exact(u.get("no_load_l_per_h"))
+                      for u in units if u.get("idle_seconds")), Fraction(0))
+        rate = _decimal3(idle_l / idle) if idle > 0 else None
+    return (USE_NOTE_IDLE.format(kwh=kwh, sfc=sfc, m=idle // 60, r=rate) if idle > 0
+            else USE_NOTE.format(kwh=kwh, sfc=sfc))
+
+
 def night_view(window: Any, records: Sequence[Any], tz: str) -> dict[str, Any]:
     """The night body's text (status, cards, bars, bridge, notes, records) from one stored window and the K2 fuel
     records occurring in it. Every visible number is a string; `value_l` only scales a bar."""
@@ -189,13 +212,7 @@ def night_view(window: Any, records: Sequence[Any], tz: str) -> dict[str, Any]:
     use = band(t.get("use_low"), t.get("use_high"))
     residual = band(window.residual_low, window.residual_high)
 
-    if use is None:
-        use_note = None
-    else:
-        idle = int(t.get("idle_seconds") or 0)
-        sfc, kwh = t.get("sfc_l_per_kwh"), kwh1(t.get("generator_kwh"))
-        use_note = (USE_NOTE_IDLE.format(kwh=kwh, sfc=sfc, m=idle // 60, r=t.get("no_load_l_per_h")) if idle > 0
-                    else USE_NOTE.format(kwh=kwh, sfc=sfc))
+    use_note = None if use is None else _use_note(t)
     residual_note = not_checked(window.reason) if state == "NOT_ASSESSED" else RESIDUAL_NOTE.get(state)
     deliveries_note = (DELIVERIES_NOTE_NONE if n == 0 else DELIVERIES_NOTE_ONE if n == 1
                        else DELIVERIES_NOTE_MANY.format(n=n))

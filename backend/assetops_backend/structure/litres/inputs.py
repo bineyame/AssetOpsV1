@@ -1,7 +1,7 @@
 """4d unit 3 (spec §4.3): the litre inputs from the stores the product already has (D-4D.1).
 
-`StoreLitreInputs.read` takes the Site's one generator and one fuel tank, K3's choice of the fuel curve over the month,
-the tank's dips and deliveries, the generator's readings (A2's slot rule bound into `use`, D-4D.10's `held`), and the
+`StoreLitreInputs.read` takes the Site's one fuel tank and every GENERATOR unit in declared order (D-DD.113), K3's
+choice of the fuel curve over the month (per unit), the tank's dips and deliveries, each unit's readings (A2's slot rule bound into `use`, D-4D.10's `held`), and the
 selected dispatch facts (dispatch-3.3 since 0K4e) of every UTC day meeting `[lo - EDGE, hi + EDGE)`, whose state `day_state` decides (D-4D.12).
 The stores are ports here; their adapters are reached only through `structure.litres.composition`.
 """
@@ -19,10 +19,10 @@ from assetops_backend.chain.ports import SiteRef
 from assetops_backend.financials.trial_fuel_comparison import WindowFacts, no_load_for, sfc_for
 from assetops_backend.fuel_balance.rules import (
     GENERATOR_POWER, GENERATOR_STATE, ROLES, relevant_readings, use_from_readings)
-from assetops_backend.fuel_balance.service import NO_LOAD_BASES, NO_LOAD_BASIS_KEY, no_load_basis
+from assetops_backend.fuel_balance.service import NO_LOAD_BASES, NO_LOAD_BASIS_KEY, declared_order, no_load_basis
 from assetops_backend.structure.litres.rules import (
     ASSESSED, EDGE, NO_READINGS, NOT_ASSESSED, NOT_ONE_EACH, ONE_EACH, UNAVAILABLE, DispatchDay, FuelCurve,
-    LitreInputs, RunSpan, SpanUse, TankRecord)
+    LitreInputs, RunSpan, SpanUse, TankRecord, UnitFuel)
 from assetops_backend.structure.sources import month_window
 
 READING_EDGE = timedelta(minutes=30)   # A2's slot rule looks this far either side of a slot (K3's read)
@@ -48,10 +48,6 @@ class DispatchSpansPort(Protocol):
 
 def _instant(r: Any) -> datetime | None:
     return r.interval_end or r.source_time
-
-
-def _never(a: datetime, b: datetime) -> SpanUse:
-    raise AssertionError("use is never called for a Site without one generator and one tank")
 
 
 def _later(a: datetime, b: datetime) -> datetime:
@@ -91,13 +87,8 @@ class StoreLitreInputs:
     def read(self, site: SiteRef, month: str, known_at: datetime) -> LitreInputs:
         lo, hi = month_window(month, site.timezone)[:2]
 
-        def work(tx: Any) -> tuple[str, Callable, Callable, FuelCurve, tuple[TankRecord, ...]]:
-            assets = tx.active_assets()
-            gens = [a for a in assets if a.asset_type == "GENERATOR"]
-            tanks = [a for a in assets if a.asset_type == "FUEL_TANK"]
-            if len(gens) != 1 or len(tanks) != 1:
-                return NOT_ONE_EACH, _never, lambda a, b: False, FuelCurve(None, None, None, None, None), ()
-            gen, tank = gens[0], tanks[0]
+        def curve(tx: Any, gen: Any) -> FuelCurve:
+            """One unit's curve over the month (K3's choice, per unit; D-DD.113)."""
             facts = WindowFacts((), False, None, None, lo, hi)       # K3's choice (fuel_balance/service.py:96-107)
             sfc = sfc_for(facts, tx.sfc_history(gen.id, lo, hi))
             rate = no_load_for(facts, tx.no_load_history(gen.id, lo, hi))
@@ -106,28 +97,38 @@ class StoreLitreInputs:
                                       str(rate.foundation_revision_id))
                 rate = rate if basis in NO_LOAD_BASES else None
             if sfc is None:
-                curve = FuelCurve(None, None, None, None, None)
-            else:
-                valid = (sfc.valid_from, sfc.valid_to)
-                if rate is not None:
-                    valid = (_later(valid[0], rate.valid_from), _earlier(valid[1], rate.valid_to))
-                curve = FuelCurve(Fraction(sfc.value_l_per_kwh), f"foundation:{sfc.property_revision_id}",
-                                  None if rate is None else Fraction(rate.value_l_per_h),
-                                  None if rate is None else f"foundation:{rate.foundation_revision_id}", valid)
+                return FuelCurve(None, None, None, None, None)
+            valid = (sfc.valid_from, sfc.valid_to)
+            if rate is not None:
+                valid = (_later(valid[0], rate.valid_from), _earlier(valid[1], rate.valid_to))
+            return FuelCurve(Fraction(sfc.value_l_per_kwh), f"foundation:{sfc.property_revision_id}",
+                             None if rate is None else Fraction(rate.value_l_per_h),
+                             None if rate is None else f"foundation:{rate.foundation_revision_id}", valid)
+
+        def work(tx: Any) -> tuple[str, tuple[UnitFuel, ...], Callable, tuple[TankRecord, ...]]:
+            assets = tx.active_assets()
+            gens = [a for a in assets if a.asset_type == "GENERATOR"]
+            tanks = [a for a in assets if a.asset_type == "FUEL_TANK"]
+            if not gens or len(tanks) != 1:
+                return NOT_ONE_EACH, (), lambda a, b: False, ()
+            gens, tank = declared_order(gens, tx, lo, hi), tanks[0]
+            curves = [curve(tx, gen) for gen in gens]
             records = tuple(TankRecord(r.kind, r.occurred_at, r.quantity_l, str(r.root_id))
                             for r in tx.fuel_records(tank.id, lo - EDGE, hi + EDGE))
             readings = relevant_readings(tx.readings(lo - EDGE - READING_EDGE, hi + EDGE + READING_EDGE, ROLES),
-                                         tank.id, gen.id)
-            bound = _Readings(readings, str(gen.id))
-            return ONE_EACH, bound.use, bound.held, curve, records
+                                         tank.id, [gen.id for gen in gens])
+            bound = [_Readings(readings, str(gen.id)) for gen in gens]
+            units = tuple(UnitFuel(str(gen.id), b.use, c) for gen, b, c in zip(gens, bound, curves))
+            held = bound[0].held if len(bound) == 1 else lambda a, b: any(r.held(a, b) for r in bound)
+            return ONE_EACH, units, held, records
 
-        assets, use, held, curve, tank = self._fuel.read_at(site.tenant_id, site.site_id, known_at, work)
+        assets, units, held, tank = self._fuel.read_at(site.tenant_id, site.site_id, known_at, work)
         days = tuple(
             DispatchDay(d["day"], state, d["run_id"] if state == ASSESSED else None,
                         tuple(RunSpan(s, e, c) for s, e, c in d["spans"]) if state == ASSESSED else ())
             for d in self._assessments.dispatch_spans(site.tenant_id, site.site_id, lo - EDGE, hi + EDGE, known_at)
             for state in (day_state(d["available"], d["status"], d["selected"], d["accepted_reading_count"]),))
-        return LitreInputs(month, lo, hi, known_at, assets, days, use, held, curve, tank)
+        return LitreInputs(month, lo, hi, known_at, assets, days, units, held, tank)
 
 
 __all__ = ["DispatchSpansPort", "FuelReadPort", "StoreLitreInputs", "day_state"]

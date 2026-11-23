@@ -1,0 +1,142 @@
+{
+ "captured_on": "23d2cd9f6",
+ "cases": {
+  "delivery": {
+   "digest": "5b07007bb3776ad60cf7805c46997d8810ddbc18748e778c072b7012ff7c556d",
+   "result": {
+    "gap_minutes": 0,
+    "gap_spans": [],
+    "limitations": [],
+    "reason": null,
+    "residual_high": "17.61",
+    "residual_low": "-31.81",
+    "state": "WITHIN_MARGIN",
+    "terms": {
+     "accuracy_basis": "GENERIC_DEFAULT",
+     "accuracy_l": "10",
+     "accuracy_revision_id": "rev-a",
+     "closing_at": "2026-10-05T09:00:00+00:00",
+     "closing_l": "700",
+     "deliveries_l": "400",
+     "delivery_tolerance_l": "4",
+     "generator_kwh": "20",
+     "idle_seconds": 0,
+     "loaded_litres": "7.1",
+     "no_load_basis": "GENERIC_DEFAULT",
+     "no_load_l_per_h": "4.9",
+     "no_load_revision_id": "rev-r",
+     "opening_at": "2026-10-04T15:00:00+00:00",
+     "opening_l": "300",
+     "sfc_l_per_kwh": "0.355",
+     "sfc_revision_id": "rev-s",
+     "unknown_slots": 0,
+     "use_high": "7.81",
+     "use_low": "6.39"
+    }
+   }
+  },
+  "idle": {
+   "digest": "a05964d5ecf07436b308296057163b95bc87f0b2f1b4571d9285b8b3c54d9670",
+   "result": {
+    "gap_minutes": 0,
+    "gap_spans": [],
+    "limitations": [],
+    "reason": null,
+    "residual_high": "85",
+    "residual_low": "34.22",
+    "state": "BELOW_MATERIALITY",
+    "terms": {
+     "accuracy_basis": "GENERIC_DEFAULT",
+     "accuracy_l": "10",
+     "accuracy_revision_id": "rev-a",
+     "closing_at": "2026-10-05T09:00:00+00:00",
+     "closing_l": "35",
+     "deliveries_l": "0",
+     "delivery_tolerance_l": "0",
+     "generator_kwh": "0",
+     "idle_seconds": 7200,
+     "loaded_litres": "0",
+     "no_load_basis": "GENERIC_DEFAULT",
+     "no_load_l_per_h": "4.9",
+     "no_load_revision_id": "rev-r",
+     "opening_at": "2026-10-04T15:00:00+00:00",
+     "opening_l": "100",
+     "sfc_l_per_kwh": "0.355",
+     "sfc_revision_id": "rev-s",
+     "unknown_slots": 0,
+     "use_high": "10.78",
+     "use_low": "0"
+    }
+   }
+  },
+  "loaded": {
+   "digest": "2e3d540d5123bcb9c8249a4f935ff5b0a7eedbb690b6741c4af1d5e5acce10a8",
+   "result": {
+    "gap_minutes": 0,
+    "gap_spans": [],
+    "limitations": [],
+    "reason": null,
+    "residual_high": "44.025",
+    "residual_low": "0.475",
+    "state": "BELOW_MATERIALITY",
+    "terms": {
+     "accuracy_basis": "GENERIC_DEFAULT",
+     "accuracy_l": "10",
+     "accuracy_revision_id": "rev-a",
+     "closing_at": "2026-10-05T09:00:00+00:00",
+     "closing_l": "460",
+     "deliveries_l": "0",
+     "delivery_tolerance_l": "0",
+     "generator_kwh": "50",
+     "idle_seconds": 0,
+     "loaded_litres": "17.75",
+     "no_load_basis": "GENERIC_DEFAULT",
+     "no_load_l_per_h": "4.9",
+     "no_load_revision_id": "rev-r",
+     "opening_at": "2026-10-04T15:00:00+00:00",
+     "opening_l": "500",
+     "sfc_l_per_kwh": "0.355",
+     "sfc_revision_id": "rev-s",
+     "unknown_slots": 0,
+     "use_high": "19.525",
+     "use_low": "15.975"
+    }
+   }
+  },
+  "no_sfc": {
+   "digest": "8cdf01133e6505648dcee463ea13e92e47824f5031bc77a4ef68e6e603bdb7ad",
+   "result": {
+    "gap_minutes": 0,
+    "gap_spans": [],
+    "limitations": [],
+    "reason": "SFC_MISSING",
+    "residual_high": null,
+    "residual_low": null,
+    "state": "NOT_ASSESSED",
+    "terms": {
+     "accuracy_basis": "GENERIC_DEFAULT",
+     "accuracy_l": "10",
+     "accuracy_revision_id": "rev-a",
+     "closing_at": "2026-10-05T09:00:00+00:00",
+     "closing_l": "460",
+     "deliveries_l": "0",
+     "delivery_tolerance_l": "0",
+     "generator_kwh": "50",
+     "idle_seconds": 0,
+     "loaded_litres": null,
+     "no_load_basis": "GENERIC_DEFAULT",
+     "no_load_l_per_h": "4.9",
+     "no_load_revision_id": "rev-r",
+     "opening_at": "2026-10-04T15:00:00+00:00",
+     "opening_l": "500",
+     "sfc_l_per_kwh": null,
+     "sfc_revision_id": null,
+     "unknown_slots": 0,
+     "use_high": null,
+     "use_low": null
+    }
+   }
+  }
+ },
+ "note": "fuel_balance/rules.py unchanged from main 23d2cd9f6 at capture (D-DD.117 one-unit parity)"
+}

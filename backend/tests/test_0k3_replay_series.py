@@ -439,7 +439,8 @@ def test_b10_the_module_imports_exactly_its_set() -> None:
             "AcceptedReading", "CohortMember", "EvidenceQuery", "EvidenceQueryResult", "RoleBinding", "Window",
             "build_input_set", "iso")),
         "assetops_backend.analytics.assessment_worker:ROLES_BY_SET", "assetops_backend.analytics.cohort:select_cohort",
-        "assetops_backend.runs.replay_study:ObservedSeries", "assetops_contracts.forward_replay:LoadSeries"}
+        "assetops_backend.runs.replay_study:ObservedSeries", "assetops_contracts.forward_replay:LoadSeries",
+        "assetops_backend.sites:unit_roles"}  # D-DD.110 Q10: the Site series through `unit_roles`
 
 
 # --- B11 the study's own checks -------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ import {
   type SiteTemplateLineageReadModel,
 } from "../../sites/siteTemplateLineage";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { siteDetailHref, siteFoundationHref } from "../operatorSiteRoutes";
 import koboDetail from "./kobo-site-detail.json";
 
@@ -81,6 +82,7 @@ function renderAt(path: string, flags: FeatureFlags, lineage: SiteTemplateLineag
           },
         }}
         siteTemplateLineage={lineage}
+        portfolioSites={sitesE1()} estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -132,14 +134,17 @@ describe("the template lineage note on the operator site surfaces", () => {
     expect(document.querySelector("[data-template-lineage-note]")).toBeNull();
   });
 
-  it("puts the note only in the behind site's row of the Sites index", async () => {
+  it("draws no note on the Sites list, which has no template column (IA-P P4b)", async () => {
+    // IA-P P4b (spec §6 P4b): the directory table, where the note sat in the behind Site's row, is replaced by the Sites
+    // list, whose cells are E1's and E0's. The note stays on the behind Site's own page (the test above). Known
+    // deviation and open question in packet-IA-P3 §2.
     const { client } = lineageClient([OLD, NEW, PLAIN]);
     renderAt("/sites", ENABLED, client);
     await settledScreen();
 
-    const note = await screen.findByText(BEHIND_NOTE);
-    expect(note.closest("tr")?.textContent).toContain("MG-OLD");
-    expect(document.querySelectorAll("[data-template-lineage-note]")).toHaveLength(1);
+    expect(document.querySelector('[data-home-list="sites"] tbody tr[data-row="MG-OLD"]')).not.toBeNull();
+    expect(screen.queryByText(BEHIND_NOTE)).toBeNull();
+    expect(document.querySelectorAll("[data-template-lineage-note]")).toHaveLength(0);
   });
 
   it("does not read lineage and shows no note with the Lab gate closed", async () => {
