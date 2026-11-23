@@ -24,8 +24,10 @@ it in the packet.
    - C-DD19 prints "judged in world check C5 (D-DD.84)" and is not counted.
    - A "No monthly figures … yet" row or a windowed span does not count as output (D-DD.26, R138-149).
 2. **WK for three operators (2.75; DD6.2 S930-938; D-DD.134 R2320-2333; D-DD.27 R150-156; D-DD.135 R2334-2350).**
-   - `assetops.walk-definition/2` beside `/1`: `statements` may be `[]`, `expect` may be null, a statement carries
-     `fuel_cost` or `energy_cost`; file `walk-layer4-v2-<slug>.json`; `world` must equal the world definition's.
+   - `assetops.walk-definition/2` beside `/1`: `statements` may be `[]`, `expect` may be null, a non-null `expect` requires
+     `untracked_text` (string or null; pinned from L2's served text, the packet lists each named leaf with its sources,
+     D-DD.181) and contribution figures pinned from the served cents, each mapped to `M` within Σ 0.5 L × price
+     (D-DD.177); a statement carries `fuel_cost` or `energy_cost`; file `walk-layer4-v2-<slug>.json`; `world` must equal the world definition's.
    - `tools/world.py` copies each `<slug>.statements.json` (S613-622) into `inputs/<digest>/<slug>/statements/` (in the
      inputs digest); the walk manifest records the path. `prepare` records a tenant's statements only when its
      `snapshot_months` is non-empty, `--as` the tenant's finance lead (DD1's email rule). Cold and EV statements are
