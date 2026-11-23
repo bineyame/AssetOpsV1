@@ -734,3 +734,12 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   `check_manifest.py` 6 FAIL = main's 6 (digests re-based, dated notes); 6h parity golden unedited.
 - Open: vNEXT mock JS, `gen_docs.cjs`, CHANGE-REGISTER, fixture-mapping (alignment pass); packet deviations 8-10 for the
   Architect; two reach-set failures (`test_3b1` t1, `test_3b3` t6, dispatch-3.2 vs 3.3) are main's own.
+
+## DD4b follow-up: EV windows and the session pair (D-DD.158, D-DD.161; in_review; `specs/DD-demo-data/packet-DD4b-followup.md`)
+- `measured.json` EV months carry `windows` {`2200_2400`, `0000_0500`} (local-minute depot import sums, fixed key set,
+  `TEL_FOUNDATION` otherwise); `meter_billed` writes them as `kwh_2200_2400`/`kwh_0000_0500` metered; C-DD7's EV window
+  clause judged exactly in `judge_meter_books(..., measured=)`. EV rows are eight elements: in-session connector
+  measurement rows carry `session` {`session_id`, `connector_id`} (DD5a deviation 6 closed on the writer side).
+  Full EV plant parity with main except the new fields; fixture `metro-bus.measured.json` regenerated.
+- Open: the live C-DD7 run gets the loaded world's `measured.json` only with DD5b's fetch (D-DD.160); until then the EV
+  window line stays pending there.
