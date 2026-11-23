@@ -731,3 +731,14 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Open: every mini Site's notes overfill (bound hit at all three; the strict writer refuses from 1 Aug at Kobo),
   so no Jul-Oct pure DIR until DD3b3's notes (D-DD.131). Kisiwa candidate minutes > 0 (OR-MG-2) and Kisiwa October
   unserved 0 (C-DD20) are with the Architect, as are the `--pure` reading defaults (packet Known Deviations 9-11).
+
+## DD3b3: fuel purchases follow the tank (in_review, partial, part 3 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: `config/world/fuel-notes.json` (D-DD.92) from `tools/dd3_pure_run.py --restate-notes` (25 % crossing, next
+  10:00, at most two 400 L notes, OOO-1 dated): Kobo 2 x 400 on 26 Sep + OOO-1, Kisiwa 8 x 400, Mto none Jul-Oct.
+  `exports.py` writes FUEL rows from it (purchases; D-DD.130); C-DD4 no longer judges mini-grid fuel nodes. The strict
+  writer accepts Jul-Oct at all three Sites (no bound hit). `--leaves` prints D-DD.131's table: October diesel Kobo
+  634 L, Kisiwa 904 L (cost 1,175.20, contribution +1,694.80), Mto 32 L, as D-DD.147 projected. `dd_check --pure` reads
+  the tolerance from `M`, judges Kisiwa's candidate share per month and C-DD20 Kisiwa by D-DD.148 (C-DD20 passes).
+- Open: `M` unchanged (Kisiwa and Mto bridges do not close by `-candidate x price`; D-DD.131 stop); Kisiwa candidate
+  time 11.27 % (Aug) and 10.17 % (Oct) against D-DD.148's 1 %; C-DD17 July/August fail by construction (0 L burned).

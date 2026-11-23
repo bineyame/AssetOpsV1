@@ -1,4 +1,4 @@
-# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 complete: writer, model, checks and pure runs; DD3b3 not started)
+# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2: writer, model, checks and pure runs; DD3b3: notes, books, leaves table, `--pure` by D-DD.148/149; `M` commit held for the Architect)
 
 Branch `task/DD3b-mini-plant` (worktree `/opt/assetecon/AssetOpsV1-dd3b`), base main `6e3c02ab5`. Part 1 of 3
 (D-DD.142: DD3b1 2.0 u). Scope: D-DD.127 and spec DD §4.3, in `simulator/assetops_simulator/packs/mini_grid.py` and
@@ -189,6 +189,90 @@ main. The forcing-index W1 digest above is the same move, computed by main's ker
 
 Guards: `tools/check-architecture.ps1` passed; `tools/checks/statement_catalogue.py` exit 0.
 
+## DD3b3: notes, books and leaves (D-DD.92, .130, .131, .147-149)
+
+Commits `6fd644bb1` (tests first: **12 of 12 failed**), `299a88da7` (tool, exports, dd_check), the notes file commit,
+the exports-tests restatement. Files: `tools/dd3_pure_run.py`, `simulator/assetops_simulator/world/exports.py`,
+`tools/dd_check.py`, `config/world/fuel-notes.json` (new), tests.
+- **Reorder rule (D-DD.92).** `dd3_pure_run.py --restate-notes [--check] --site CODE`: the strict writer runs the span
+  on the current notes; at the first boundary where the level goes from at least 25 % of the tank to below it, notes
+  are placed at the next 10:00 (the same day only when the crossing is before 10:00), `min(2, free // 400)` of them,
+  free = capacity minus the level at that 10:00 boundary; rerun until no new crossing. OOO-1's note keeps its date
+  (`exports.DATED_NOTES`, basis `STORY:OOO-1`). A pass stops at the 10:00 after its crossing, so only the last pass
+  runs the whole span. `--check` reruns the rule and exits 1 when the file's entry differs.
+- **Books (D-DD.130).** `build_exports(..., fuel_notes=None)` reads `config/world/fuel-notes.json` by default
+  (`read_fuel_notes`, schema checked). For a Site in it the FUEL rows are its notes in the month, litres x price;
+  `EMU_FUEL` is the sum of the amounts against the notes. A Site not in it keeps D-DD.53's cycle. C-DD4 no longer
+  judges mini-grid `diesel_l` / `fuel_cost` (`_RECORDED_NODE`, `_stored_nodes`); its October plant moved to revenue,
+  and a planted fuel amount is now shown as not judged.
+- **Leaves (D-DD.131).** `--leaves --site CODE` runs the span on the file's notes and prints October's leaves,
+  `fuel_balance`, the bridge's fuel lines on their stated formulas, whether the bridge closes, the
+  GENERATOR_SUPPORT_CANDIDATE days, and the peak evening generator kW after 30 Oct 18:40. Builder choices: necessary
+  = `diesel_l` - candidate - unexplained (keeps `M`'s `diesel_l` identity); candidate = the stand-in, whole litres
+  half-even. Exit 4 when the bridge does not close.
+- **`--pure` (D-DD.149, D-DD.148).** `fuel_tolerances()` reads `M`'s `period.fuel_balance.tolerance_pct` (Kobo,
+  Kisiwa: 2.0); C-DD17 uses Kobo's. C-DD8 Kisiwa: `judge_candidate_share`, candidate minutes under 1 % of generator
+  minutes (any unit above 0 kW) in every month, printed. C-DD20 Kisiwa: `judge_kisiwa_failure` (GEN-KS-01 FAILED at
+  0 kW from 30 Oct 18:40, never restored; every evening generator step after it on GEN-KS-02; unserved 0 every month).
+
+Tests: `simulator/tests/world/test_dd3b3_notes.py` 12 (rule unit tests on a fake tank, the committed file, books from
+the notes, C-DD4, leaves arithmetic, tolerance, Kisiwa share and failure on the writer's 30 Oct rows with three
+plants). Restated (old -> new, read from the regenerated source): `test_3a3_exports` PINNED expenses `74c5ad18...` ->
+`298773a4...`, PINNED_ALL_MONTHS expenses `bc991181...` -> `ab112234...`, `test_e4_fuel` October litres
+[2400, 1180, 320] -> [800, 400, 0] (Kisiwa, Kobo, Mto); `test_dd2_nodes` Kobo October notes -> OOO-1 only, fuel rows
+present exactly where the file has a note, the cycle test on a file listing no Site;
+`test_dd2_checker_on_emulated_rows` October plant on revenue.
+
+**Plants** (each introduced, run, reverted with `git checkout`): `MAX_NOTES = 3` fails the count test; `<=` in
+`note_instant` fails the 10:00 test; a 2 % candidate bound fails the Kisiwa share test (3 failed, 9 passed).
+
+### The notes run (`--restate-notes`, 1 Jul-31 Oct; walls Mto 69 s, Kobo 112 s, Kisiwa 220 s)
+
+| Site | notes |
+|---|---|
+| Kobo (2500 L) | 26 Sep 2 x 400 REORDER; 26 Oct 400 STORY:OOO-1 (1,200 L) |
+| Kisiwa (5000 L) | 31 Jul, 20 Aug, 15 Sep, 15 Oct: 2 x 400 REORDER each (3,200 L) |
+| Mto (1000 L) | none (never reaches 250 L; D-DD.147) |
+
+Pure tables on the exports of the new file: **bound hit no** at all three; balance equals the drawn litres every
+month. Kobo tank 572-1373 L Sep, Kisiwa 1238-2500 L, Mto 468-500 L.
+
+### Moved figures against D-DD.147 (`--leaves`; nothing fitted)
+
+| Leaf | Kobo old -> new | Kisiwa old -> new (projection) | Mto old -> new (projection) |
+|---|---|---|---|
+| `diesel_l` | 1180 -> 634 (about 634) | 2400 -> **904** (about 904) | 320 -> **32** (about 32) |
+| `necessary_l` / `candidate_l` | 730 / 330 -> 489 / 25 | 2380 / 0 -> 817 / 67 | 320 / 0 -> 0 / 32 |
+| `diesel_cost` | 1475.00 -> 792.50 | 3120.00 -> **1175.20** (about 1,175) | 400.00 -> 40.00 (about 40) |
+| `contribution` | 883.00 -> 1565.50 | -250.00 -> **1694.80** (about +1,695) | 810.00 -> 1170.00 |
+| `variance` | -562.00 -> 120.50 | -185.00 -> 1759.80 | -105.00 -> 255.00 |
+| fuel balance open / deliv / close | 220/1200/240 -> 1253/400/1019 | - -> 1663/800/1559 | - -> 500/0/468 |
+| consumed / implied / residual | 1180/1060/120 -> 634/514/120 | 2400/2380/20 -> 904/884/20 | - -> 32/32/0 |
+| CANDIDATE_RUNNING | -412.50 -> -31.25 | (no line) | (no line) |
+| necessary line | EVENING -37.50 -> +263.75 | SOLAR_SHORTFALL -104.00 -> +1927.90 | EVENING -25.00 -> +375.00 |
+| bridge vs variance | **closes** (120.50) | **does not close** (1846.90 vs 1759.80, gap -87.10) | **does not close** (295.00 vs 255.00, gap -40.00) |
+| GENERATOR_SUPPORT_CANDIDATE | 11 days, [0, 330] -> 5 days, [0, 25] L, [0, 31.25] | count 0 -> 9 days, [0, 67] L, [0, 87.10] | - -> 1 day, [0, 32] L, [0, 40.00] |
+
+Kisiwa's peak evening generator power after 30 Oct 18:40: 41.87 kW, so the typed "95 %" would print as 69.8 % of
+60 kW. BATTERY_NEAR_RESERVE's count is the product's warning (`outcomes/warnings.py`), not computed here.
+
+**`M` is not changed.** D-DD.131: "If the bridge does not close against the restated variance under the manifest
+check, stop for the Architect." Kisiwa's and Mto's gaps are exactly `-candidate_l x price`: neither Site's bridge has
+a CANDIDATE_RUNNING line, and the stand-in now gives both a candidate. Known Deviation 12.
+
+### Full Jul-Oct pure DIR (`world_history.py exports` without `--tenant`, `site-inputs`, `telemetry` for the three Sites)
+
+Telemetry exit 0 (233.75 s): the strict writer accepts the Jul-Oct span at all three (deviation 10 closes).
+`dd_check --pure` exit 1:
+- C-DD8 FAIL: tanks within bounds; Kobo October balance 1252.8 + 400.0 - 1018.6 - 514.2 = 120.0 L (the manifest's
+  120 L); Kobo October unserved clinic energy 0 (MG-5); **Kisiwa candidate time 2026-07 20 of 5555 min (0.36 %),
+  2026-08 625 of 5545 (11.27 %), 2026-09 0 of 2980, 2026-10 400 of 3935 (10.17 %)**: D-DD.148's "under 1 % in every
+  month" holds for July only (Known Deviation 13).
+- C-DD17 FAIL: July and August unexplained 12 of 12 L consumed (100 %): Kobo burns 0 L those months (D-DD.104), so the
+  declared draw is all of consumption; September 1.42 %, October 18.92 % (Known Deviation 14).
+- C-DD20 PASS: Kisiwa GEN-KS-01 FAILED at 0 kW over 352 steps from 30 Oct 18:40, 40 evening generator steps all on
+  GEN-KS-02, unserved 0 every month; Mto 0.00 L/day in the 28 days before 28 Oct 11:00, 9.14 after.
+
 ## Moved figures
 
 Kobo, `tools/dd3_pure_run.py --books <exports>` (no-load 0.62, 1 Jul-31 Oct), before (`3aa165f67`) -> after (`71badcc41`):
@@ -246,7 +330,22 @@ digest `4e36563d...` -> `25345568...` (D-DD.128).
 11. **Two world facts against the oracle**, reported, not tuned: Kisiwa candidate minutes > 0 (OR-MG-2 says 0);
     Kisiwa October unserved 0 kWh (C-DD20 expects unserved evening energy after 30 Oct 18:40). Both to the Architect.
 
+12. **`M` commit held (D-DD.131 stop).** Kisiwa's and Mto's bridges do not close on the restated leaves: gap
+    -87.10 (Kisiwa) and -40.00 (Mto), each exactly `-candidate_l x price`; their bridges carry no CANDIDATE_RUNNING
+    line. Kobo closes. So no leaf, `fuel_balance`, `findings_expected`, OR-MG-2, D-DD.30 chain output or
+    `worked-portfolios.md:74` was changed. **Question:** add a CANDIDATE_RUNNING line to Kisiwa's and Mto's bridges
+    (as Kobo's), or fold the candidate into the necessary line, or another rule? BATTERY_NEAR_RESERVE (22 days) waits
+    with it (the product's warning, not a writer figure).
+13. **Kisiwa candidate time above 1 % in August (11.27 %) and October (10.17 %)** by D-DD.149's measure (generator
+    above 0 kW while PV >= 1.1 x load). D-DD.148's bound came from July and one 30 Oct day; the full run disagrees.
+    Reported, not tuned; for the Architect (OR-MG-2's restated wording).
+14. **C-DD17 July and August fail by construction** since D-DD.104 (Kobo burns 0 L, so the 12 L draw is 100 % of
+    consumed). For the Architect: the clause's "within 2 % July-September" needs a rule for a month with no burn.
+15. Books: for a Site in the notes file the FUEL rows are purchases, but `diesel_l` / `diesel_cost` are still marked
+    written in the unwritten list (no new reason word was ruled). Notes after 31 Oct are not placed (the span is the
+    tool's; exports write Jul-Oct only).
+
 ## Next
 
-DD3b3 (D-DD.92, .130, .131: the notes restated from the pure run; then `--pure` on a full Jul-Oct DIR). The
-Architect's answers on Known Deviations 9-11 first.
+The Architect on deviations 12-14; then DD3b3's `M` commit (D-DD.131 leaves via `--leaves`, a test that `M` equals the
+tool's output, the D-DD.30 chain), then the one DD3b review.
