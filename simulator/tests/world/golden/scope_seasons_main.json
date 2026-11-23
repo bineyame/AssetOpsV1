@@ -1,15 +1,15 @@
 {
  "history_json_sha256": "6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8",
  "scope_digests": {
-  "harvest-cold/Room A \u00b7 Mwea/2026-07": "667b5d562c2474b00bba640f7171c0bdfa05abf2f858a2d90fdf79437f6e6dc4",
-  "harvest-cold/Room A \u00b7 Mwea/2026-08": "233162c95aacdaa0386a26ff2b5369e5a70f199ccc840935493e1ad5f4d868f9",
-  "harvest-cold/Room A \u00b7 Mwea/2026-09": "65e732b5eabeb65c4f1840f9d2394dcfbdc0b47862c70bb8e9c68cac07389ef9",
-  "harvest-cold/Room B \u00b7 Thika/2026-07": "c26bf50701977f58bcc459b19d9d8e7107ae367800e386809da31bb919debcb5",
-  "harvest-cold/Room B \u00b7 Thika/2026-08": "3ec2308d176a8dacfcdc1c88c7ab07ea66cbe3371e50af03a6b39a78d62fdd68",
-  "harvest-cold/Room B \u00b7 Thika/2026-09": "5f5c6db6666fe1312fbbdddc81d0a4859fd8538612e9d28cf6500afcd5443b85",
-  "harvest-cold/Room C \u00b7 Kirinyaga/2026-07": "044881aad54e6b06956e6da3f85a86c0ecd8d1fb7c2fafd04ad344d7c2711820",
-  "harvest-cold/Room C \u00b7 Kirinyaga/2026-08": "c56b302efb52483318c98603008d37573fff6f0b6ef51e62905200241f49b2e8",
-  "harvest-cold/Room C \u00b7 Kirinyaga/2026-09": "5e20195dce062b7eea89f34582ba6d3ee6b68964214cb8a642d58367f25fd885",
+  "harvest-cold/Room A \u00b7 Mwea/2026-07": "6d95bfc3c82290736a3b56d7ab6ef807a5093ea95373414f12fecb79cbd8a89d",
+  "harvest-cold/Room A \u00b7 Mwea/2026-08": "bb555cf6e4de5b66ab7ae876afd4eef1f11e7bc50bb568748031042bbf656db2",
+  "harvest-cold/Room A \u00b7 Mwea/2026-09": "efaf9e012d57e6cd04fb823efcc7de495bf03e386c47594c5eff3633e15fe16d",
+  "harvest-cold/Room B \u00b7 Thika/2026-07": "960488054ff1df79e0c07c3f4af34af4c72e4755b65ca77e87eb769e2b5c5fd2",
+  "harvest-cold/Room B \u00b7 Thika/2026-08": "99ad69f33eff9ce767aab7546f599b3eb4c20951d32b9ac1cdb1abb05f1f04d6",
+  "harvest-cold/Room B \u00b7 Thika/2026-09": "8e0bc6c2e722aaa1b1849509fec20ffb206ab1e8853cfe5f6b86f2d2c1c37d0d",
+  "harvest-cold/Room C \u00b7 Kirinyaga/2026-07": "04a661539fcf13090b9ba30b28ae38c099147b6e086020c1c4ad5285f28dc089",
+  "harvest-cold/Room C \u00b7 Kirinyaga/2026-08": "47b379a3acd2f4610576d105fea37bb6cc061fd91f47e522308673a36ed81358",
+  "harvest-cold/Room C \u00b7 Kirinyaga/2026-09": "898de63a9da544ae0761c311eb862f280e86ef5e393ce8462e6d266a3ffa3a75",
   "lakeside-power/Kisiwa/2026-07": "9b9fa1cfbf534604353558fd6d386e698a7d2590bfb979c3b177f511bd639eac",
   "lakeside-power/Kisiwa/2026-08": "47957bd268baf04545a30eb8148b08a624477eb2c75bf84abd27a2aa95082929",
   "lakeside-power/Kisiwa/2026-09": "2ccaeb12efa1c36abe5717b59e208828a3b35483dd9c7d029b96f388d8b37a3f",
@@ -29,7 +29,7 @@
   "metro-bus/Ruiru/2026-08": "22a1aa5c7104ce5ab97ef5da2c5f9028789a0f85beb98585ed834d57eb970532",
   "metro-bus/Ruiru/2026-09": "cc8308cb49665cafa2225e1fd72098f494e82ac7f4d78622552d2d5e22758003"
  },
- "source": "main 759759598 (DD3a merge), before D-DD.90",
- "tenants_sha256": "a0e6abfeb81c0abda46f47937b66d4fa9f7ba457aa0d3ead33107ab49f6ff60c",
+ "source": "main 759759598 (DD3a merge), before D-DD.90; cold digests re-pinned at D-DD.144 (cold energy restated, whole-kWh plan kwh), Lakeside unchanged",
+ "tenants_sha256": "0597cd842bf68920375399cf6d733062a7bc0187ba4bb034897761879581b9c6",
  "view_digest": "02e57ac889ffa60fb3cfee6456c31581169551c79883c30b67e2d67448fa9a5a"
 }

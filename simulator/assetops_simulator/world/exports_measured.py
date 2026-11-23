@@ -133,7 +133,7 @@ def _after(record: dict) -> str:
     """The day after a schedule's last day (`effective_to` is inclusive in `world/tariffs.py`)."""
     to = record["clocks"].get("effective_to")
     if to is None:
-        return "9999-12-31"
+        return date.max.isoformat()
     return date.fromordinal(date.fromisoformat(to).toordinal() + 1).isoformat()
 
 
