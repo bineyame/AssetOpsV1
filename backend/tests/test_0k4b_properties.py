@@ -135,6 +135,8 @@ NAMES = {
     "generator-minimum-load-basis": "Generator minimum load basis",
     "battery-charge-taper-start": "Battery charge taper start",
     "battery-charge-taper-start-basis": "Battery charge taper start basis",
+    "pv-array-share": "PV array share",  # DD3b2 (D-DD.128)
+    "pv-array-share-basis": "PV array share basis",
 }
 
 
