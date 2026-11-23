@@ -170,7 +170,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > <!--tag:coming--> See where the money went, choose where it goes next, and know whether it followed. Every figure shows how it's known.
 
-> <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 904<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres, as October's records classify them, went on running the generator while its solar and battery could have carried the load.
+> <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 903<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres, as October's records classify them, went on running the generator while its solar and battery could have carried the load.
 
 <!--fold-->
 

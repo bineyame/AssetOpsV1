@@ -25,7 +25,7 @@
 <!--derives: §2.0; §2.1; §2.2; §2.4; §2.5; §2.6; Figure 1b; WP §1.1; WP §1.5-->
 
 **Step 1. The month in one line.** Route `#/portfolio`, operator Lakeside Power.
-- *Sees:* October contribution of $4,430.30<!--fig:portfolio.lakeside-power.actual.sums.contribution--> against a target of $2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->, $−2,135.30<!--figx:{portfolio.lakeside-power.plan.sums.contribution}-{portfolio.lakeside-power.actual.sums.contribution}--> short, composed from the three Sites' factors, and the first three moves of the period's proposed plan.
+- *Sees:* October contribution of $4,431.60<!--fig:portfolio.lakeside-power.actual.sums.contribution--> against a target of $2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->, $−2,136.60<!--figx:{portfolio.lakeside-power.plan.sums.contribution}-{portfolio.lakeside-power.actual.sums.contribution}--> short, composed from the three Sites' factors, and the first three moves of the period's proposed plan.
 - *Why it matters:* it answers the money question for the whole portfolio at once, before anyone opens a Site.
 - *Who:* Amina, the operator executive, reads it.
 
