@@ -63,8 +63,10 @@ In flight (branch, what is left):
    116 pure failures at f563f9c6c), worktree AssetOpsV1-dd3db. Start from `DD3d-b-handoff.md` on the branch and
    rulings round 28 at the end of `rulings.md` (four rulings, on the branch only, coordinator confirmed). Runs 2 and 3
    (39c9fd2de) finished the existing tests: pure 2 failed (iap sites 6 and 8, held for DD3d.5), 2365 passed; no Postgres
-   run yet. Run 4 in progress: publisher tests, C4, C-DD4, DD3d-a Lows, t12. Rulings round 29 (branch
-   `task/DD3d-b-rulings-29`, ae818b36c) is done and merges into the DD3d-b branch at the start of run 5; then G4, DDR,
+   run yet. Run 4
+   (b4ab57601) did the publisher tests, C4, C-DD4, five of six Lows and t12: pure 2373 passed, 2 failed (held), Postgres
+   186 passed, 1 failed (5c test_9, held). Run 5 in progress: rulings round 29 (branch `task/DD3d-b-rulings-29`,
+   merged first), G4, DDR, L5. Run 6:
    DD3d.5 (budget), plants, reach set, review. DD3d-b is now 4.25 u; DD 61.75 u.
    Headline is now projected about -195.30, not -196.60 (Kisiwa October litres 903, not 904); not yet measured.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
