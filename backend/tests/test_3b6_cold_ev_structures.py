@@ -83,7 +83,7 @@ OWN_HOME_MAP = {
     "above": "ABOVE",
     "calendar": "CALENDAR",
 }
-COUNTS = {COLD: (23, 13), EV: (23, 19)}
+COUNTS = {COLD: (23, 13), EV: (23, 20)}  # DD4.5 (D-DD.125): + buses_full_by_charger
 
 # ---------------------------------------------------------------- spec §2.2.1 and §2.2.2, written again (W2)
 
@@ -106,7 +106,7 @@ _NODE_TABLE = (
     (COLD, ("chamber_minutes", "cooling_available_minutes"), MINUTE, "SUM"),
     (EV, ("deliverable_kwh_night", "scheduled_kwh_night", "supplied_kwh_night", "required_kwh_night"), KWH / DAY,
      "NONE"),
-    (EV, ("buses_short_per_night",), ONE, "NONE"),
+    (EV, ("buses_full_by_charger", "buses_short_per_night"), ONE, "NONE"),  # DD4.5 (D-DD.125)
     (EV, ("departures_required", "departures_missed", "nights_below_required", "charger_days_out_of_service",
           "departures_met"), DAY, "SUM"),
     (EV, ("peak_cost", "offpeak_cost", "night_cost", "demand_cost", "energy_cost", "penalties", "cost_to_serve",
@@ -165,7 +165,7 @@ def test_1_order_counts_and_version(key):
     n_leaves, n_nodes = COUNTS[key]
     ids = [r.factor_id for r in reg.rows]
     assert reg.structure_key == key and reg.version == 1
-    assert len(ids) == n_leaves + n_nodes == {COLD: 36, EV: 42}[key]
+    assert len(ids) == n_leaves + n_nodes == {COLD: 36, EV: 43}[key]
     assert ids[:n_leaves] == list(leaves_of(key))
     assert ids[n_leaves:] == list(MANIFEST["structures"][key])
     assert all(r.tolerance is None and r.stated_by is None for r in reg.rows)  # D-3B6.2, .9
