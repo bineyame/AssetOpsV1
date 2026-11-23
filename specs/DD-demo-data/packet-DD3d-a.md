@@ -55,7 +55,21 @@ equality removed (`plant-c8.log` 2 failed).
 
 ## Reach set and guards
 
-RESULTS_PLACEHOLDER
+- Backend reach set, 54 files (`reach-files.txt`), one `--db-lane` call at this branch's code: 1104 passed, 4 failed, 638.66 s
+  (`reach-db.log`). The four are main's own, `main-4files.log` at main 7c47ec357 (three files: 4 failed, 212 passed, the same
+  ids): `test_3b1_structure_registry::test_t1_leaf_sources_absence_and_words_equal_the_manifest`,
+  `test_3b3_structure_evaluate::test_t6_each_state_yields_its_leaf_value_on_its_own_record`,
+  `test_4d_litre_split::test_6_kobo_fuel_cost_splits_into_the_three_litre_leaves` and `::test_6_the_portfolio` (dispatch-3.3
+  against the M string dispatch-3.2; the 120.50 fuel line). The newest `.agent/main-baseline` file is a partial at
+  23d2cd9f6 without a per-test list, so main was run for those three files only.
+- `simulator/tests/world`: 525 passed, 1 failed (`reach-world.log`, 353 s): the Kobo join-parity golden's foundation digest,
+  moved by the `/2` declarations; the helper now drops those keys from its input (golden unedited), 8 passed
+  (`join-parity.log`). The world suite was not rerun whole after that one-test edit.
+- `test_dd3d_checks.py` 27 and the checker tests 77 passed (`checks-pass.log`); `test_dd3d_fuel_records_postgres.py` 17
+  (`db-2.log`). Tests written first: `checks-first.log` (17 failed, 10 errors).
+- Guards: architecture, agent-workflow, decision index, statement catalogue (exit 0): all pass. `git diff main` on the protected
+  `fuel_balance`, `actions`, `structure/litres` files is empty.
+- Served verdicts in production composition are DD6.1's.
 
 ## Known deviations
 

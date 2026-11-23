@@ -1,3 +1,7 @@
+# DD3d-a handoff (complete; superseded by `packet-DD3d-a.md`)
+
+The build is in review; the text below is run 1's partial handoff.
+
 # DD3d-a handoff (partial: run 1 stopped at its context budget, 23 Nov)
 
 Branch `task/DD3d-fuel-floor`, worktree `/opt/assetecon/AssetOpsV1-dd3d`, main merged at 558b32f32. Card:
