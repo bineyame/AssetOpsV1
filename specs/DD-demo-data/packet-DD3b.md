@@ -416,9 +416,10 @@ Commits: `6ea2b4cae` tests first (11 of 11 failed), `fbcb1d741` code (restated b
     while the history rule keeps the unexplained draw. October's own Kisiwa 20 of 904 L is 2.2 %, above the 2 % that M's finding
     text calls "within". Not fixed: the options (a lower history draw in `history.rules`, H5 in the check, or D-DD.152's absolute
     floor) are design. For the Architect.
-18. **D-DD.76 tanks against the storage rule.** The rule's arithmetic on the regenerated history gives Kobo 1,500, Kisiwa 2,000,
-    Mto 500 L; the ruling's values (2,500, 5,000, 1,000) stay declared. `test_each_lakeside_tank...` now pins both. For the
-    Architect.
+18. **D-DD.76 tanks against the storage rule. RULED, D-DD.155.** The tanks stay the owner-approved 2,500 / 5,000 / 1,000 L; the
+    sizing rule is not re-run on later fuel figures (D-DD.92). `test_each_lakeside_tank_is_the_declared_owner_size`
+    pins the declared sizes only; no figure moves. (D-DD.156: DD3b3 merges with the six H5 failures of deviation 17 listed
+    as known; DD3d closes them.)
 19. **Narrative drift in docs.** Figures were made equal to the check's values; prose that says Kobo is under plan (contribution
     now +120.50) or Kisiwa is worse than plan (now +1,759.80), and the Kisiwa "within tolerance" wording, were not re-written.
     The vNEXT mock content is left for the alignment pass.
@@ -426,3 +427,22 @@ Commits: `6ea2b4cae` tests first (11 of 11 failed), `fbcb1d741` code (restated b
 ## Next
 
 The Architect on deviations 16-19 (12-14 are answered by D-DD.150-152); the review; the alignment pass for the mock's sentences.
+
+
+## Reach re-pin table (run 3; log `/opt/assetecon/evidence/DD3b/`, commit `b9afc1a04`)
+
+Rule: (b) = the test pinned a hand figure that M rev 16.20 moved (D-DD.150-152), re-pinned to the regenerated source
+(`derived-values.json`), no assertion weakened; (a) = real behaviour broken, listed, not fixed.
+
+| File | Class | Re-pin |
+|---|---|---|
+| fixtures `money_leaves_lakeside.json`, `attribution_lakeside_mto.json` | b | October fuel lines to 792.50 / 1,175.20 / 40.00 (634 / 904 / 32 L) |
+| test_4b_money_leaves(+_postgres) | b | Kobo fuel 792.50, cost 1,892.50, contribution 1,565.50; portfolio fuel 1,967.70; quote case 1,152.50 over 934 L |
+| test_5b_attribution(+_postgres) | b | site tables (Kobo 1,565.50 / +120.50, Kisiwa 1,694.80 / +1,759.80, Mto 1,170 / +255), portfolio 4,430.30 v 2,295, gap +2,135.30, fuel 2,007.70, cost effect +2,232.30; 8a 3,260.30 / +1,880.30 |
+| test_3b4_observer | b | necessary_l FAVOURABLE (-211 / -1,483 / -300); candidate_l RAISED 25 / 67 / 32; bands 12.68 / 18.08; Kisiwa unexplained_l now RAISED (20 > 18.08); tolerance cases moved from necessary_l to candidate_l (necessary_l is favourable) |
+| test_3b4_observer_postgres | b | four raised Kobo leaves; declarations on adjustments_kwh (of delivered_kwh) and candidate_l |
+| test_3a3_load_emulated_postgres | b | budget lines at revision 1 are now om and staff (revenue, fuel_cost already revision 2) |
+| test_3b1 `fuel_balance_tolerance` | b | Mto now declares a fuel_balance without tolerance_pct; pinned exactly |
+| test_3b1 `leaf_sources...`, test_3b3 `t6` | pre-existing on main `9c38b69ac` (fail there too: code `dispatch-3.3`, manifest `dispatch-3.2`) | not caused by DD3b; not touched |
+| test_ddr_rehearsal_postgres (7) | OPEN | expect file `lakeside-2026-10.expect.json` stated fuel re-pinned to the books (Kisiwa 1,040, Kobo 500, Mto null; D-DD.130 purchases); still 7 fail: G4 PRICE_SOURCE for MTO-001 (no fuel purchase, so no invoice price), statements 5,100 / 5,000 against fuel books 1,540, screen literals ($4,995, -$755). (a)-candidate for Mto price source |
+| test_ds4_world_postgres t12 | (a) | C4: the DB's fuel_cost is the books (purchases: Kisiwa 1,040, Kobo 500, Mto none) while M's node is consumption (1,175.20 / 792.50 / 40.00). D-DD.130 design vs the C4 rule; for the Architect, not fixed |

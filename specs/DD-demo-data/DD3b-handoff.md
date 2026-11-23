@@ -52,3 +52,13 @@ at `8ace02f64`, `world-r2c.log`). Next: re-pin the 31 backend tests (hand figure
 792.50, Kisiwa fuel 3,120.00 -> 1,175.20; observer necessary_l FAVOURABLE not RAISED; DDR rehearsal gates), focused reruns only,
 then guards (`tools/check-architecture.ps1` with `ASSETOPS_GUARD_PYTHON`, `tools/checks/statement_catalogue.py`,
 `tools/check-agent-workflow.ps1`) and update the packet's reach paragraph. Fresh-session context was near its limit.
+
+
+## Run 3 state (PARTIAL)
+
+Done: reach re-pins (b) in `b9afc1a04`; tank test pins declared sizes only (D-DD.155); packet table + deviation 18 updated.
+Open: (1) `git merge main` CONFLICTS (main has DD4b, M rev 16.21): 14 files (.ai/state/data.md, index-3.md, check_manifest.py x4,
+manifest yaml, economic-metric md, history.json, fixtures.js, index.html, layer4-transformation-design, worked-portfolios,
+golden/history_v1.json x2, test_dd4_thika_incident x2, spec.md, dd_check.py x4). Merge aborted; generated files need the
+D-DD.30 regeneration after the text merge. (2) 7 DDR rehearsal tests (see packet table). (3) test_ds4 t12 (a). (4) rerun of the
+affected files in one --db-lane call, host/simulator reach lines, guards.

@@ -252,33 +252,16 @@ def test_books_carry_the_views_solar_surplus_weights() -> None:
 
 
 #: D-DD.76's storage sizes, in order; the rule rounds two months of the largest month up to the next one.
-STANDARD_TANKS_L = (500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 10000)
 
-
-def test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month() -> None:
-    """D-DD.76: necessary + candidate + unexplained litres of `history.json` July-September and October's
-    `period.actual.diesel_l`; twice the largest, rounded up to a standard size; source SITE, version 1."""
-    import yaml
-
-    layer4 = REPOSITORY_ROOT / "Docs/demo-sprint/product-direction-layer4"
-    history = json.loads((layer4 / "history.json").read_text(encoding="utf-8"))["tenants"]["lakeside-power"]
-    manifest = yaml.safe_load((layer4 / "demo-site-scenario-manifest.yaml").read_text(encoding="utf-8"))
-    tenant = next(t for t in manifest["tenants"] if t["tenant"] == "lakeside-power")
+def test_each_lakeside_tank_is_the_declared_owner_size() -> None:
+    """D-DD.155 (D-DD.76, D-DD.92): the tanks are the owner-approved sizes, source SITE, version 1. The sizing rule is
+    not re-run on later fuel figures; the test pins the declared sizes only, and no figure of M moves them."""
     onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
     declared = {}
     for site in onboarding["sites"]:
         tank = next(c for c in site["components"] if c["type"] == "FUEL_TANK")
         declared[site["code"]] = [(p["value"], p["source"], p["source_version"]) for p in tank["properties"]
                                   if p["property_key"] == "tank-capacity"]
-    expected = {}
-    for site in tenant["sites"]:
-        months = [sum(b["actual"].get(k, 0) for k in ("necessary_l", "candidate_l", "unexplained_l"))
-                  for b in history[site["site"]].values()] + [site["period"]["actual"]["diesel_l"]]
-        expected[site["code"]] = [(next(s for s in STANDARD_TANKS_L if s >= 2 * max(months)), "SITE", 1)]
-    # DD3b3 deviation (packet): D-DD.76 rules the sizes 2500/5000/1000 L. After M rev 16.20 (October litres are the notes
-    # run's, D-DD.131/150) and the one re-draw of July-September, the storage rule's own arithmetic gives the smaller
-    # sizes below; the declared tanks stay the ruled ones and the rule's recomputation is pinned so that a move shows.
-    assert expected == {"KISIWA-001": [(2000, "SITE", 1)], "KOBO-001": [(1500, "SITE", 1)], "MTO-001": [(500, "SITE", 1)]}
     assert declared == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
 
 
