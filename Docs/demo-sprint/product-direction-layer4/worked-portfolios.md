@@ -345,7 +345,7 @@ Every figure in this table is Calculated: the recommendations are searched again
 
 #### Observe
 
-A cold room's contribution is revenue minus cost to serve. Revenue is occupied crate-days × the storage rate. Energy is what the occupancy model expects plus any excess above it; the model is **base 1,550 kWh + 0.25 kWh per crate-day** a month (Declared input, to be fitted per room in a pilot). Cost to serve is energy × price + staff + maintenance + customer compensation (liability).
+A cold room's contribution is revenue minus cost to serve. Revenue is occupied crate-days × the storage rate. Energy is what the occupancy model expects plus any excess above it; the model is **base 1,304 kWh + 0.0554 kWh per crate-day** a month (fitted on the July–September meter and occupancy of Mwea and Thika, D-DD.144). Cost to serve is energy × price + staff + maintenance + customer compensation (liability).
 
 **Prices (Record).** Storage 0.20<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.rate--> per crate-day; electricity 0.20<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.elec_price--> per kWh. Room capacity 400 crates × 31 days = 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days.
 
@@ -354,23 +354,25 @@ A cold room's contribution is revenue minus cost to serve. Revenue is occupied c
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (60% targeted, 35% actual) | 7,440<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.crate_days--> | 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.crate_days--> | −3,100 | 0.20 | −620.00<!--rec--> | Record |
-| Energy the model expects (kWh): 1,550 + 0.25 × crate-days | 3,410<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh_model--> | 2,635<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh_model--> | −775 | 0.20 | +155.00<!--rec--> (less energy at lower occupancy, not a saving) | Calculated |
-| Energy above the model (kWh) | 0 | 15<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh--> | +15 | 0.20 | −3.00<!--rec--> | Calculated from the meter: 2,650 kWh metered |
+| Energy the model expects (kWh): 1,304 + 0.0554 × crate-days | 1,716.18<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh_model--> | 1,544.44<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh_model--> | −171.74 | 0.20 | +34.35<!--rec--> (less energy at lower occupancy, not a saving) | Calculated |
+| Energy above the model (kWh) | −0.18<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.excess_kwh--> | 31.86<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh--> | +32.04<!--figx:{sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh}-{sites.harvest-cold/Room A · Mwea.plan.nodes.excess_kwh}--> | 0.20 | −6.41<!--rec--> | Calculated from the meter: 1,576.30<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh--> kWh metered; the target is the model in whole kWh, 1,716<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh--> |
 | Staff | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.staff--> | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.staff--> | 0 | | 0.00 | Record |
 | Maintenance | 50.00 | 50.00 | 0 | | 0.00 | Record |
-| **Contribution** | **456.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.contribution-->** | **−12.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.contribution-->** | | | **−468.00** | Calculated |
+| **Contribution** | **794.80<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.contribution-->** | **202.74<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.contribution-->** | | | **−592.06** | Calculated |
 
-Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the model is 15 ÷ 2,635 = 0.6% of it, inside the 5% tolerance (Declared input): the equipment is fine; the room is under-occupied.
+Sum: −620.00<!--rec--> + 34.35 − 6.41 = **−592.06**. Its 31.86 kWh above the model is 31.86 ÷ 1,544.44 = 2.1% of it, inside the 5% tolerance (Declared input): the equipment is fine; the room is under-occupied.
 
 ##### Thika
 
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (70%) | 8,680<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.crate_days--> | 8,680 | 0 | 0.20 | 0.00 | Record |
-| Energy (kWh), on the model | 3,720<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.kwh--> | 3,720<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh--> | 0 | 0.20 | 0.00 | Record |
+| Energy (kWh): target the model in whole kWh, actual the meter | 1,785<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.kwh--> | 1,771.35<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh--> | −13.65<!--figx:{sites.harvest-cold/Room B · Thika.actual.nodes.kwh}-{sites.harvest-cold/Room B · Thika.plan.nodes.kwh}--> | 0.20 | +2.73<!--rec--> | Record (meter): −13.52<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.excess_kwh--> kWh against the model's 1,784.87<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh_model-->, 0.8% below it, inside the 5% tolerance |
 | Customer compensation | 0.00 | 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability--> | +108.00 | | −108.00<!--rec--> | Record (credit note CN-0412) |
 | Staff, maintenance | 350.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.staff-->, 80.00 | 350.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.staff-->, 80.00 | 0 | | 0.00 | staff Record; maintenance Estimate (the October service invoice has not arrived) |
-| **Contribution** | **562.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution-->** | **454.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution-->** | | | **−108.00** | Calculated |
+| **Contribution** | **949.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution-->** | **843.73<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution-->** | | | **−105.27** | Calculated |
+
+Sum: −108.00 + 2.73 = **−105.27**.
 
 **Where the 108.00 comes from (Record).** On 6 Oct the grid failed at 19:11 and backup generator GEN-CR-01 did not start automatically (start-controller fault); it was started by hand at 20:22. The chamber was above its 2–4 °C band for 75–85 minutes, peaking at 5.4 °C at 20:25. Batch B-1031 (French beans, export grade, limit 5 °C) had 120<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.excursion_crates--> crates exposed, declared at 18.00<!--rec:tenants[harvest-cold].sites[Room B · Thika].incident.batches[B-1031].declared_value_per_crate--> a crate: 2,160.00<!--rec--> **at stake, not money**. QA downgraded 6 crates; 6 × 18.00 = 108.00 confirmed damage, which the customer contract makes the operator's liability. Avocados (limit 12 °C) were not exposed; the cabbage batch had left on 5 Oct.
 
@@ -381,27 +383,27 @@ Protect, observed: from 6 Oct the backup start was unproven and stock was presen
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (80%) | 9,920<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.crate_days--> | 9,920 | 0 | 0.20 | 0.00 | Record |
-| Energy the model expects (kWh) | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh_model--> | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> | 0 | 0.20 | 0.00 | Calculated |
-| Energy above the model (kWh) | 0 | 970<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> | +970 | 0.20 | −194.00<!--rec--> | Calculated from the meter: 5,000<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh--> kWh metered |
+| Energy the model expects (kWh) | 1,853.57<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh_model--> | 1,853.57<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> | 0 | 0.20 | 0.00 | Calculated |
+| Energy above the model (kWh) | 0.43<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.excess_kwh--> | 260.03<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> | +259.60<!--figx:{sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh}-{sites.harvest-cold/Room C · Kirinyaga.plan.nodes.excess_kwh}--> | 0.20 | −51.92<!--rec--> | Calculated from the meter: 2,113.60<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh--> kWh metered; the target is the model in whole kWh, 1,854<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh--> |
 | Staff, maintenance | 400.00, 80.00 | 400.00, 80.00 | 0 | | 0.00 | Record |
-| **Contribution** | **698.00<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.contribution-->** | **504.00<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.contribution-->** | | | **−194.00** | Calculated |
+| **Contribution** | **1,133.20<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.contribution-->** | **1,081.28<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.contribution-->** | | | **−51.92** | Calculated |
 
 ##### The portfolio
 
 | Room | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
-| Mwea | 456.00 | −12.00 | −468.00 | −620.00<!--rec--> | +155.00 − 3.00 |
-| Thika | 562.00 | 454.00 | −108.00 | 0.00 | −108.00 |
-| Kirinyaga | 698.00 | 504.00 | −194.00 | 0.00 | −194.00 |
-| **Harvest Cold** | **1,716.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->** | **946.00<!--fig:portfolio.harvest-cold.actual.sums.contribution-->** | **−770.00** | **−620.00<!--rec-->** | **−150.00<!--rec-->** |
+| Mwea | 794.80 | 202.74 | −592.06 | −620.00<!--rec--> | +34.35 − 6.41 |
+| Thika | 949.00 | 843.73 | −105.27 | 0.00 | −108.00 + 2.73 |
+| Kirinyaga | 1,133.20 | 1,081.28 | −51.92 | 0.00 | −51.92 |
+| **Harvest Cold** | **2,877.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->** | **2,127.75<!--fig:portfolio.harvest-cold.actual.sums.contribution-->** | **−749.25** | **−620.00<!--rec-->** | **−129.25<!--rec-->** |
 
-Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (target 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 3,492.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 3,642.00<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+155.00 − 3.00 − 108.00 − 194.00 = −150.00<!--rec--> against target). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (3,642.00 − 80.00) ÷ 3,642.00 = 97.8%.
+Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (target 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 2,331.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 2,460.25<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+34.35 − 6.41 − 108.00 + 2.73 − 51.92 = −129.25<!--rec--> against target). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (2,460.25 − 80.00) ÷ 2,460.25 = 96.7%.
 
-**The surprise.** Mwea has the *highest* energy cost per crate-day (2,650 kWh × 0.20 = 530.00, ÷ 4,340 crate-days = 0.1221<!--rec:tenants[harvest-cold].sites[Room A · Mwea].period.energy_per_crate_day-->) and nothing wrong with its equipment. Kirinyaga looks efficient (5,000 kWh × 0.20 = 1,000.00, ÷ 9,920 = 0.1008<!--rec:tenants[harvest-cold].sites[Room C · Kirinyaga].period.energy_per_crate_day-->) but uses 970 ÷ 4,030 = 24% more energy than its occupancy explains.
+**The surprise.** Mwea has the *highest* energy cost per crate-day (1,576.30 kWh × 0.20 = 315.26, ÷ 4,340 crate-days = 0.0726<!--rec:tenants[harvest-cold].sites[Room A · Mwea].period.energy_per_crate_day-->) and nothing wrong with its equipment. Kirinyaga looks efficient (2,113.60 kWh × 0.20 = 422.72, ÷ 9,920 = 0.0426<!--rec:tenants[harvest-cold].sites[Room C · Kirinyaga].period.energy_per_crate_day-->) but uses 260.03 ÷ 1,853.57 = 14% more energy than its occupancy explains.
 
 #### Evaluate
 
-**Mwea: low occupancy** (no action: contribution stays near −12.00 a month; acceptable but leaves the room 65% empty).
+**Mwea: low occupancy** (no action: contribution stays near 202.74 a month; acceptable but leaves the room 65% empty).
 
 | Input | Figure | How it is known |
 |---|---|---|
@@ -412,10 +414,10 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Sign the aggregator's off-season contract | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate-->; model energy +0.25 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.25 kWh × 0.20 = −225.00<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+1,670.00<!--fig:options.MWEA-AGG.value-->. Recommended** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
-| Replace the compressor | none: energy matches the model | 4,800<!--rec:tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-COMPRESSOR].capex--> for no factor change | Rejected: no equipment fault to fix |
+| Sign the aggregator's off-season contract | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate-->; model energy +0.0554 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.0554 kWh × 0.20 = −49.86<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+660.14<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 660.14<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+2,370.56<!--fig:options.MWEA-AGG.value-->. Recommended** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
+| Replace the compressor | none: energy is within the 5% tolerance of the model (+2.1%) | 4,800<!--rec:tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-COMPRESSOR].capex--> for no factor change | Rejected: no equipment fault to fix |
 
-**Kirinyaga: energy above the model** (no action: 194.00<!--rec--> a month continues).
+**Kirinyaga: energy above the model** (no action: 52.01<!--rec--> a month continues).
 
 | Input | Figure | How it is known |
 |---|---|---|
@@ -424,8 +426,8 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Condenser clean and leak repair | excess × (1 − 0.80): 970 → 194 kWh, so 776 kWh less a month | 776 kWh × 0.20 = +155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+1,512.40<!--fig:options.KIRI-REPAIR.value-->. Recommended** |
-| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model: 970 + (1 − 0.95) × 4,030 = 970 + 201.5 kWh less a month | (970 + 201.5) kWh × 0.20 = +234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
+| Condenser clean and leak repair | excess × (1 − 0.80): 260.032 → 52.006 kWh, so 208.026 kWh less a month | 208.026 kWh × 0.20 = +41.61<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 41.61<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+149.26<!--fig:options.KIRI-REPAIR.value-->. Recommended** |
+| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model: 260.03 + (1 − 0.95) × 1,853.57 = 260.03 + 92.68 kWh less a month | (260.03 + 92.68) kWh × 0.20 = +70.54<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 70.54<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −3,953.50<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
 
 **Thika: backup start controller.**
 
@@ -459,9 +461,9 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 
 | Valued option | 12-month value | One-off inside it |
 |---|---:|---:|
-| Kirinyaga repair | +1,512.40<!--fig:options.KIRI-REPAIR.value--> | 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> |
-| Mwea contract (its 4 months fall inside the horizon) | +1,670.00<!--fig:options.MWEA-AGG.value--> | 270.00<!--fig:options.MWEA-AGG.operator_one_off--> |
-| **The plan** | **+3,182.40<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
+| Kirinyaga repair | +149.26<!--fig:options.KIRI-REPAIR.value--> | 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> |
+| Mwea contract (its 4 months fall inside the horizon) | +2,370.56<!--fig:options.MWEA-AGG.value--> | 270.00<!--fig:options.MWEA-AGG.operator_one_off--> |
+| **The plan** | **+2,519.82<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
 
 **3. Spend not valued in money.** The Thika stopgap, 100.00<!--fig:plans.harvest-cold.default.not_valued_in_money-->: nights with stock and no backup cover from 6 Nov go from 2 (no action) to 0.
 
@@ -469,14 +471,14 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 
 | Case | Option | How its value follows | 12-month value |
 |---|---|---|---:|
-| The plan as proposed | | | +3,182.40<!--fig:plans.harvest-cold.default.value--> |
-| Kirinyaga repair recovers 60%, not 80% | Kirinyaga repair | 12 × (970 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | +1,046.80<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct--> |
-| | *The plan* | Mwea +1,670.00<!--fig:options.MWEA-AGG.value--> unchanged | *+2,716.80<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value-->* |
-| **Downside: the aggregator does not sign** | Mwea contract drops | 3,182.40<!--fig:plans.harvest-cold.default.value--> − 1,670.00<!--fig:-options.MWEA-AGG.value--> | **+1,512.40<!--fig:plans.harvest-cold.downside-->** |
+| The plan as proposed | | | +2,519.82<!--fig:plans.harvest-cold.default.value--> |
+| Kirinyaga repair recovers 60%, not 80% | Kirinyaga repair | 12 × (260.03 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | +24.45<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct--> |
+| | *The plan* | Mwea +2,370.56<!--fig:options.MWEA-AGG.value--> unchanged | *+2,395.01<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value-->* |
+| **Downside: the aggregator does not sign** | Mwea contract drops | 2,519.82<!--fig:plans.harvest-cold.default.value--> − 2,370.56<!--fig:-options.MWEA-AGG.value--> | **+149.26<!--fig:plans.harvest-cold.downside-->** |
 
 **5. Listed beside, not added.** Thika's exposed batch, 2,160.00 at stake (customer-owned stock, not money); the 710.00<!--fig:options.THIKA-EPC-STOPGAP.rights.claimable_cover--> controller cover, kept.
 
-**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +1,512.40<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> crew visit.
+**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +149.26<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> crew visit.
 
 #### Prove
 

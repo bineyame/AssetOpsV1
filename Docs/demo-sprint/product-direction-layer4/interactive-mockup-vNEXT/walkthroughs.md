@@ -64,7 +64,7 @@
 <!--derives: §2.0; §2.4; §2.6; WP §1.2; WP §1.5-->
 
 **Step 1. Three rooms that look alike.** Route `#/portfolio`, operator Harvest Cold Network.
-- *Sees:* contribution $946.00<!--fig:portfolio.harvest-cold.actual.sums.contribution--> against $1,716.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->. Under Grow, Mwea's empty space; under Optimize, Kirinyaga's electricity above what its occupancy explains and Thika's customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability-->. Under Protect, one batch exposed above its limit and 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika, with the stock value at stake listed, not added.
+- *Sees:* contribution $2,127.75<!--fig:portfolio.harvest-cold.actual.sums.contribution--> against $2,877.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->. Under Grow, Mwea's empty space; under Optimize, Kirinyaga's electricity above what its occupancy explains and Thika's customer compensation of 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability-->. Under Protect, one batch exposed above its limit and 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika, with the stock value at stake listed, not added.
 - *Why it matters:* similar rooms need different moves: a customer at Mwea, a repair at Kirinyaga, cover at Thika.
 - *Who:* Esther, the operator executive, reads it.
 
@@ -74,7 +74,7 @@
 - *Who:* Brian, Site manager at Thika, chose it and created the Action, released when created because it is within the threshold and needs no visit by a technician.
 
 **Step 3. The portfolio's plan.** Route `#/plan`.
-- *Sees:* $720.00<!--fig:plans.harvest-cold.default.spend--> of the budget and a modelled +$3,182.40<!--fig:plans.harvest-cold.default.value--> from the valued options. Switch "aggregator signs" to "No" and the Mwea contract drops out.
+- *Sees:* $720.00<!--fig:plans.harvest-cold.default.spend--> of the budget and a modelled +$2,519.82<!--fig:plans.harvest-cold.default.value--> from the valued options. Switch "aggregator signs" to "No" and the Mwea contract drops out.
 - *Who:* Esther approves the version.
 
 ## 4. Metro Bus Depots: Kasarani (EV depots)

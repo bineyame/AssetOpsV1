@@ -91,7 +91,7 @@ A cold room sells storage per crate-day to customers who own the produce. Its st
 | Invoiced revenue | stage | expected charges − chargeable-to-invoiced leak (rows not invoiced, or invoiced at a rate not in the rate card) | invoices (recognition period) | — |
 | Received | stage | invoiced = received + outstanding | receipts | no |
 | Energy cost | product | kWh × price (0.20) | electricity bill | kWh, price |
-| kWh | physical sub-structure | base 1,550 + 0.25 × crate-days (reference ambient 24 °C, +2.5% per °C above) + efficiency deviation | energy meter, ledger, ambient; normalised model [proposed fixture form] | via occupancy |
+| kWh | physical sub-structure | base 1,304 + 0.0554 × crate-days (reference ambient 24 °C, +2.5% per °C above) + efficiency deviation | energy meter, ledger, ambient; normalised model fitted on Jul–Sep meter + occupancy, Mwea and Thika (D-DD.144) | via occupancy |
 | Liability | product | QA-confirmed damaged crates × declared value, when a contract clause applies | QA notes, customer contract, credit note | 0 |
 | Staff, maintenance | leaf | invoice amount | invoices | yes |
 
@@ -260,29 +260,30 @@ Mto's 120 kWh unexplained after expected losses sits on the metered stage, and M
 
 ### 3.2 Harvest Cold Network, October 2026
 
-**Chain block (portfolio).** Capacity 37,200 crate-days → occupied 22,940 (plan 26,040) → chargeable 22,940 → revenue 4,588.00 (plan 5,208.00<!--fig:portfolio.harvest-cold.plan.sums.revenue-->) → collected 4,370.00 + outstanding 218.00. Cost to serve 3,642.00 (plan 3,492.00). **Contribution 946.00 vs plan 1,716.00: −770.00** (revenue −620.00<!--rec-->, cost −150.00<!--rec-->). Cost recorded 3,562.00 of 3,642.00 = **97.8%** (Thika's 80.00 refrigeration service invoice is ESTIMATED).
+**Chain block (portfolio).** Capacity 37,200 crate-days → occupied 22,940 (plan 26,040) → chargeable 22,940 → revenue 4,588.00 (plan 5,208.00<!--fig:portfolio.harvest-cold.plan.sums.revenue-->) → collected 4,370.00 + outstanding 218.00. Cost to serve 2,460.25 (plan 2,331.00). **Contribution 2,127.75 vs plan 2,877.00: −749.25** (revenue −620.00<!--rec-->, cost −129.25<!--rec-->). Cost recorded 2,380.25 of 2,460.25 = **96.7%** (Thika's 80.00 refrigeration service invoice is ESTIMATED).
 
 | Site | Occupied crate-days (plan) | Occupancy | Revenue (plan) | kWh model | kWh actual (plan) | Energy | Staff | Maint. | Liability | Contribution (plan) | Deviation |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Mwea | 4,340 (7,440) | 35% (60%) | 868.00 (1,488.00) | 2,635 | 2,650 (3,410) | 530.00 | 300.00<!--rec--> | 50.00 | 0.00 | −12.00 (456.00) | −468.00 |
-| Thika | 8,680 (8,680) | 70% | 1,736.00 | 3,720 | 3,720 (3,720) | 744.00 | 350.00<!--rec--> | 80.00 E | 108.00 | 454.00 (562.00) | −108.00 |
-| Kirinyaga | 9,920 (9,920) | 80% | 1,984.00 | 4,030 | 5,000 (4,030) | 1,000.00 | 400.00 | 80.00 | 0.00 | 504.00 (698.00) | −194.00 |
-| **Σ** | **22,940 (26,040)** | | **4,588.00 (5,208.00<!--fig:portfolio.harvest-cold.plan.sums.revenue-->)** | | | **2,274.00** | **1,050.00** | **210.00** | **108.00** | **946.00 (1,716.00)** | **−770.00** |
+| Mwea | 4,340 (7,440) | 35% (60%) | 868.00 (1,488.00) | 1,544.44 | 1,576.30 (1,716) | 315.26 | 300.00<!--rec--> | 50.00 | 0.00 | 202.74 (794.80) | −592.06 |
+| Thika | 8,680 (8,680) | 70% | 1,736.00 | 1,784.87 | 1,771.35 (1,785) | 354.27 | 350.00<!--rec--> | 80.00 E | 108.00 | 843.73 (949.00) | −105.27 |
+| Kirinyaga | 9,920 (9,920) | 80% | 1,984.00 | 1,853.57 | 2,113.60 (1,854) | 422.72 | 400.00 | 80.00 | 0.00 | 1,081.28 (1,133.20) | −51.92 |
+| **Σ** | **22,940 (26,040)** | | **4,588.00 (5,208.00<!--fig:portfolio.harvest-cold.plan.sums.revenue-->)** | | | **1,092.25** | **1,050.00** | **210.00** | **108.00** | **2,127.75 (2,877.00)** | **−749.25** |
 
-kWh model = 1,550 + 0.25 × crate-days (October ambient at or below the 24 °C reference [assumption]). Cash: Mwea 820 + 48, Thika 1,650 + 86, Kirinyaga 1,900 + 84.
+kWh model = 1,304 + 0.0554 × crate-days (October ambient at or below the 24 °C reference [assumption]); plan kWh is the model at planned occupancy in whole kWh. Cash: Mwea 820 + 48, Thika 1,650 + 86, Kirinyaga 1,900 + 84.
 
 **Attribution.** The energy line has a physical sub-structure: plan kWh is the model at planned occupancy, so the energy deviation splits exactly into an **occupancy-volume** effect (model at actual occupancy − model at plan occupancy) and an **efficiency** effect (meter − model at actual occupancy), both at plan price 0.20.
 
 | Site | Factor node (overlap key) | Leaf deviation | Attribution | Money class |
 |---|---|---|---:|---|
 | Mwea | occupied crate-days → revenue (`MWEA-2026-10-REV`) | −3,100 crate-days × 0.20 | −620.00<!--rec--> | ECONOMIC_ACTUAL |
-| Mwea | kWh, occupancy volume (`MWEA-2026-10-ENERGY`) | 2,635 − 3,410 = −775 kWh × 0.20 | +155.00 | DERIVED (not a saving: the shadow of lost occupancy) |
-| Mwea | kWh, efficiency (`MWEA-2026-10-ENERGY`) | 2,650 − 2,635 = +15 kWh × 0.20 | −3.00 | DERIVED (inside 5% tolerance) |
+| Mwea | kWh, occupancy volume (`MWEA-2026-10-ENERGY`) | 1,544.44 − 1,716.18 = −171.74 kWh × 0.20 | +34.35 | DERIVED (not a saving: the shadow of lost occupancy) |
+| Mwea | kWh, efficiency (`MWEA-2026-10-ENERGY`) | (1,576.30 − 1,544.44) − (1,716 − 1,716.18) = +32.04 kWh × 0.20 | −6.41 | DERIVED (inside 5% tolerance) |
 | Thika | liability (`THIKA-2026-10-LIAB`) | 6 crates × 18 | −108.00 | ECONOMIC_ACTUAL (credit note CN-0412) |
-| Kirinyaga | kWh, efficiency (`KIRI-2026-10-ENERGY`) | 5,000 − 4,030 = +970 kWh × 0.20 | −194.00 | DERIVED |
-| | | | **−770.00** | |
+| Thika | kWh, efficiency (`THIKA-2026-10-ENERGY`) | 1,771.35 − 1,785 = −13.65 kWh × 0.20 (the meter 13.52 kWh, 0.8%, below the model) | +2.73 | DERIVED (inside 5% tolerance) |
+| Kirinyaga | kWh, efficiency (`KIRI-2026-10-ENERGY`) | 2,113.60 − 1,854 = +259.60 kWh × 0.20 | −51.92 | DERIVED |
+| | | | **−749.25** | |
 
-**What the structure shows that a unit-cost table hides.** Energy per crate-day is 530 / 4,340 = **0.1221** at Mwea and 1,000 / 9,920 = **0.1008** at Kirinyaga: Mwea looks worse. Read through the structure, Mwea's efficiency node is +0.6% (inside tolerance) and its occupancy node is 25 points below plan; Kirinyaga's occupancy is at plan and its efficiency node is +24.1% (970 / 4,030). The portfolio ratio is Σ/Σ: 2,274.00 / 22,940 = 0.0991 per crate-day, not the mean of site ratios.
+**What the structure shows that a unit-cost table hides.** Energy per crate-day is 315.26 / 4,340 = **0.0726** at Mwea and 422.72 / 9,920 = **0.0426** at Kirinyaga: Mwea looks worse. Read through the structure, Mwea's efficiency node is +2.1% (inside tolerance) and its occupancy node is 25 points below plan; Kirinyaga's occupancy is at plan and its efficiency node is +14.0% (260.03 / 1,853.57). The portfolio ratio is Σ/Σ: 1,092.25 / 22,940 = 0.0476 per crate-day, not the mean of site ratios.
 
 **Thika (v7.0 INC-203).** The liability node is the only October deviation. The batch exposure on 6 Oct (B-1031, 120 crates × declared 18 = **2,160.00**) is EXPOSURE, a figure on the batch, not on the chain; only the QA-confirmed damage (6 crates, **108.00**) enters, and only because the customer contract makes it the operator's liability and a credit note recorded it.
 
@@ -392,8 +393,8 @@ Ruiru's 26 charger-days out of service in October coexist with 0 missed departur
 | AT-3 | **Hypothetical** (not in the manifest): Kobo fuel cost with diesel at 1.30 actual | L 1,180 vs 700; P 1.30 vs 1.25 | volume 480 × 1.25 = 600.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.diesel_l}-{sites.lakeside-power/Kobo.plan.nodes.diesel_l})*{sites.lakeside-power/Kobo.plan.nodes.diesel_price}-->; price 1,180 × 0.05 = 59.00; total 1,534.00 − 875.00 = 659.00 adverse. Reversing the order (price at plan volume, volume at actual price) would give 35.00 + 624.00: the declared order is AR2's |
 | AT-4 | Embakasi energy (AR3) | Q 86,800 = 86,800; shares 0.55/0.45 vs 0.30/0.70; prices 0.24/0.12 both periods | volume 0.00; mix 86,800 × (0.25 × 0.24 − 0.25 × 0.12) = 2,604.00 adverse; price 0.00; total 16,144.80 − 13,540.80 = 2,604.00 |
 | AT-5 | Embakasi demand (AR2) | 500 vs 450 kW; 12.00 | volume 600.00<!--figx:({sites.metro-bus/Embakasi.actual.nodes.demand_cost}-{sites.metro-bus/Embakasi.plan.nodes.demand_cost})--> adverse; price 0.00 |
-| AT-6 | Mwea energy (AR4 at plan price) | model at plan 3,410; model at actual 2,635; meter 2,650 | occupancy volume +155.00; efficiency −3.00; total 682.00 − 530.00 = +152.00 favourable |
-| AT-7 | Kirinyaga energy (AR4) | model 4,030 = plan; meter 5,000 | occupancy 0.00; efficiency −194.00 |
+| AT-6 | Mwea energy (AR4 at plan price) | plan 1,716 (model 1,716.18); model at actual 1,544.44; meter 1,576.30 | occupancy volume +34.35; efficiency −6.41; total 343.20 − 315.26 = +27.94 favourable |
+| AT-7 | Kirinyaga energy (AR4) | model 1,853.57, plan 1,854; meter 2,113.60 | occupancy 0.00; efficiency −51.92 |
 | AT-8 | Mto billed kWh (AR1) | 5,600 plan vs 5,400 | −20 demand, −140 unmapped, −40 authorised = −200 kWh; × 0.40 = −80.00 |
 | AT-9 | Metro cost per departure (AR5) | 41,705.12 / 1,302 vs 38,520.80 / 1,302 | numerator effect +2.45 per departure (3,184.32 / 1,302); denominator effect 0; no money beyond the −3,184.32 already on the cost nodes |
 | AT-10 | Residual placement | Kobo litres consumed 1,180, model-implied 1,060 | unexplained node 120 L (10.2%) above 2% tolerance: investigate; never distributed over the other litres nodes |
@@ -417,7 +418,7 @@ Consequences:
 - **Ratio effects are never added to the money they come from.** If Mwea's aggregator contract adds 4,500 crate-days a month, revenue rises 810.00 a month and energy per crate-day falls; the second is the AR5 denominator effect of the first, reported with money null.
 - **Options on the same factor node are mutually exclusive or evaluated together.** The Mto inverter remedy paths share one node; Kobo's 100 kWh battery and the stop-threshold change act on the same candidate litres node, so the battery adds nothing the threshold change does not.
 - **Replay figures are labelled by their source.** Every figure that rests on a replay is the model's figure on the replay's declared season, labelled SIMULATED (inputs) and MODELLED (money), with the study's assumptions: the huller's 0.094815<!--fig:options.MTO-HULLER.params.litres_per_kwh--> L per huller kWh from the M8 replay, 284.44<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> a month and 2,213.33<!--fig:options.MTO-HULLER.value-->, and any plan value that includes them. Where no replay of the site's own month exists the figure reads "Not available yet" with the record it needs: Kobo's two settings (litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)), KIS-BATT60 (a Kisiwa battery replay; queue Q7) and Embakasi's per-bus departure timing (the Embakasi schedule replay, not run). Kirinyaga's recovery share stays a labelled assumption (80%, range 60–90%).
-- **Other option values (manifest, recomputed):** Mto rice huller: 1,650 kWh a month at the productive tariff, less fuel 1,650 kWh × 0.094815<!--fig:options.MTO-HULLER.params.litres_per_kwh--> L per huller kWh (M8 replay, SIMULATED) × the diesel price = 195.56<!--figx:round({options.MTO-HULLER.params.litres_per_kwh}*{options.MTO-HULLER.params.load_kw}*{options.MTO-HULLER.params.load_hours_per_day}*{options.MTO-HULLER.params.days}*{sites.lakeside-power/Mto.actual.nodes.diesel_price},2)-->, less collection, is 284.44<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> a month; × 12 − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = **2,213.33<!--fig:options.MTO-HULLER.value-->** (MODELLED on SIMULATED v8 litres); Mto evening welder: 660 kWh a month, fuel 0.324868<!--fig:options.MTO-WELDING.params.litres_per_kwh--> L per welder kWh (M8 replay, SIMULATED) = 268.02<!--figx:round({options.MTO-WELDING.params.litres_per_kwh}*{options.MTO-WELDING.params.load_kw}*{options.MTO-WELDING.params.load_hours_per_day}*{options.MTO-WELDING.params.days}*{sites.lakeside-power/Mto.actual.nodes.diesel_price},2)-->, so **−4.02<!--fig:options.MTO-WELDING.monthly_or_horizon_change--> a month** (MODELLED); Kirinyaga repair 0.80 × 194.00 × 12 − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> = **1,512.40<!--fig:options.KIRI-REPAIR.value-->**, replacement (194.00 + 40.30) × 12 − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> = **−1,988.40**<!--fig:options.KIRI-REPLACE.value_if_admissible-->; Mwea aggregator (810.00 − 225.00<!--figx:-{options.MWEA-AGG.params.crates}*{options.MWEA-AGG.params.days}*{sites.harvest-cold/Room A · Mwea.actual.nodes.k_kwh_per_crate_day}*{sites.harvest-cold/Room A · Mwea.actual.nodes.elec_price}--> − 100.00<!--fig:-options.MWEA-AGG.params.handling-->) × 4 − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = **1,670.00<!--fig:options.MWEA-AGG.value-->** over the contract.
+- **Other option values (manifest, recomputed):** Mto rice huller: 1,650 kWh a month at the productive tariff, less fuel 1,650 kWh × 0.094815<!--fig:options.MTO-HULLER.params.litres_per_kwh--> L per huller kWh (M8 replay, SIMULATED) × the diesel price = 195.56<!--figx:round({options.MTO-HULLER.params.litres_per_kwh}*{options.MTO-HULLER.params.load_kw}*{options.MTO-HULLER.params.load_hours_per_day}*{options.MTO-HULLER.params.days}*{sites.lakeside-power/Mto.actual.nodes.diesel_price},2)-->, less collection, is 284.44<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> a month; × 12 − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = **2,213.33<!--fig:options.MTO-HULLER.value-->** (MODELLED on SIMULATED v8 litres); Mto evening welder: 660 kWh a month, fuel 0.324868<!--fig:options.MTO-WELDING.params.litres_per_kwh--> L per welder kWh (M8 replay, SIMULATED) = 268.02<!--figx:round({options.MTO-WELDING.params.litres_per_kwh}*{options.MTO-WELDING.params.load_kw}*{options.MTO-WELDING.params.load_hours_per_day}*{options.MTO-WELDING.params.days}*{sites.lakeside-power/Mto.actual.nodes.diesel_price},2)-->, so **−4.02<!--fig:options.MTO-WELDING.monthly_or_horizon_change--> a month** (MODELLED); Kirinyaga repair 0.80 × 52.006 × 12 − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> = **149.26<!--fig:options.KIRI-REPAIR.value-->** (52.006 a month is the 260.032 kWh above the model × 0.20), replacement (52.006 + 18.536) × 12 − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> = **−3,953.50**<!--fig:options.KIRI-REPLACE.value_if_admissible--> (18.536 is 5% of the model's 1,853.57 kWh × 0.20); Mwea aggregator (810.00 − 49.86<!--rec--> − 100.00<!--fig:-options.MWEA-AGG.params.handling-->) × 4 − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = **2,370.56<!--fig:options.MWEA-AGG.value-->** over the contract.
 
 ### 4.4 Money classes (`money_class`)
 
@@ -429,7 +430,7 @@ Every node and every option effect carries one class. Figures of different kinds
 |---|---|---|---|---|
 | ECONOMIC_ACTUAL | Recorded (Quoted for a supplier quote; Estimated when the plan amount stands in) | sourced revenue, expense, receipt, settlement | Mto billed 2,160.00 | same currency and period; inside the structure also with DERIVED and OPERATIONAL children, the node taking the weakest class |
 | OPERATIONAL_ACTUAL | Measured | physical quantity from telemetry or operational records | Kobo 1,180 L consumed | same unit |
-| DERIVED | Calculated from records | computed from actuals by a stated method | Kirinyaga +970 kWh above model | its own components |
+| DERIVED | Calculated from records | computed from actuals by a stated method | Kirinyaga +260.03 kWh above model | its own components |
 | MODELLED | Modelled | counterfactual, forecast or forward replay | Mto huller 2,213.33<!--fig:options.MTO-HULLER.value--> over 12 months | MODELLED effects on **distinct** factor nodes |
 | EXPOSURE | At stake (not money) | value that could be lost or recovered | B-1031 stock 2,160.00; BAT-001 cover 64,000.00; Kisiwa SLA credit 70.00 | never |
 | VERIFIED | Verified | observed change under a frozen prediction | none yet in October | VERIFIED on distinct nodes |
@@ -586,7 +587,7 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 | Id | Test | Expected |
 |---|---|---|
 | E1 | Node attribution identity | Σ attribution rows = node deviation to the cent for every node of all 9 sites |
-| E2 | Composition | Σ site deviations = portfolio: −852.00 / −770.00 / −3,184.32 |
+| E2 | Composition | Σ site deviations = portfolio: −852.00 / −749.25 / −3,184.32 |
 | E3 | Cash stage | collected + in transit + outstanding = revenue at every revenue site (e.g. Mto 1,890 + 150 + 120 = 2,160) |
 | E4 | Ratio composition | Lakeside diesel per billed kWh 0.2329; Metro 32.03 per departure; never a mean of site ratios |
 | E5 | Product rule | AT-1 … AT-5 reproduce exactly; the hypothetical AT-3 gives 600.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.diesel_l}-{sites.lakeside-power/Kobo.plan.nodes.diesel_l})*{sites.lakeside-power/Kobo.plan.nodes.diesel_price}--> volume + 59.00 price |

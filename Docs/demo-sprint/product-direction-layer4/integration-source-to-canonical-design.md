@@ -79,12 +79,12 @@ contribution = revenue − (energy_cost + staff + maintenance + liability)
     occupied         = Σ_batches crates × days present in period        (presence: in_at ≤ t < out_at)
     idle capacity    = capacity_crate_days − occupied                    (400 crates × 31 days = 12,400 per room)
   energy_cost        = kWh × electricity_price
-    kWh              = (1,550 + 0.25 × occupied) × ambient correction + efficiency deviation   (physical sub-structure)
+    kWh              = (1,304 + 0.0554 × occupied) × ambient correction + efficiency deviation   (physical sub-structure)
   liability          = Σ QA-confirmed damage on batches the contract makes the operator's
     exposure (not money) = Σ present batches above their limit × declared value
 bounds: chamber 2–4 °C policy band · each batch ≤ its commodity limit (French beans 5 °C, avocado 12 °C)
 ```
-Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenue 4,588.00, cost to serve 3,642.00, contribution 946.00 against 1,716.00.
+Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenue 4,588.00, cost to serve 2,460.25, contribution 2,127.75 against 2,877.00.
 
 | Place in the structure | Leaf factor | Feeds | Source fact | Canonical record (store) | Exists today? | Integration needed |
 |---|---|---|---|---|---|---|
@@ -101,7 +101,7 @@ Harvest Cold October: occupied 22,940 of 37,200 crate-days (plan 26,040), revenu
 | Rights | cost bearer for the backup start controller; insurance deductible | residual cost of the Thika options | EPC workmanship warranty (CoolBuild); quarterly backup test log; goods-in-custody policy | rights register; maintenance records; claim events | **no** | documents, reviewed extraction, supplier-claim case |
 | Option inputs | draft aggregator contract (150 crates Dec–Mar at 0.18); curtain cost; repair and replacement quotes | counterfactual occupancy, revenue, cost | draft contract; quotes | `CONTRACT_DOCUMENT`; `EXPENSE` QUOTE | **no** | intake |
 
-**Why these.** The cold room earns per crate-day, so its revenue factor is paid occupancy, which only the storage ledger observes. Mwea's high energy cost per crate-day (0.1221) and Kirinyaga's lower one (0.1008) look like the same kind of problem until the structure is evaluated: Mwea's kWh sits within 0.6% of the occupancy model (2,650 against 2,635) and its occupancy factor is 35% against 60%; Kirinyaga's occupancy is on plan and its efficiency factor is 970 kWh (24%) above model. Both conclusions need the ledger and the bill. Thika's liability factor needs four sources on one clock: chamber readings, the ledger (which batches were present), the QA note (what was damaged) and the customer contract (whose cost it is). Exposure, damage and liability are three different factors (§3.3).
+**Why these.** The cold room earns per crate-day, so its revenue factor is paid occupancy, which only the storage ledger observes. Mwea's high energy cost per crate-day (0.0726) and Kirinyaga's lower one (0.0426) look like the same kind of problem until the structure is evaluated: Mwea's kWh sits within 2.1% of the occupancy model (1,576.30 against 1,544.44) and its occupancy factor is 35% against 60%; Kirinyaga's occupancy is on plan and its efficiency factor is 260.03 kWh (14%) above model. Both conclusions need the ledger and the bill. Thika's liability factor needs four sources on one clock: chamber readings, the ledger (which batches were present), the QA note (what was damaged) and the customer contract (whose cost it is). Exposure, damage and liability are three different factors (§3.3).
 
 ### 1.3 EV depots, captive fleet (Metro Bus: Embakasi, Kasarani, Ruiru)
 
@@ -326,7 +326,7 @@ Documents: the customer storage contract (commodity limits French beans 5 °C, a
 
 Three different factors: exposure is a bound violation with a value at stake; damage needs the QA note; liability needs the contract clause. The bound check uses the lower end of the duration range, so the 5-minute cadence cannot create a liability that the readings do not support.
 
-**Structure → outcome state.** Thika's occupancy (8,680 crate-days), revenue (1,736.00) and energy (3,720 kWh, equal to the occupancy model) are on plan; the liability leaf is 108.00 (Recorded, from CN-0412), so contribution is 454.00 against 562.00. The 2,160.00 exposure is shown beside it, never added. The insurance factor: loss 108 below the 500 deductible, claim not filed, reimbursement recorded 0.00.
+**Structure → outcome state.** Thika's occupancy (8,680 crate-days) and revenue (1,736.00) are on plan and its energy (1,771.35 kWh metered) is 0.8% below the occupancy model (1,784.87), +2.73 against plan; the liability leaf is 108.00 (Recorded, from CN-0412), so contribution is 843.73 against 949.00. The 2,160.00 exposure is shown beside it, never added. The insurance factor: loss 108 below the 500 deductible, claim not filed, reimbursement recorded 0.00.
 
 **Decision at factor key** (site Thika, factor *backup start*, cause: start controller). The rights factor puts the controller's cost on CoolBuild (claim accepted 17 Oct; replacement scheduled 8 Nov), so the operator's residual cost per path is: stopgap (night manual-start rota and SMS alarm relay) 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off-->, recommended; wait with no stopgap, rejected (stock unprotected until 8 Nov); self-funded controller 710.00<!--fig:options.THIKA-SELF.operator_one_off-->, rejected (voids the EPC cover). Verification: the witnessed automatic-start test ACT-051 after replacement. The remedy clock is itself a factor: the extracted term "within 30 days of acceptance" put the remedy due on 27 Oct, and the scheduled date is 8 Nov, so the product would flag the supplier's remedy timing for human review, never as a legal conclusion (see the manifest note in the report to the Architect).
 
@@ -472,11 +472,11 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Paid occupancy (CC-C1).** Sources: storage ledger, rate card and customer contracts, invoices. Canonical: `STORAGE_MOVEMENT`, `CHARGE`. Observer: occupancy ledger: occupied crate-days = Σ crates × days present (half-open, site-local midnight); chargeable = occupied on a paying contract; check chargeable × rate against invoiced charges within 0.5% [assumption]. Nodes: occupied → chargeable → revenue; idle capacity. Consumer: Mwea (4,340 against 7,440 crate-days). Failure: open batches older than 60 days [assumption] → suspect, excluded, coverage shown. Pilot: warehouse system or spreadsheet export.
 
-**Normalised refrigeration energy (CC-C3).** Sources: electricity bill or meter, ambient, occupancy. Observer: kWh = 1,550 + 0.25 × crate-days at 24 °C (+2.5% per °C above), tolerance 5%. Factor: efficiency deviation. Consumers: Kirinyaga (+24%), Mwea (+0.6%). Failure: fewer than 60 days of meter and occupancy → coefficients declared from the manifest and labelled, not fitted.
+**Normalised refrigeration energy (CC-C3).** Sources: electricity bill or meter, ambient, occupancy. Observer: kWh = 1,304 + 0.0554 × crate-days at 24 °C (+2.5% per °C above), fitted on the Jul–Sep meter and occupancy of Mwea and Thika (D-DD.144), tolerance 5%. Factor: efficiency deviation. Consumers: Kirinyaga (+14%), Mwea (+2.1%), Thika (−0.8%). Failure: fewer than 60 days of meter and occupancy → coefficients declared from the manifest and labelled, not fitted.
 
 **Batch exposure and liability (CC-C2).** Trace C. Failure: no ledger → excursion shown, "batches unknown"; no QA note → damage *not available*, never 0; no contract clause → liability *not available*.
 
-**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+1,670.00<!--fig:options.MWEA-AGG.value--> over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
+**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+2,370.56<!--fig:options.MWEA-AGG.value--> over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
 
 ### 5.3 EV depots
 
