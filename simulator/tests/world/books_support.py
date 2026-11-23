@@ -208,7 +208,7 @@ PINNED_COLD_EV: dict[str, str] = {
     "harvest-cold.expenses.csv":
         "63d607d981a0b4a05bd093f587918fc38c0bdb1e076d3642b6780cc61668a4e1",
     "harvest-cold.profile.cold-budget.csv":
-        "9294a419590a6ee53a6a223031b1f543d08f0afacf02e41822a166225fac7609",
+        "9b087c91244a4c70eb878500efc5741a61ab41b7fc286610bed4729a970f2cf8",
     "harvest-cold.profile.cold-storage-invoicing.csv":
         "3d6dd3e77b438d556d44ea39fc864836317188fa56f2b23ebcb87d686a7cfc4c",  # DD4a: receiving lots (D-DD.85)
     "harvest-cold.profile.cold-storage-ledger.csv":

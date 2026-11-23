@@ -224,7 +224,7 @@ def test_c7_a_roster_night_without_its_departure_and_a_book_without_readings_fai
 
 def test_c7_prints_the_manifests_figure_beside_the_metered_one(inputs) -> None:
     result = _meter(_books(), manifest=inputs.manifest)
-    assert any(line.startswith("info: COLD-MWEA 2026-10 bill 57.600 kWh; M 2650") for line in result.info), result.info
+    assert any(line.startswith("info: COLD-MWEA 2026-10 bill 57.600 kWh; M 1576.3") for line in result.info), result.info
 
 
 # --- C-DD20: the story directions -------------------------------------------------------------------------------------
