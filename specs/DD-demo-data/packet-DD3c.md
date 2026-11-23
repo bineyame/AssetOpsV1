@@ -128,4 +128,10 @@ P1 `site_series` mixes assets as before: 3 mini-depth tests fail. P2 inputs keep
 P3 verification units from the readings: `test_c6b` fails. P4 refusal not caught: `test_m1` fails.
 
 Checks (fix round): focused pure set (10 files) 162 passed, 1 skipped; simulator `test_dd3_telemetry.py` 18 passed;
-architecture and agent-workflow passed; statement catalogue OK (9 adopted, 3 allowed). Postgres: see below.
+architecture and agent-workflow passed; statement catalogue OK (9 adopted, 3 allowed). P4 rerun on 9f37dceef's
+form: `test_m1` fails, reverted.
+- Postgres, one `--db-lane` call at 9f37dceef over the 58 files of the touched seams (mini-depth w402/w403/sr4/sr7/sr8/
+  sr10/sr11/ar2/ch9/walk1_4/walk1_5, verification s6, assessment store s3/0k4e, every `test_dd3c_*` incl. the Kobo
+  parity and role sets; list `/opt/assetecon/evidence/DD3c/dbfiles.txt`): **665 passed, 0 failed**, 1702 s pytest,
+  38 m 44 s wall with the slot wait (log `fix-db.log`). Main: `.agent/main-baseline/23d2cd9f6.md` lists no main
+  failure in these files (its two, ch5c2 and w204, are outside the set), so no main rerun was needed.
