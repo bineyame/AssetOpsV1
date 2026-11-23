@@ -93,7 +93,7 @@ the session scratchpad (deleted after):
 - Not run: C-DD5/C-DD6/C-DD7 over the full-span plant readings. Holding 130 days of EV rows as dicts for one judge
   call is beyond this machine for the same reason as the writer's memory; the judges are tested on writer days.
 
-### Risk for DD6's world build: the EV writer's memory (run 3's plant: 3 depots in one process, 1608.9 s, 3.8 GB peak)
+### Risk for DD6's world build: the EV writer's memory (run 3's plant: 3 depots in one process, 1608.9 s, 3.8 GB peak; fixed in run 5)
 The cause is visible in the code; nothing was built for it (proposal only):
 1. `build_telemetry` (`world/telemetry.py` 749-792) appends every day file's bytes to `files` and returns them; the CLI
    writes them at the end. An EV day file is large (Kasarani 1 Nov: 18,941 rows, of them 11,520 one-minute connector
@@ -106,6 +106,28 @@ Proposed fix (for DD6, not built): let `build_telemetry` hand each day file to a
 CLI writes and drops it; keep `_charger_draw` for the current day only (the tests read a day), and fold `_import` into
 the month's bands and 30-minute windows at each day's end. Byte parity: the day files and `measured.json` must stay
 identical (the run 3 goldens).
+
+## Run 5 (writer memory; DD4.5 part; `git merge main` at `a173abde9`)
+| Commit | What | Tests first |
+|---|---|---|
+| `98ef8bf86` | `test_dd4_writer_memory.py` w1-w3 | 3 failed first (no `sink`, no `release_day`, draw kept over 2 days) |
+| `45afb3992` | `build_telemetry(..., sink=)`; `world_history.py` `FileSink` (+ `undo()` on refusal); `release_day` on cold and EV runs; one day of `_charger_draw`; e2 reads the draw per day; w4 | w4 failed on a no-op `undo` |
+| `51993d295` | `test_dd45_charger_bound.py` b1-b3; 3B6 pins 43 rows | 7 failed first (`KeyError buses_full_by_charger`, 42 rows) |
+| `eeeb62920` | `rows_ev_depot.py`, `M` `structures` + `home_categories` (rev 16.20 note) | b2, b3 pass; b1 after its home literal fix |
+
+- Memory: see "Plants (run 5)". `_import` is kept (one Fraction per non-zero minute per depot; `measured_months` and
+  m2/e2 read the span); a day's rows and day files are no longer held.
+- DD4.5 model: `buses_full_by_charger = chargers_in_service * floor(charger_kw * window_h / kwh_per_bus_night)`,
+  `buses_short_per_night = max(<energy bound>, max(buses - buses_full_by_charger, 0))`. Kasarani November (3 chargers,
+  window 7 h, 150 kWh): 6 full by charger, 2 short a night (energy alone: 1), `departures_missed` 2 -> 7
+  (= 2 x 5 - 3 spare; the departure log: 10 short rows B03/B04 1 Nov, B07/B08 2-5 Nov, less 3 S01 rows met),
+  `penalties` 240.00 -> 840.00. Not binding with every charger in service (Embakasi, Ruiru, Kasarani: b3).
+- Not done in run 5 (handoff "Next" 1): the D-DD.30 regeneration and sweep (`derived-values.json` still 2 / 240.00;
+  `check_manifest.py` K13 FAILs on `structures` and `home_categories.nodes` until re-based; 3B6 test_4 fails on the
+  seven EV sides until regenerated), the 6h parity moved-key list.
+- Guards (at `eeeb62920`): `tools/check-architecture.ps1` passed; `tools/checks/statement_catalogue.py` exit 0.
+  Writer reach set (`test_dd3_telemetry`, `test_dd4_*`, `test_telemetry_join_parity`, plain pytest from
+  `simulator/`, at `45afb3992`): 105 passed, 182 s, 153 MB.
 
 ## Evidence (runs 1-3)
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
