@@ -325,29 +325,7 @@ def test_kisiwa_evening_load_and_or_mg_2_read_from_the_run() -> None:
     assert expect == "Kisiwa: candidate time printed per month; no fuel-saving option is in M"
 
 
-# --- D-DD.152: C-DD17 judges the tolerance only in months the generator burned -----------------------------------------
-
-def _balance(burned: str, balance: str) -> dict:
-    return {"open": Decimal(1000), "delivered": Decimal(0), "close": Decimal(1000) - Decimal(burned) - Decimal(balance),
-            "burned": Decimal(burned), "consumed": Decimal(burned) + Decimal(balance), "balance": Decimal(balance)}
-
-
-def test_c_dd17_month_with_no_burn_states_what_the_product_shows() -> None:
-    ok, line = dd_check.judge_unexplained_month("2026-07", _balance("0", "12"), Decimal(12), Decimal("0.02"))
-    assert ok, line
-    assert "no burn: 12 L unexplained, which the product shows against a 12 L consumption" in line
-    assert not dd_check.judge_unexplained_month("2026-07", _balance("0", "11"), Decimal(12), Decimal("0.02"))[0]
-
-
-def test_c_dd17_judges_the_tolerance_where_the_generator_burned() -> None:
-    tolerance = Decimal("0.02")
-    assert dd_check.judge_unexplained_month("2026-09", _balance("762.2", "11"), Decimal(11), tolerance)[0]
-    assert not dd_check.judge_unexplained_month("2026-09", _balance("300", "11"), Decimal(11), tolerance)[0]
-    assert dd_check.judge_unexplained_month("2026-10", _balance("514.2", "120"), Decimal(120), tolerance)[0]
-    assert not dd_check.judge_unexplained_month("2026-10", _balance("9000", "120"), Decimal(120), tolerance)[0]
-    assert not dd_check.judge_unexplained_month("2026-09", _balance("762.2", "10"), Decimal(11), tolerance)[0]
-    assert not dd_check.judge_unexplained_month("2026-09", _balance("762.2", "-1"), Decimal(-1), tolerance)[0]
-
+# --- C-DD17's declared draws (its judge: `test_dd3d_checks.py`, D-DD.153) -------------------------------------------------
 
 def test_c_dd17_reads_the_declared_draws_from_history_and_m() -> None:
     assert dd_check.declared_draws("KOBO-001") == {"2026-07": Decimal(12), "2026-08": Decimal(12),
