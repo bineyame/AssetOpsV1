@@ -3,10 +3,10 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`); DD3a in_review with open questions (`packet-DD3a.md`); DD4a in_review, run 3 (D-DD.89, D-DD.119-122) done (`packet-DD4a.md`); DD3c in_review (`packet-DD3c.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75), and by D-DD.143 to D-DD.152 to 51.5 u, and by D-DD.153 and D-DD.154 to **53.75 u in twelve parts** (new DD3d, fuel records and the tolerance floor, 2.25 u). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.152 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.154 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md`, `index-rulings-29.md` and `index-rulings-30.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -792,6 +792,9 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
 
 **Lane-wide pre-flight (D-DD.117 to D-DD.142, `preflight-remaining.md`).** Every remaining part is ruled there: DD3c parts 3-5 (D-DD.117, D-DD.118), DD4a's runs (D-DD.119 to D-DD.122), DD4b with new DD4.5 (D-DD.123 to D-DD.125), DD3b in three parts DD3b1-DD3b3 (D-DD.126 to D-DD.132), DD5 split into DD5a and DD5b (D-DD.138 to D-DD.141), DD6 (D-DD.133 to D-DD.137). Order and shared files: `preflight-remaining.md` §3 (amends the order above and §8.2). Sizes: D-DD.142.
 
+**Build cards (`.ai/ROLE_CONFIG.md` fourth audit (a)).** `cards/DD5a.md`, `cards/DD5b.md`, `cards/DD6.md`: the spec
+lines and rulings each part needs, with tests, plants, reach set and merge order. A builder reads its card and the code.
+
 ### DD1: three operators (4.5 u, D-DD.44; `task/DD1-three-operators`)
 
 - **DD1.1 Onboarding of every vertical (1.0).**
@@ -870,6 +873,17 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
   `assessment_worker.ROLES_BY_SET` from the served sets); the litres split per unit (D-DD.113); Kobo's world
   conversion moves to roles-5 with D-DD.114's normalised parity of its product outputs. Five parts (D-DD.116). Merges
   before DD5.1 loads Kisiwa's or Mto's readings.
+
+### DD3d: fuel records and the tolerance floor (2.25 u, D-DD.153, D-DD.154; `task/DD3d-fuel-floor`; after DD3b3 merges, before DD5b loads)
+
+- **DD3d.1 Fuel records (1.0; D-DD.154).** `fuel-records.json` (`assetops.world-fuel-records/1`) per mini-grid Site from
+  `world/exports.py`: FUEL_DELIVERY per accepted note, TANK_DIP at each month's first 00:00 local (1 Jul to 1 Nov) at
+  the published tank level; `load_fuel_records(dir, tenant)` through the operational fuel-record path, idempotent;
+  C-DD2 and C-DD8 clauses. The pre-flight greps for an existing producer first.
+- **DD3d.2 The floor (1.25; D-DD.153).** `fuel-level-sensor-accuracy` 25 / 50 / 10 L GENERIC_DEFAULT at Kobo, Kisiwa
+  and Mto in Lakeside's `/2` file; the observer's `FLOORED`, `Floor`, `FloorReadPort` and band = max(relative, 2a),
+  the floor in basis and claim only when it binds; `test_dd3d_tolerance_floor.py` (P1-P4, binding cases, plant);
+  the Kobo parity test drops its injection; C-DD17 restated. Discovery review.
 
 ### DD4: cold and EV operating reality, and the measured books (10.25 u in two parts; DD4b 4.75 u with DD4.5 by D-DD.142; D-DD.88, D-DD.96, D-DD.101, D-DD.107: DD4a = DD4.1, DD4.2, 5.5 u (D-DD.107), `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.75 u (D-DD.101), `task/DD4b-ev-measured`)
 
@@ -954,7 +968,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
 | C-DD14 | Is each disorder test planted, listed and asserted as §5.5's table says? | DD5.2 |
 | C-DD15 | Did L2 finish under its cap, with each rung's seconds recorded beside the projection? | DD6.1 |
 | C-DD16 | Does the world's Kobo Site carry the slot's values with their `-basis` properties, as the tool maps them? | DD3.2 |
-| C-DD17 | Is Kobo's served unexplained fuel, July to October, ≥ 0 every month, equal to the declared draw, and, in months with burn > 0, within the product's tolerance July to September and above it in October (D-DD.152)? | DD3.3 (pure), DD6.1 (served) |
+| C-DD17 | With tol = max(`tolerance_pct` / 100 × (burned + draw), 2a), a the tank's declared level accuracy (D-DD.153): is Kobo's unexplained fuel ≥ 0 and equal to the declared draw every month, ≤ tol July to September and > tol in October? Is Kisiwa's equal to its draw and ≤ tol every month, and Mto's 0? Served: does each Site-month's `unexplained_l` observation state and band equal D-DD.153's table? | DD3d (pure), DD6.1 (served) |
 | C-DD18 | For each tenant on October, is each of the four outcome categories shown by at least one surfaced item (Finding, decision or outcome row), or by a "Not available yet" naming the missing record, as §A's table expects? | DD6.1 |
 | C-DD19 | Is v9 with one unit each byte-identical to v8 on Kobo's October, and cold-thermal 2 with zero load terms byte-identical to v1? Judged in `world check` C5 by the simulator's parity tests; `dd_check` prints that line and does not count it (D-DD.84). | DD3.3, DD4.1 |
 | C-DD20 | Do the story mechanisms hold by direction? Mwea's kWh per crate-day rises each month as occupancy falls. Kirinyaga's kWh per crate-day rises each month. Embakasi's metered peak share rises each month. Kisiwa: GEN-KS-01 FAILED at 0 kW from 30 Oct 18:40, every later 18:00-23:00 generator interval on GEN-KS-02, and unserved energy 0 over the span (D-DD.148). Mto's generator litres per day are higher after 28 Oct 11:02 than in the 28 days before. A failure stops for the Architect; nothing is tuned. | DD4.4 (Kisiwa and Mto from DD3.3) |
@@ -1014,7 +1028,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.152**: `rulings.md` (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
+- **D-DD.17 to D-DD.154**: `rulings.md` (D-DD.150 to D-DD.152 owner-answered 23 Nov; D-DD.153 the tolerance floor, D-DD.154 the fuel records, DD3d) (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
