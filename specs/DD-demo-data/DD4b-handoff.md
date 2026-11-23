@@ -50,13 +50,19 @@ Packet `packet-DD4b.md`.
   41.61/month, +149.26 net 12m, KIRI-REPLACE -3,953.50, MWEA-AGG +2,370.56 (energy 49.86/month; not in the ruling's
   table, follows mechanically), plan +2,519.82, downside 149.26. Bills 315.26 / 354.27 / 422.72.
   Plant before (8acfaab77): cold measured.json identical to the committed fixture, 91 s, 42,800 kB.
+  Plant after (83e83cbff): 3 cold rooms' 391 telemetry files byte-identical to before; only
+  `harvest-cold.profile.cold-budget.csv` (plan kwh lines) and `extras/harvest-cold.meter-billed.json` (M's figures beside
+  the meter) differ; the measured cold bill is unchanged. Hash lists `/opt/assetecon/evidence/DD4b/before.sha`, `after.sha`.
 
 ## Next
 1. DD4.6 rest: doc sweep (a subagent was sweeping worked-portfolios, domain-and-decision-models, economic-metric...,
    etc. against `/opt/assetecon/evidence/DD4b/cm46-sweep-todo.log`; check its commit), then re-base check_manifest H8,
    H10, K8, K13 (sites, portfolio, history) with a dated note as run 6 did, until 6 FAIL = main's 6
-   (main 2bedbecf2: `cm46-main.log`). Compare the after plant (`plant.sh after` in the session scratchpad) with before:
-   telemetry must be byte-identical; exports differ only where M's cold kwh/energy are printed.
+   (main 2bedbecf2: `cm46-main.log`).
+2. Then the slice end: 6h parity (test_6h_parity unedited; cold keys in golden/6h_parity.json: one `cold_room` hit,
+   check whether it moves), focused tests (test_dd46*, test_dd4_cold_books, test_dd4_telemetry_cold, test_3b6), guards,
+   the reach set once in one `--db-lane` call (cite `.agent/main-baseline/`), packet Run 7 (note: vNEXT mock JS left for
+   the alignment pass), state entry, spec Status in_review.
 ## Next
 2. At DD4b's end: spec Status `in_review`, a `.ai/state/` entry and its index line (not written yet: DD4b is not done).
 3. Open for the Architect (packet deviations 8-10): the EV hour sums (C-DD7 pending, question (a)), C-DD5's "on
