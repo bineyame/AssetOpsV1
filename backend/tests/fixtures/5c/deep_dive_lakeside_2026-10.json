@@ -40,7 +40,7 @@
       "lines": [
         "Target $2,295.00 · 193% of target",
         "3 of 3 Sites",
-        "86.7% of cost from figures received"
+        "13.3% of cost taken at its budget line"
       ],
       "bar": {
         "actual": "4431.60",
@@ -451,7 +451,7 @@
       "label": "Assure performance and returns",
       "value": "Not yet reconciled",
       "word": null,
-      "line": "1 budget disagreement · 86.7% of cost from figures received",
+      "line": "1 budget disagreement · 13.3% of cost taken at its budget line",
       "drawer": {
         "title": "Reconciliation with the management accounts",
         "lines": [

@@ -41,13 +41,13 @@ CASES = [
     # reconciliation.statement (spec section 6: K after E and F, S3, T2's S1, T6's S4)
     Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),
                                                  "tolerance": tol()},
-         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
+         "Revenue and fuel bought for October 2026 (KOBO-001) match the management accounts within 1% (Declared)."),
     Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),  # C11
                                                  "tolerance": tol(origin=None)},
-         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
+         "Revenue and fuel bought for October 2026 (KOBO-001) match the management accounts within 1% (Declared)."),
     Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),  # C12
                                                  "tolerance": tol(origin="demo-simulated")},
-         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
+         "Revenue and fuel bought for October 2026 (KOBO-001) match the management accounts within 1% (Declared)."),
     Case("reconciliation.statement", "not_matched", {"state": State("NOT_MATCHED"), "month": OCT, **ORG,
                                                      "tolerance": tol()},
          "October 2026 (the organisation) does not match the management accounts within 1% (Declared)."),
@@ -57,10 +57,10 @@ CASES = [
     # reconciliation.standing (T1, T3, T2, T6, T7, T8)
     Case("reconciliation.standing", "reconciled", {"reason": State("RECONCILED"), "month": OCT, **ORG,
                                                    "tolerance": tol()},
-         "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared)."),
+         "Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared)."),
     Case("reconciliation.standing", "reconciled", {"reason": State("RECONCILED"), "month": OCT, **ORG,
                                                    "tolerance": tol("0.02")},
-         "Reconciled: October 2026 (the organisation) matches the management accounts within 2% (Declared)."),
+         "Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 2% (Declared)."),
     Case("reconciliation.standing", "this_month_not_matched",
          {"reason": State("THIS_MONTH_NOT_MATCHED"), "month": OCT, **ORG, "tolerance": tol()},
          "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
@@ -73,7 +73,7 @@ CASES = [
          "Not yet reconciled: no closed month has been compared with the management accounts."),
     Case("reconciliation.standing", "none_matched", {"reason": State("NONE_MATCHED"), **site("KOBO-001"),
                                                      "tolerance": tol()},
-         "Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts within 1% "
+         "Not yet reconciled: no month's recorded revenue and fuel bought match the management accounts within 1% "
          "(Declared) yet."),
     # reconciliation.money_word (R6: the "Recorded" and "Emulated" bases, reconciled and not)
     Case("reconciliation.money_word", "word", figure(FIN, True), "Recorded"),

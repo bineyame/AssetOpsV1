@@ -44,7 +44,7 @@ NOT_MATCHED = SimpleNamespace(
              "less (4.46%), beyond the $21.00 allowed (1%).",))  # re-pinned 2026-11-23 with the records (M rev 16.23)
 RECONCILED = SimpleNamespace(
     reconciled=True, reason="RECONCILED",
-    text="Reconciled: October 2026 (the organisation) matches the management accounts within 1%.", details=())
+    text="Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1%.", details=())
 OFF = AgreedActions(False, ())
 
 EMS = ("the EMS interval export (generator running and output, solar available power, battery charge)")
@@ -165,7 +165,7 @@ def test_2_formats() -> None:
     assert W.detail("QUANTITY", D("1180.000"), D("700"), "USD", "L") == "Actual 1,180 L · Target 700 L"
     assert W.tile_target(W.money(D("2295"), "USD"), D("1443") / D("2295")) == "Target $2,295.00 · 63% of target"
     assert W.tile_target(W.money(D("-65"), "USD"), None) == "Target −$65.00"
-    assert W.cost_received(D("0.91510")) == "91.5% of cost from figures received"
+    assert W.cost_at_budget(D("0.13317")) == "13.3% of cost taken at its budget line"
     assert W.site_names(["KOBO-001"], NAMES) == "Kobo"
     assert W.site_names(["KOBO-001", "MTO-001"], NAMES) == "Kobo and Mto"
     assert W.site_names(["KOBO-001", "KISIWA-001", "MTO-001"], NAMES) == ALL
@@ -188,7 +188,7 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     t0, t1, t2, t3_ = v["tiles"]
     assert t0 == {"key": "contribution", "label": "Contribution", "value": "$4,431.60",
                   "word": MODELLED,
-                  "lines": ["Target $2,295.00 · 193% of target", "3 of 3 Sites", "86.7% of cost from figures received"],
+                  "lines": ["Target $2,295.00 · 193% of target", "3 of 3 Sites", "13.3% of cost taken at its budget line"],
                   "bar": {"actual": "4431.60", "target": "2295.00"}}
     assert (t1["label"], t1["value"], t1["word"], t1["lines"]) == (
         "Gap to target", "+$2,136.60", MODELLED,
@@ -266,7 +266,7 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert (opt["value"], opt["word"], opt["drawer"]) == ("+$2,233.60", MODELLED, None)
     assert (protect["value"], protect["word"], protect["drawer"]) == ("Not available yet", None, None)
     assert (assure["value"], assure["word"], assure["line"]) == (
-        "Not yet reconciled", None, "1 budget disagreement · 86.7% of cost from figures received")
+        "Not yet reconciled", None, "1 budget disagreement · 13.3% of cost taken at its budget line")
     assert assure["drawer"] == {"title": "Reconciliation with the management accounts",
                                 "lines": [NOT_MATCHED.text, *NOT_MATCHED.details, UNTRACKED]}
     assert v["actions"] == {"title": "Actions in hand", "connected": False, "text": "Not available yet: an agreed "
@@ -386,10 +386,55 @@ def test_4_a2_a_budget_that_cannot_be_added(monkeypatch) -> None:
     assert v["status_line"] == view()["status_line"]
 
 
+def test_cost_at_budget_is_what_is_carried_over_the_cost() -> None:
+    """D-DD.182: Σ carried / cost; nothing carried says so in words; None without a cost."""
+    def ratio(actual, carried, out=()):
+        leaf = SimpleNamespace(value=D(carried)) if carried is not None else SimpleNamespace(value=None)
+        sb = {"KOBO-001": SimpleNamespace(carried=("om",) if carried != "0" else (),
+                                          actual=SimpleNamespace(values={"om": leaf}))}
+        cost = SimpleNamespace(actual=D(actual) if actual is not None else None, out=out)
+        return V._View.cost_ratio(SimpleNamespace(rows={T.COST: cost}, sb=sb))
+    assert ratio("5256.40", "700.00") == D("700.00") / D("5256.40")
+    assert W.cost_at_budget(ratio("5256.40", "700.00")) == "13.3% of cost taken at its budget line"
+    assert W.cost_at_budget(ratio("600.00", "0")) == "No cost taken at its budget line"
+    assert W.cost_at_budget(ratio("700.00", "700.00")) == "100.0% of cost taken at its budget line"
+    assert W.cost_at_budget(ratio("700.00", "700.00", out=(("KOBO-001", ()),))) == "No cost taken at its budget line"
+    assert ratio("0", "700.00") is None and ratio(None, "700.00") is None
+    assert W.assure_line(0, D(0)) == "No budget disagreement · No cost taken at its budget line"
+    assert W.assure_line(0, None) == "No budget disagreement"
+
+
+def test_no_served_word_says_more_than_was_compared() -> None:  # D-DD.182
+    """Every variant of the four statements (and the two that carry one of them) renders; none says "figures received" or
+    "revenue and fuel cost", and nor does any statement of the catalogue."""
+    from assetops_backend.i18n import message, render, served
+    from assetops_backend.i18n.statements.en import deep_dive as dd_words
+    from assetops_backend.i18n.statements.en import portfolio_period, portfolio_sites
+    from assetops_backend.i18n.statements.en import reconciliation as recon_words
+    from statement_cases import deep_dive, reconciliation
+
+    keys = ("deep_dive.cost_at_budget", "deep_dive.assure_line", "deep_dive.standing_short", "deep_dive.status_line",
+            "reconciliation.standing", "reconciliation.statement")
+    shipped = {**dd_words.STATEMENTS, **portfolio_period.STATEMENTS, **portfolio_sites.STATEMENTS,
+               **recon_words.STATEMENTS}
+    seen = {k: set() for k in keys}
+    for case in (*deep_dive.CASES, *reconciliation.CASES):
+        if case.key in seen:
+            seen[case.key].add(case.variant)
+            msg = message(case.key, **case.facts)
+            words = served(msg)["text"] if case.evidence is not None else render(msg)
+            assert words == case.english
+            assert "figures received" not in words and "revenue and fuel cost" not in words
+    assert seen == {k: {v["id"] for v in shipped[k]["variants"]} for k in keys}
+    for key, statement in shipped.items():
+        for variant in statement["variants"]:
+            assert "figures received" not in variant["text"] and "revenue and fuel cost" not in variant["text"], key
+
+
 def test_4_b_reconciled() -> None:
     v = view(standing=RECONCILED)
     assert not [s for s in strings(v) if "not yet reconciled" in s]
-    assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. "
+    assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Revenue and fuel bought are reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
     assert v["tiles"][0]["word"] == "Modelled" and step(v, "revenue")["word"] == "Emulated"
     assert step(v, "om")["word"] == "Estimated"
@@ -422,7 +467,7 @@ def test_4_d_mto_records_missing() -> None:
     assert v["headline"]["text"] == ("Contribution is $1,881.60 above target in October; cost and efficiency explain "
                                      "$1,898.60, more than the whole gap. Compared for 2 of 3 Sites.")
     assert (v["tiles"][0]["value"], v["tiles"][0]["lines"]) == (
-        "$3,261.60", ["Target $1,380.00 · 236% of target", "2 of 3 Sites", "83.6% of cost from figures received"])
+        "$3,261.60", ["Target $1,380.00 · 236% of target", "2 of 3 Sites", "16.4% of cost taken at its budget line"])
     assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize +$1,898.60",
                                       "$17.00 not split to its drivers yet, offsetting the gap"]
     out = step(v, "revenue")["drawer"]["out"]

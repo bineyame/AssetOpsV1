@@ -133,7 +133,7 @@
     "standing": {
       "reconciled": true,
       "reason": "RECONCILED",
-      "text": "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared).",
+      "text": "Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared).",
       "details": []
     },
     "headline": {
@@ -142,7 +142,7 @@
         "Estimated"
       ]
     },
-    "status_line": "Reconciled with the management accounts. Kisiwa mini-grid's budget disagrees with its own lines.",
+    "status_line": "Revenue and fuel bought are reconciled with the management accounts. Kisiwa mini-grid's budget disagrees with its own lines.",
     "tiles": [
       {
         "key": "contribution",
@@ -520,7 +520,7 @@
         "drawer": {
           "title": "Reconciliation with the management accounts",
           "lines": [
-            "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared).",
+            "Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared).",
             "Not checked for later changes: Diesel not shown to be avoidable (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Diesel run while solar and battery could carry the load (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Unexplained fuel (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid) and Diesel price (Mto mini-grid)."
           ]
         }

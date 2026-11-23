@@ -138,7 +138,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert (c["as_of"], c["standing"]["reconciled"], c["standing"]["reason"]) == (
         "2026-11-19T13:00:00Z", True, "RECONCILED")
     assert c["standing"]["details"] == []
-    assert c["status_line"] == ("Figures as of 19 November 2026, 13:00 UTC. Reconciled with the management accounts. "
+    assert c["status_line"] == ("Figures as of 19 November 2026, 13:00 UTC. Revenue and fuel bought are reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
     assert money_words(c) == B_WORDS
     assert c["standing"]["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts "

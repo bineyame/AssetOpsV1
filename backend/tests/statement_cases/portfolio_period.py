@@ -84,9 +84,9 @@ CASES = [
     Case("portfolio_period.grow_line", "grow", {"count": Count(2, "month")}, "Revenue against target, over 2 months"),
     Case("portfolio_period.assure_line", "assure", {"months": KOfN(0, 2, "month")}, "0 of 2 months reconciled"),
     Case("portfolio_period.assure_entry", "entry",
-         {"month": OCT, "standing": Name("Reconciled: October 2026 (the organisation) matches the management accounts "
+         {"month": OCT, "standing": Name("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts "
                                          "within 1%.", "reconciliation.standing")},
-         "October 2026: Reconciled: October 2026 (the organisation) matches the management accounts within 1%."),
+         "October 2026: Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1%."),
     Case("portfolio_period.text", "months_title", {"piece": State("MONTHS_TITLE")}, "Month by month"),
     Case("portfolio_period.text", "month", {"piece": State("MONTH")}, "Month"),
     Case("portfolio_period.text", "driver", {"piece": State("DRIVER")}, "Largest driver against target"),

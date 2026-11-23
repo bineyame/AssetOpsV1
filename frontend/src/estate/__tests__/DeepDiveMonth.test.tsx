@@ -217,7 +217,7 @@ describe("5c test 10: World A renders", () => {
     const strip = (s: string) => s.replace(", not yet reconciled", "");
     b.headline!.evidence = b.headline!.evidence.map(strip);
     b.tiles!.forEach((t) => (t.word = t.word === null ? null : strip(t.word)));
-    b.status_line = "Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
+    b.status_line = "Figures as of 20 November 2026, 08:00 UTC. Revenue and fuel bought are reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
     b.bridge!.groups.forEach((g) => g.steps.forEach((s) => (s.word = s.word === null ? null : strip(s.word))));
     b.cash!.word = strip(b.cash!.word!);
     b.outcomes!.forEach((o) => (o.word = o.word === null ? null : strip(o.word)));

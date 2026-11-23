@@ -166,3 +166,42 @@ Commits on 39c9fd2de: publisher tests, C4 classes, C-DD4's fuel clause, DD3d-a's
    files, wk excluded: 437 passed. Architecture, agent-workflow, statement catalogue and decision index exit 0. The other Postgres
    files of the reach set (3b, 4a, 4b, 4d, 5a, 5b, 6a, DDR ...) have not run on this branch: step 6's one reach-set run.
    Next: run 3's open questions (ruled by the Architect), then DD3d.5, whose commit adds `MTO-001`'s plan classes.
+
+## Run 5 (23 Nov, stopped early by a usage limit; the branch is RED on purpose)
+Round 29 and main (at d3f0fc978's line) are both merged (9c8eed22d, cecc81f71). Of the brief's six items:
+1. **D-DD.181 done and committed (a94c91f10).** `view.untracked_line` (one function, month and range; a leaf outside the registry or
+   a Site outside `codes` raises `UNTRACKED_OUTSIDE [...]`), `period.py` drawer, `rehearsal_check` G9, `walk_world.judge_month`; DDR
+   expect has the literal twice and `fuel_bought` per Site. Failing first: `r5-untracked-first.log` (9 failed); then 404 passed and
+   the iap fixtures `period-period-2026-09-10.json`, `period-period-g-2026-09-10.json` regenerated (`IAP_WRITE_FIXTURES=1`), 74
+   passed. Statement catalogue exit 0 at that commit. NOT done: `judge_month` is also read by the walk tests (green); `test_7`'s exact
+   text (item 4); plant (e); vitest over the two fixtures.
+2. **D-DD.182 half done: tests and expected words are committed, the product code is NOT.** So these are red until the code lands:
+   `test_5c_deep_dive_view.py` (world A, D, B, `test_cost_at_budget_*`, `test_no_served_word_*`, the fixture comparison),
+   `test_5c_deep_dive_api.py` where it reads the fixture, `test_5c_screen_worlds_fresh.py`, `statement_cases` readers
+   (`test_3a7_reconciliation_words.py`, `test_3a7_reconcile_command.py`, `test_sc1_statements.py`, `test_iap_portfolio_period.py`
+   cases), DDR pure fixtures' words only. The failing-first run (`r5-words-first.log`) was killed part way, so no failing-id list
+   exists: rerun it first. The finished code edit, not applied and never run, is `/opt/assetecon/evidence/DD3d/b/r5-words-code.py`
+   (`python3` it once from anywhere; it asserts each old string occurs once): `deep_dive.cost_at_budget`, `assure_line` through the
+   part, the four "reconciled" strings, `cost_ratio` = carried / cost. Command, before and after:
+   `tools/heavy-slot.sh -- /opt/assetecon/evidence/DD3d/b/t.sh backend/tests/test_5c_deep_dive_view.py
+   backend/tests/test_5c_deep_dive_api.py backend/tests/test_5c_screen_worlds_fresh.py backend/tests/test_3a7_reconcile_command.py
+   backend/tests/test_3a7_reconciliation_words.py backend/tests/test_iap_portfolio_period.py
+   backend/tests/test_iap_portfolio_sites.py backend/tests/test_sc1_statements.py backend/tests/test_ddr_rehearsal_check.py`.
+   The case `deep_dive.cost_at_budget`/`none` expects evidence `[]`: a guess, check it. Then: regenerate `make_screen_worlds.py` and iap fixtures (list them),
+   vitest on `src/estate` + the shell files; the Finding/3A7 Postgres words (`test_3a7_reconciliation_postgres.py`,
+   `test_ddr_rehearsal_postgres.py`, `test_5c_deep_dive_postgres.py`); spec rows (5c tile1_cost, assure, standing_short; 3A7 2.7;
+   DDR S5/S8); register row **R801** (D2); the ruling's sweep table row by row with each row's test, in the packet; the plant (old
+   ratio, new words: World A reads 86.7%).
+3. **D-DD.183 NOT started.** `NOT_MATCHED` / `RECONCILED` in `test_5c_deep_dive_view.py` still hold the old canned standing detail; the
+   `.replace` calls and `A_FIXTURE_*` in `test_5c_deep_dive_postgres.py` are still there.
+4. **NOT started:** G4 (D-DD.163, .177, .185, the cents helper `words.cents`, the sub-cent sign sweep), the DDR fixture
+   (`LitreLeafSource._month`), `test_7`, S5/S8, the runbook, the remaining re-pins of the DDR screen literals. The seven DDR rehearsal
+   tests have not been run on this branch.
+5. **NOT started:** D-DD.184 confirmation; L5 (`prepare_clock` refusal text, stale pin out of
+   `statement-handbuilt-baseline.json`).
+6. **NOT started:** plants of this run; run 4's Q1 words (card plant (a) and packet: 4 tests of `test_dd3d_fuel_cost.py`, 12 of 4b
+   money, 2 of 4b1 and t12 fail; "Mto reads 0" is not what happens, and whether the unit test shows it is unsaid); Q2 keep.
+   The `--db-lane` run over the touched files plus every DDR and 5c Postgres file has not been made.
+Other checks not run on this branch state: architecture, agent-workflow, decision-index, vitest. No plant was applied, no Postgres
+run was made, no process is left running. **Run 6 (DD3d.5)** is unchanged: the budget, `M`'s October plan, board budget (D-DD.185), 3b1
+t1 / 3b3 t6 in its first `M` commit, iap sites 6 and 8, `MTO-001`'s plan classes, the reach set, packet, state entry, in_review.

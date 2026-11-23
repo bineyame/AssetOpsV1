@@ -74,7 +74,7 @@ def test_m1_record_prints_the_statement(capsys) -> None:
         None, "2026-10", "USD", "0.01", "MATCHED", True)
     assert (line["recorded_by"], line["recorded_at"], line["recorded_by_script"]) == (
         str(FIONA.person_id), "2026-11-05T10:00:00+00:00", True)
-    assert line["text"] == "October 2026 (the organisation) matches the management accounts within 1% (Declared)."
+    assert line["text"] == "Revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% (Declared)."
     fuel = line["headings"][1]
     assert list(fuel) == ["heading", "state", "reason", "accounts", "recorded", "difference", "allowed",
                           "record_currencies", "sources", "origins", "text"]
@@ -123,7 +123,7 @@ def test_m4_show_prints_the_standing_and_reads_at_an_instant(capsys) -> None:
                            "KOBO-001", "--known-at", "2026-11-06T00:00:00+00:00")  # R9's instant
     assert (code, line["reason"], line["known_at"], line["details"]) == (0, "RECONCILED", "2026-11-06T00:00:00+00:00",
                                                                          [])
-    assert line["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts within 1% "
+    assert line["text"] == ("Reconciled: revenue and fuel bought for October 2026 (the organisation) match the management accounts within 1% "
                             "(Declared).")
     for bad in ("2026-11-06", "2026-11-06T00:00:00", "yesterday"):
         code, lines, err = run(capsys, w, "show", "--tenant", "lakeside-power", "--period", "2026-10",
