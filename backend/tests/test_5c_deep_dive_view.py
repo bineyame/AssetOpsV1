@@ -39,8 +39,8 @@ NAMES = {"KOBO-001": "Kobo", "KISIWA-001": "Kisiwa", "MTO-001": "Mto"}
 NOT_MATCHED = SimpleNamespace(
     reconciled=False, reason="THIS_MONTH_NOT_MATCHED",
     text="Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
-    details=("Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 "
-             "less (2.06%), beyond the $51.00 allowed (1%).",))
+    details=("Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 "
+             "less (4.46%), beyond the $21.00 allowed (1%).",))  # re-pinned 2026-11-23 with the records (M rev 16.23)
 RECONCILED = SimpleNamespace(
     reconciled=True, reason="RECONCILED",
     text="Reconciled: October 2026 (the organisation) matches the management accounts within 1%.", details=())
@@ -174,18 +174,18 @@ def test_3_world_a_key_by_key_and_whole() -> None:
         "deep-dive-month-1", "October 2026", {"previous": "2026-09", "next": None}, "SERVED")
     assert v["as_of_text"] == "Figures as of 20 November 2026, 08:00 UTC."
     assert v["fresh"] == {"current": True, "text": None, "untracked_text": None}
-    assert v["headline"] == {"text": "Contribution is $852.00 below target in October; cost and efficiency explain "
-                                      "$755.00 of it.", "evidence": ["Estimated, not yet reconciled"]}  # D-5C.20
+    assert v["headline"] == {"text": "Contribution is $2,136.60 above target in October; cost and efficiency explain "
+                                      "$2,233.60, more than the whole gap.", "evidence": ["Estimated, not yet reconciled"]}  # D-5C.20
     assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management "
                                 "accounts. Kisiwa's budget disagrees with its own lines.")
     t0, t1, t2, t3_ = v["tiles"]
-    assert t0 == {"key": "contribution", "label": "Contribution", "value": "$1,443.00",
+    assert t0 == {"key": "contribution", "label": "Contribution", "value": "$4,431.60",
                   "word": "Estimated, not yet reconciled",
-                  "lines": ["Target $2,295.00 · 63% of target", "3 of 3 Sites", "91.5% of cost from figures received"],
-                  "bar": {"actual": "1443.00", "target": "2295.00"}}
+                  "lines": ["Target $2,295.00 · 193% of target", "3 of 3 Sites", "86.7% of cost from figures received"],
+                  "bar": {"actual": "4431.60", "target": "2295.00"}}
     assert (t1["label"], t1["value"], t1["word"], t1["lines"]) == (
-        "Gap to target", "−$852.00", "Estimated, not yet reconciled",
-        ["Grow −$97.00 · Optimize −$755.00", "$852.00 of it not split to its drivers yet"])
+        "Gap to target", "+$2,136.60", "Estimated, not yet reconciled",
+        ["Grow −$97.00 · Optimize +$2,233.60", "$2,136.60 of it not split to its drivers yet"])
     assert (t2["label"], t2["value"], t2["word"], t2["lines"], t2["bar"]) == (
         "Plan spend", "Not available yet", None, ["No plan has been made yet"], None)
     assert (t3_["label"], t3_["value"], t3_["word"], t3_["lines"]) == (
@@ -194,17 +194,17 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert v["notices"] == ["Kisiwa's budget states a contribution of −$60.00; its budget lines add to −$65.00. The "
                             "target used is −$65.00."]
     b = v["bridge"]
-    assert b["title"] == "Cost and efficiency explain $755.00 of the $852.00 gap. Open a step for what is behind it."
-    assert b["totals"] == {"actual_label": "Contribution, October", "actual": "$1,443.00", "target_label": "Target",
+    assert b["title"] == "Cost and efficiency explain $2,233.60, more than the whole $2,136.60 gap. Open a step for what is behind it."
+    assert b["totals"] == {"actual_label": "Contribution, October", "actual": "$4,431.60", "target_label": "Target",
                            "target": "$2,295.00"}
     assert [(g["label"], g["value"]) for g in b["groups"]] == [("Grow revenue", "−$97.00"),
-                                                               ("Optimize cost and efficiency", "−$755.00")]
+                                                               ("Optimize cost and efficiency", "+$2,233.60")]
     assert [(s["key"], s["value"], s["share"], s["word"], s["sites"]) for g in b["groups"] for s in g["steps"]] == [
-        ("revenue", "−$97.00", "11% of what widens the gap", "Emulated, not yet reconciled", "3 of 3 Sites"),
-        ("fuel_cost", "−$755.00", "89% of what widens the gap", "Emulated, not yet reconciled", "3 of 3 Sites"),
+        ("revenue", "−$97.00", "Offsets it", "Emulated, not yet reconciled", "3 of 3 Sites"),
+        ("fuel_cost", "+$2,233.60", "100% of what widens the gap", "Emulated, not yet reconciled", "3 of 3 Sites"),
         ("om", "$0.00", "No effect", "Estimated, not yet reconciled", "3 of 3 Sites"),
         ("staff", "$0.00", "No effect", "Emulated, not yet reconciled", "3 of 3 Sites")]
-    # Rev 4 (D-5C.27): each step's bar on the gap's scale, served as track percentages (97 / 852 = 11.3850 %).
+    # Rev 4 (D-5C.27): each step's bar on the gap's scale, served as track percentages (97 / 2,233.60 = 4.34 %: the bars share the largest effect's scale).
     assert list(b) == ["title", "totals", "scale", "groups", "by_site"]
     assert list(step(v, "revenue")) == ["key", "label", "value", "share", "word", "sites", "bar", "drawer"]
     assert b["scale"] == A_SCALE
@@ -217,10 +217,10 @@ def test_3_world_a_key_by_key_and_whole() -> None:
                             {"site": "Mto", "value": "−$80.00", "text": REVENUE_STOP}]
     assert rev["drivers"] == [] and rev["out"] == [] and rev["carried"] == []
     fuel = step(v, "fuel_cost")["drawer"]
-    assert fuel["lines"] == ["Actual $4,995.00 · Target $4,240.00 · Difference +$755.00",
-                             "Effect on contribution −$755.00", "3 of 3 Sites"]
+    assert fuel["lines"] == ["Actual $2,006.40 · Target $4,240.00 · Difference −$2,233.60",
+                             "Effect on contribution +$2,233.60", "3 of 3 Sites"]
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
-        ("Kobo", "−$600.00", FUEL_STOP), ("Kisiwa", "−$130.00", FUEL_STOP), ("Mto", "−$25.00", FUEL_STOP)]
+        ("Kobo", "+$82.50", FUEL_STOP), ("Kisiwa", "+$1,816.10", FUEL_STOP), ("Mto", "+$335.00", FUEL_STOP)]
     om = step(v, "om")["drawer"]
     assert om["lines"] == ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00",
                            "3 of 3 Sites"]
@@ -233,10 +233,10 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert staff["lines_org"] == ["The organisation's budget also states $1,200.00 for staff that no Site carries; it "
                                   "is listed, not added."]
     assert b["by_site"]["rows"] == [
-        ["Kobo", "$883.00", "$1,445.00", "−$562.00", "+$38.00", "−$600.00", "$0.00", "$0.00"],
-        ["Kisiwa", "−$250.00", "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (at budget)", "$0.00"],
-        ["Mto", "$810.00", "$915.00", "−$105.00", "−$80.00", "−$25.00", "$0.00", "$0.00"]]
-    assert b["by_site"]["total"] == ["3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00", "−$755.00",
+        ["Kobo", "$1,565.50", "$1,445.00", "+$120.50", "+$38.00", "+$82.50", "$0.00", "$0.00"],
+        ["Kisiwa", "$1,696.10", "−$65.00", "+$1,761.10", "−$55.00", "+$1,816.10", "$0.00 (at budget)", "$0.00"],
+        ["Mto", "$1,170.00", "$915.00", "+$255.00", "−$80.00", "+$335.00", "$0.00", "$0.00"]]
+    assert b["by_site"]["total"] == ["3 of 3 Sites", "$4,431.60", "$2,295.00", "+$2,136.60", "−$97.00", "+$2,233.60",
                                      "$0.00", "$0.00"]
     c = v["cash"]
     assert c["text"] == ("Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in "
@@ -249,10 +249,10 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     grow, opt, protect, assure = v["outcomes"]
     assert (grow["value"], grow["word"], grow["line"], grow["drawer"]) == (
         "−$97.00", "Emulated, not yet reconciled", "Revenue against target, 3 of 3 Sites", None)
-    assert (opt["value"], opt["word"], opt["drawer"]) == ("−$755.00", "Estimated, not yet reconciled", None)
+    assert (opt["value"], opt["word"], opt["drawer"]) == ("+$2,233.60", "Estimated, not yet reconciled", None)
     assert (protect["value"], protect["word"], protect["drawer"]) == ("Not available yet", None, None)
     assert (assure["value"], assure["word"], assure["line"]) == (
-        "Not yet reconciled", None, "1 budget disagreement · 91.5% of cost from figures received")
+        "Not yet reconciled", None, "1 budget disagreement · 86.7% of cost from figures received")
     assert assure["drawer"] == {"title": "Reconciliation with the management accounts",
                                 "lines": [NOT_MATCHED.text, *NOT_MATCHED.details]}
     assert v["actions"] == {"title": "Actions in hand", "connected": False, "text": "Not available yet: an agreed "
@@ -277,10 +277,11 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert v == json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
+#: D-DD.150-152 / D-DD.164 (2026-11-23, M rev 16.20/16.23): World A's figures moved with the 5b fixtures (re-pinned, b).
 #: Rev 4 (D-5C.27): World A's step bars and scale (spec section 3.5); O&M and staff have effect 0, so no bar.
-A_BARS = {"revenue": {"left": "0.00", "width": "11.38", "tone": "lowers"},
-          "fuel_cost": {"left": "11.38", "width": "88.62", "tone": "lowers"}, "om": None, "staff": None}
-A_SCALE = {"target_at": "0.00", "actual_at": "100.00"}
+A_BARS = {"revenue": {"left": "0.00", "width": "4.34", "tone": "lowers"},
+          "fuel_cost": {"left": "0.00", "width": "100.00", "tone": "raises"}, "om": None, "staff": None}
+A_SCALE = {"target_at": "4.34", "actual_at": "100.00"}
 
 
 # --- test 3 (class form, D-5C.20): the headline's evidence is the payload's own word for each figure it states ----
@@ -364,11 +365,11 @@ def test_4_c_an_agreed_change() -> None:
 
 def test_4_d_mto_records_missing() -> None:
     v = view("D")
-    assert v["headline"]["text"] == ("Contribution is $747.00 below target in October; cost and efficiency explain "
-                                     "$730.00 of it. Compared for 2 of 3 Sites.")
+    assert v["headline"]["text"] == ("Contribution is $1,881.60 above target in October; cost and efficiency explain "
+                                     "$1,898.60, more than the whole gap. Compared for 2 of 3 Sites.")
     assert (v["tiles"][0]["value"], v["tiles"][0]["lines"]) == (
-        "$633.00", ["Target $1,380.00 · 46% of target", "2 of 3 Sites", "89.8% of cost from figures received"])
-    assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize −$730.00", "$747.00 of it not split to its drivers yet"]
+        "$3,261.60", ["Target $1,380.00 · 236% of target", "2 of 3 Sites", "83.6% of cost from figures received"])
+    assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize +$1,898.60", "$1,881.60 of it not split to its drivers yet"]
     out = step(v, "revenue")["drawer"]["out"]
     assert len(out) == 1 and out[0].startswith(f"Mto: not compared until {BILLING}, ")
     assert out[0].endswith("; its own target is $915.00.")
@@ -411,23 +412,23 @@ def test_4_g_another_type_asked() -> None:
 
 def test_4_h_kobo_litres() -> None:
     v, a = view("H"), view("A")
-    assert v["tiles"][1]["lines"][1] == "$252.00 of it not split to its drivers yet"
+    assert v["tiles"][1]["lines"][1] == "$2,054.10 of it not split to its drivers yet"
     fuel = step(v, "fuel_cost")["drawer"]
     stop = (f"Not split further until {EMS}, {CURVE}, tank dips at the start and end of the month, fuel delivery notes "
             f"and {SETUP}.")
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
-        ("Kobo", "−$600.00", None), ("Kisiwa", "−$130.00", stop), ("Mto", "−$25.00", stop)]
+        ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", stop), ("Mto", "+$335.00", stop)]
     word = "Modelled, not yet reconciled"
     assert fuel["drivers"] == [  # plants P13, P24 (D-5C.21: nested; a flattened list fails)
-        {"key": "diesel_l", "label": "Diesel used", "value": "−$600.00", "sites": "1 of 3 Sites",
-         "detail": "Actual 1,180 L · Target 700 L", "word": word, "children": [
-             {"key": "necessary_l", "label": "Diesel not shown to be avoidable", "value": "−$37.50",
-              "sites": "1 of 3 Sites", "detail": "Actual 730 L · Target 700 L", "word": word, "children": []},
+        {"key": "diesel_l", "label": "Diesel used", "value": "+$82.50", "sites": "1 of 3 Sites",
+         "detail": "Actual 634 L · Target 700 L", "word": word, "children": [
+             {"key": "necessary_l", "label": "Diesel not shown to be avoidable", "value": "+$375.00",
+              "sites": "1 of 3 Sites", "detail": "Actual 400 L · Target 700 L", "word": word, "children": []},
              {"key": "candidate_l", "label": "Diesel run while solar and battery could carry the load",
-              "value": "−$412.50", "sites": "1 of 3 Sites", "detail": "Actual 330 L · Target 0 L", "word": word,
+              "value": "−$150.00", "sites": "1 of 3 Sites", "detail": "Actual 120 L · Target 0 L", "word": word,
               "children": []},
-             {"key": "unexplained_l", "label": "Unexplained fuel", "value": "−$150.00", "sites": "1 of 3 Sites",
-              "detail": "Actual 120 L · Target 0 L", "word": word, "children": []}]},
+             {"key": "unexplained_l", "label": "Unexplained fuel", "value": "−$142.50", "sites": "1 of 3 Sites",
+              "detail": "Actual 114 L · Target 0 L", "word": word, "children": []}]},
         # D-5C.24 (was KD1): a price does not sum across Sites (composes NONE), so the portfolio row has no actual or
         # target and section 3.2's rule gives no detail; its effect is the Modelled litres times the price
         # difference, so its word is Modelled.
@@ -607,7 +608,7 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
     b = v["bridge"]
     fuel = step(v, "fuel_cost")
     assert fuel["sites"] == "2 of 3 Sites"
-    assert fuel["value"].startswith("−KES") and "$" not in fuel["value"], fuel["value"]  # the step
+    assert fuel["value"].startswith("+KES") and "$" not in fuel["value"], fuel["value"]  # the step
     opt = next(g for g in b["groups"] if g["key"] == T.OPTIMIZE)
     assert opt["value"] == fuel["value"]  # the heading: only fuel cost has a figure
     lines = fuel["drawer"]["lines"]
@@ -853,11 +854,11 @@ def test_5_record_words_hold_no_comma_outside_brackets() -> None:  # D-5C.25, pl
 
 def test_6_one_contribution(monkeypatch) -> None:
     a, d = view("A"), view("D")
-    assert not [s for s in strings(a) if "$1,693.00" in s]  # plant P1
+    assert not [s for s in strings(a) if "$2,735.50" in s]  # plant P1 (re-pinned: 4,431.60 less Kisiwa 1,696.10; was 1,693.00)
     picked = {k: d[k] for k in ("tiles", "headline", "outcomes")} | {"totals": d["bridge"]["totals"]}
-    assert not [s for s in strings(picked) if "$883.00" in s]
-    assert a["tiles"][0]["value"] == a["bridge"]["totals"]["actual"] == "$1,443.00"
-    assert d["tiles"][0]["value"] == d["bridge"]["totals"]["actual"] == "$633.00"
+    assert not [s for s in strings(picked) if "$1,565.50" in s]
+    assert a["tiles"][0]["value"] == a["bridge"]["totals"]["actual"] == "$4,431.60"
+    assert d["tiles"][0]["value"] == d["bridge"]["totals"]["actual"] == "$3,261.60"
     sv, _, _ = world("A")
     cls = type(sv.snapshot)
 

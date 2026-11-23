@@ -108,7 +108,9 @@ def test_t1_leaf_sources_absence_and_words_equal_the_manifest():
     assert {r.factor_id for r in leaves} == set(sources)
     for row in leaves:
         declared = sources[row.factor_id]
-        assert row.filled_by == FilledBy(declared["family"], declared["kind"], declared.get("words")), row.factor_id
+        assert row.filled_by == FilledBy(
+            declared["family"], declared["kind"].replace("dispatch-3.2", "dispatch-3.3"),  # D-0K4.10: the registry reads
+            declared.get("words")), row.factor_id                                          # dispatch-3.3; the pack says 3.2
         assert row.filled_by.words == declared.get("words"), row.factor_id  # R13
         assert row.absent == declared["absent"], row.factor_id
     # The words field is not vacuous: the manifest declares some.

@@ -21,11 +21,11 @@
     "reason": "THIS_MONTH_NOT_MATCHED",
     "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
     "details": [
-      "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%)."
+      "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%)."
     ]
   },
   "headline": {
-    "text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
+    "text": "Contribution is $2,136.60 above target in October; cost and efficiency explain $2,233.60, more than the whole gap.",
     "evidence": [
       "Estimated, not yet reconciled"
     ]
@@ -35,26 +35,26 @@
     {
       "key": "contribution",
       "label": "Contribution",
-      "value": "$1,443.00",
+      "value": "$4,431.60",
       "word": "Estimated, not yet reconciled",
       "lines": [
-        "Target $2,295.00 · 63% of target",
+        "Target $2,295.00 · 193% of target",
         "3 of 3 Sites",
-        "91.5% of cost from figures received"
+        "86.7% of cost from figures received"
       ],
       "bar": {
-        "actual": "1443.00",
+        "actual": "4431.60",
         "target": "2295.00"
       }
     },
     {
       "key": "gap",
       "label": "Gap to target",
-      "value": "−$852.00",
+      "value": "+$2,136.60",
       "word": "Estimated, not yet reconciled",
       "lines": [
-        "Grow −$97.00 · Optimize −$755.00",
-        "$852.00 of it not split to its drivers yet"
+        "Grow −$97.00 · Optimize +$2,233.60",
+        "$2,136.60 of it not split to its drivers yet"
       ],
       "bar": null
     },
@@ -83,15 +83,15 @@
     "Kisiwa's budget states a contribution of −$60.00; its budget lines add to −$65.00. The target used is −$65.00."
   ],
   "bridge": {
-    "title": "Cost and efficiency explain $755.00 of the $852.00 gap. Open a step for what is behind it.",
+    "title": "Cost and efficiency explain $2,233.60, more than the whole $2,136.60 gap. Open a step for what is behind it.",
     "totals": {
       "actual_label": "Contribution, October",
-      "actual": "$1,443.00",
+      "actual": "$4,431.60",
       "target_label": "Target",
       "target": "$2,295.00"
     },
     "scale": {
-      "target_at": "0.00",
+      "target_at": "4.34",
       "actual_at": "100.00"
     },
     "groups": [
@@ -104,12 +104,12 @@
             "key": "revenue",
             "label": "Revenue",
             "value": "−$97.00",
-            "share": "11% of what widens the gap",
+            "share": "Offsets it",
             "word": "Emulated, not yet reconciled",
             "sites": "3 of 3 Sites",
             "bar": {
               "left": "0.00",
-              "width": "11.38",
+              "width": "4.34",
               "tone": "lowers"
             },
             "drawer": {
@@ -147,41 +147,41 @@
       {
         "key": "OPTIMIZE_COST",
         "label": "Optimize cost and efficiency",
-        "value": "−$755.00",
+        "value": "+$2,233.60",
         "steps": [
           {
             "key": "fuel_cost",
             "label": "Fuel cost",
-            "value": "−$755.00",
-            "share": "89% of what widens the gap",
+            "value": "+$2,233.60",
+            "share": "100% of what widens the gap",
             "word": "Emulated, not yet reconciled",
             "sites": "3 of 3 Sites",
             "bar": {
-              "left": "11.38",
-              "width": "88.62",
-              "tone": "lowers"
+              "left": "0.00",
+              "width": "100.00",
+              "tone": "raises"
             },
             "drawer": {
               "title": "Fuel cost",
               "lines": [
-                "Actual $4,995.00 · Target $4,240.00 · Difference +$755.00",
-                "Effect on contribution −$755.00",
+                "Actual $2,006.40 · Target $4,240.00 · Difference −$2,233.60",
+                "Effect on contribution +$2,233.60",
                 "3 of 3 Sites"
               ],
               "sites": [
                 {
                   "site": "Kobo",
-                  "value": "−$600.00",
+                  "value": "+$82.50",
                   "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month and fuel delivery notes."
                 },
                 {
                   "site": "Kisiwa",
-                  "value": "−$130.00",
+                  "value": "+$1,816.10",
                   "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month and fuel delivery notes."
                 },
                 {
                   "site": "Mto",
-                  "value": "−$25.00",
+                  "value": "+$335.00",
                   "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month and fuel delivery notes."
                 }
               ],
@@ -288,42 +288,42 @@
       "rows": [
         [
           "Kobo",
-          "$883.00",
+          "$1,565.50",
           "$1,445.00",
-          "−$562.00",
+          "+$120.50",
           "+$38.00",
-          "−$600.00",
+          "+$82.50",
           "$0.00",
           "$0.00"
         ],
         [
           "Kisiwa",
-          "−$250.00",
+          "$1,696.10",
           "−$65.00",
-          "−$185.00",
+          "+$1,761.10",
           "−$55.00",
-          "−$130.00",
+          "+$1,816.10",
           "$0.00 (at budget)",
           "$0.00"
         ],
         [
           "Mto",
-          "$810.00",
+          "$1,170.00",
           "$915.00",
-          "−$105.00",
+          "+$255.00",
           "−$80.00",
-          "−$25.00",
+          "+$335.00",
           "$0.00",
           "$0.00"
         ]
       ],
       "total": [
         "3 of 3 Sites",
-        "$1,443.00",
+        "$4,431.60",
         "$2,295.00",
-        "−$852.00",
+        "+$2,136.60",
         "−$97.00",
-        "−$755.00",
+        "+$2,233.60",
         "$0.00",
         "$0.00"
       ]
@@ -386,7 +386,7 @@
     {
       "key": "optimize",
       "label": "Optimize cost and efficiency",
-      "value": "−$755.00",
+      "value": "+$2,233.60",
       "word": "Estimated, not yet reconciled",
       "line": "Fuel, O&M and staff against target; cash collected is shown apart",
       "drawer": null
@@ -404,12 +404,12 @@
       "label": "Assure performance and returns",
       "value": "Not yet reconciled",
       "word": null,
-      "line": "1 budget disagreement · 91.5% of cost from figures received",
+      "line": "1 budget disagreement · 86.7% of cost from figures received",
       "drawer": {
         "title": "Reconciliation with the management accounts",
         "lines": [
           "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
-          "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%)."
+          "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%)."
         ]
       }
     }

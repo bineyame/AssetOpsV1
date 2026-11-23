@@ -54,12 +54,12 @@ function worldH(): DeepDiveMonthBody {
   const untracked =
     "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the " +
     "load (Kobo) and Unexplained fuel (Kobo).";
-  h.tiles![1].lines[1] = "$252.00 of it not split to its drivers yet";
+  h.tiles![1].lines[1] = "$2,054.10 of it not split to its drivers yet";
   const fuel = h.bridge!.groups[1].steps[0].drawer;
   fuel.sites = [
-    { site: "Kobo", value: "−$600.00", text: null },
-    { site: "Kisiwa", value: "−$130.00", text: stop },
-    { site: "Mto", value: "−$25.00", text: stop },
+    { site: "Kobo", value: "+$82.50", text: null },
+    { site: "Kisiwa", value: "+$1,816.10", text: stop },
+    { site: "Mto", value: "+$335.00", text: stop },
   ];
   const m = "Modelled, not yet reconciled";
   // D-5C.21: Diesel used holds its three parts; Diesel price is its sibling (D-5C.24: no detail, Modelled).
@@ -68,11 +68,11 @@ function worldH(): DeepDiveMonthBody {
   });
   fuel.drivers = [
     {
-      ...leaf("diesel_l", "Diesel used", "−$600.00", "Actual 1,180 L · Target 700 L"),
+      ...leaf("diesel_l", "Diesel used", "+$82.50", "Actual 634 L · Target 700 L"),
       children: [
-        leaf("necessary_l", "Diesel not shown to be avoidable", "−$37.50", "Actual 730 L · Target 700 L"),
-        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$412.50", "Actual 330 L · Target 0 L"),
-        leaf("unexplained_l", "Unexplained fuel", "−$150.00", "Actual 120 L · Target 0 L"),
+        leaf("necessary_l", "Diesel not shown to be avoidable", "+$375.00", "Actual 400 L · Target 700 L"),
+        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$150.00", "Actual 120 L · Target 0 L"),
+        leaf("unexplained_l", "Unexplained fuel", "−$142.50", "Actual 114 L · Target 0 L"),
       ],
     },
     leaf("diesel_price", "Diesel price", "$0.00", null),
@@ -393,7 +393,7 @@ describe("5c test 11: the served worlds (backend-written H and the currency mism
     for (const step of x.bridge!.groups.flatMap((g) => g.steps)) {
       expect(view.container.querySelector(`[data-dd-step="${step.key}"] .dd-wf__value`)!.textContent).toBe(step.value);
     }
-    expect(view.container.querySelector('[data-dd-step="fuel_cost"] .dd-wf__value')!.textContent).toBe("−KES 600.00");
+    expect(view.container.querySelector('[data-dd-step="fuel_cost"] .dd-wf__value')!.textContent).toBe("+KES 82.50");
     // Every money figure on the page is one the JSON serves (the page never puts "$" on a KES figure).
     const shown = moneyIn(view.container);
     expect(shown.some((m) => m.includes("KES"))).toBe(true);
@@ -526,12 +526,12 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     await settled();
     const bar = (key: string) => track(view.container, key).querySelector(".dd-wf__bar") as HTMLElement | null;
     // jsdom's CSSOM writes the served "0.00%" as "0%"; the served string is the source (fixture literal, spec §6).
-    expect(a.bridge!.groups[0].steps[0].bar).toEqual({ left: "0.00", width: "11.38", tone: "lowers" });
+    expect(a.bridge!.groups[0].steps[0].bar).toEqual({ left: "0.00", width: "4.34", tone: "lowers" });
     expect(bar("revenue")!.style.left).toBe("0%");
-    expect(bar("revenue")!.style.width).toBe("11.38%");
+    expect(bar("revenue")!.style.width).toBe("4.34%");
     expect(bar("revenue")!.classList.contains("dd-wf__bar--lowers")).toBe(true);
-    expect(bar("fuel_cost")!.style.left).toBe("11.38%");
-    expect(bar("fuel_cost")!.style.width).toBe("88.62%");
+    expect(bar("fuel_cost")!.style.left).toBe("0%");
+    expect(bar("fuel_cost")!.style.width).toBe("100%");
     expect(bar("om")).toBeNull();
     expect(bar("staff")).toBeNull();
     for (const step of a.bridge!.groups.flatMap((g) => g.steps)) {
@@ -542,11 +542,11 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     const marks = [...scale.querySelectorAll<HTMLElement>(".dd-wf__mark")];
     const t = a.bridge!.totals;
     expect(marks.map((m) => [m.textContent, m.style.left])).toEqual([
-      [`${t.target_label} ${t.target}`, "0%"],
+      [`${t.target_label} ${t.target}`, "4.34%"],
       [`${t.actual_label} ${t.actual}`, "100%"],
     ]);
     expect(marks[1].classList.contains("dd-wf__mark--end")).toBe(true);
-    expect(a.bridge!.scale).toEqual({ target_at: "0.00", actual_at: "100.00" });
+    expect(a.bridge!.scale).toEqual({ target_at: "4.34", actual_at: "100.00" });
   });
 
   it("D-5C.29: the cash sentence and the table's Billed column render exactly as served", async () => {

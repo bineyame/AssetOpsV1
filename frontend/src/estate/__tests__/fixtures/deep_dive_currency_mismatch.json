@@ -21,7 +21,7 @@
     "reason": "THIS_MONTH_NOT_MATCHED",
     "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
     "details": [
-      "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%)."
+      "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%)."
     ]
   },
   "headline": {
@@ -130,7 +130,7 @@
           {
             "key": "fuel_cost",
             "label": "Fuel cost",
-            "value": "−KES 600.00",
+            "value": "+KES 82.50",
             "share": null,
             "word": "Emulated, not yet reconciled",
             "sites": "1 of 3 Sites",
@@ -138,14 +138,14 @@
             "drawer": {
               "title": "Fuel cost",
               "lines": [
-                "Actual KES 1,475.00 · Target KES 875.00 · Difference +KES 600.00",
-                "Effect on contribution −KES 600.00",
+                "Actual KES 792.50 · Target KES 875.00 · Difference −KES 82.50",
+                "Effect on contribution +KES 82.50",
                 "1 of 3 Sites"
               ],
               "sites": [
                 {
                   "site": "Kobo",
-                  "value": "−KES 600.00",
+                  "value": "+KES 82.50",
                   "text": null
                 }
               ],
@@ -159,35 +159,35 @@
                 {
                   "key": "diesel_l",
                   "label": "Diesel used",
-                  "value": "−KES 600.00",
+                  "value": "+KES 82.50",
                   "sites": "1 of 3 Sites",
-                  "detail": "Actual 1,180 L · Target 700 L",
+                  "detail": "Actual 634 L · Target 700 L",
                   "word": "Modelled, not yet reconciled",
                   "children": [
                     {
                       "key": "necessary_l",
                       "label": "Diesel not shown to be avoidable",
-                      "value": "−KES 37.50",
+                      "value": "+KES 375.00",
                       "sites": "1 of 3 Sites",
-                      "detail": "Actual 730 L · Target 700 L",
+                      "detail": "Actual 400 L · Target 700 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
                     {
                       "key": "candidate_l",
                       "label": "Diesel run while solar and battery could carry the load",
-                      "value": "−KES 412.50",
+                      "value": "−KES 150.00",
                       "sites": "1 of 3 Sites",
-                      "detail": "Actual 330 L · Target 0 L",
+                      "detail": "Actual 120 L · Target 0 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
                     {
                       "key": "unexplained_l",
                       "label": "Unexplained fuel",
-                      "value": "−KES 150.00",
+                      "value": "−KES 142.50",
                       "sites": "1 of 3 Sites",
-                      "detail": "Actual 120 L · Target 0 L",
+                      "detail": "Actual 114 L · Target 0 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     }
@@ -288,19 +288,19 @@
       "rows": [
         [
           "Kobo",
-          "KES 883.00",
+          "KES 1,565.50",
           "KES 1,445.00",
-          "−KES 562.00",
+          "+KES 120.50",
           "+KES 38.00",
-          "−KES 600.00",
+          "+KES 82.50",
           "Not available yet",
           "Not available yet"
         ],
         [
           "Kisiwa",
-          "−$250.00",
+          "$1,696.10",
           "−$65.00",
-          "−$185.00",
+          "+$1,761.10",
           "−$55.00",
           "Not available yet",
           "$0.00 (at budget)",
@@ -308,7 +308,7 @@
         ],
         [
           "Mto",
-          "KES 810.00",
+          "KES 1,170.00",
           "$915.00",
           "Not compared",
           "Not compared",
@@ -323,7 +323,7 @@
         "Not available yet",
         "Not available yet",
         "Not available yet",
-        "−KES 600.00",
+        "+KES 82.50",
         "$0.00",
         "$0.00"
       ]
@@ -409,7 +409,7 @@
         "title": "Reconciliation with the management accounts",
         "lines": [
           "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
-          "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%).",
+          "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%).",
           "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
         ]
       }

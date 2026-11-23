@@ -55,6 +55,7 @@ def _kobo_without_kwh() -> dict[str, LeafValue]:
 # ---------------------------------------------------------------- S1 to S4: the table of §2.3
 
 
+# D-DD.150-152 (M rev 16.20): Kobo October fuel is 634 L, 792.50, so contribution is 1,565.50 (was 883.00; 925.00 is 1,607.50).
 def test_s1_stated_governs():
     values = evaluate(MG, _kobo_without_kwh(), stated={"revenue": _stated_revenue()})
     revenue, contribution = values["revenue"], values["contribution"]
@@ -62,7 +63,7 @@ def test_s1_stated_governs():
     assert revenue.stated is True and revenue.computed is None
     assert revenue.missing_leaves == () and revenue.detail_missing == ("delivered_kwh",)
     assert revenue.origins == ("source-emulated",) and revenue.sources == ("commercial:kobo-vending",)
-    assert contribution.value == Decimal("883.00")
+    assert contribution.value == Decimal("1565.50")
     assert contribution.detail_missing == ("delivered_kwh",) and contribution.missing_leaves == ()
     assert contribution.origins == ("source-emulated",)
 
@@ -72,7 +73,7 @@ def test_s2_both_known():
     assert values["revenue"].value == Decimal("3500.00") and values["revenue"].stated is True
     assert values["revenue"].computed.quantize(CENT) == Decimal("3458.00")
     assert values["revenue"].detail_missing == ()
-    assert values["contribution"].value == Decimal("925.00")
+    assert values["contribution"].value == Decimal("1607.50")
 
 
 def test_s3_stated_absent_computed_known():
@@ -80,7 +81,7 @@ def test_s3_stated_absent_computed_known():
     revenue = values["revenue"]
     assert revenue.value.quantize(CENT) == Decimal("3458.00")
     assert revenue.stated is False and revenue.missing is None and revenue.computed is None
-    assert values["contribution"].value.quantize(CENT) == Decimal("883.00")
+    assert values["contribution"].value.quantize(CENT) == Decimal("1565.50")
 
 
 def test_s4_both_absent():
