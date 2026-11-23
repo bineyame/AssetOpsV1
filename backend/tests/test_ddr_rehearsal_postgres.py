@@ -251,7 +251,11 @@ class Rehearsal:
         lines = [json.loads(line) for line in out.splitlines()]
         assert [l["gate"] for l in lines] == list(check.GATES)  # R7: ten lines on every run (plant P5)
         failed = [l for l in lines if l["state"] == "FAIL"]
-        assert all(l["code"] is None and l["facts"] == {} for l in lines if l["state"] == "PASS")
+        for line in lines:
+            if line["state"] == "PASS":
+                assert line["code"] is None
+                assert line["facts"] == ({"declared_prices": {"MTO-001": "declared, no fuel invoice this month"}}
+                                         if line["gate"] == "G4" else {})
         if failed:
             assert (code, err) == (4, f"DDR_GATE_FAILED {failed[0]['gate']} {failed[0]['code']}\n")
         else:

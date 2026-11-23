@@ -2,6 +2,9 @@
 5.4): one closed month reconciled, as statements. The heading, gap, share and scope statements are SC-1 section 5.1
 and 5.4 exactly. Pure literal data (D-SC1.3)."""
 STATEMENTS = {
+    "reconciliation.declared_price_no_invoice": {
+        "variants": [{"id": "declared", "text": "declared, no fuel invoice this month"}],
+    },
     "reconciliation.heading": {
         "slots": {
             "state": {"type": "state", "values": ["MATCHED", "NOT_MATCHED", "ZERO_STATED", "NOT_RECEIVED",

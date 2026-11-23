@@ -636,6 +636,29 @@ PORTFOLIO = {  # factor: (value, evidence)
 }
 
 
+def load_run_rate_budget(w: dict) -> dict:
+    """Independent October inputs for manifest parity. The historical 5a/5b fixture keeps its own plan."""
+    amounts = {
+        "KOBO-001": {"fuel_cost": "368.75", "contribution": "1951.25"},
+        "KISIWA-001": {"fuel_cost": "1534.00", "contribution": "1396.00"},
+        "MTO-001": {"fuel_cost": "0.00", "contribution": "1290.00"},
+    }
+    batches = [step["batch"] for step in steps()[:2]]
+    for record in batches[1]["records"]:
+        value = amounts.get(record.get("site_code"), {}).get(record["body"]["factor_id"])
+        if value is not None:
+            record["body"]["value"] = value
+    return load(w, batches=batches)
+
+
+def test_run_rate_budget_portfolio_matches_the_manifest() -> None:
+    values = read_portfolio(load_run_rate_budget(new_world())).structure.composition.values
+    sums = json.loads(PACK.read_text(encoding="utf-8"))["portfolio"]["lakeside-power"]["plan"]["sums"]
+    for factor in PORTFOLIO:
+        actual = values[factor].value.value
+        assert actual == D(str(sums[factor])), factor
+
+
 def check_portfolio(w: dict) -> None:
     pt = read_portfolio(w)
     values = pt.structure.composition.values
@@ -647,10 +670,6 @@ def check_portfolio(w: dict) -> None:
         count = site_count(pt.structure, factor)
         assert (count.k, count.n, count.out) == (3, 3, ()), factor
     assert values["contribution"].value.origins == (E,)
-    sums = json.loads(PACK.read_text(encoding="utf-8"))["portfolio"]["lakeside-power"]["plan"]["sums"]
-    cent = D("0.01")
-    for factor in PORTFOLIO:
-        assert D(str(sums[factor])).quantize(cent) == values[factor].value.value.quantize(cent), factor
     pl = pt.portfolio_lines
     assert [(line.factor_id, line.value, line.person_id) for line in pl.lines] == [("staff", D("1200.00"),
                                                                                     PERSON_1_ID)]

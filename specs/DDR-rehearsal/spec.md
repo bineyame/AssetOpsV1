@@ -66,7 +66,7 @@ environment (R17). `build_parser()` and `main(argv, *, services=None)` (tests in
 command through `build_parser`). Exit 2 before any read, the code alone on stderr: `NO_DATABASE`, `NO_KEY_DIR`,
 `UNKNOWN_TENANT` (through `AccountService.tenant_by_slug`), `BAD_MONTH`, `EXPECT_UNREADABLE`. Otherwise every gate
 runs in order; stdout one JSON line per gate `{"gate": "G<n>", "step": "S<n>" | null, "state": "PASS" | "FAIL",
-"code", "facts"}` (PASS: `code` null, `facts` `{}`; FAIL: §2.4's code and facts); exit 0 when all pass, else 4 with
+"code", "facts"}` (PASS: `code` null, `facts` `{}` apart from G4’s `declared_prices` diagnostics by Site; FAIL: §2.4's code and facts); exit 0 when all pass, else 4 with
 `DDR_GATE_FAILED G<n> <CODE>` on stderr for the **first** failure. No English anywhere in the module: codes and facts
 only (D-DDR.11). It writes nothing, and it prints no path under the key folder and no key content (D-DS4.19).
 
@@ -98,7 +98,7 @@ tenant and period, by `as_of`; in the memory store and the Postgres adapter (one
 | G1 | `TENANT_SITES` (expected, found: lists of `CODE:TYPE`); `GRANTS` (role, expected, found: emails); `GRANTED_BY` (email, found); `KEY_STATE` (state: MISSING, ERASED or UNUSABLE) |
 | G2 | `PROFILE_MISSING` (profile); `PROFILE_STATE` (status, version); `ADMITTER` (expected, found: person ids); `PROFILE_SHA` (file: profile or sample, expected, found) |
 | G3 | `READER_MISSING` (reader); `READER_PRESENT` (reader); `SUBMITTER` (reader, expected, found); `ACCEPTER` (reader, expected, found) |
-| G4 | `FIGURE` (site, factor, expected, found; found null when absent); `NOT_ABSENT` (site, factor, found); `CAUSE` (site, factor, expected, found); `PRICE_SOURCE` (site, source); `TARGET` (site, field, expected, found) |
+| G4 | `FIGURE` (site, factor, expected, found; found null when absent); `NOT_ABSENT` (site, factor, found); `CAUSE` (site, factor, expected, found); `PRICE_SOURCE` (site, source); `PRICE_ASSUMPTION` (site, when declared-price evidence or metadata is invalid); `TARGET` (site, field, expected, found) |
 | G5 | `STATEMENT_MISSING` (period); `STATEMENT_FIELD` (field, expected, found); `RECORDER` (expected, found); `RESULT` (expected, found) |
 | G6 | `SNAPSHOT_MISSING` (period, built_by); `BEFORE_STATEMENT` (as_of, recorded_at); `AFTER_NEXT_STATEMENT` (as_of, recorded_at); `ASKED` (expected, found) |
 | G7 | `STATEMENT_MISSING` (period); `RECORDER` (expected, found); `GATE_SHUT` (result) |

@@ -96,6 +96,10 @@ class Reads:
         self.key_error: Exception | None = None
         self.collected = {}
         self.fuel_cost = {}
+        self.declared_price_metadata = NS(
+            carried_as="ASSUMPTION", assumption="Declared diesel price per litre, not a fuel invoice",
+        )
+        self.declared_price_evidence = "ESTIMATED"
         self.owners = ["Peter"]
         self.body = self._body()
 
@@ -154,7 +158,9 @@ class Reads:
     def site_inputs(self, site, month):
         c = site.site_code
         source = "assumption:price" if c == "MTO-001" else "commercial:expense"
-        price = NS(value=D("1.50"), missing=None, sources=(source,))
+        price = NS(value=D("1.50"), sources=(source,),
+                   missing=self.declared_price_metadata if c == "MTO-001" else None,
+                   evidence=self.declared_price_evidence if c == "MTO-001" else "EMULATED")
         return NS(stated={f: self._value(c, f) for f in ("revenue",)},
                   leaves={**{f: self._value(c, f) for f in ("om", "staff", "in_transit")}, "diesel_price": price})
 
@@ -204,7 +210,12 @@ def run(reads, capsys, *argv) -> tuple[int, dict, list[str]]:
     assert [l["gate"] for l in lines] in ([], list(check.GATES))  # R7: ten lines, or none on a refusal
     for line in lines:
         assert set(line) == {"gate", "step", "state", "code", "facts"}
-        assert (line["state"], line["code"], line["facts"]) == ("PASS", None, {}) or line["state"] == "FAIL"
+        if line["state"] == "PASS":
+            assert line["code"] is None
+            assert line["facts"] == ({"declared_prices": {"MTO-001": "declared, no fuel invoice this month"}}
+                                     if line["gate"] == "G4" else {})
+        else:
+            assert line["state"] == "FAIL"
     assert all(LINE.match(e) or re.fullmatch(r"[A-Z_]+", e) for e in err.splitlines())  # 8(g): codes only
     return code, {l["gate"]: l for l in lines}, err.splitlines()
 
@@ -418,3 +429,17 @@ def test_l4_g3_checks_every_accepted_upload_of_a_reader(env, capsys) -> None:
     _, lines, _ = run(reads, capsys)
     assert failed(lines) == {"G3": ("SUBMITTER", {"reader": "billing-illustrative-1", "expected": str(WANJIRU),
                                                   "found": str(other)})}
+
+
+@pytest.mark.parametrize(("evidence", "metadata"), [
+    ("EMULATED", NS(carried_as="ASSUMPTION", assumption="Declared diesel price per litre, not a fuel invoice")),
+    ("ESTIMATED", None),
+    ("ESTIMATED", NS(carried_as="TARGET", assumption="Declared diesel price per litre, not a fuel invoice")),
+    ("ESTIMATED", NS(carried_as="ASSUMPTION", assumption=None)),
+])
+def test_g4_requires_the_declared_price_metadata(env, capsys, evidence, metadata):
+    reads = Reads()
+    reads.declared_price_evidence = evidence
+    reads.declared_price_metadata = metadata
+    _, lines, _ = run(reads, capsys)
+    assert failed(lines) == {"G4": ("PRICE_ASSUMPTION", {"site": "MTO-001"})}

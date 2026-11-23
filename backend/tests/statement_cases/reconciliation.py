@@ -38,6 +38,7 @@ def figure(origin: str, reconciled: bool | None) -> dict:
 
 
 CASES = [
+    Case("reconciliation.declared_price_no_invoice", "declared", {}, "declared, no fuel invoice this month"),
     # reconciliation.statement (spec section 6: K after E and F, S3, T2's S1, T6's S4)
     Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),
                                                  "tolerance": tol()},

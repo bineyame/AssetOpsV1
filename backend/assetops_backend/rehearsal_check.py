@@ -20,6 +20,8 @@ from decimal import Decimal
 from typing import Any, Callable, Sequence
 
 from assetops_backend.deep_dive.words import cents
+from assetops_backend.i18n import message, render
+from assetops_backend.structure.sources import ASSUMPTION_WORDS
 
 DEFAULT_EXPECT = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "ddr" / "lakeside-2026-10.expect.json"
 GATES = ("G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10")
@@ -363,7 +365,7 @@ class Run:
                     raise Fail("ACCEPTER", reader=reader, expected=_id(accepter), found=_id(found))
 
     # G4 (S4)
-    def g4(self) -> None:
+    def g4(self) -> dict[str, dict[str, str]]:
         refs = {r.site_code: r for r in self.s.site_refs(self.slug)}
         read = {}
         for code in self.x["stated"]:
@@ -390,15 +392,23 @@ class Run:
                 cause = None if leaf is None or leaf.missing is None else leaf.missing.cause
                 if cause != expected:
                     raise Fail("CAUSE", site=code, factor=factor, expected=expected, found=cause)
+        declared_prices = {}
         for code in self.x["stated"]:
             price = _leaf(read[code], PRICE)
             if price is None or price.value is None or not price.sources:
                 raise Fail("PRICE_SOURCE", site=code, source=None)
             bought = self.x.get("fuel_bought", {}).get(code)
-            prefix = DECLARED_PRICE_SOURCE if bought is not None and Decimal(bought) == 0 else PRICE_SOURCE
+            declared = bought is not None and Decimal(bought) == 0
+            prefix = DECLARED_PRICE_SOURCE if declared else PRICE_SOURCE
             for source in price.sources:
                 if not source.startswith(prefix):
                     raise Fail("PRICE_SOURCE", site=code, source=source)
+            if declared:
+                missing = price.missing
+                if (price.evidence != "ESTIMATED" or missing is None or missing.carried_as != "ASSUMPTION"
+                        or missing.assumption != ASSUMPTION_WORDS[PRICE]):
+                    raise Fail("PRICE_ASSUMPTION", site=code)
+                declared_prices[code] = render(message("reconciliation.declared_price_no_invoice"))
         targets = {code: self.s.site_targets(refs[code], self.month) for code in self.x["target_contribution"]}
         for code, expected in self.x["target_contribution"].items():
             value = targets[code].structure.values[_CONTRIBUTION].value
@@ -416,6 +426,8 @@ class Run:
             for field in ("currency", "agrees"):
                 if getattr(check, field) != want[field]:
                     raise Fail("TARGET", site=code, field=field, expected=want[field], found=getattr(check, field))
+
+        return {"declared_prices": declared_prices} if declared_prices else {}
 
     # G5 (S5)
     def g5(self) -> None:
@@ -617,7 +629,9 @@ def _gates(run: Run) -> int:
         line = {"gate": gate, "step": STEPS[gate], "state": "PASS", "code": None, "facts": {}}
         run.fresh()
         try:
-            getattr(run, gate.lower())()
+            facts = getattr(run, gate.lower())()
+            if facts:
+                line["facts"] = facts
         except Fail as failed:
             line.update(state="FAIL", code=failed.code, facts=failed.facts)
         except ReadFailed as failed:

@@ -345,6 +345,7 @@ def test_t8_shipped_catalogue_loads():
                                          "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
                                          "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
                                          "reconciliation.money_word", "reconciliation.refused",
+                                         "reconciliation.declared_price_no_invoice",
                                          "agreed_action.state", "agreed_action.refused", "decision.refused",  # 6a (D-P6.7)
                                          # 3C1b (D-SC1.28): the trial action's actor words.
                                          "action.actor_label", "action.observe_note", "action.change_statement",

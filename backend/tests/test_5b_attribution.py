@@ -444,11 +444,14 @@ def mto_steps() -> list[dict]:
     return json.loads(FIXTURE_5B.read_text(encoding="utf-8"))["steps"]
 
 
-def load_lakeside(w: dict, with_mto: bool = True) -> dict:
+def load_lakeside(w: dict, with_mto: bool = True, *, run_rate_budget: bool = False) -> dict:
     """Spec §5.2's world: 4b's money fixture, 5a's steps 1 and 2 (their `at` and `entered_by`), then this file's step."""
     for step in money_steps():
         money_ingest(w, step["at"], step["batch"], step["entered_by"])
-    t5a.load(w, 2)
+    if run_rate_budget:
+        t5a.load_run_rate_budget(w)
+    else:
+        t5a.load(w, 2)
     if with_mto:
         for step in mto_steps():
             money_ingest(w, step["at"], step["batch"], step["entered_by"])
@@ -640,13 +643,12 @@ def check_site(sb: SiteBridge, code: str, w: dict) -> None:
         assert sb.targets.checks == (CHECK_KISIWA,)
     else:
         assert sb.carried == () and dict(sb.not_carried) == {}
-    # the pack (handshake R13): actual against `actual.nodes`, target against `plan.nodes`
+    # The historical budget has its own literals above. Actuals still match the pack.
     name = next(n for n, c in PACK_NAMES.items() if c == code)
     pack = json.loads(PACK.read_text(encoding="utf-8"))["sites"][f"lakeside-power/{name}"]
     rows = {r.factor_id: r for root_ in sb.roots.values() for r in every(root_) if r.factor_id is not None}
     for node in PACK_NODES:
         assert D(str(pack["actual"]["nodes"][node])) == rows[node].actual, (code, node)
-        assert D(str(pack["plan"]["nodes"][node])) == rows[node].target, (code, node)
 
 
 @pytest.mark.parametrize("code", CODES)
@@ -712,7 +714,6 @@ def check_portfolio(pb: PortfolioBridge, w: dict) -> None:
     for node in PACK_NODES:
         assert MG.row(node).composes == "SUM", node
         assert D(str(sums["actual"]["sums"][node])) == every_row[node].actual, node
-        assert D(str(sums["plan"]["sums"][node])) == every_row[node].target, node
     for key, row in every_row.items():
         if row.kind != "RESIDUAL" and MG.row(key).composes != "SUM":
             assert (row.actual, row.target, row.gap) == (None, None, None), key
@@ -937,3 +938,20 @@ def test_f1_a_price_leaf_in_two_currencies_is_not_subtracted() -> None:  # bridg
     a, t = _toy_side(reg, "100", "0.50"), _toy_side(reg, "80", "0.40", "EUR")
     row = _Bridge(reg, a, t, USD).row("p", "y", "PRICE", None, D("100"), (a["p"], t["p"]))
     assert (row.gap, row.effect, row.reason) == (None, None, "CURRENCY_MISMATCH:EUR,USD")
+
+
+def test_run_rate_budget_site_and_portfolio_attribution_match_manifest() -> None:
+    w = load_lakeside(new_world(), run_rate_budget=True)
+    pack = json.loads(PACK.read_text(encoding="utf-8"))
+    for name, code in PACK_NAMES.items():
+        site = unit2_site(w, code)
+        rows = {row.factor_id: row for tree in site.roots.values() for row in every(tree)}
+        nodes = pack["sites"][f"lakeside-power/{name}"]["plan"]["nodes"]
+        for factor in PACK_NODES:
+            assert rows[factor].target == D(str(nodes[factor])), (code, factor)
+
+    portfolio = lakeside_portfolio(w)
+    rows = {key: row for tree in portfolio.rows.values() for key, row in tree.items()}
+    sums = pack["portfolio"]["lakeside-power"]["plan"]["sums"]
+    for factor in PACK_NODES:
+        assert rows[factor].target == D(str(sums[factor])), factor
