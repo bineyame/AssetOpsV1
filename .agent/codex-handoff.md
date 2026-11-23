@@ -40,10 +40,9 @@ main simulator fix (world tests 526/526 on 23 Nov after DD3d-a).
 
 In flight (branch, what is left):
 - DD3d-b `task/DD3d-b-fuel-cost`: see section 4 item 4.
-- 6f1 `task/6f1-decisions` (0d5c788ac): U1 fix round done, re-review running (`review-6f1-U1-2.md`); then merge main
-  (state line 220 needs the next free number), merge. Spec rev 4, rulings D-P6.42-93. For the Architect with the
-  re-review's questions: open point 8 (a stated one-off shows "Declared"), a named result net of it reading
-  "Recorded", and D-P6.90's claim that plant `stillchoose` fails F6-H (it cannot).
+- 6f1 `task/6f1-decisions` (0c7f11e40): U1 re-review closed the first round's High and Medium; one new Medium (N1).
+  Fix round 2 running from rulings D-P6.94-98 (spec section 16, on main); then a verification re-review, with
+  discovery on `records.py`, the Postgres read and `stated_changes`; then merge. A third fix round triggers W7.
 - `fix/main-4d-litre` (e009a72a8): NOT merged on its own (it makes `sitesList.test.tsx` "World A, October" fail).
   DD3d-b takes it in; 3 points to judge there: iap tests 6/8 need a Site below target; a 5c accounts input moved
   5,100 to 2,100; 3b1 t1 / 3b3 t6 replace the manifest's dispatch version before comparing.
@@ -68,7 +67,7 @@ In flight (branch, what is left):
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
 7. WK-SC story clock (3.0 u, `specs/DD-demo-data/spec-WK-SC.md`, card `cards/WK-SC.md`) after DD6.
-8. 6f1 (5.5 u, spec rev 4): U1 fix round running (D-P6.82-93), re-review, U1 merges first; U2 and U3
+8. 6f1 (6.0 u, at its cap): U1 fix round 2 running (D-P6.94-98), re-review, U1 merges first; U2 and U3
    then build in parallel from `specs/6f-decisions-screen/cards/6f1-U2.md` and `6f1-U3.md`; U3 merges
    before U2. Then 6f2 (choice on screen).
 9. IA-PD demo routes (0.5 u, D-IAP.36) before the next demo build; IA-P: rebuild the world rung
@@ -85,7 +84,9 @@ ten decisions; do not rebuild a demo app from main in that gap without telling t
 
 ## 5. Open owner questions
 
-- none (D-DD.166 approved 23 Nov: budget run-rate rule built as DD3d.5)
+- D-P6.98 (not blocking, before the first pilot Site): should an option's projected value on a Site with real records
+  read "Estimated" instead of "Recorded"? Recommended: Estimated. Default until answered: Recorded.
+- D-DD.166 approved 23 Nov: budget run-rate rule built as DD3d.5.
 
 ## 6. Design and document alignment pass (specified for whoever picks it up)
 
