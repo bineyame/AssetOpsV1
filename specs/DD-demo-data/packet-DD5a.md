@@ -1,83 +1,105 @@
-# Review packet: DD5a part 1, the contracts/bindings half (units 1-2; partial)
+# Review packet: DD5a, sealing and the cold and EV bulk path (units 1-4, EV session events)
 
-Branch `task/DD5a-load` (the card says `task/DD5a-seal`; the dispatch named this one). Card `cards/DD5a.md`; rulings
-D-DD.138 (R2366-2382), D-DD.139 (R2383-2403), D-DD.91 (R1455-1477), D-DD.28/29 (R157-176), D-DD.103 (R1826-1858).
-Scope by dispatch: the contracts/bindings half only. Units 3 (`load_world_inputs` seals and loads) and 4 (cold and EV
-on the bulk path, `test_dd_parity_cold_ev_postgres.py`, the `:688` lift) and EV session events are not built; see
-`DD5a-handoff.md`.
-USER_REVIEW_REQUIRED: false (protected seams `contracts/`, binding service; no UI; one discovery review per the card).
+Branch `task/DD5a-load` (the card says `task/DD5a-seal`; the dispatch named this one). Card `cards/DD5a.md` (with
+D-DD.162's "Facts the code fixes"); rulings D-DD.138 to D-DD.140 (R2366-2419), D-DD.161 and D-DD.162 (R3035-3087),
+D-DD.91 (R1455-1477), D-DD.28/29 (R157-176), D-DD.103, D-DD.118. Main merged at b8edd4425 (DD4b, D-DD.155-162).
+USER_REVIEW_REQUIRED: false (protected seams `contracts/`, binding service, evidence ledger; no UI; one discovery
+review per the card).
 
 ## What was built
-- Unit 1 (D-DD.138; see deviation 5). `contracts/.../source_envelope_v4.py`: `world_ev_channel_mappings(device_ids)` generates a
-  depot's closed table (`_ev_connector(prefix)` per `ch-<code>-c<n>` prefix, plus the Site import; any other device
-  raises), `WORLD_EV_CONNECTOR_PREFIXES` per depot, `V4_WORLD_EV_CHANNEL_MAPPINGS` (union), added to
-  `V4_CHANNEL_MAPPINGS` (the ledger's `_decide_v4` lookup). Lab EV and cold tables byte-identical (digest test).
-  `sites/binding_service.py`: `publishes_v4_metadata(role_set, origin)`: a conversion publishes v4 metadata for
-  `cold-roles-1` and `ev-roles-1`; mini-grid sets keep v3. `ev-roles-1` validates against lab + world tables
-  (`_V4_VALIDATION_TABLE_BY_ROLE_SET`); `_V4_TABLE_BY_ROLE_SET` and `v4_mapping_profile` are unchanged, so the EV
-  analytics profile check is unchanged. Each channel must still be declared by the Site's own Foundation (closed per
-  Site). Cold world devices are all in the cold table (no fix needed).
-- Unit 2 (D-DD.139, D-DD.91). `evidence/world_seal.py` `seal_readings(SealContext, days)`: pure; v3 for mini-grid,
-  v4 for cold/EV; fields, batches of at most 256 per (Site, source, local day), names
-  `<SITE>.<source uuid>.<day>.<n>.batch.json`, epoch "1", one sequence per source over all days given; cold event ids
-  by `cold_event_id`/`cold_correlation_id` from the Site's foundation digest; EV connector energy with a row
-  `session` object gets `session_id = ev_session_id(...)` and `connector_id`. `cold_correlation_id` moved to
-  `contracts/.../gateway_report.py` beside `cold_event_id` (same bytes; host imports it from there and still exposes
-  it); new `ev_session_id(foundation_digest, connector_id, session_ordinal)` = `ev-` + SHA-256.
+- Unit 1 (D-DD.138, narrowed by D-DD.161). `source_envelope_v4.py`: `world_ev_channel_mappings`,
+  `V4_WORLD_EV_CHANNEL_MAPPINGS` (generated from the depots' `/2` devices; Site import `("site-meter", "import")`).
+  `binding_service.publishes_v4_metadata(role_set, origin, world_conversion=)`: v4 metadata at conversion only when
+  `convert(..., world_conversion=True)` (passed only by `onboard_operator apply --bindings`) and the set is
+  `cold-roles-1`/`ev-roles-1`. Lab tables and Lab W2-02 design unchanged.
+- Unit 2 (D-DD.139, D-DD.91, D-DD.161). `evidence/world_seal.py` `seal_readings`: v3 mini, v4 cold/EV, at most 256 per
+  (Site, source, local day), epoch "1", one sequence per source over the span; cold event ids by `cold_event_id` /
+  `cold_correlation_id` (moved to `contracts/.../gateway_report.py`). Values written canonically, asserting
+  `Decimal(out) == Decimal(in)` and `is_canonical_decimal`.
+- D-DD.161 EV session change. `ev_session_id` withdrawn from `contracts/`. The sealer copies `session_id` and
+  `connector_id` from an EV event's object or a row's `session` object; a session event's `correlation_id` is its
+  `session_id`. Only connector energy (`INTERVAL_DELTA`) claims a session; means and states seal null ids (the v4
+  contract). An EV event without a session forms cold ids over its `correlation`; with neither, or energy with no
+  session, `WORLD_SEAL_EV_UNCORRELATED`. `WORLD_SEAL_EV_EVENT_PENDING` removed.
+- Unit 3 (spec §4.6 as amended by D-DD.139/140). `load_world_inputs.py`: globs `*.readings.json` beside `*.batch.json`;
+  per Site resolves `PostgresEvidenceLedger.site_scope(slug, code)`, then the pinned snapshot over the readings span
+  (`sites.registered_basis.select_registered_basis`, which calls `acquisition_snapshot`), checked by
+  `world_seal.context_from_snapshot` (same Site, gateway `edge-<code lower>`, every binding's source listed);
+  `foundation_digest` from `site-inputs.json` (F) beside the tenant folders. Writes `<slug>/sealed/` once through the
+  new adapter `evidence/adapters/sealed_batch_files.py` (`composition.build_sealed_batch_files`); a re-run re-seals and
+  refuses `WORLD_SEALED_BYTES_DIFFER` on any differing or stray file. Layout accepts `staged/`, `sealed/`, `disorder/`.
+  Output line adds `readings_files`, `sealed_batches`. Refusals exit 2 (`WORLD_TELEMETRY_UNRESOLVED <file> <what>`).
+- Unit 4 (spec §4.7 as amended by D-DD.140). `postgres_evidence_ledger.py` `:688` guard: `site_type not in
+  BULK_PROVEN_SITE_TYPES` (= MINIGRID, COLDCHAIN, EV_CHARGING); `BULK_SITE_TYPE_UNPROVEN` stays in `BULK_REFUSALS`.
+  New `test_dd_parity_cold_ev_postgres.py`; `case_coldchain_site` became `case_unknown_site_type` (the clone's
+  site_type CHECK dropped, type `HYDRO`).
 
 ## Tests (each shown failing first; logs in /opt/assetecon/evidence/DD5a/)
-- `backend/tests/test_dd5a_world_v4_tables.py` (3, pure): lab tables identical; world table == each depot's declared
-  channels and prefixes; out-of-shape device refuses. 2 failed before the contracts change.
-- `backend/tests/test_dd5a_world_v4_bindings_postgres.py` (3): harvest-cold apply then COLD-THIKA accepts one v4
-  meter and one door event; metro-bus EV-KAS accepts connector energy (session) and the Site import; lakeside
-  KOBO-001 has no v4 rows and its digest equals main's v3 formation. On main code: 3 failed (`u1-failfirst.log`).
-- `backend/tests/test_dd5a_world_seal.py` (3, pure): 288-row source-day -> 256 + 32, sequences 1..576 across two days,
-  unique message ids, each batch parses; unbound channel refuses `WORLD_TELEMETRY_UNRESOLVED`; millesimal spelling.
-- `host/tests/test_dd5a_world_seal_parity.py` (5): byte parity with the gateway's `_envelope_v3_text`,
-  `_envelope_v4` and `_seal` for v3 mini, v4 cold measurement, v4 cold event, v4 EV energy with session, and the
-  batch. In `host/tests` because the dependency-direction guard forbids the gateway in `backend/` (tests included).
-  Both seal files failed at collection before `world_seal.py` existed.
+- `backend/tests/test_dd5a_world_v4_tables.py` (3), `test_dd5a_world_v4_bindings_postgres.py` (3): part 1, as before.
+- `backend/tests/test_dd5a_world_seal.py` (10, pure): split 256+32 and sequences across days; unbound refuses;
+  canonical spelling; D-DD.161: session event and in-session energy share the pack id (= correlation id); means claim
+  no session; EV event without session forms cold ids; neither refuses (event, energy); `ev_session_id` absent;
+  value equality. 6 failed before the change (`red-ev-session.txt`).
+- `host/tests/test_dd5a_world_seal_parity.py` (6): byte parity with the gateway for v3 mini, v4 cold measurement,
+  cold event, EV energy with the pack session, EV session event (hand rows in DD4b's shape; event and energy
+  correlate), and the batch seal.
+- `backend/tests/test_dd5a_load_world_inputs.py` (6, pure, injected resolver): sealed beside the inputs and loaded;
+  re-run writes no bytes; a changed sealed byte refuses and loads nothing; unknown Site exit 2 naming the file; Site
+  missing from F refuses; `staged/`/`sealed/`/`disorder/` accepted. 6 failed first (`red-unit3.txt`).
+- `backend/tests/test_dd5a_load_world_postgres.py` (3): the real resolver on the converted Kobo seed: two days load,
+  sequences 1..6, six message ids; re-run `already_loaded` 2 and no sealed bytes rewritten; unknown Site exit 2, nothing
+  stored.
+- `backend/tests/test_dd_parity_cold_ev_postgres.py` (2): `harvest-cold` and `metro-bus` onboarded with world bindings
+  (in a subprocess, so the seed can be cloned); one COLD-THIKA day (meter means, door open/close) and one EV-KAS day
+  (session start, in-session energy x2, depot import, session end) sealed by `world_seal`, submitted centrally to one
+  clone and bulk-loaded into the other: evidence, batch, disposition and recompute-job rows equal; the
+  `_enqueue_admitted` spy saw the same ordinals under the same Site type; EV rows carry the pack session id. Red first
+  via plant (c).
+- Moved pin: `test_ds3_bulk_load.py::test_success_passes_the_commercial_folder...` output keys gain the two counts.
 
-## Plants
-- (a) `publishes_v4_metadata` back to `origin != "CONVERSION"`: COLD-THIKA meter `REJECTED MAPPING_INCOMPATIBLE`
-  (`plant-a.log`). Reverted.
-- (b) sequence reset per day: `test_a_288_row...` fails at index 288 (1 != 289) (`plant-b.log`). Reverted. The
-  load-level message-id collision needs unit 3.
-- (c) revert `:688`: not run, unit 4 not built.
+## Plants (each reverted)
+- (a) part 1: COLD-THIKA meter `REJECTED MAPPING_INCOMPATIBLE` (`plant-a.log`).
+- D-DD.161 narrowing: `world_conversion` default True (a Lab replay passing True): 5 of 5
+  `test_w202_cold_lab_bindings_postgres.py` fail, incl. `test_cold_001_conversion_carries_no_v4_keys`
+  (`plant-dd161-lab.txt`).
+- (b) at load level: sequences reset per day: `test_two_days_seal_and_load...` and the re-run test fail, exit 2
+  `BATCH_ID_CONFLICT` (the second day reuses the first day's sequence range, hence its batch id) (`plant-b.txt`).
+- (c) `:688` back to MINIGRID only: both parity cases `BULK_SITE_TYPE_UNPROVEN ... COLDCHAIN` / `EV_CHARGING`
+  (`plant-c.txt`).
 
 ## Checks
-- `tools/check-architecture.ps1` (guard python set): passed. `check-agent-workflow.ps1`: passed.
-  `check-decision-index.py`: OK. `statement_catalogue.py`: exit 0.
-- Reach set (card list minus the unbuilt parity file, plus the four host/backend files importing `cold_publication`
-  and the dd5a files), one `--db-lane` call: first run at 4e43b92cc: 25 failed, 230 passed, 1 skipped, 504 s
-  (wall 11 min 15 s incl. slot wait) (`reach.log`): 23 Lab cold replays refused "already exactly these" (their v3
-  conversion now carried v4, so the later v4 PUBLISH was no change), `test_cold_001_conversion_carries_no_v4_keys`,
-  and the EV legacy-tuple set (world tuples counted as legacy). Fixed (deviation 5, moved pin 1); the 8 affected files
-  plus the dd5a and DD1 onboarding files rerun at cc5de2845: **62 passed**, 152 s (`reach-rerun.log`). Main: no rerun
-  needed; the failures were this branch's and are gone (`.agent/main-baseline/23d2cd9f6.md` covers main).
-- D-DD.118: `grep -rn fuel_basis backend/assetops_backend/evidence/ backend/assetops_backend/load_world_inputs.py`:
-  no match (bulk load does not call it).
-- Largest batch seen: 256 envelopes (the split test). Mid-build questions to the lane Architect: 0.
+- `tools/check-architecture.ps1` (guard python set): passed after two fixes (`guards-1.txt` -> `guards-2.txt`): the
+  configuration-persistence scan refused file writes in `load_world_inputs.py`; moved to the new evidence adapter,
+  named in that guard's evidence `Writer` list (as `legacy_comparison_file.py` was). `check-agent-workflow.ps1`:
+  passed. `check-decision-index.py`: OK. `statement_catalogue.py`: OK after refusal details became codes and names
+  only, and `--prune` dropped the one stale print of the old bulk-guard sentence.
+- Reach set, ONE `--db-lane` call at af5185c9f (card list + host/backend files importing `cold_publication` + Lab cold
+  bindings + all dd5a files; `reach-final.log`, file list `reach-final-files.txt`): REACH_RESULT.
+- D-DD.118: `grep -rn fuel_basis` over `bulk_load.py`, `load_world_inputs.py`, `world_seal.py`, the Postgres ledger,
+  `ledger.py`, `ledger_service.py`: no match.
+- Largest batch seen: 256 envelopes (the split test); world days in these tests are under 256 per source.
+- Mid-build questions to the lane Architect: 0 (deviation 7 is an inference to confirm).
 
 ## Known deviations
-1. Card/ruling say the world Site import is `("site-meter-1", "import")`; the depots' `/2` files and conversions
-   declare `site-meter`. Generated from the Foundation, so `("site-meter", "import")` (same entry as the lab's).
-2. "Kobo's roles-4 conversion digest byte-equal to main": the world Kobo conversion is roles-5, and `bindings_sha256`
-   includes fresh UUIDs, so no run-to-run pin exists. The test recomputes main's v3 formation from the stored rows and
-   asserts equality, plus no v4 rows.
-3. Readings values are millesimal text ("4.000"), which the envelope parsers refuse as non-canonical. The sealer
-   writes the same exact value in canonical spelling ("4"). Not named in the card; flag for the Architect.
-4. `ev_session_id` takes `connector_id` (the row's `session.connector_id`), not a device: the connector meter and the
-   charger controller carry one session, so a device-keyed id would differ between them. EV session events refuse
-   `WORLD_SEAL_EV_EVENT_PENDING` until DD4b fixes their row shape (D-DD.91 "EV (DD4b)" vs D-DD.139 differ on where
-   `session_id` comes from).
-
-5. D-DD.138 says a conversion of a v4 role set publishes v4 metadata. Applied to every conversion, it broke the Lab's
-   W2-02 design (v3 conversion, then a v4 PUBLISH revision; 24 tests). Built instead: `world_conversion=True` passed
-   only by `onboard_operator apply --bindings` (`convert(..., world_conversion=True)` -> `publish(...)`); Lab
-   replays keep v3 conversions. Architect to confirm (the ruling's mechanism, narrowed by caller).
+1-5. As part 1, all confirmed or accepted by D-DD.161 (site-meter name, Kobo digest form, canonical decimals, EV
+   session id now the pack's, `world_conversion` narrowing).
+6. DD4b's writer on main does not yet carry `"session": {"session_id", "connector_id"}` on in-session connector rows
+   (D-DD.161's DD4b follow-up; `telemetry_ev.py` drops the eighth tuple element before binding). Until it does, a real
+   EV readings day refuses `WORLD_SEAL_EV_UNCORRELATED` at its first energy row. Built and tested on hand rows in the
+   ruled shape. Needs the DD4b follow-up before DD5b runs EV days.
+7. An EV connector event outside a session (`EV_CONNECTOR_FAULT`/`CLEAR`) must carry `connector_id` (v4 contract);
+   the writer's event object has none then. The sealer uses the event's `connector_id` if present, else its
+   `component_id` (the writer sets both to the connector). Architect to confirm.
+8. Plant (b) surfaces as `BATCH_ID_CONFLICT`, not a message-id code: the batch id covers the sequence range.
+9. New file writer `evidence/adapters/sealed_batch_files.py`, added to `configuration-persistence.ps1`'s evidence
+   writers (the guard admits no write elsewhere in `backend/`).
+10. The bulk guard reads `BULK_PROVEN_SITE_TYPES` (named constant, same three types); its refusal detail is the Site
+   type only (statement catalogue). Codes named here: `WORLD_SEALED_BYTES_DIFFER` (re-seal mismatch or stray sealed
+   file), `WORLD_SEAL_EVENT_UNCORRELATED` (a cold event with no `correlation`), `WORLD_SEAL_VALUE_NOT_CANONICAL`.
+11. "Runs under `world.env` for the tenant" is the caller's (`tools/world.py`, DD5b); the module takes `DATABASE_URL`
+   and `--tenant` as before. C-DD8 on the store and C6's glob are DD5b's wiring.
 
 ## Moved pins
-1. `test_w205a_ev_foundation_postgres.py::test_legacy_w200_tuples_cannot_bind_under_the_ev_profile`: "legacy" now also
-   excludes `V4_WORLD_EV_CHANNEL_MAPPINGS` (a new closed table, not legacy W2-00 tuples).
-Lab EV/cold tables, Lab conversion digests, Kobo v3 digest formation and cold correlation bytes are unchanged.
+1. `test_w205a_ev_foundation_postgres.py::test_legacy_w200_tuples_cannot_bind_under_the_ev_profile` (part 1).
+2. `test_ds3_bulk_load.py` output-line keys (+`readings_files`, `sealed_batches`).
+3. `test_ds3_bulk_load_postgres.py` `case_coldchain_site` -> `case_unknown_site_type` (D-DD.140).

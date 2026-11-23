@@ -742,3 +742,14 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   `ev_session_id`.
 - Left open: `load_world_inputs` sealing (unit 3), bulk path for cold/EV with parity (unit 4), EV session events
   (after DD4b); the `site-meter` name and decimal spelling deviations (packet).
+
+## DD5a complete: sealing at load and the cold and EV bulk path (DD5.1; in_review; `specs/DD-demo-data/packet-DD5a.md`)
+- An EV session has one id, the pack's: the sealer copies `session_id`/`connector_id` from the event or the row's
+  `session` object; `ev_session_id` is gone from contracts (D-DD.161). Only connector energy claims a session.
+- `load_world_inputs` seals `*.readings.json` per Site against the pinned snapshot (resolved by `site_scope` and
+  `select_registered_basis`), writes `<slug>/sealed/` once through `evidence/adapters/sealed_batch_files.py`, refuses a
+  differing re-seal, then bulk-loads `/1` files and the sealed batches.
+- The bulk path admits MINIGRID, COLDCHAIN and EV_CHARGING (`BULK_PROVEN_SITE_TYPES`), each with a parity file; any
+  other type stays `BULK_SITE_TYPE_UNPROVEN`.
+- Left open: DD4b's writer must put `session` on in-session connector rows before real EV days seal; the EV fault
+  event's `connector_id` source (Architect); `world.env`, C6 glob and C-DD8 wiring are DD5b's.
