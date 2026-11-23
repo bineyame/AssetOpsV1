@@ -52,3 +52,5 @@ Asked (D-DD.152): Kobo may show 12 L unexplained fuel in Jul/Aug (no generator u
 
 Context given: with simulated fuel, Lakeside's Portfolio headline moved from -$852 behind plan to +$2,135 ahead (fuel $2,007.70 vs target $4,240; actual contribution ~1,443 -> 4,430); the plan side is unchanged and may have been typed on the same old fuel assumptions.
 Owner: "have the architect check the budget"
+Follow-up asked (DRAFT D-DD.166): replace Lakeside's typed fuel budget with a run-rate rule (Jul-Sep average fuel use + 10 % contingency at the declared price, Assumed); Portfolio headline about -$196.60, Kobo -$389.50, Kisiwa +$312.90, Mto -$120.00; +1.75 u as DD3d.5.
+Owner answer: "Approve run-rate rule (Recommended)".

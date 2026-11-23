@@ -98,7 +98,7 @@ down). Both are visible on the Fuel line as Assumed.
 
 ## 4. DRAFT ruling, awaiting owner
 
-**D-DD.166 (DRAFT, awaiting owner). The Lakeside fuel budget is the run-rate rule of §2, labelled Assumed; the typed
+**D-DD.166 (owner-approved 23 Nov: "Approve run-rate rule"). The Lakeside fuel budget is the run-rate rule of §2, labelled Assumed; the typed
 plan litres leave `M`. Cold and EV plans stand.** (Amends D-DD.147's "plan leaves stay the operator's budget" for the
 fuel leaves only; W6 class with D-DD.92 and D-DD.144; nothing fitted.)
 - *Rule.* October `plan.diesel_l` = round_half_even(1.10 x (tank 1 Jul + Jul-Sep deliveries - tank 1 Oct) / 3);
