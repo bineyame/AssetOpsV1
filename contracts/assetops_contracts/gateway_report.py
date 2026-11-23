@@ -296,6 +296,21 @@ def cold_event_id(*, scenario_sha256: str, device_id: str, signal_id: str, trans
     return _cold_digest([scenario_sha256, device_id, signal_id, transition_ordinal], "cold-")
 
 
+def cold_correlation_id(*, scenario_sha256: str, correlation_key: tuple[str, int]) -> str:
+    """The outage/attempt or door-cycle correlation of a cold event: `cold-` + SHA-256 of canonical
+    `[scenario_sha256, kind, ordinal]`, kind `outage` or `door`, ordinal one-based.
+
+    D-DD.139: moved here from `host/cold_publication.py` (which re-exports it) so world sealing forms the same id."""
+    kind, ordinal = correlation_key
+    return _cold_digest([scenario_sha256, kind, ordinal], "cold-")
+
+
+def ev_session_id(*, foundation_digest: str, connector_id: str, session_ordinal: int) -> str:
+    """D-DD.139: a world connector session's `session_id` (and its session events' `correlation_id`), formed at
+    sealing: `ev-` + SHA-256 of canonical `[foundation_digest, connector_id, session_ordinal]`."""
+    return _cold_digest([foundation_digest, connector_id, session_ordinal], "ev-")
+
+
 def cold_report_key(
     *,
     scenario_sha256: str,
