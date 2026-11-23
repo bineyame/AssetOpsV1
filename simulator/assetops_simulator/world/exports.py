@@ -11,6 +11,10 @@ month from that month's leaves through the manifest's `factor_map` (`nodes.NODES
 period records, or the emulator stops (`EMU_NODE`). The manifest is not read here: `nodes.NODES` is a module table with a
 parity test against the manifest (`simulator/tests/world/test_dd2b_nodes.py`).
 
+Fuel notes are purchases (D-DD.92, D-DD.130): for a Site in `config/world/fuel-notes.json` the expense rows are that
+file's notes, litres x the Site's diesel price, and `EMU_FUEL` is the sum of their amounts; the books carry no
+consumption figure (consumption is the readings'). A Site not in the file keeps D-DD.53's cycle of the month's litres.
+
 Totals must equal the nodes per Site or the emulator stops (`EMU_REVENUE`, `EMU_COLLECTIONS`, `EMU_FUEL`); a price
 or quantity that is not whole in its unit stops it too (`EMU_PRICE`, `EMU_QUANTITY`). ESTIMATED coverage writes
 nothing (GAP-1). Every field the manifest holds that no file carries is listed in `unwritten` with its reason; DS1b's
@@ -25,6 +29,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from datetime import datetime, timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
@@ -64,6 +69,9 @@ EXPENSE_ORDER = ("FUEL", "OM", "STAFF")
 DATED_NOTES = (("OOO-1", "lakeside-power", "Kobo", "2026-10-26", 400),)
 CYCLE_DAYS = (1, 8, 15, 22, 29)
 NOTE_HOUR = 10
+#: D-DD.92: the notes file `tools/dd3_pure_run.py --restate-notes` writes (`assetops.world-fuel-notes/1`).
+FUEL_NOTES_FILE = Path(__file__).resolve().parents[3] / "config" / "world" / "fuel-notes.json"
+FUEL_NOTES_SCHEMA = "assetops.world-fuel-notes/1"
 #: D-DD.54: the DS1b kinds staged as `<tenant>.<source_type>.json`.
 STAGED_KINDS = frozenset({"METER_ASSIGNMENT", "TARIFF_SCHEDULE", "ADJUSTMENT"})
 
@@ -301,25 +309,42 @@ def _notes(s: _Site, litres: int) -> list[tuple[int, int, bool]]:
     return [(day, note_l, False) for day, note_l in dated] + notes
 
 
-def _fuel_records(s: _Site) -> list[dict]:
-    litres = _whole(s.n["diesel_l"], f"EMU_QUANTITY {s.where()} diesel_l")
+def _fuel_records(s: _Site, file_notes: list[dict] | None = None) -> list[dict]:
+    """The month's fuel expense rows: the notes file's notes when the Site is in it (purchases, D-DD.130), else
+    D-DD.53's cycle of the month's litres (`EMU_FUEL`: the cycle's amounts must equal the fuel cost node)."""
     price = s.price_cents("diesel_usd_per_l")
-    notes = _notes(s, litres)
-    if sum(note_l for _, note_l, _ in notes) * price != s.n["fuel_cost"] * 100:
-        raise ValueError(f"EMU_FUEL {s.where()}")
+    if file_notes is not None:
+        notes = [(note["at"], _whole(_number(note["litres"]), f"EMU_QUANTITY {s.where()} fuel note"), False)
+                 for note in file_notes if datetime.fromisoformat(note["at"]).astimezone(s.zone).strftime("%Y-%m") == s.month]
+    else:
+        litres = _whole(s.n["diesel_l"], f"EMU_QUANTITY {s.where()} diesel_l")
+        notes = [(s.at(day, NOTE_HOUR), amount_l, remainder) for day, amount_l, remainder in _notes(s, litres)]
+        if sum(note_l for _, note_l, _ in notes) * price != s.n["fuel_cost"] * 100:
+            raise ValueError(f"EMU_FUEL {s.where()}")
     out = []
-    for k, (day, amount_l, remainder) in enumerate(notes, start=1):
+    for k, (occurred, amount_l, remainder) in enumerate(notes, start=1):
         name = f"fuel-{k}"
         record_id = s.record_id("actual", name)
         document = f"{record_id} remainder {amount_l} L" if remainder else record_id
         out.append(s.checked(name, {
             "format_version": 1, "kind": "EXPENSE", "source_record_id": record_id, "source_version": SOURCE_VERSION,
             "site_code": s.code, "subject": {"kind": "SITE", "ref": s.code},
-            "clocks": {"occurred_at": s.at(day, NOTE_HOUR), "recognition_period": s.month},
+            "clocks": {"occurred_at": occurred, "recognition_period": s.month},
             "quantity": {"value": str(amount_l), "unit": "L"},
             "amount": {"value": money_text(amount_l * price), "currency": s.currency}, "status": "INVOICED",
             "body": {"counterparty_ref": "fuel-supplier", "category": "FUEL", "document_ref": document}}))
+    if file_notes is not None and sum(_number(r["amount"]["value"]) for r in out) * 100 != \
+            sum(amount_l for _, amount_l, _ in notes) * price:
+        raise ValueError(f"EMU_FUEL {s.where()}")
     return out
+
+
+def read_fuel_notes(path: Path = FUEL_NOTES_FILE) -> dict:
+    """The notes file (D-DD.92). Required: the books are written from it, never assumed empty."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    if document.get("schema") != FUEL_NOTES_SCHEMA:
+        raise ValueError(f"EMU_FUEL {path.name} schema {document.get('schema')}")
+    return document
 
 
 def _budget_records(s: _Site, unwritten: list) -> tuple[list[dict], set[str]]:
@@ -391,10 +416,13 @@ def _staged(batch_json: dict, kept: list[dict]) -> tuple[str, bytes]:
     return f"{obj['tenant_code']}.{obj['source_type']}.json", to_canonical_json(parsed)
 
 
-def build_exports(view: dict, history: dict, *, months: list[str] | tuple[str, ...] | None = None) -> ExportsResult:
+def build_exports(view: dict, history: dict, *, months: list[str] | tuple[str, ...] | None = None,
+                  fuel_notes: dict | None = None) -> ExportsResult:
     """The emulated native files, the staged DS1b JSON, the statements and the unwritten list for a view and its
-    generated history (spec §2.5; DD spec §5.1). `months` defaults to every history month plus the accounting period."""
+    generated history (spec §2.5; DD spec §5.1). `months` defaults to every history month plus the accounting period.
+    `fuel_notes` (the notes file's document) defaults to `config/world/fuel-notes.json` (D-DD.92, D-DD.130)."""
     view = ManifestView.from_document(view)
+    notes_by_site = {site["site_code"]: site["notes"] for site in (fuel_notes or read_fuel_notes())["sites"]}
     records = build_records(view, history)
     accounting = view["accounting_period"]
     known = [*history["meta"]["months"], accounting]
@@ -463,7 +491,7 @@ def build_exports(view: dict, history: dict, *, months: list[str] | tuple[str, .
                         if node not in s.n:
                             unwritten.append((name, s.code, month, "actual", node, NOT_IN_HISTORY))
                 if s.cov.get("diesel") != "ESTIMATED" and "diesel_l" in s.n and "fuel_cost" in s.n:
-                    out["expenses"] += _fuel_records(s)
+                    out["expenses"] += _fuel_records(s, notes_by_site.get(s.code))
                     for field in ("diesel_l", "diesel_cost"):
                         written.add((name, s.code, month, "actual", field))
                 else:

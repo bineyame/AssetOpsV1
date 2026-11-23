@@ -83,7 +83,7 @@ def test_restating_iterates_until_no_crossing_and_never_overfills() -> None:
     first = at("2026-07-01T00:00")
     steps = 31 * 288
     simulate = _linear_tank(1000, 500, Fraction(1, 4), first, steps)  # 72 L a day on a 1000 L tank
-    dated = [{"at": "2026-07-20T10:00:00+03:00", "litres": "400", "basis": "STORY:OOO-1"}]
+    dated = [{"at": "2026-07-01T10:00:00+03:00", "litres": "400", "basis": "STORY:OOO-1"}]  # kept at its date
     notes = tool.restate(simulate, Fraction(1000), dated)
     reorder = [n for n in notes if n["basis"] == "REORDER"]
     assert reorder and all(n["litres"] == "400" for n in notes)

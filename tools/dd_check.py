@@ -461,10 +461,9 @@ def _stored_nodes(vertical: str, rows: list[dict], tenant: str, code: str, month
     charges = _by(rows, tenant, code, month, "CHARGE")
     receipts = _by(rows, tenant, code, month, "RECEIPT")
     if vertical == "MINI_GRID":
-        fuel = [r for r in _by(rows, tenant, code, month, "EXPENSE") if r["body"].get("category") == "FUEL"]
+        # D-DD.130: fuel rows are purchases, judged by `EMU_FUEL` and C-DD8's balance, not as nodes
         return {"billed_kwh": _sum(charges, "quantity"), "revenue": _sum(charges),
-                "collected": _sum([r for r in receipts if r["status"] == "COLLECTED"]),
-                "diesel_l": _sum(fuel, "quantity"), "fuel_cost": _sum(fuel)}
+                "collected": _sum([r for r in receipts if r["status"] == "COLLECTED"])}
     if vertical == "COLD_CHAIN":
         return {"revenue": _sum([r for r in charges if r["body"].get("line_type") == "STORAGE"]),
                 "received": _sum(receipts)}
@@ -474,8 +473,7 @@ def _stored_nodes(vertical: str, rows: list[dict], tenant: str, code: str, month
 #: Stored decided leaves: (expense category, the record fields that hold it, by vertical).
 _EXPENSE_LEAVES = {"MINI_GRID": (("OM", "om"), ("STAFF", "staff")), "COLD_CHAIN": (("OM", "maint"), ("STAFF", "staff")),
                    "EV_DEPOT": (("OM", "maintenance"),)}
-_RECORDED_NODE = {"MINI_GRID": {"billed_kwh": "billed_kwh", "revenue": "revenue", "collected": "collected",
-                                "diesel_l": "diesel_l", "fuel_cost": "diesel_cost"},
+_RECORDED_NODE = {"MINI_GRID": {"billed_kwh": "billed_kwh", "revenue": "revenue", "collected": "collected"},
                   "COLD_CHAIN": {"revenue": "revenue", "received": "collected"}}
 _STRUCTURE = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}
 
@@ -643,7 +641,7 @@ PURE_CHECKS = ("C-DD8", "C-DD17", "C-DD20")
 ONBOARDING_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
 ON_STATES = ("STARTING", "RUNNING")
 CANDIDATE_PV_SHARE = Decimal("1.1")  # dispatch-3.2's candidate rule: PV >= 1.1 x load (domain models §3.4)
-UNEXPLAINED_TOLERANCE = Decimal("0.02")  # the fuel balance's investigation tolerance, 2 % (domain models §3.3)
+CANDIDATE_SHARE_BOUND = Decimal("0.01")  # D-DD.148: Kisiwa's candidate time under 1 % of generator minutes per month
 KOBO_OCTOBER_UNEXPLAINED_L = Decimal(120)  # the manifest's Kobo October residual, printed beside the balance
 KISIWA_STORY = {"site": "KISIWA-001", "restored": "2026-08-17T11:00", "failed": "2026-10-30T18:40"}
 MTO_STORY = {"site": "MTO-001", "at": "2026-10-28T11:02"}
@@ -751,6 +749,54 @@ def tank_outside_bounds(sites: dict[str, dict], onboarding: dict) -> list[str]:
     return out
 
 
+def fuel_tolerances(manifest: Path = MANIFEST) -> dict[str, Decimal]:
+    """D-DD.149: per Site code, `M`'s `period.fuel_balance.tolerance_pct` as a share (never typed here)."""
+    doc = yaml.safe_load(Path(manifest).read_text(encoding="utf-8"))
+    return {site["code"]: Decimal(str(site["period"]["fuel_balance"]["tolerance_pct"])) / 100
+            for tenant in doc.get("tenants", []) for site in tenant.get("sites", [])
+            if "code" in site and "tolerance_pct" in site.get("period", {}).get("fuel_balance", {})}
+
+
+def generator_minutes(steps: dict[str, dict], step_minutes: int = STEP) -> dict[str, int]:
+    """Per month, minutes any generator is above 0 kW (the candidate count's own basis)."""
+    out: dict[str, int] = {}
+    for minute, s in sorted(steps.items()):
+        out.setdefault(minute[:7], 0)
+        if any(v > 0 for v in s["gen_kw"].values()):
+            out[minute[:7]] += step_minutes
+    return out
+
+
+def judge_candidate_share(steps: dict[str, dict]) -> tuple[bool, str]:
+    """D-DD.148/149: Kisiwa's candidate minutes under 1 % of its generator minutes in every month, printed."""
+    candidate, running = candidate_minutes(steps), generator_minutes(steps)
+    parts, ok = [], True
+    for month in sorted(running):
+        share = Decimal(candidate[month]) / running[month] if running[month] else Decimal(0)
+        good = share < CANDIDATE_SHARE_BOUND
+        ok &= good
+        parts.append(f"{'' if good else 'FAIL '}{month}: {candidate[month]} of {running[month]} min ({share * 100:.2f} %)")
+    return ok, f"KISIWA-001 candidate time by month (OR-MG-2: under 1 % of generator minutes) {'; '.join(parts)}"
+
+
+def judge_kisiwa_failure(steps: dict[str, dict], measured: dict) -> tuple[bool, str]:
+    """C-DD20 Kisiwa (D-DD.148): GEN-KS-01 FAILED and at 0 kW from 30 Oct 18:40 to the end, never restored; every
+    generator interval in 18:00-23:00 after then on GEN-KS-02; unserved energy 0 in every month (an energy is never
+    negative, so month totals of 0 prove every day is 0)."""
+    failed, unit, other = KISIWA_STORY["failed"], "gen-ks-01", "gen-ks-02"
+    after = sorted(m for m in steps if m >= failed)
+    bad = [m for m in after if steps[m]["gen_state"].get(unit) != "FAILED" or steps[m]["gen_kw"].get(unit, 0) != 0]
+    evening = [m for m in after if 18 <= int(m[11:13]) < 23 and any(v > 0 for v in steps[m]["gen_kw"].values())]
+    off_other = [m for m in evening if not steps[m]["gen_kw"].get(other, 0) > 0]
+    unserved = {m: sum((Decimal(v) for v in row.get("unserved_kwh", {}).values()), Decimal(0))
+                for m, row in sorted(measured.items())}
+    ok = bool(after) and not bad and not off_other and all(v == 0 for v in unserved.values())
+    return ok, (f"KISIWA-001 {unit} FAILED at 0 kW from {failed} over {len(after)} steps"
+                f"{f' (not at {len(bad)} steps, first {bad[0]})' if bad else ''}; {len(evening)} evening generator "
+                f"steps after it, {len(off_other)} not on {other}; unserved kWh by month "
+                f"{{{', '.join(f'{m}: {v}' for m, v in unserved.items())}}}")
+
+
 def candidate_minutes(steps: dict[str, dict], step_minutes: int = STEP) -> dict[str, int]:
     """Per month, minutes a generator runs while PV could carry the load (PV >= 1.1 x feeder load)."""
     out: dict[str, int] = {}
@@ -827,8 +873,8 @@ def judge_pure_c_dd8(pure: dict, onboarding: dict) -> Result:
     if kisiwa is None:
         failing.append("KISIWA-001: no readings for candidate minutes")
     else:
-        minutes = candidate_minutes(kisiwa["steps"])
-        (failing if any(minutes.values()) else detail).append(f"KISIWA-001 candidate minutes by month {minutes} (OR-MG-2)")
+        good, line = judge_candidate_share(kisiwa["steps"])
+        (detail if good else failing).append(line)
     return Result("C-DD8", not failing, [f"FAIL {d}" if d in failing else d for d in dict.fromkeys(detail + failing)])
 
 
@@ -841,6 +887,7 @@ def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
     balances = month_balances(kobo["steps"], kobo["manifest"].get("conditions", {}).get("fuel_notes", []),
                               generator_kit(onboarding, "KOBO-001"))
     detail, ok = [], True
+    tolerance = fuel_tolerances()["KOBO-001"]
     for month in ("2026-07", "2026-08", "2026-09", "2026-10"):
         b = balances.get(month)
         if b is None:
@@ -848,31 +895,26 @@ def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
             ok = False
             continue
         share = b["balance"] / b["consumed"] if b["consumed"] else Decimal(0)
-        good = b["balance"] >= 0 and ((share > UNEXPLAINED_TOLERANCE) if month == "2026-10" else
-                                      (share <= UNEXPLAINED_TOLERANCE))
+        good = b["balance"] >= 0 and ((share > tolerance) if month == "2026-10" else (share <= tolerance))
         ok &= good
         detail.append(f"{'' if good else 'FAIL '}{month}: unexplained {b['balance']:.1f} L of consumed {b['consumed']:.1f} "
-                      f"({share * 100:.2f} %, tolerance {UNEXPLAINED_TOLERANCE * 100:.0f} %)")
+                      f"({share * 100:.2f} %, tolerance {tolerance * 100:.0f} %, M's tolerance_pct)")
     return Result("C-DD17", ok, detail)
 
 
 def judge_pure_c_dd20(pure: dict, onboarding: dict) -> Result:
-    """C-DD20's Kisiwa and Mto clauses (by direction; nothing tuned). Kisiwa from `measured.json`'s months: unserved
-    energy in October (the month holding 30 Oct 18:40) and none in a month wholly between 17 Aug 11:00 and then (the
-    month totals do not resolve 17-31 Aug or 1-30 Oct; stated). Mto: generator litres per day rise after 28 Oct 11:02."""
+    """C-DD20's Kisiwa and Mto clauses (by direction; nothing tuned). Kisiwa by D-DD.148 (`judge_kisiwa_failure`).
+    Mto: generator litres per day rise after 28 Oct 11:02."""
     detail, ok = [], True
     months = pure["measured"].get(KISIWA_STORY["site"])
-    if months is None:
-        detail.append("FAIL KISIWA-001: no measured months")
+    kisiwa = pure["sites"].get(KISIWA_STORY["site"])
+    if months is None or kisiwa is None:
+        detail.append("FAIL KISIWA-001: no measured months or readings")
         ok = False
     else:
-        total = {m: sum((Decimal(v) for v in row.get("unserved_kwh", {}).values()), Decimal(0)) for m, row in months.items()}
-        between = [m for m in total if KISIWA_STORY["restored"][:7] < m < KISIWA_STORY["failed"][:7]]
-        good = total.get(KISIWA_STORY["failed"][:7], Decimal(0)) > 0 and bool(between) and all(total[m] == 0 for m in between)
+        good, line = judge_kisiwa_failure(kisiwa["steps"], months)
         ok &= good
-        detail.append(f"{'' if good else 'FAIL '}KISIWA-001 unserved kWh by month {{{', '.join(f'{m}: {v}' for m, v in sorted(total.items()))}}};"
-                      f" months wholly between 17 Aug 11:00 and 30 Oct 18:40: {between} (17-31 Aug and 1-30 Oct are "
-                      f"inside month totals)")
+        detail.append(f"{'' if good else 'FAIL '}{line}")
     mto = pure["sites"].get(MTO_STORY["site"])
     if mto is None:
         detail.append("FAIL MTO-001: no readings")
