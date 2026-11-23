@@ -49,7 +49,8 @@ def _raw(*, old_asset: UUID, rows_asset: UUID, pinned_asset: UUID):
     rows = [_row(old_b, "pv_power", rows_asset, at), _row(old_b, "pv_power", rows_asset, at + timedelta(minutes=5))]
     raw = HourRows(
         timezone=TZ, foundations=[(FOUNDATION, EARLY, None, {"components": []})],
-        binding_sets=[(pinned_set, SPLIT, None)], bindings=[pinned[:5]], assets=[("pv-inverter", pinned_asset)],
+        binding_sets=[(pinned_set, SPLIT, None, "minigrid-roles-4")], bindings=[pinned[:5]],
+        assets=[("pv-inverter", pinned_asset)],
         accepted=rows, prior_supply=[], row_foundations={FOUNDATION: (FOUNDATION, EARLY, None, {"components": []})},
         row_bindings={old_b: old},
     )

@@ -285,7 +285,7 @@ class HourRows:
 
     timezone: str | None
     foundations: Sequence[Any]  # (id, valid_from, valid_to, content) known at the cutoff, overlapping the hour
-    binding_sets: Sequence[Any]  # (id, valid_from, valid_to)
+    binding_sets: Sequence[Any]  # (id, valid_from, valid_to, role_set)
     bindings: Sequence[Any]  # (id, role, asset_id, valid_from, valid_to) of the single set, else empty
     assets: Sequence[Any]  # (asset_code, id)
     accepted: Sequence[Any]
@@ -306,8 +306,8 @@ def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: 
         f"SELECT id, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
         f"AND {_KNOWN} AND {_OVERLAPS}"), p).all()
     sets = c.execute(text(
-        f"SELECT id, valid_from, valid_to FROM signal_binding_set_revision WHERE tenant_id = :t AND site_id = :s "
-        f"AND role_set = ANY(:rs) AND {_KNOWN} AND {_OVERLAPS}"), {**p, "rs": list(role_sets)}).all()
+        f"SELECT id, valid_from, valid_to, role_set FROM signal_binding_set_revision WHERE tenant_id = :t "
+        f"AND site_id = :s AND role_set = ANY(:rs) AND {_KNOWN} AND {_OVERLAPS}"), {**p, "rs": list(role_sets)}).all()
     bindings = c.execute(text(
         "SELECT id, role, asset_id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t "
         "AND site_id = :s AND binding_set_revision_id = :b ORDER BY id"), {**p, "b": sets[0][0]}).all()         if len(sets) == 1 else []

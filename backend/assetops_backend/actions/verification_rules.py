@@ -420,8 +420,9 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
     only bound assets for the single-asset roles; a reading of any other asset is ignored, never mixed in.
 
     D-DD.118: `unit_roles` names the single-power roles and `generator_state` that are unit roles in the bound sets
-    (PER_ASSET, roles-5). Reported by several assets, such a role is the Site figure through `sites/unit_roles` (each
-    unit's slot payload under `units`); elsewhere several assets stay `AMBIGUOUS_BINDING`. One asset: as before."""
+    (PER_ASSET, roles-5). Bound to several assets in `role_assets` (or, unbound, reported by several), such a role is
+    the Site figure through `sites/unit_roles` (each unit's slot payload under `units`; a silent bound unit is named
+    and leaves the Site figure absent); elsewhere several assets stay `AMBIGUOUS_BINDING`. One asset: as before."""
     end = start + WINDOW
     bad_window = window_problem(start, end)
     if bad_window:
@@ -445,7 +446,12 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
     unit_role_set = set(unit_roles) & {*_SINGLE_POWER_ROLES, "generator_state"}
     for role in (*_SINGLE_POWER_ROLES, "generator_state", "battery_soc"):
         assets = sorted({r.asset_id for r in readings if r.role == role})
-        if len(assets) > 1 and role in unit_role_set:
+        if role in unit_role_set and len(allowed.get(role, ())) > 1:
+            # DD3c review H2: the units are the bound assets, whatever reported; a silent unit is named, its slots
+            # unknown, and the Site figure absent there (D-DD.41)
+            units_of[role] = sorted(allowed[role])
+            single_assets[role] = ""
+        elif len(assets) > 1 and role in unit_role_set:
             units_of[role] = assets
             single_assets[role] = ""
         elif len(assets) > 1:

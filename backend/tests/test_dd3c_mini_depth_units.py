@@ -205,8 +205,8 @@ def test_mto_renewable_hour_sums_the_inverters() -> None:
 def test_kisiwa_fuel_hour_burns_each_unit_on_its_own_sfc() -> None:
     hi = hour(_World(ROLES_5, KISIWA_GENS, KOBO_PV))
     f = assess("fuel", hi)
-    assert f.nominal_l == Decimal("7.2")  # 10 kWh x 0.3 + 12 kWh x 0.35
-    assert f.expected_use_l.high == Decimal("7.92")
+    assert abs(f.nominal_l - Decimal("7.2")) < Decimal("1e-20")  # 10 kWh x 0.3 + 12 kWh x 0.35 (28-digit)
+    assert abs(f.expected_use_l.high - Decimal("7.92")) < Decimal("1e-20")
     assert len(f.sfc_property_revision_ids) == 1 and len(hi.fuel.sfc) == 1  # one Foundation revision, two units
     assert len(f.generator_power_evidence_ids) == 24  # both units' 12 intervals cited
     assert "CONFLICT" not in {l.code for l in f.limitations}

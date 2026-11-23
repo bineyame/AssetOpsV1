@@ -341,8 +341,13 @@ class PostgresAssessmentStore:
                                              f"{reserve.get('source')} v{reserve.get('source_version')}"))
             else:
                 limits.append(f"Foundation v{version} has no battery reserve control")
-            # D-DD.118: the lead unit's policy; a non-lead unit holding one raises `UnitRolesRefused` (no new text)
-            runtime = _lead_policy_property(content, "minimum-runtime")
+            # D-DD.118: the lead unit's policy. A non-lead unit holding one is refused (D-DD.43); D-DD.108 Q6 maps the
+            # refusal to the existing minimum-runtime limit line naming that unit, not a failed (retried) job
+            try:
+                runtime = _lead_policy_property(content, "minimum-runtime")
+            except unit_roles.UnitRolesRefused as refused:
+                runtime = None
+                limits.append(f"Foundation v{version} minimum-runtime unit {refused.unit!r} not mapped")
             if runtime is not None:
                 minutes = _minutes(runtime)
                 if minutes is None:
