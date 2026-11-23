@@ -66,6 +66,9 @@ def _world_p(name: str = "A") -> dict:
     return {"2026-09": copy_to(served, "2026-09"), "2026-10": served}
 
 
+MODELLED = "Modelled, not yet reconciled"
+
+
 class Snapshots:
     def __init__(self, months: dict) -> None:
         self.months, self.asked = months, []
@@ -146,18 +149,18 @@ def test_2_world_p_two_months() -> None:
     assert b["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management "
                                 "accounts. Kisiwa's budget disagrees with its own lines.")
     assert b["fresh"] is None
-    assert b["headline"] == {"text": "Contribution is $1,704.00 below target across September and October; cost and "
-                                     "efficiency explain $1,510.00 of it.",
-                             "evidence": ["Estimated, not yet reconciled"]}
+    assert b["headline"] == {"text": "Contribution is $4,273.20 above target across September and October; cost and "
+                                     "efficiency explain $4,467.20, more than the whole gap.",
+                             "evidence": [MODELLED]}
     t0, t1, t2, t3 = b["tiles"]
-    assert (t0["key"], t0["label"], t0["value"], t0["word"]) == ("contribution", "Contribution", "$2,886.00",
-                                                                 "Estimated, not yet reconciled")
+    assert (t0["key"], t0["label"], t0["value"], t0["word"]) == ("contribution", "Contribution", "$8,863.20",
+                                                                 MODELLED)
     # P.5 and R2 (D-IAP.25): tile 1 keeps 5c's Sites line beside the target line.
-    assert t0["lines"] == ["Target $4,590.00 · 63% of target", "3 of 3 Sites"]
-    assert t0["bar"] == {"actual": "2886.00", "target": "4590.00"}
-    assert (t1["key"], t1["label"], t1["value"], t1["word"]) == ("gap", "Gap to target", "−$1,704.00",
-                                                                 "Estimated, not yet reconciled")
-    assert t1["lines"] == ["Grow −$194.00 · Optimize −$1,510.00"] and t1["bar"] is None
+    assert t0["lines"] == ["Target $4,590.00 · 193% of target", "3 of 3 Sites"]
+    assert t0["bar"] == {"actual": "8863.20", "target": "4590.00"}
+    assert (t1["key"], t1["label"], t1["value"], t1["word"]) == ("gap", "Gap to target", "+$4,273.20",
+                                                                 MODELLED)
+    assert t1["lines"] == ["Grow −$194.00 · Optimize +$4,467.20"] and t1["bar"] is None
     five_c = month_view(operator="Lakeside Power", month="2026-10", served=world("A")[0], standing=NOT_MATCHED,
                         actions=OFF, names=NAMES, now=NOW)["tiles"]
     assert [t2, t3] == five_c[2:]
@@ -169,14 +172,14 @@ def test_2_world_p_two_months() -> None:
     for row, (month, words, first, last) in zip(m["rows"], (("2026-09", "September 2026", "2026-09-01", "2026-09-30"),
                                                             ("2026-10", "October 2026", "2026-10-01", "2026-10-31"))):
         assert row == {"month": month, "month_words": words, "from": first, "to": last, "state": "SERVED",
-                       "contribution": "$1,443.00 against a target of $2,295.00", "gap": "−$852.00",
-                       "gap_word": "Estimated, not yet reconciled", "driver": "Fuel cost −$755.00",
-                       "driver_heading": "Optimize cost and efficiency", "sites": "3 of 3 Sites"}
+                       "contribution": "$4,431.60 against a target of $2,295.00", "gap": "+$2,136.60",
+                       "gap_word": MODELLED, "driver": "Revenue −$97.00",
+                       "driver_heading": "Grow revenue", "sites": "3 of 3 Sites"}
     grow, optimize, protect, assure = b["outcomes"]
     assert grow == {"key": "grow", "label": "Grow revenue", "value": "−$194.00", "word": "Emulated, not yet reconciled",
                     "line": "Revenue against target, over 2 months", "drawer": None}
-    assert optimize == {"key": "optimize", "label": "Optimize cost and efficiency", "value": "−$1,510.00",
-                        "word": "Estimated, not yet reconciled",
+    assert optimize == {"key": "optimize", "label": "Optimize cost and efficiency", "value": "+$4,467.20",
+                        "word": MODELLED,
                         "line": "Fuel, O&M and staff against target; cash collected is shown apart", "drawer": None}
     assert protect == {"key": "protect", "label": "Protect asset and capital", "value": "Not available yet",
                        "word": None, "line": "Limits, warranties and rights are not set up yet", "drawer": None}
@@ -188,6 +191,19 @@ def test_2_world_p_two_months() -> None:
         "within 1%."]}
     assert b["actions"] == {"title": "Actions in hand", "connected": False,
                             "text": b["actions"]["text"], "rows": [], "more": 0}
+
+
+def test_2c_money_text_is_whole_cents() -> None:
+    """DD3d.4: Kobo's fuel cost is 924.22875; the period's bar and figures are whole cents, rounded from the exact sum
+    (8,599.7425 over the two months), never a third decimal (`deep_dive.words.plain`)."""
+    from test_5c_deep_dive_view import LONG_MONEY, strings, world_c
+
+    served, _, _ = world_c()
+    got = period({"2026-09": copy_to(served, "2026-09"), "2026-10": served}, "2026-09-01", "2026-10-31")["body"]
+    assert (got["tiles"][0]["value"], got["tiles"][0]["bar"]) == ("$8,599.74",
+                                                                  {"actual": "8599.74", "target": "4590.00"})
+    assert [r["contribution"] for r in got["months"]["rows"]] == ["$4,299.87 against a target of $2,295.00"] * 2
+    assert [x for x in strings(got) if LONG_MONEY.search(x)] == []
 
 
 def test_3_one_figure() -> None:  # plant `onefig`

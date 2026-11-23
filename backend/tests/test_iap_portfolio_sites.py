@@ -36,7 +36,7 @@ REFS = (SiteRef("KOBO-001", "Kobo", "MINIGRID"), SiteRef("KISIWA-001", "Kisiwa",
 THIKA = SiteRef("THIKA-001", "Thika", "COLDCHAIN")
 NA = "Not available yet"
 OPT, GROW = "Optimize cost and efficiency", "Grow revenue"
-WORD = "Estimated, not yet reconciled"
+WORD = "Modelled, not yet reconciled"
 
 
 def sites(months: dict, first: str, last: str, refs=REFS) -> dict:
@@ -57,22 +57,45 @@ def test_1_world_a_october() -> None:  # plant `order`
     assert got["columns"] == ["Site", "Group", "Contribution", "Gap to target", "Largest driver against target",
                               "Waiting for a choice"]
     assert [figures(r) for r in got["rows"]] == [
-        ("Kobo", "$883.00 against a target of $1,445.00", "−$562.00", "Fuel cost −$600.00", OPT),
-        ("Kisiwa", "−$250.00 against a target of −$65.00", "−$185.00", "Fuel cost −$130.00", OPT),
-        ("Mto", "$810.00 against a target of $915.00", "−$105.00", "Revenue −$80.00", GROW)]
-    assert [r["below"] for r in got["rows"]] == [True, True, True]
+        ("Kobo", "$1,565.50 against a target of $1,445.00", "+$120.50", "No driver widens the gap", None),
+        ("Mto", "$1,170.00 against a target of $915.00", "+$255.00", "Revenue −$80.00", GROW),
+        ("Kisiwa", "$1,696.10 against a target of −$65.00", "+$1,761.10", "Revenue −$55.00", GROW)]
+    assert [r["below"] for r in got["rows"]] == [False, False, False]
     assert [r["group"] for r in got["rows"]] == ["Mini-grid"] * 3
-    assert [r["site_code"] for r in got["rows"]] == ["KOBO-001", "KISIWA-001", "MTO-001"]
-    assert [r["gap_word"] for r in got["rows"]] == ["Emulated, not yet reconciled", WORD, "Emulated, not yet reconciled"]
+    assert [r["site_code"] for r in got["rows"]] == ["KOBO-001", "MTO-001", "KISIWA-001"]
+    assert [r["gap_word"] for r in got["rows"]] == [WORD, WORD, WORD]
     assert all(r["months_text"] is None for r in got["rows"])
-    assert got["total"] == {"gap": "−$852.00", "word": WORD}
-    assert got["headline"] == {"text": "3 of 3 Sites are below target in October", "evidence": [WORD]}
+    assert got["total"] == {"gap": "+$2,136.60", "word": WORD}
+    assert got["headline"] == {"text": "Every Site is on or above target in October", "evidence": [WORD]}
     assert got["as_of_text"] == "Figures as of 20 November 2026, 08:00 UTC."
     assert got["without_target"] == {"count": 0, "text": None}
     # R9: each compared row's gap is its Site's `by_site` Gap cell in October's month view, string for string.
     by_site = month_view(operator="Lakeside Power", month="2026-10", served=world("A")[0], standing=NOT_MATCHED,
                          actions=OFF, names=NAMES, now=NOW)["bridge"]["by_site"]["rows"]
     assert {r["site"]: r["gap"] for r in got["rows"]} == {cells[0]: cells[3] for cells in by_site}
+
+
+def test_1b_sites_below_target(monkeypatch) -> None:  # plant `order`
+    """World A's Sites are all on or above target (D-DD.164's figures), so the below-target rows are read on it with
+    Kobo's and Mto's effects turned over: worst gap first, counted, and the cost step named."""
+    real = V.site_bridge
+
+    def turned(inputs, targets):
+        sb = real(inputs, targets)
+        if sb.site_code == "KISIWA-001":
+            return sb
+        root = sb.roots[T.ROOT]
+        rows = tuple(replace(row, effect=-row.effect, rows=tuple(replace(c, effect=-c.effect) for c in row.rows))
+                     for row in root.rows)
+        return replace(sb, roots={**sb.roots, T.ROOT: replace(root, effect=-root.effect, rows=rows)})
+
+    monkeypatch.setattr(V, "site_bridge", turned)
+    monkeypatch.setattr(S, "_check_sum", lambda z, compared: None)  # the turned roots no longer add to R
+    got = sites({"2026-10": world("A")[0]}, "2026-10-01", "2026-10-31")
+    assert [(r["site"], r["gap"], r["below"], r["driver"], r["driver_heading"]) for r in got["rows"]] == [
+        ("Mto", "−$255.00", True, "Fuel cost −$335.00", OPT), ("Kobo", "−$120.50", True, "Fuel cost −$82.50", OPT),
+        ("Kisiwa", "+$1,761.10", False, "Revenue −$55.00", GROW)]
+    assert got["headline"]["text"] == "2 of 3 Sites are below target in October"
 
 
 def test_2_world_g_names_thika_by_its_type() -> None:
@@ -177,13 +200,13 @@ def test_7_world_p_two_months() -> None:
     got = sites(_world_p(), "2026-09-01", "2026-10-31")
     assert got["mode"] == "period"
     assert [figures(r)[:4] for r in got["rows"]] == [
-        ("Kobo", "$1,766.00 against a target of $2,890.00", "−$1,124.00", "Fuel cost −$1,200.00"),
-        ("Kisiwa", "−$500.00 against a target of −$130.00", "−$370.00", "Fuel cost −$260.00"),
-        ("Mto", "$1,620.00 against a target of $1,830.00", "−$210.00", "Revenue −$160.00")]
+        ("Kobo", "$3,131.00 against a target of $2,890.00", "+$241.00", "No driver widens the gap"),
+        ("Mto", "$2,340.00 against a target of $1,830.00", "+$510.00", "Revenue −$160.00"),
+        ("Kisiwa", "$3,392.20 against a target of −$130.00", "+$3,522.20", "Revenue −$110.00")]
     assert all(r["months_text"] is None for r in got["rows"])
     e2 = period(_world_p(), "2026-09-01", "2026-10-31")["body"]["tiles"][1]
-    assert got["total"] == {"gap": "−$1,704.00", "word": e2["word"]} and e2["value"] == "−$1,704.00"
-    assert got["headline"]["text"] == "3 of 3 Sites are below target in September and October"
+    assert got["total"] == {"gap": "+$4,273.20", "word": e2["word"]} and e2["value"] == "+$4,273.20"
+    assert got["headline"]["text"] == "Every Site is on or above target in September and October"
 
 
 def test_8_a_site_compared_in_one_month() -> None:

@@ -33,33 +33,33 @@
     "status_line": "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.",
     "fresh": null,
     "headline": {
-      "text": "Contribution is $1,704.00 below target across September and October; cost and efficiency explain $1,510.00 of it.",
+      "text": "Contribution is $4,273.20 above target across September and October; cost and efficiency explain $4,467.20, more than the whole gap.",
       "evidence": [
-        "Estimated, not yet reconciled"
+        "Modelled, not yet reconciled"
       ]
     },
     "tiles": [
       {
         "key": "contribution",
         "label": "Contribution",
-        "value": "$2,886.00",
-        "word": "Estimated, not yet reconciled",
+        "value": "$8,863.20",
+        "word": "Modelled, not yet reconciled",
         "lines": [
-          "Target $4,590.00 · 63% of target",
+          "Target $4,590.00 · 193% of target",
           "3 of 3 Sites"
         ],
         "bar": {
-          "actual": "2886.00",
+          "actual": "8863.20",
           "target": "4590.00"
         }
       },
       {
         "key": "gap",
         "label": "Gap to target",
-        "value": "−$1,704.00",
-        "word": "Estimated, not yet reconciled",
+        "value": "+$4,273.20",
+        "word": "Modelled, not yet reconciled",
         "lines": [
-          "Grow −$194.00 · Optimize −$1,510.00"
+          "Grow −$194.00 · Optimize +$4,467.20"
         ],
         "bar": null
       },
@@ -101,11 +101,11 @@
           "from": "2026-09-01",
           "to": "2026-09-30",
           "state": "SERVED",
-          "contribution": "$1,443.00 against a target of $2,295.00",
-          "gap": "−$852.00",
-          "gap_word": "Estimated, not yet reconciled",
-          "driver": "Fuel cost −$755.00",
-          "driver_heading": "Optimize cost and efficiency",
+          "contribution": "$4,431.60 against a target of $2,295.00",
+          "gap": "+$2,136.60",
+          "gap_word": "Modelled, not yet reconciled",
+          "driver": "Revenue −$97.00",
+          "driver_heading": "Grow revenue",
           "sites": "3 of 3 Sites"
         },
         {
@@ -114,11 +114,11 @@
           "from": "2026-10-01",
           "to": "2026-10-31",
           "state": "SERVED",
-          "contribution": "$1,443.00 against a target of $2,295.00",
-          "gap": "−$852.00",
-          "gap_word": "Estimated, not yet reconciled",
-          "driver": "Fuel cost −$755.00",
-          "driver_heading": "Optimize cost and efficiency",
+          "contribution": "$4,431.60 against a target of $2,295.00",
+          "gap": "+$2,136.60",
+          "gap_word": "Modelled, not yet reconciled",
+          "driver": "Revenue −$97.00",
+          "driver_heading": "Grow revenue",
           "sites": "3 of 3 Sites"
         }
       ]
@@ -135,8 +135,8 @@
       {
         "key": "optimize",
         "label": "Optimize cost and efficiency",
-        "value": "−$1,510.00",
-        "word": "Estimated, not yet reconciled",
+        "value": "+$4,467.20",
+        "word": "Modelled, not yet reconciled",
         "line": "Fuel, O&M and staff against target; cash collected is shown apart",
         "drawer": null
       },
