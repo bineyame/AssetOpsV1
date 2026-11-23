@@ -8,7 +8,7 @@ on the bulk path, `test_dd_parity_cold_ev_postgres.py`, the `:688` lift) and EV 
 USER_REVIEW_REQUIRED: false (protected seams `contracts/`, binding service; no UI; one discovery review per the card).
 
 ## What was built
-- Unit 1 (D-DD.138). `contracts/.../source_envelope_v4.py`: `world_ev_channel_mappings(device_ids)` generates a
+- Unit 1 (D-DD.138; see deviation 5). `contracts/.../source_envelope_v4.py`: `world_ev_channel_mappings(device_ids)` generates a
   depot's closed table (`_ev_connector(prefix)` per `ch-<code>-c<n>` prefix, plus the Site import; any other device
   raises), `WORLD_EV_CONNECTOR_PREFIXES` per depot, `V4_WORLD_EV_CHANNEL_MAPPINGS` (union), added to
   `V4_CHANNEL_MAPPINGS` (the ledger's `_decide_v4` lookup). Lab EV and cold tables byte-identical (digest test).
@@ -49,7 +49,12 @@ USER_REVIEW_REQUIRED: false (protected seams `contracts/`, binding service; no U
 - `tools/check-architecture.ps1` (guard python set): passed. `check-agent-workflow.ps1`: passed.
   `check-decision-index.py`: OK. `statement_catalogue.py`: exit 0.
 - Reach set (card list minus the unbuilt parity file, plus the four host/backend files importing `cold_publication`
-  and the dd5a files), one `--db-lane` call: RESULT_PLACEHOLDER
+  and the dd5a files), one `--db-lane` call: first run at 4e43b92cc: 25 failed, 230 passed, 1 skipped, 504 s
+  (wall 11 min 15 s incl. slot wait) (`reach.log`): 23 Lab cold replays refused "already exactly these" (their v3
+  conversion now carried v4, so the later v4 PUBLISH was no change), `test_cold_001_conversion_carries_no_v4_keys`,
+  and the EV legacy-tuple set (world tuples counted as legacy). Fixed (deviation 5, moved pin 1); the 8 affected files
+  plus the dd5a and DD1 onboarding files rerun at cc5de2845: **62 passed**, 152 s (`reach-rerun.log`). Main: no rerun
+  needed; the failures were this branch's and are gone (`.agent/main-baseline/23d2cd9f6.md` covers main).
 - D-DD.118: `grep -rn fuel_basis backend/assetops_backend/evidence/ backend/assetops_backend/load_world_inputs.py`:
   no match (bulk load does not call it).
 - Largest batch seen: 256 envelopes (the split test). Mid-build questions to the lane Architect: 0.
@@ -67,7 +72,12 @@ USER_REVIEW_REQUIRED: false (protected seams `contracts/`, binding service; no U
    `WORLD_SEAL_EV_EVENT_PENDING` until DD4b fixes their row shape (D-DD.91 "EV (DD4b)" vs D-DD.139 differ on where
    `session_id` comes from).
 
+5. D-DD.138 says a conversion of a v4 role set publishes v4 metadata. Applied to every conversion, it broke the Lab's
+   W2-02 design (v3 conversion, then a v4 PUBLISH revision; 24 tests). Built instead: `world_conversion=True` passed
+   only by `onboard_operator apply --bindings` (`convert(..., world_conversion=True)` -> `publish(...)`); Lab
+   replays keep v3 conversions. Architect to confirm (the ruling's mechanism, narrowed by caller).
+
 ## Moved pins
-None. Lab EV/cold tables, Kobo v3 digest formation and cold correlation bytes are unchanged. Lab cold/EV conversions
-(`cold-lab-001`, `ev-lab-001`) now publish v4 metadata (ruling), which changes those sets' digests; no test pins them
-(reach set below).
+1. `test_w205a_ev_foundation_postgres.py::test_legacy_w200_tuples_cannot_bind_under_the_ev_profile`: "legacy" now also
+   excludes `V4_WORLD_EV_CHANNEL_MAPPINGS` (a new closed table, not legacy W2-00 tuples).
+Lab EV/cold tables, Lab conversion digests, Kobo v3 digest formation and cold correlation bytes are unchanged.

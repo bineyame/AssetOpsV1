@@ -21,5 +21,6 @@ Branch `task/DD5a-load`, worktree `/opt/assetecon/AssetOpsV1-dd5a`. Packet `pack
 - EV half after DD4b: EV session events in `world_seal._envelope_text` (now refuse `WORLD_SEAL_EV_EVENT_PENDING`).
 
 ## Risks
-- Known deviations 1-4 in the packet (site-meter name, Kobo digest form, decimal spelling, `ev_session_id` key).
+- Known deviations 1-5 in the packet (site-meter name, Kobo digest form, decimal spelling, `ev_session_id` key,
+  v4 conversion metadata only for world conversions via `onboard_operator`).
 - `host/tests/test_dd5a_world_seal_parity.py` imports helpers from `backend/tests/test_dd5a_world_seal.py` by path.
