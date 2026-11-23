@@ -24,7 +24,12 @@ CHANNELS = {
     ("chamber-probe", "temperature"): ("meter", "chamber_temperature"),
     ("door-sensor", "event"): ("door", "door_event"),
     ("ch-k1-c1-connector-meter", "energy"): ("ev", "ev_connector_energy"),
+    ("ch-k1-c1-connector-controller", "power"): ("ev", "ev_power"),
+    ("ch-k1-c1-charger-controller", "session-event"): ("ev", "ev_session_event"),
+    ("ch-k1-c1-connector-controller", "fault-event"): ("ev", "ev_connector_fault"),
 }
+#: The pack's id for one session (DD4b's writer, `scoped_session_id`): carried, never formed at sealing (D-DD.161).
+PACK_SESSION = "ev-" + "c" * 64
 
 
 def _context(**change) -> SealContext:
@@ -80,3 +85,79 @@ def test_an_unbound_channel_refuses() -> None:
 def test_a_millesimal_reading_seals_in_canonical_spelling() -> None:
     assert [world_seal._value(v) for v in ("4.000", "12.500", "0.000", "-1.250", "100", "ON", None)] == [
         "4", "12.5", "0", "-1.25", "100", "ON", None]
+
+
+# --- D-DD.161: one id per EV session, the pack's ---------------------------------------------------------------------
+
+def _session_event(**change) -> dict:
+    event = {"record_kind": "EV_SESSION_START", "outcome": "STARTED", "actor": "CONTROLLER", "component_id": "ch-k1-c1",
+             "ordinal": 2, "correlation": None, "session_id": PACK_SESSION, "connector_id": "ch-k1-c1"}
+    return {"source_id": "ch-k1-c1-charger-controller", "signal_id": "session-event",
+            "start": "2026-10-12T22:05:00+03:00", "end": "2026-10-12T22:05:00+03:00", "value": None, "unit": "event",
+            "event": {**event, **change}}
+
+
+def _energy(session=True) -> dict:
+    row = {"source_id": "ch-k1-c1-connector-meter", "signal_id": "energy", "start": "2026-10-12T22:05:00+03:00",
+           "end": "2026-10-12T22:10:00+03:00", "value": "4.000", "unit": "kWh"}
+    if session:
+        row["session"] = {"session_id": PACK_SESSION, "connector_id": "ch-k1-c1"}
+    return row
+
+
+def _payload(text: str) -> dict:
+    return json.loads(text)["payload"]
+
+
+def test_ev_session_event_and_in_session_energy_carry_the_pack_session_id() -> None:
+    (batch,) = seal_readings(_context(), [_day([_session_event(), _energy()])])
+    event, energy = (_payload(t) for t in json.loads(batch.text)["envelopes"])
+    assert event["session_id"] == event["correlation_id"] == energy["session_id"] == PACK_SESSION
+    assert event["connector_id"] == energy["connector_id"] == "ch-k1-c1"
+    assert energy["value"] == "4"
+
+
+def test_ev_session_id_is_withdrawn_from_contracts() -> None:
+    from assetops_contracts import gateway_report
+
+    assert not hasattr(gateway_report, "ev_session_id")
+
+
+def test_an_in_session_mean_claims_no_session() -> None:
+    row = {"source_id": "ch-k1-c1-connector-controller", "signal_id": "power", "start": "2026-10-12T22:05:00+03:00",
+           "end": "2026-10-12T22:10:00+03:00", "value": "30.000", "unit": "kW",
+           "session": {"session_id": PACK_SESSION, "connector_id": "ch-k1-c1"}}
+    payload = _payload(_only_envelope(seal_readings(_context(), [_day([row])])))
+    assert payload["session_id"] is None and payload["connector_id"] is None
+
+
+def test_an_ev_event_without_a_session_forms_cold_ids_over_its_correlation() -> None:
+    from assetops_contracts.gateway_report import cold_correlation_id
+
+    row = _session_event(record_kind="EV_CONNECTOR_FAULT", outcome="FAULTED", correlation=["fault", 1])
+    row["event"].pop("session_id"), row["event"].pop("connector_id")
+    row.update(source_id="ch-k1-c1-connector-controller", signal_id="fault-event")
+    payload = _payload(_only_envelope(seal_readings(_context(), [_day([row])])))
+    assert payload["correlation_id"] == cold_correlation_id(scenario_sha256=FOUNDATION_DIGEST,
+                                                            correlation_key=("fault", 1))
+    assert payload["session_id"] is None and payload["connector_id"] == "ch-k1-c1"
+
+
+@pytest.mark.parametrize("row", [
+    _session_event(session_id=None, connector_id=None, correlation=None),
+    _energy(session=False),
+], ids=["event", "energy"])
+def test_an_ev_record_with_neither_session_nor_correlation_refuses(row) -> None:
+    if "event" in row:
+        row["event"] = {k: v for k, v in row["event"].items() if v is not None or k == "correlation"}
+    with pytest.raises(world_seal.WorldSealRefused) as raised:
+        seal_readings(_context(), [_day([row])])
+    assert raised.value.code == "WORLD_SEAL_EV_UNCORRELATED"
+
+
+def test_a_sealed_value_equals_its_reading_and_is_canonical() -> None:
+    from decimal import Decimal
+
+    for text in ("4.000", "0.000", "-0.000", "1250.500"):
+        out = world_seal._value(text)
+        assert Decimal(out) == Decimal(text)

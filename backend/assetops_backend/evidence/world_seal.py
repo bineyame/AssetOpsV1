@@ -9,6 +9,12 @@ otherwise, INTERVAL_DELTA for EV connector energy.
 Batches: per (Site, source, local day), split into consecutive batches of at most `MAX_BATCH_ENVELOPES` in reading
 order, named `<SITE>.<source>.<day>.<n>.batch.json`; `sequence_epoch` "1" and one sequence per source over the whole
 span, so no message id repeats across days. Cold event ids are formed here (D-DD.91); readings files stay id-free.
+
+EV sessions (D-DD.161): one id per session, the pack's. The writer carries `session_id` and `connector_id` on each
+session event and on each in-session connector row (`"session": {...}`); the sealer copies them (only connector energy,
+the interval delta, claims a session; a mean or a state claims none) and a session event's `correlation_id` is its
+`session_id`. An EV event with no session forms its ids as a cold event does, over its `correlation`; an EV event with
+neither, or connector energy with no session, refuses `WORLD_SEAL_EV_UNCORRELATED`.
 """
 from __future__ import annotations
 
@@ -18,9 +24,10 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any, Iterable, Mapping
 
-from assetops_contracts.gateway_report import cold_correlation_id, cold_event_id, ev_session_id
+from assetops_contracts.gateway_report import cold_correlation_id, cold_event_id
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, seal_batch_v2
-from assetops_contracts.source_envelope_v3 import SourceEnvelopeV3, canonical_envelope_v3_text, v3_message_id
+from assetops_contracts.source_envelope_v3 import (SourceEnvelopeV3, canonical_envelope_v3_text, is_canonical_decimal,
+                                                   v3_message_id)
 from assetops_contracts.source_envelope_v4 import SourceEnvelopeV4, canonical_envelope_v4_text
 
 SEQUENCE_EPOCH = "1"
@@ -79,7 +86,11 @@ def _value(value: Any) -> Any:
     if type(value) is not str or not _DECIMAL_TEXT.fullmatch(value):
         return value
     text = format(Decimal(value).normalize(), "f")
-    return "0" if text in ("-0", "0") else text
+    out = "0" if text in ("-0", "0") else text
+    # D-DD.161: the same value, in the one spelling an envelope admits.
+    if Decimal(out) != Decimal(value) or not is_canonical_decimal(out):
+        raise WorldSealRefused("WORLD_SEAL_VALUE_NOT_CANONICAL", value)
+    return out
 
 
 def _measurement(row: Mapping[str, Any], role: str) -> str:
@@ -110,10 +121,6 @@ def _envelope_text(context: SealContext, row: Mapping[str, Any], binding: Mappin
     common = dict(quality="GOOD", unavailable_reason=None, session_id=None, connector_id=None, record_kind=None,
                   event_id=None, correlation_id=None, component_id=None, actor=None, outcome=None)
     if event is not None:
-        if event["record_kind"].startswith("EV_"):
-            # The EV half (DD4b's session rows): the session id and connector of an EV event are not formed yet.
-            raise WorldSealRefused("WORLD_SEAL_EV_EVENT_PENDING", f"{row['source_id']}/{row['signal_id']}")
-        kind, ordinal = event["correlation"]
         return canonical_envelope_v4_text(SourceEnvelopeV4(
             **message, interval_start=None, interval_end=None, family="EVENT", value=row["value"],
             unit=None if row["value"] is None else row["unit"], measurement=None,
@@ -121,19 +128,36 @@ def _envelope_text(context: SealContext, row: Mapping[str, Any], binding: Mappin
                "component_id": event["component_id"],
                "event_id": cold_event_id(scenario_sha256=context.foundation_digest, device_id=row["source_id"],
                                          signal_id=row["signal_id"], transition_ordinal=event["ordinal"]),
-               "correlation_id": cold_correlation_id(scenario_sha256=context.foundation_digest,
-                                                     correlation_key=(kind, ordinal))}))
+               **_event_correlation(context, row, event)}))
     measurement = _measurement(row, binding.get("role", ""))
-    session = row.get("session")
     ids = {}
-    if session is not None:
-        ids = {"session_id": ev_session_id(foundation_digest=context.foundation_digest,
-                                           connector_id=session["connector_id"], session_ordinal=session["ordinal"]),
-               "connector_id": session["connector_id"]}
+    if measurement == "INTERVAL_DELTA":
+        session = row.get("session") or {}
+        if not session.get("session_id") or not session.get("connector_id"):
+            raise WorldSealRefused("WORLD_SEAL_EV_UNCORRELATED", f"{row['source_id']}/{row['signal_id']}")
+        ids = {"session_id": session["session_id"], "connector_id": session["connector_id"]}
     return canonical_envelope_v4_text(SourceEnvelopeV4(
         **message, interval_start=None if measurement == "STATE_AT_INSTANT" else _utc(row["start"]),
         interval_end=None if measurement == "STATE_AT_INSTANT" else end, family="MEASUREMENT",
         value=_value(row["value"]), unit=row["unit"], measurement=measurement, **{**common, **ids}))
+
+
+def _event_correlation(context: SealContext, row: Mapping[str, Any], event: Mapping[str, Any]) -> dict:
+    """An event's `correlation_id`, and for an EV event its `session_id` and `connector_id` (D-DD.91, D-DD.161)."""
+    ev = event["record_kind"].startswith("EV_")
+    if ev and event.get("session_id"):
+        return {"correlation_id": event["session_id"], "session_id": event["session_id"],
+                "connector_id": event["connector_id"]}
+    if event.get("correlation") is None:
+        raise WorldSealRefused("WORLD_SEAL_EV_UNCORRELATED" if ev else "WORLD_SEAL_EVENT_UNCORRELATED",
+                               f"{row['source_id']}/{row['signal_id']}")
+    kind, ordinal = event["correlation"]
+    out = {"correlation_id": cold_correlation_id(scenario_sha256=context.foundation_digest,
+                                                 correlation_key=(kind, ordinal))}
+    if ev:
+        # A connector event outside a session names its connector: the writer's `component_id` is the connector.
+        out["connector_id"] = event.get("connector_id") or event["component_id"]
+    return out
 
 
 def seal_readings(context: SealContext, days: Iterable[tuple[date, list[Mapping[str, Any]]]]) -> list[SealedBatch]:

@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend" / "tests"))
 
-from test_dd5a_world_seal import FOUNDATION_DIGEST, GATEWAY, SET, SHA, SITE, SOURCES, _context, _day, _five_minute_day, _only_envelope  # noqa: E402,E501
+from test_dd5a_world_seal import FOUNDATION_DIGEST, GATEWAY, PACK_SESSION, SET, SHA, SITE, SOURCES, _context, _day, _energy, _five_minute_day, _only_envelope, _session_event  # noqa: E402,E501
 
 from assetops_backend.evidence.world_seal import seal_readings  # noqa: E402
 from assetops_contracts import gateway_report  # noqa: E402
@@ -87,17 +87,27 @@ def test_v4_cold_event_matches_the_gateway_with_the_d_dd_91_ids() -> None:
 
 
 def test_v4_ev_connector_energy_with_session_matches_the_gateway() -> None:
-    row = {"source_id": "ch-k1-c1-connector-meter", "signal_id": "energy", "start": "2026-10-12T09:25:00+03:00",
-           "end": "2026-10-12T09:30:00+03:00", "value": "1.25", "unit": "kWh",
-           "session": {"ordinal": 3, "connector_id": "ch-k1-c1"}}
-    ours = _only_envelope(seal_readings(_context(), [_day([row])]))
-    session = gateway_report.ev_session_id(foundation_digest=FOUNDATION_DIGEST, connector_id="ch-k1-c1",
-                                           session_ordinal=3)
-    theirs = _gateway_v4(_v2("ch-k1-c1-connector-meter", "energy", source_time="2026-10-12T06:30:00Z",
-                             measurement="INTERVAL_DELTA", interval_start="2026-10-12T06:25:00Z",
-                             interval_end="2026-10-12T06:30:00Z", value="1.25", unit="kWh", session_id=session,
+    ours = _only_envelope(seal_readings(_context(), [_day([_energy()])]))
+    theirs = _gateway_v4(_v2("ch-k1-c1-connector-meter", "energy", source_time="2026-10-12T19:10:00Z",
+                             measurement="INTERVAL_DELTA", interval_start="2026-10-12T19:05:00Z",
+                             interval_end="2026-10-12T19:10:00Z", value="4", unit="kWh", session_id=PACK_SESSION,
                              connector_id="ch-k1-c1"), "ev")
-    assert ours == theirs and session.startswith("ev-")
+    assert ours == theirs
+
+
+def test_v4_ev_session_event_matches_the_gateway_and_correlates_with_its_energy() -> None:
+    """D-DD.161: hand rows in DD4b's shape; the session event and the in-session energy share the pack's id."""
+    event_text, energy_text = json.loads(seal_readings(_context(), [_day([_session_event(), _energy()])])[0].text)[
+        "envelopes"]
+    theirs = _gateway_v4(_v2(
+        "ch-k1-c1-charger-controller", "session-event", source_time="2026-10-12T19:05:00Z", family="EVENT",
+        record_kind="EV_SESSION_START", outcome="STARTED", actor="CONTROLLER", component_id="ch-k1-c1",
+        event_id=cold_event_id(scenario_sha256=FOUNDATION_DIGEST, device_id="ch-k1-c1-charger-controller",
+                               signal_id="session-event", transition_ordinal=2),
+        correlation_id=PACK_SESSION, session_id=PACK_SESSION, connector_id="ch-k1-c1"), "ev")
+    assert event_text == theirs
+    event, energy = json.loads(event_text)["payload"], json.loads(energy_text)["payload"]
+    assert event["correlation_id"] == event["session_id"] == energy["session_id"] == PACK_SESSION
 
 
 def test_the_sealed_batch_is_the_gateway_seal_of_the_same_envelopes() -> None:

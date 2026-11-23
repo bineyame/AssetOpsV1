@@ -305,12 +305,6 @@ def cold_correlation_id(*, scenario_sha256: str, correlation_key: tuple[str, int
     return _cold_digest([scenario_sha256, kind, ordinal], "cold-")
 
 
-def ev_session_id(*, foundation_digest: str, connector_id: str, session_ordinal: int) -> str:
-    """D-DD.139: a world connector session's `session_id` (and its session events' `correlation_id`), formed at
-    sealing: `ev-` + SHA-256 of canonical `[foundation_digest, connector_id, session_ordinal]`."""
-    return _cold_digest([foundation_digest, connector_id, session_ordinal], "ev-")
-
-
 def cold_report_key(
     *,
     scenario_sha256: str,
