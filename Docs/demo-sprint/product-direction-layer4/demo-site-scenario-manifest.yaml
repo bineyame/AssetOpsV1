@@ -442,15 +442,15 @@ tenants:
     role_in_story: "healthy but underused: high cost per crate-day caused by low occupancy, not equipment"
     reuse: "existing GreenHarvest cold Site renamed in the fixture"
     period:
-      plan:   {crate_days: 7440, occupancy_pct: 60, revenue: 1488.00, kwh: 1716.18, energy: 343.24, staff: 300.00, maint: 50.00, contribution: 794.76}
+      plan:   {crate_days: 7440, occupancy_pct: 60, revenue: 1488.00, kwh: 1716, energy: 343.20, staff: 300.00, maint: 50.00, contribution: 794.80}
       actual: {crate_days: 4340, occupancy_pct: 35, revenue: 868.00, collected: 820.00, outstanding: 48.00, kwh_model: 1544.436, kwh: 1576.3, energy: 315.26, staff: 300.00, maint: 50.00, contribution: 202.74}
       energy_per_crate_day: 0.0726
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
-      variance: -592.02
+      variance: -592.06
       bridge:
         - {driver: OCCUPANCY_REVENUE, overlap_group: MWEA-2026-10-REV, amount: -620.00, basis: "3,100 crate-days x {fig:sites[harvest-cold/Room A · Mwea].actual.nodes.rate}", class: ECONOMIC_ACTUAL}
         - {driver: OCCUPANCY_ENERGY_VOLUME, overlap_group: MWEA-2026-10-ENERGY, amount: 34.35, basis: "171.74 kWh x {fig:sites[harvest-cold/Room A · Mwea].actual.nodes.elec_price} less energy at lower occupancy (not a saving)", class: DERIVED}
-        - {driver: ENERGY_EFFICIENCY, overlap_group: MWEA-2026-10-ENERGY, amount: -6.37, basis: "{fig:sites[harvest-cold/Room A · Mwea].actual.nodes.excess_kwh} kWh above model, inside 5% tolerance", class: DERIVED}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: MWEA-2026-10-ENERGY, amount: -6.41, basis: "{fig:sites[harvest-cold/Room A · Mwea].actual.nodes.excess_kwh} kWh above model, inside 5% tolerance", class: DERIVED}
     decision:
       thread: "Mwea earns least per crate-day"
       origin: PLAN_VARIANCE
@@ -469,14 +469,14 @@ tenants:
     role_in_story: "commercially strong; backup generator failed to start (v7.0 INC-203, F-118, F-119) and exposed one batch; EPC-covered start controller; insurance below deductible"
     reuse: "v7.0 GreenHarvest Cold Room pages, re-based as Thika (same incident, same times, same asset GEN-CR-01)"
     period:
-      plan:   {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh: 1784.87, energy: 356.97, staff: 350.00, maint: 80.00, liability: 0.00, contribution: 949.03}
+      plan:   {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh: 1785, energy: 357.00, staff: 350.00, maint: 80.00, liability: 0.00, contribution: 949.00}
       actual: {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, collected: 1650.00, outstanding: 86.00, kwh_model: 1784.872, kwh: 1771.35, energy: 354.27, staff: 350.00, maint: 80.00, liability: 108.00, contribution: 843.73}
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: ESTIMATED, liability: RECORDED}
       coverage_note: "October refrigeration service invoice not received; plan amount carried as ESTIMATED"
-      variance: -105.30
+      variance: -105.27
       bridge:
         - {driver: CUSTOMER_COMPENSATION, overlap_group: THIKA-2026-10-LIAB, amount: -108.00, basis: "credit note CN-0412: 6 crates downgraded from export grade by QA, compensated at the declared {rec:tenants[harvest-cold].sites[Room B · Thika].incident.batches[B-1031].declared_value_per_crate} per crate", class: ECONOMIC_ACTUAL}
-        - {driver: ENERGY_EFFICIENCY, overlap_group: THIKA-2026-10-ENERGY, amount: 2.70, basis: "{fig:sites[harvest-cold/Room B · Thika].actual.nodes.excess_kwh} kWh against the model, inside 5% tolerance (D-DD.144)", class: DERIVED}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: THIKA-2026-10-ENERGY, amount: 2.73, basis: "{fig:sites[harvest-cold/Room B · Thika].actual.nodes.excess_kwh} kWh against the model, inside 5% tolerance (D-DD.144)", class: DERIVED}
     incident:
       date: "2026-10-06"
       ids: {incident: INC-203, findings: [F-118, F-119], work: WR-019, action: ACT-051}
@@ -512,13 +512,13 @@ tenants:
     code: COLD-KIRI
     role_in_story: "busy room with a normalised energy inefficiency; repair beats replace on 12 months"
     period:
-      plan:   {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh: 1853.57, energy: 370.71, staff: 400.00, maint: 80.00, contribution: 1133.29}
+      plan:   {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh: 1854, energy: 370.80, staff: 400.00, maint: 80.00, contribution: 1133.20}
       actual: {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, collected: 1900.00, outstanding: 84.00, kwh_model: 1853.568, kwh: 2113.60, energy: 422.72, staff: 400.00, maint: 80.00, contribution: 1081.28}
       energy_per_crate_day: 0.0426
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
-      variance: -52.01
+      variance: -51.92
       bridge:
-        - {driver: ENERGY_EFFICIENCY, overlap_group: KIRI-2026-10-ENERGY, amount: -52.01, basis: "{fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.excess_kwh} kWh (14%) above occupancy/ambient model x {fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.elec_price}", class: DERIVED}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: KIRI-2026-10-ENERGY, amount: -51.92, basis: "{fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.excess_kwh} kWh (14%) above occupancy/ambient model x {fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.elec_price}", class: DERIVED}
     decision:
       thread: "Kirinyaga uses 14% more energy than its occupancy explains"
       origin: PLAN_VARIANCE
@@ -569,11 +569,11 @@ tenants:
            sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "nights 6/7 to 31 Oct/1 Nov: no rota in October"}}
         - {id: stock_value_exposed, unit: USD, objective: P3, class: EXPOSURE, target: 0.00, sites: {"Room B · Thika": 2160.00}, portfolio: LISTED, note: "customer-owned stock; at stake, not money; exposure values are listed by site, never summed"}
         - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, items: [{site: "Room B · Thika", right: "EPC workmanship warranty on the start controller", value: 710.00, state: "accepted 17 Oct; replacement {rec:tenants[harvest-cold].sites[Room B · Thika].entitlement.remedy_scheduled}"}]}
-    plan_contribution: 2877.08
+    plan_contribution: 2877.00
     actual_contribution: 2127.75
     chain: {capacity_crate_days: 37200, occupied_crate_days: 22940, plan_crate_days: 26040, revenue: 4588.00, plan_revenue: 5208.00,
-            collected: 4370.00, outstanding: 218.00, cost_to_serve: 2460.25, plan_cost_to_serve: 2330.92, revenue_variance: -620.00, cost_variance: -129.33}
-    variance: -749.33
+            collected: 4370.00, outstanding: 218.00, cost_to_serve: 2460.25, plan_cost_to_serve: 2331.00, revenue_variance: -620.00, cost_variance: -129.25}
+    variance: -749.25
     coverage: {cost_recorded_usd: 2380.25, cost_total_usd: 2460.25, cost_recorded_share: 0.9675}
     allocation:
       recommended: [THIKA-EPC-STOPGAP, KIRI-REPAIR, MWEA-AGG]

@@ -91,11 +91,13 @@ def test_october_kwh_is_the_meter_and_kwh_model_the_restated_model() -> None:
     metered = measured_fixture(COLD)["sites"]
     for site in cold["sites"]:
         actual, plan = site["period"]["actual"], site["period"]["plan"]
-        # `M`'s kwh records are stated at 2 decimals, the precision check_manifest's stated check holds them to.
-        assert Decimal(str(actual["kwh"])) == _kwh(Decimal(metered[site["code"]]["2026-10"]["room_kwh"])), site["code"]
+        # Actual kwh at 2 decimals (the precision check_manifest's stated check holds `M` to); plan kwh in whole kWh
+        # (the budget line is a whole quantity, D-DD.49, `books.NODE_LINES`).
+        assert Decimal(str(actual["kwh"])) == _round(Decimal(metered[site["code"]]["2026-10"]["room_kwh"]), "0.01"), \
+            site["code"]
         assert Decimal(str(actual["kwh_model"])) == base + k * Decimal(actual["crate_days"]), site["code"]
-        assert Decimal(str(plan["kwh"])) == _kwh(base + k * Decimal(plan["crate_days"])), site["code"]
+        assert Decimal(str(plan["kwh"])) == _round(base + k * Decimal(plan["crate_days"]), "1"), site["code"]
 
 
-def _kwh(value: Decimal) -> Decimal:
-    return value.quantize(Decimal("0.01"), ROUND_HALF_EVEN)
+def _round(value: Decimal, step: str) -> Decimal:
+    return value.quantize(Decimal(step), ROUND_HALF_EVEN)
