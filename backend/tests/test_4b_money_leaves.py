@@ -71,6 +71,8 @@ STATED_TABLE = {"MINI_GRID": {"revenue": "PROVIDED",
 MTO_MISSING = ("adjustments_kwh", "billed_kwh", "candidate_l", "delivered_kwh", "metered_kwh",
                "necessary_l", "productive_kwh", "productive_tariff", "revenue", "tariff", "technical_loss_kwh",
                "unexplained_l", "unexplained_loss_kwh", "unmapped_kwh")
+REVENUE_DETAIL = ("adjustments_kwh", "delivered_kwh", "productive_tariff", "tariff", "technical_loss_kwh",
+                  "unexplained_loss_kwh", "unmapped_kwh")
 REVENUE_NINE = ("adjustments_kwh", "billed_kwh", "delivered_kwh", "metered_kwh", "productive_kwh",
                 "productive_tariff", "revenue", "tariff", "technical_loss_kwh", "unexplained_loss_kwh", "unmapped_kwh")
 #: 4a: what the two stated kWh nodes name when absent (their `stated_by`).
@@ -133,10 +135,10 @@ class Recording:
         return got
 
 
-def reader(w) -> tuple[StructureRead, Recording]:
+def reader(w, fb=None) -> tuple[StructureRead, Recording]:
     from assetops_backend.structure.money import CommercialLeafSource
 
-    rec = Recording(CommercialLeafSource(w["months"], w["store"], fallback()))
+    rec = Recording(CommercialLeafSource(w["months"], w["store"], fb or fallback()))
     rec.w = w
     return StructureRead(rec, stated=rec), rec
 
@@ -238,6 +240,8 @@ def check_kobo_october(w) -> Recording:
             value, Decimal(value), currency, evidence, sources, origins), factor_id
         assert got.missing is None, factor_id
     assert v["revenue"].stated and v["revenue"].computed is None
+    assert v["diesel_price"].value != Decimal("1.30")  # not the fallback's
+    assert v["revenue"].detail_missing == REVENUE_DETAIL
     assert v["fuel_cost"].stated is False and v["fuel_cost"].detail_missing == LITRES
     assert_fuel_not_available(v, rec, "KOBO-001")
     assert (text(bought(rec, "KOBO-001").value), bought(rec, "KOBO-001").evidence) == ("792.50", "RECORDED")
@@ -312,6 +316,51 @@ def test_1_october_site_tables():
     check_mto_october(w)
 
 
+#: Test 1b's literals: (value, evidence, sources, origins) with October's litres supplied (`pack_litres`).
+LITRE_SOURCE = "test:M-october-litres"
+WITH_LITRES = {
+    "KOBO-001": {"fuel_cost": ("792.50", (LF, LITRE_SOURCE, NEUTRAL), (OF, UNKNOWN)),
+                 "cost_to_serve": ("1892.50", (GEN, LF, NEUTRAL, LITRE_SOURCE), (OF, E, UNKNOWN)),
+                 "contribution": ("1565.50", (GEN, KV, LF, NEUTRAL, LITRE_SOURCE), (OF, E, UNKNOWN))},
+    "KISIWA-001": {"fuel_cost": ("1173.90", (LA, LITRE_SOURCE, NEUTRAL), (E, UNKNOWN))},
+}
+
+
+def test_1b_october_with_litres_is_the_packs():
+    """The figures the litre-less world above no longer serves, in a world with litres: each is litres times the
+    invoices' price, computed (never stated), and W2's independent check compares every figure with the pack's own."""
+    from pack_litres import _NAME, with_litres
+
+    w = money_world()
+    read, rec = reader(w, with_litres())
+    pack = json.loads(PACK.read_text(encoding="utf-8"), parse_float=Decimal)["sites"]
+    compared = []
+    for code in ("KOBO-001", "KISIWA-001", "MTO-001"):
+        v = read.site(site(w, code), "2026-10").values
+        nodes = pack[_NAME[code]]["actual"]["nodes"]
+        for factor_id, (value, sources, origins) in WITH_LITRES.get(code, {}).items():
+            got = v[factor_id]
+            assert (got.value, got.currency, got.evidence, set(got.sources), set(got.origins)) == (
+                Decimal(value), "USD", "MODELLED", set(sources), set(origins)), (code, factor_id)
+            assert not got.stated and got.missing is None and got.missing_leaves == (), (code, factor_id)
+        assert v["fuel_cost"].detail_missing == (), code
+        for factor_id in ("diesel_l", "fuel_cost", "cost_to_serve", "contribution"):
+            if v[factor_id].value is not None and v["diesel_price"].evidence == "DERIVED":
+                assert v[factor_id].value == nodes[factor_id], (code, factor_id)
+                compared.append((code, factor_id))
+    assert compared == [("KOBO-001", f) for f in ("diesel_l", "fuel_cost", "cost_to_serve", "contribution")] + [
+        ("KISIWA-001", f) for f in ("diesel_l", "fuel_cost")]
+    v = read.site(site(w, "KOBO-001"), "2026-10").values
+    assert v["contribution"].detail_missing == REVENUE_DETAIL
+    assert weakest_origin(v["contribution"].origins) == UNKNOWN
+    kisiwa = read.site(site(w, "KISIWA-001"), "2026-10").values
+    for node in ("cost_to_serve", "contribution"):
+        assert kisiwa[node].value is None and kisiwa[node].missing_leaves == ("om",), node
+    # Mto buys no fuel and holds litres: its price is the fallback's estimate, so its fuel cost is litres at 1.30
+    mto = read.site(site(w, "MTO-001"), "2026-10").values
+    assert (mto["fuel_cost"].value, mto["diesel_price"].evidence) == (Decimal("41.60"), "ESTIMATED")
+
+
 # ---------------------------------------------------------------- test 2: the open month (D-4B.4, D-4B.14)
 
 
@@ -376,7 +425,42 @@ def test_3_portfolio():
     check_portfolio(money_world())
 
 
+def test_3b_portfolio_with_litres():
+    """Test 3 where the litres exist: fuel cost over all three Sites, contribution of Kobo alone (its own words)."""
+    from pack_litres import with_litres
+
+    w = money_world()
+    read, _ = reader(w, with_litres())
+    codes = ("KOBO-001", "KISIWA-001", "MTO-001")
+    p = read.portfolio(w["tid"], [site(w, c) for c in codes], "2026-10")
+    mto = tuple(f for f in MTO_MISSING if f not in LITRES)
+    expect = {"fuel_cost": ("2008.00", 3, ()),  # 792.50 + 1,173.90 + 32 L at the fallback's 1.30
+              "contribution": ("1565.50", 1, (("KISIWA-001", ("om",)), ("MTO-001", mto)))}
+    for factor_id, (value, k, out) in expect.items():
+        got, count = p.composition.values[factor_id].value, site_count(p, factor_id)
+        assert got.value == Decimal(value) and got.evidence == "MODELLED", factor_id
+        assert (count.k, count.n, count.out) == (k, 3, out), factor_id
+    assert set(p.composition.values["contribution"].value.origins) == {OF, E, UNKNOWN}
+
+
 # ---------------------------------------------------------------- test 4: 3A4's fixture, reused (§4.2)
+
+
+def test_4b_3a4_fixture_with_litres():
+    """3A4's fixture where the invoices' litres (620 L; 610 L as known on 5 November) are also the litres used."""
+    from pack_litres import with_litres
+
+    w = new_world()
+    ingest_steps(w)
+    kobo = site(w, "KOBO-001")
+    known = datetime(2026, 11, 5, tzinfo=timezone.utc)
+    for litres, at, expect in (
+            ("620", None, {"fuel_cost": "775.00", "cost_to_serve": "1500.00", "contribution": "-1004.50"}),
+            ("610", known, {"fuel_cost": "762.50", "cost_to_serve": "1392.50", "contribution": "-887.00"})):
+        used = {"necessary_l": Decimal(litres), "candidate_l": Decimal(0), "unexplained_l": Decimal(0)}
+        read, _ = reader(w, with_litres(litres={"KOBO-001": used}))
+        v = (read.site(kobo, "2026-10") if at is None else read.site(kobo, "2026-10", known_at=at)).values
+        assert {f: v[f].value for f in expect} == {f: Decimal(x) for f, x in expect.items()}
 
 
 def test_4_3a4_fixture():

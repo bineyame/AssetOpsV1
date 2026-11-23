@@ -583,7 +583,7 @@ class LakesideInputs:
         return w.inputs()
 
 
-def _bridge_reads(w: dict):
+def _bridge_reads(w: dict, fb=None):
     from test_3a4_commercial_months import READ_AT
     from test_4b_money_leaves import fallback
 
@@ -592,8 +592,8 @@ def _bridge_reads(w: dict):
     from assetops_backend.structure.targets.lines import BudgetLineReader
     from assetops_backend.structure.targets.read import TargetRead
 
-    src = CommercialLeafSource(w["months"], w["store"], LitreLeafSource(LakesideInputs(), fallback(),
-                                                                        lambda: READ_AT))
+    src = CommercialLeafSource(w["months"], w["store"], LitreLeafSource(LakesideInputs(), fallback(), lambda: READ_AT)
+                               if fb is None else fb)
     actual = StructureRead(src, stated=src)
     return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual), READ_AT
 
@@ -656,15 +656,51 @@ def test_6_other_sites_say_what_is_missing(code: str) -> None:
         assert lv.value is None and lv.missing.note == "GENERATOR_OR_TANK_NOT_DECLARED", (code, leaf)
 
 
-def test_6_the_portfolio() -> None:
+def _portfolio_rows(fb=None):
     import test_5b_attribution as t5b
     from assetops_backend.structure.attribution.read import BridgeRead
 
     w = t5b._world()
-    actual, targets, at = _bridge_reads(w)
+    actual, targets, at = _bridge_reads(w, fb)
     r = t5b.t5a.refs(w)
     pb = BridgeRead(actual, targets, clock=lambda: at).portfolio(w["tid"], [r[c] for c in t5b.CODES], t5b.OCT)
-    rows = pb.rows["contribution"]
+    return pb.rows["contribution"]
+
+
+class KoboSplitsItself:
+    """Kobo's litres worked out by the product from KOBO-OCT (4d); Kisiwa's and Mto's from the pack (`pack_litres`)."""
+
+    def __init__(self) -> None:
+        from pack_litres import with_litres
+        from test_3a4_commercial_months import READ_AT
+        from test_4b_money_leaves import fallback
+
+        self._own = LitreLeafSource(LakesideInputs(), fallback(), lambda: READ_AT)
+        self._pack = with_litres()
+
+    def leaf(self, ctx, factor_id):
+        return (self._own if ctx.site.site_code == "KOBO-001" else self._pack).leaf(ctx, factor_id)
+
+
+def test_6_the_portfolio_over_three_sites() -> None:
+    """All three Sites hold litres: the portfolio's fuel effect is the three Sites' (D-DD.164), and it splits."""
+    import test_5b_attribution as t5b
+
+    rows = _portfolio_rows(KoboSplitsItself())
+    fuel, diesel, price = rows["fuel_cost"], rows["diesel_l"], rows["diesel_price"]
+    t5b.money(fuel.actual, "2006.40"), t5b.money(fuel.target, "4240.00"), t5b.money(fuel.effect, "2233.60")
+    assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())
+    assert diesel.actual == D("634") + D("903") + D("32") and (diesel.k, diesel.n, diesel.out) == (3, 3, ())
+    assert diesel.effect + price.effect == fuel.effect  # the split leaves nothing out
+    parts = [rows[f] for f in LEAVES]
+    assert [(p.k, p.n) for p in parts] == [(3, 3)] * 3 and sum(p.effect for p in parts) == diesel.effect
+    assert [p.actual for p in parts] == [D("400") + D("814"), D("120") + D("69") + D("32"), D("114") + D("20")]
+
+
+def test_6_the_portfolio() -> None:
+    import test_5b_attribution as t5b
+
+    rows = _portfolio_rows()
     fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
     t5b.money(fuel.effect, "82.50")  # D-DD.177: Kobo's alone; the other two Sites hold no litres (was 2,233.60 of 3)
     missing = tuple((c, tuple(f"actual:{leaf}" for leaf in LEAVES_SORTED)) for c in ("KISIWA-001", "MTO-001"))
