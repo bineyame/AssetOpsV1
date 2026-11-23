@@ -56,6 +56,9 @@ the lane Architect; count it in the packet.
      unserved read from the loaded world's `<slug>/telemetry/measured.json` `unserved_kwh` (no readings channel
      carries it). The pending text "DD3b/DD5" becomes "DD5b". Test: the clause fails on a hand row with 1 kWh
      moved from served to nowhere.
+   - (D-DD.158, DD4b follow-up review L1.) The same fetch passes the loaded world's EV `measured.json` to
+     `judge_meter_books(..., measured=)`, so C-DD7's EV window clause (`windows.2200_2400`/`0000_0500`) is judged
+     live, not pending. Test: the clause fails on a planted 1 kWh window shift.
 
 ## Facts the code fixes (D-DD.162)
 
