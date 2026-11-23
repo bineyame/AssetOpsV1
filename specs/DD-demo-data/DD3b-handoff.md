@@ -68,3 +68,29 @@ affected files in one --db-lane call, host/simulator reach lines, guards.
 Done: `git merge main` resolved and regenerated (packet "Merge of main"); check_manifest = main's 6 + six H5; `dd_check --pure`
 exit 0; guards pass. Open: 7 DDR rehearsal tests and ds4 t12 (Architect, fuel cost); main's own 7 world failures (packet).
 
+
+
+## Fix round 1 (D-DD.164/165, review H1/M1/L1/L2): PARTIAL, blocked on the July fuel statement
+
+Done (commits a66f39395..447a7cbdc; evidence `/opt/assetecon/evidence/DD3b/fix/`):
+- D-DD.164: `scope.RUN_WRITTEN` + `period_input` (tests first 11 of 13 failed, `tests-first.log`); guard
+  `test_scope_run_written.py` (13 passed; plant Kobo `delivered_kwh` re-seeds). Moved leaves at step 1: Lakeside Jul-Sep
+  (all three Sites); cold history `actual.kwh` Mwea 1684/1622/1641 -> 1671/1635/1632, Thika 1690/1737/1784 -> 1700/1731/1809
+  (Kirinyaga none); EV none. Cold and EV writer inputs unchanged: `exports --tenant harvest-cold --tenant metro-bus` byte-identical
+  before and after (`exports-old/`, `exports-new/`). No STOP.
+- Pass: notes restated (Kisiwa 1 Aug / 21 Aug / 16 Sep / 16 Oct; Kobo 26 Sep -> 25 Sep), leaves written, `M` rev 16.23,
+  generate again. Step 1 vs step 5: 0 scope digests moved; only `meta.view_digest` and Kisiwa Jul-Sep scaled necessary/candidate
+  (805/796/739 -> 802/793/737, 54/51/71 -> 56/53/73), the values D-DD.164 calls "not a loop" (`step1-vs-step5.txt`). Fixed
+  point on the final `M`: all six `--check` exit 0 and a third generate is byte-identical (`d92fc9f1...`, `checks.log`).
+- fuel-leaves record carries `inputs_sha256` of the run's live inputs; `test_the_fuel_leaves_record_was_run_on_the_live_world`
+  (3 of 3 failed first). L1 tank test (plant Kobo 1300 fails). L2 doc 95% -> about 70%.
+- D-DD.30 chain, sweep, re-bases; check_manifest 7,875 passed / 12 failed (main's 6 + six H5). `world_history.py check` exit 0.
+
+BLOCKER (Architect): `world_history.py exports` now refuses Lakeside: `STATEMENT_INCOMPLETE 2026-07`
+(`statements.figures_from_rows`: a month with revenue and no FUEL expense row is refused). The restated notes put no
+Lakeside purchase in July (Kisiwa's 31 Jul note moved to 1 Aug; Kobo Sep/Oct; Mto none), so July has revenue and no
+fuel bought. simulator/tests/world: 101 failed, 40 errors, 324 passed (`world-tests.log`, 134 tracebacks are this error).
+Probe (statements.py patched to cost 0 for that month, reverted, not committed): 15 failed, 450 passed (7 main-identical +
+8 re-pins of the re-seeded world; `world-tests-probe.log`). Not built until ruled: pure DIR, `dd_check --pure`, Kisiwa's
+final candidate share (D-DD.165 needs it), re-pins, reach set, packet section, spec status. Next: Architect rules the
+July statement (D-DD.163's "fuel bought" makes a month without purchases legitimate), then pure DIR, D-DD.165, re-pins.
