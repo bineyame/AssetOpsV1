@@ -1,8 +1,9 @@
 """DD5a unit 3 at load level (spec §4.6 as amended by D-DD.139, D-DD.140): `load_world_inputs` resolves a Site
 through `PostgresEvidenceLedger.site_scope` and its pinned binding snapshot, seals two local days of readings with one
 sequence per source over the span, and the bulk path loads them; a re-run loads nothing new; an unknown Site refuses.
-Plant (b) of the card (a sequence reset per day) fails `test_two_days_seal_and_load_with_one_sequence_per_source` with
-`BULK_MESSAGE_COLLISION`. The converted Kobo Site (mini-grid, v3) is the seed. Requires ASSETOPS_TEST_DATABASE_URL."""
+Plant (b) of the card (a sequence reset per day) fails `test_two_days_seal_and_load_with_one_sequence_per_source`: the
+second day reuses the first day's message ids, and the load stops at exit 2 (`BATCH_ID_CONFLICT`: the batch id is
+formed over the same message ids, so the collision surfaces at the batch). The converted Kobo Site (mini-grid, v3) is the seed. Requires ASSETOPS_TEST_DATABASE_URL."""
 from __future__ import annotations
 
 import json
