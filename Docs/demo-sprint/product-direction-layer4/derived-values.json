@@ -326,11 +326,11 @@
     "nodes": {
      "revenue": 1488.0,
      "received": 1488.0,
-     "kwh_model": 3410.0,
-     "kwh": 3410.0,
-     "energy": 682.0,
-     "cost_to_serve": 1032.0,
-     "contribution": 456.0,
+     "kwh_model": 1716.18,
+     "kwh": 1716.18,
+     "energy": 343.24,
+     "cost_to_serve": 693.24,
+     "contribution": 794.76,
      "nights_without_backup_cover": 0.0,
      "days_backup_start_unproven": 0.0,
      "occupied_total_crate_days": 7440.0,
@@ -341,8 +341,8 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
      "excess_kwh": 0.0,
      "elec_price": 0.2,
@@ -367,11 +367,11 @@
     "nodes": {
      "revenue": 868.0,
      "received": 820.0,
-     "kwh_model": 2635.0,
-     "kwh": 2650.0,
-     "energy": 530.0,
-     "cost_to_serve": 880.0,
-     "contribution": -12.0,
+     "kwh_model": 1544.44,
+     "kwh": 1576.3,
+     "energy": 315.26,
+     "cost_to_serve": 665.26,
+     "contribution": 202.74,
      "nights_without_backup_cover": 0.0,
      "days_backup_start_unproven": 0.0,
      "occupied_total_crate_days": 4340.0,
@@ -382,10 +382,10 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
-     "excess_kwh": 15.0,
+     "excess_kwh": 31.86,
      "elec_price": 0.2,
      "staff": 300.0,
      "maint": 50.0,
@@ -410,11 +410,11 @@
     "nodes": {
      "revenue": 1736.0,
      "received": 1736.0,
-     "kwh_model": 3720.0,
-     "kwh": 3720.0,
-     "energy": 744.0,
-     "cost_to_serve": 1174.0,
-     "contribution": 562.0,
+     "kwh_model": 1784.87,
+     "kwh": 1784.87,
+     "energy": 356.97,
+     "cost_to_serve": 786.97,
+     "contribution": 949.03,
      "nights_without_backup_cover": 0.0,
      "days_backup_start_unproven": 0.0,
      "occupied_total_crate_days": 8680.0,
@@ -425,10 +425,10 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
-     "excess_kwh": 0.0,
+     "excess_kwh": -0.0,
      "elec_price": 0.2,
      "staff": 350.0,
      "maint": 80.0,
@@ -451,11 +451,11 @@
     "nodes": {
      "revenue": 1736.0,
      "received": 1650.0,
-     "kwh_model": 3720.0,
-     "kwh": 3720.0,
-     "energy": 744.0,
-     "cost_to_serve": 1282.0,
-     "contribution": 454.0,
+     "kwh_model": 1784.87,
+     "kwh": 1771.35,
+     "energy": 354.27,
+     "cost_to_serve": 892.27,
+     "contribution": 843.73,
      "nights_without_backup_cover": 26.0,
      "days_backup_start_unproven": 26.0,
      "occupied_total_crate_days": 8680.0,
@@ -466,10 +466,10 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
-     "excess_kwh": 0.0,
+     "excess_kwh": -13.52,
      "elec_price": 0.2,
      "staff": 350.0,
      "maint": 80.0,
@@ -494,11 +494,11 @@
     "nodes": {
      "revenue": 1984.0,
      "received": 1984.0,
-     "kwh_model": 4030.0,
-     "kwh": 4030.0,
-     "energy": 806.0,
-     "cost_to_serve": 1286.0,
-     "contribution": 698.0,
+     "kwh_model": 1853.57,
+     "kwh": 1853.57,
+     "energy": 370.71,
+     "cost_to_serve": 850.71,
+     "contribution": 1133.29,
      "nights_without_backup_cover": 0.0,
      "days_backup_start_unproven": 0.0,
      "occupied_total_crate_days": 9920.0,
@@ -509,8 +509,8 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
      "excess_kwh": 0.0,
      "elec_price": 0.2,
@@ -535,11 +535,11 @@
     "nodes": {
      "revenue": 1984.0,
      "received": 1900.0,
-     "kwh_model": 4030.0,
-     "kwh": 5000.0,
-     "energy": 1000.0,
-     "cost_to_serve": 1480.0,
-     "contribution": 504.0,
+     "kwh_model": 1853.57,
+     "kwh": 2113.6,
+     "energy": 422.72,
+     "cost_to_serve": 902.72,
+     "contribution": 1081.28,
      "nights_without_backup_cover": 0.0,
      "days_backup_start_unproven": 0.0,
      "occupied_total_crate_days": 9920.0,
@@ -550,10 +550,10 @@
      "rate": 0.2,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "base_kwh": 1550.0,
-     "k_kwh_per_crate_day": 0.25,
+     "base_kwh": 1304.0,
+     "k_kwh_per_crate_day": 0.06,
      "model_factor": 1.0,
-     "excess_kwh": 970.0,
+     "excess_kwh": 260.03,
      "elec_price": 0.2,
      "staff": 400.0,
      "maint": 80.0,
@@ -1887,7 +1887,7 @@
   },
   "MWEA-AGG": {
    "site": "Room A · Mwea",
-   "monthly_or_horizon_change": 485.0,
+   "monthly_or_horizon_change": 660.14,
    "months": 4.0,
    "operator_one_off": 270.0,
    "reference_one_off": 0.0,
@@ -1910,7 +1910,7 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 473.0 - under reference -12.0) x 4 - (operator-borne one-off 270.0 - reference path's 0.0)",
+   "formula": "(contribution under option 862.88 - under reference 202.74) x 4 - (operator-borne one-off 270.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
     "cover_not_claimable": 0.0
@@ -1941,15 +1941,15 @@
    },
    "replay_sources": [],
    "assumptions": [],
-   "value_if_admissible": 1670.0,
+   "value_if_admissible": 2370.56,
    "admissible": true,
-   "value": 1670.0,
+   "value": 2370.56,
    "valued_in_money": true,
    "decision": "mwea_occupancy"
   },
   "KIRI-REPAIR": {
    "site": "Room C · Kirinyaga",
-   "monthly_or_horizon_change": 155.2,
+   "monthly_or_horizon_change": 41.61,
    "months": 12.0,
    "operator_one_off": 350.0,
    "reference_one_off": 0.0,
@@ -1965,7 +1965,7 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 659.2 - under reference 504.0) x 12 - (operator-borne one-off 350.0 - reference path's 0.0)",
+   "formula": "(contribution under option 1122.89 - under reference 1081.28) x 12 - (operator-borne one-off 350.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
     "cover_not_claimable": 0.0
@@ -1995,18 +1995,18 @@
    "assumptions": [
     "recovery share 80% (range 60-90%)"
    ],
-   "value_if_admissible": 1512.4,
+   "value_if_admissible": 149.26,
    "sensitivities": {
-    "kirinyaga_recovery_60pct": 1046.8
+    "kirinyaga_recovery_60pct": 24.45
    },
    "admissible": true,
-   "value": 1512.4,
+   "value": 149.26,
    "valued_in_money": true,
    "decision": "kirinyaga_energy"
   },
   "KIRI-REPLACE": {
    "site": "Room C · Kirinyaga",
-   "monthly_or_horizon_change": 234.3,
+   "monthly_or_horizon_change": 70.54,
    "months": 12.0,
    "operator_one_off": 4800.0,
    "reference_one_off": 0.0,
@@ -2022,7 +2022,7 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 738.3 - under reference 504.0) x 12 - (operator-borne one-off 4800.0 - reference path's 0.0)",
+   "formula": "(contribution under option 1151.82 - under reference 1081.28) x 12 - (operator-borne one-off 4800.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
     "cover_not_claimable": 0.0
@@ -2052,9 +2052,9 @@
    "assumptions": [
     "a new compressor runs 5% below the occupancy model (vendor datasheet)"
    ],
-   "value_if_admissible": -1988.4,
+   "value_if_admissible": -3953.5,
    "admissible": true,
-   "value": -1988.4,
+   "value": -3953.5,
    "valued_in_money": true,
    "decision": "kirinyaga_energy"
   },
@@ -2076,7 +2076,7 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "formula": "(contribution under option 843.73 - under reference 843.73) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 2.0,
     "cover_not_claimable": 0.0
@@ -2149,7 +2149,7 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 100.0 - reference path's 0.0)",
+   "formula": "(contribution under option 843.73 - under reference 843.73) x 1 - (operator-borne one-off 100.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
     "cover_not_claimable": 0.0
@@ -2204,7 +2204,7 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 710.0 - reference path's 0.0)",
+   "formula": "(contribution under option 843.73 - under reference 843.73) x 1 - (operator-borne one-off 710.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
     "cover_not_claimable": 710.0
@@ -2996,7 +2996,7 @@
     }
    },
    "default": {
-    "value": 3182.4,
+    "value": 2519.82,
     "spend": 720.0,
     "items": [
      "THIKA-EPC-STOPGAP",
@@ -3025,7 +3025,7 @@
    },
    "switch_cases": {
     "True": {
-     "value": 3182.4,
+     "value": 2519.82,
      "spend": 720.0,
      "items": [
       "THIKA-EPC-STOPGAP",
@@ -3053,7 +3053,7 @@
      "not_connectable": {}
     },
     "False": {
-     "value": 1512.4,
+     "value": 149.26,
      "spend": 450.0,
      "items": [
       "THIKA-EPC-STOPGAP",
@@ -3081,20 +3081,20 @@
    },
    "sensitivity_values": {
     "aggregator_does_not_sign": {
-     "value": 1512.4,
+     "value": 149.26,
      "valued_options": [
       "KIRI-REPAIR"
      ]
     },
     "kirinyaga_recovery_60pct": {
-     "value": 2716.8,
+     "value": 2395.01,
      "valued_options": [
       "KIRI-REPAIR",
       "MWEA-AGG"
      ]
     }
    },
-   "downside": 1512.4
+   "downside": 149.26
   },
   "metro-bus": {
    "protective_choices": {
@@ -3423,28 +3423,28 @@
    "plan": {
     "sums": {
      "backup_unproven_days": 0.0,
-     "base_kwh": 4650.0,
+     "base_kwh": 3912.0,
      "batches_exposed": 0.0,
      "capacity_crate_days": 37200.0,
      "chamber_minutes": 133920.0,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "contribution": 1716.0,
+     "contribution": 2877.08,
      "cooling_available_minutes": 133920.0,
      "cooling_minutes_unavailable": 0.0,
-     "cost_to_serve": 3492.0,
+     "cost_to_serve": 2330.92,
      "crate_days": 26040.0,
      "crate_days_without_excursion": 26040.0,
      "days_backup_start_unproven": 0.0,
      "elec_price": 0.6,
-     "energy": 2232.0,
+     "energy": 1070.92,
      "excess_kwh": 0.0,
      "excursion_crates": 0.0,
      "excursion_days": 0.0,
      "handling": 0.0,
-     "k_kwh_per_crate_day": 0.75,
-     "kwh": 11160.0,
-     "kwh_model": 11160.0,
+     "k_kwh_per_crate_day": 0.18,
+     "kwh": 5354.62,
+     "kwh_model": 5354.62,
      "liability": 0.0,
      "maint": 210.0,
      "minutes_per_day": 4320.0,
@@ -3464,28 +3464,28 @@
    "actual": {
     "sums": {
      "backup_unproven_days": 26.0,
-     "base_kwh": 4650.0,
+     "base_kwh": 3912.0,
      "batches_exposed": 1.0,
      "capacity_crate_days": 37200.0,
      "chamber_minutes": 133920.0,
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
-     "contribution": 946.0,
+     "contribution": 2127.75,
      "cooling_available_minutes": 133848.0,
      "cooling_minutes_unavailable": 72.0,
-     "cost_to_serve": 3642.0,
+     "cost_to_serve": 2460.25,
      "crate_days": 22940.0,
      "crate_days_without_excursion": 22820.0,
      "days_backup_start_unproven": 26.0,
      "elec_price": 0.6,
-     "energy": 2274.0,
-     "excess_kwh": 985.0,
+     "energy": 1092.25,
+     "excess_kwh": 278.37,
      "excursion_crates": 120.0,
      "excursion_days": 1.0,
      "handling": 0.0,
-     "k_kwh_per_crate_day": 0.75,
-     "kwh": 11370.0,
-     "kwh_model": 10385.0,
+     "k_kwh_per_crate_day": 0.18,
+     "kwh": 5461.25,
+     "kwh_model": 5182.88,
      "liability": 108.0,
      "maint": 210.0,
      "minutes_per_day": 4320.0,
@@ -3708,7 +3708,7 @@
     "harvest-cold": {
      "cases": {
       "True": {
-       "value": 3182.4,
+       "value": 2519.82,
        "spend": 720.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -3720,7 +3720,7 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 1512.4,
+       "value": 149.26,
        "spend": 450.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -3817,7 +3817,7 @@
     "harvest-cold": {
      "cases": {
       "True": {
-       "value": 3182.4,
+       "value": 2519.82,
        "spend": 720.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -3829,7 +3829,7 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 1512.4,
+       "value": 149.26,
        "spend": 450.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -3927,7 +3927,7 @@
     "harvest-cold": {
      "cases": {
       "True": {
-       "value": 3182.4,
+       "value": 2519.82,
        "spend": 720.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -3939,7 +3939,7 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 1512.4,
+       "value": 149.26,
        "spend": 450.0,
        "items": [
         "THIKA-EPC-STOPGAP",
@@ -6617,44 +6617,44 @@
      {
       "m": "Jul",
       "p": "2026-07",
-      "v": 1594.0
+      "v": 2709.4
      },
      {
       "m": "Aug",
       "p": "2026-08",
-      "v": 1513.2
+      "v": 2646.6
      },
      {
       "m": "Sep",
       "p": "2026-09",
-      "v": 1103.0
+      "v": 2228.4
      },
      {
       "m": "Oct",
       "p": "2026-10",
-      "v": 946.0
+      "v": 2127.75
      }
     ],
     "gap": [
      {
       "m": "Jul",
       "p": "2026-07",
-      "v": -122.0
+      "v": -167.6
      },
      {
       "m": "Aug",
       "p": "2026-08",
-      "v": -202.8
+      "v": -230.4
      },
      {
       "m": "Sep",
       "p": "2026-09",
-      "v": -517.0
+      "v": -515.2
      },
      {
       "m": "Oct",
       "p": "2026-10",
-      "v": -770.0
+      "v": -749.33
      }
     ]
    },
@@ -6664,44 +6664,44 @@
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": 402.6
+       "v": 701.2
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": 271.4
+       "v": 539.8
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": 79.4
+       "v": 327.2
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": -12.0
+       "v": 202.74
       }
      ],
      "gap": [
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": -53.4
+       "v": -93.6
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": -184.6
+       "v": -255.0
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": -350.6
+       "v": -430.6
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": -468.0
+       "v": -592.02
       }
      ],
      "periods": {
@@ -6711,11 +6711,11 @@
         "nodes": {
          "revenue": 1488.0,
          "received": 1488.0,
-         "kwh_model": 3410.0,
-         "kwh": 3410.0,
-         "energy": 682.0,
-         "cost_to_serve": 1032.0,
-         "contribution": 456.0,
+         "kwh_model": 1716.18,
+         "kwh": 1716.0,
+         "energy": 343.2,
+         "cost_to_serve": 693.2,
+         "contribution": 794.8,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 7440.0,
@@ -6724,10 +6724,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": -0.18,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -6798,11 +6798,11 @@
         "nodes": {
          "revenue": 1388.8,
          "received": 1312.0,
-         "kwh_model": 3286.0,
-         "kwh": 3181.0,
-         "energy": 636.2,
-         "cost_to_serve": 986.2,
-         "contribution": 402.6,
+         "kwh_model": 1688.7,
+         "kwh": 1688.0,
+         "energy": 337.6,
+         "cost_to_serve": 687.6,
+         "contribution": 701.2,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 6944.0,
@@ -6811,10 +6811,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -105.0,
+         "excess_kwh": -0.7,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -6887,11 +6887,11 @@
         "nodes": {
          "revenue": 1488.0,
          "received": 1488.0,
-         "kwh_model": 3410.0,
-         "kwh": 3410.0,
-         "energy": 682.0,
-         "cost_to_serve": 1032.0,
-         "contribution": 456.0,
+         "kwh_model": 1716.18,
+         "kwh": 1716.0,
+         "energy": 343.2,
+         "cost_to_serve": 693.2,
+         "contribution": 794.8,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 7440.0,
@@ -6900,10 +6900,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": -0.18,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -6974,11 +6974,11 @@
         "nodes": {
          "revenue": 1215.2,
          "received": 1148.0,
-         "kwh_model": 3069.0,
-         "kwh": 2969.0,
-         "energy": 593.8,
-         "cost_to_serve": 943.8,
-         "contribution": 271.4,
+         "kwh_model": 1640.61,
+         "kwh": 1627.0,
+         "energy": 325.4,
+         "cost_to_serve": 675.4,
+         "contribution": 539.8,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 6076.0,
@@ -6987,10 +6987,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -100.0,
+         "excess_kwh": -13.61,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -7063,11 +7063,11 @@
         "nodes": {
          "revenue": 1440.0,
          "received": 1440.0,
-         "kwh_model": 3350.0,
-         "kwh": 3300.0,
-         "energy": 660.0,
-         "cost_to_serve": 1010.0,
-         "contribution": 430.0,
+         "kwh_model": 1702.88,
+         "kwh": 1661.0,
+         "energy": 332.2,
+         "cost_to_serve": 682.2,
+         "contribution": 757.8,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 7200.0,
@@ -7076,10 +7076,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -50.0,
+         "excess_kwh": -41.88,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -7150,11 +7150,11 @@
         "nodes": {
          "revenue": 1008.0,
          "received": 952.26,
-         "kwh_model": 2810.0,
-         "kwh": 2893.0,
-         "energy": 578.6,
-         "cost_to_serve": 928.6,
-         "contribution": 79.4,
+         "kwh_model": 1583.22,
+         "kwh": 1654.0,
+         "energy": 330.8,
+         "cost_to_serve": 680.8,
+         "contribution": 327.2,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 5040.0,
@@ -7163,10 +7163,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 83.0,
+         "excess_kwh": 70.78,
          "elec_price": 0.2,
          "staff": 300.0,
          "maint": 50.0,
@@ -7240,44 +7240,44 @@
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": 552.0
+       "v": 916.8
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": 606.4
+       "v": 987.2
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": 508.0
+       "v": 890.8
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": 454.0
+       "v": 843.73
       }
      ],
      "gap": [
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": -10.0
+       "v": -32.2
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": 44.4
+       "v": 38.2
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": -22.0
+       "v": -13.8
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": -108.0
+       "v": -105.3
       }
      ],
      "periods": {
@@ -7287,21 +7287,21 @@
         "nodes": {
          "revenue": 1736.0,
          "received": 1736.0,
-         "kwh_model": 3720.0,
-         "kwh": 3720.0,
-         "energy": 744.0,
-         "cost_to_serve": 1174.0,
-         "contribution": 562.0,
+         "kwh_model": 1784.87,
+         "kwh": 1785.0,
+         "energy": 357.0,
+         "cost_to_serve": 787.0,
+         "contribution": 949.0,
          "occupied_total_crate_days": 8680.0,
          "chamber_minutes": 44640.0,
          "crate_days": 8680.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": 0.13,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7396,21 +7396,21 @@
         "nodes": {
          "revenue": 1686.4,
          "received": 1602.86,
-         "kwh_model": 3658.0,
-         "kwh": 3522.0,
-         "energy": 704.4,
-         "cost_to_serve": 1134.4,
-         "contribution": 552.0,
+         "kwh_model": 1771.13,
+         "kwh": 1698.0,
+         "energy": 339.6,
+         "cost_to_serve": 769.6,
+         "contribution": 916.8,
          "occupied_total_crate_days": 8432.0,
          "chamber_minutes": 44640.0,
          "crate_days": 8432.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -136.0,
+         "excess_kwh": -73.13,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7507,21 +7507,21 @@
         "nodes": {
          "revenue": 1736.0,
          "received": 1736.0,
-         "kwh_model": 3720.0,
-         "kwh": 3720.0,
-         "energy": 744.0,
-         "cost_to_serve": 1174.0,
-         "contribution": 562.0,
+         "kwh_model": 1784.87,
+         "kwh": 1785.0,
+         "energy": 357.0,
+         "cost_to_serve": 787.0,
+         "contribution": 949.0,
          "occupied_total_crate_days": 8680.0,
          "chamber_minutes": 44640.0,
          "crate_days": 8680.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": 0.13,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7616,21 +7616,21 @@
         "nodes": {
          "revenue": 1760.8,
          "received": 1673.57,
-         "kwh_model": 3751.0,
-         "kwh": 3622.0,
-         "energy": 724.4,
-         "cost_to_serve": 1154.4,
-         "contribution": 606.4,
+         "kwh_model": 1791.74,
+         "kwh": 1718.0,
+         "energy": 343.6,
+         "cost_to_serve": 773.6,
+         "contribution": 987.2,
          "occupied_total_crate_days": 8804.0,
          "chamber_minutes": 44640.0,
          "crate_days": 8804.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -129.0,
+         "excess_kwh": -73.74,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7727,21 +7727,21 @@
         "nodes": {
          "revenue": 1680.0,
          "received": 1680.0,
-         "kwh_model": 3650.0,
-         "kwh": 3600.0,
-         "energy": 720.0,
-         "cost_to_serve": 1150.0,
-         "contribution": 530.0,
+         "kwh_model": 1769.36,
+         "kwh": 1727.0,
+         "energy": 345.4,
+         "cost_to_serve": 775.4,
+         "contribution": 904.6,
          "occupied_total_crate_days": 8400.0,
          "chamber_minutes": 43200.0,
          "crate_days": 8400.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -50.0,
+         "excess_kwh": -42.36,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7836,21 +7836,21 @@
         "nodes": {
          "revenue": 1680.0,
          "received": 1596.77,
-         "kwh_model": 3650.0,
-         "kwh": 3710.0,
-         "energy": 742.0,
-         "cost_to_serve": 1172.0,
-         "contribution": 508.0,
+         "kwh_model": 1769.36,
+         "kwh": 1796.0,
+         "energy": 359.2,
+         "cost_to_serve": 789.2,
+         "contribution": 890.8,
          "occupied_total_crate_days": 8400.0,
          "chamber_minutes": 43200.0,
          "crate_days": 8400.0,
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 60.0,
+         "excess_kwh": 26.64,
          "elec_price": 0.2,
          "staff": 350.0,
          "maint": 80.0,
@@ -7948,44 +7948,44 @@
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": 639.4
+       "v": 1091.4
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": 635.4
+       "v": 1119.6
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": 515.6
+       "v": 1010.4
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": 504.0
+       "v": 1081.28
       }
      ],
      "gap": [
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": -58.6
+       "v": -41.8
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": -62.6
+       "v": -13.6
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": -144.4
+       "v": -70.8
       },
       {
        "m": "Oct",
        "p": "2026-10",
-       "v": -194.0
+       "v": -52.01
       }
      ],
      "periods": {
@@ -7995,11 +7995,11 @@
         "nodes": {
          "revenue": 1984.0,
          "received": 1984.0,
-         "kwh_model": 4030.0,
-         "kwh": 4030.0,
-         "energy": 806.0,
-         "cost_to_serve": 1286.0,
-         "contribution": 698.0,
+         "kwh_model": 1853.57,
+         "kwh": 1854.0,
+         "energy": 370.8,
+         "cost_to_serve": 850.8,
+         "contribution": 1133.2,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 9920.0,
@@ -8008,10 +8008,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": 0.43,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,
@@ -8082,11 +8082,11 @@
         "nodes": {
          "revenue": 1959.2,
          "received": 1876.25,
-         "kwh_model": 3999.0,
-         "kwh": 4199.0,
-         "energy": 839.8,
-         "cost_to_serve": 1319.8,
-         "contribution": 639.4,
+         "kwh_model": 1846.7,
+         "kwh": 1939.0,
+         "energy": 387.8,
+         "cost_to_serve": 867.8,
+         "contribution": 1091.4,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 9796.0,
@@ -8095,10 +8095,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 200.0,
+         "excess_kwh": 92.3,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,
@@ -8171,11 +8171,11 @@
         "nodes": {
          "revenue": 1984.0,
          "received": 1984.0,
-         "kwh_model": 4030.0,
-         "kwh": 4030.0,
-         "energy": 806.0,
-         "cost_to_serve": 1286.0,
-         "contribution": 698.0,
+         "kwh_model": 1853.57,
+         "kwh": 1854.0,
+         "energy": 370.8,
+         "cost_to_serve": 850.8,
+         "contribution": 1133.2,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 9920.0,
@@ -8184,10 +8184,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 0.0,
+         "excess_kwh": 0.43,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,
@@ -8258,11 +8258,11 @@
         "nodes": {
          "revenue": 2008.8,
          "received": 1923.75,
-         "kwh_model": 4061.0,
-         "kwh": 4467.0,
-         "energy": 893.4,
-         "cost_to_serve": 1373.4,
-         "contribution": 635.4,
+         "kwh_model": 1860.44,
+         "kwh": 2046.0,
+         "energy": 409.2,
+         "cost_to_serve": 889.2,
+         "contribution": 1119.6,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 10044.0,
@@ -8271,10 +8271,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 406.0,
+         "excess_kwh": 185.56,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,
@@ -8347,11 +8347,11 @@
         "nodes": {
          "revenue": 1920.0,
          "received": 1920.0,
-         "kwh_model": 3950.0,
-         "kwh": 3900.0,
-         "energy": 780.0,
-         "cost_to_serve": 1260.0,
-         "contribution": 660.0,
+         "kwh_model": 1835.84,
+         "kwh": 1794.0,
+         "energy": 358.8,
+         "cost_to_serve": 838.8,
+         "contribution": 1081.2,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 9600.0,
@@ -8360,10 +8360,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": -50.0,
+         "excess_kwh": -41.84,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,
@@ -8434,11 +8434,11 @@
         "nodes": {
          "revenue": 1920.0,
          "received": 1838.71,
-         "kwh_model": 3950.0,
-         "kwh": 4622.0,
-         "energy": 924.4,
-         "cost_to_serve": 1404.4,
-         "contribution": 515.6,
+         "kwh_model": 1835.84,
+         "kwh": 2148.0,
+         "energy": 429.6,
+         "cost_to_serve": 909.6,
+         "contribution": 1010.4,
          "nights_without_backup_cover": 0.0,
          "days_backup_start_unproven": 0.0,
          "occupied_total_crate_days": 9600.0,
@@ -8447,10 +8447,10 @@
          "rate": 0.2,
          "contract_crate_days": 0.0,
          "contract_rate": 0.0,
-         "base_kwh": 1550.0,
-         "k_kwh_per_crate_day": 0.25,
+         "base_kwh": 1304.0,
+         "k_kwh_per_crate_day": 0.06,
          "model_factor": 1.0,
-         "excess_kwh": 672.0,
+         "excess_kwh": 312.16,
          "elec_price": 0.2,
          "staff": 400.0,
          "maint": 80.0,

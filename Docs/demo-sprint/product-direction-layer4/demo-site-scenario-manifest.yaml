@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.21 (DD4.6, 23 Nov): the cold energy model is restated from the meter (D-DD.144, owner-approved 22 Nov): kWh_month = 1304 + 0.0554 x crate_days (was 1550 + 0.25), the least-squares line of the metered Jul-Sep room-months of Mwea and Thika normalised to 24 C (Kirinyaga excluded: it carries a declared condition). October kwh are the meter's (Mwea 1576.3, Thika 1771.35, Kirinyaga 2113.60); plan kwh and kwh_model follow the model. Mwea +2.1% above model (was +0.6%), contribution 202.74; Thika -0.8% (an ENERGY_EFFICIENCY bridge row +2.70 beside the liability); Kirinyaga +14% (was +24%: the compressor's f = 500/403, the auxiliary does not degrade), -52.01 a month; KIRI-REPAIR 41.61 a month, +149.26 on 12 months (was +1,512.40); KIRI-REPLACE -3,953.50 (was -1,988.40); MWEA-AGG +2,370.56 (was +1,670.00, its energy 49.86 a month); harvest-cold plan +2,519.82 (was +3,182.40). Kirinyaga's efficiency condition is now the writer's constant telemetry_cold.EFFICIENCY_CONDITION.
 # rev 16.20 (DD4.5, 23 Nov): the EV capacity stage bounds buses by charger as well as by energy (D-DD.125): node buses_full_by_charger; buses_short_per_night takes the larger bound. Kasarani November restated (regeneration, 23 Nov): 2 buses short a night (was 1), departures_missed 7 (was 2), departures_met 33, penalties 840.00 (was 240.00), cost_to_serve 1627.50; KAS-OEM-STOPGAP 5 bus-nights at Ruiru 225.00 (was 2, 90.00); KAS-OEM-WAIT 5 missed, 600.00 penalties (was 2, 240.00); KAS-LOCAL 2 missed (was 1); metro-bus plan spend 1725.00, value 95859.00, downside 375.00.
 # rev 16.19 (DD4a, 22 Nov): Thika's hand start moves to 20:22 (D-DD.89, owner "Change the event"): cooling running 20:23, chamber above 4 C 75-85 min, peak 5.4 C at 20:25, back in band by 20:55, cooling unavailable 72 min, cooling availability 99.946 %; the room is unchanged.
 # rev 16.18 (DD3a, 22 Nov): Kobo physical from its data sheets (spec DD §6, D-DD.30): genset_kw 36 (FG Wilson P50-3 prime), sfc_l_per_kwh 0.2917 (10.5 L/h / 36 kW), battery_kwh 191.5 (42 x Pylontech US5000 4.56 kWh usable).
@@ -428,10 +429,10 @@ tenants:
   portfolio_constraints: {budget_usd_nov_dec: 2500, technician_visits_nov: 2, horizon_months: 12}
   prices: {storage_usd_per_crate_day: 0.20, electricity_usd_per_kwh: 0.20}
   energy_model:
-    base_kwh: 1550
-    k_kwh_per_crate_day: 0.25
-    form: "kWh_month = 1550 + 0.25 x crate_days at reference ambient 24 C (+2.5% per C above)"
-    status: "[proposed] per-room normalisation; coefficients fitted on 60 days of meter + occupancy per room in a pilot"
+    base_kwh: 1304
+    k_kwh_per_crate_day: 0.0554
+    form: "kWh_month = 1304 + 0.0554 x crate_days at reference ambient 24 C (+2.5% per C above)"
+    status: "fitted on Jul-Sep meter + occupancy, Mwea and Thika (D-DD.144)"
     tolerance_pct: 5
   capacity_crates_per_room: 400   # rev 12 (L1): room capacity in crate-days is evaluated as capacity_crates_per_room x period_days (no typed product)
   sites:
@@ -441,25 +442,25 @@ tenants:
     role_in_story: "healthy but underused: high cost per crate-day caused by low occupancy, not equipment"
     reuse: "existing GreenHarvest cold Site renamed in the fixture"
     period:
-      plan:   {crate_days: 7440, occupancy_pct: 60, revenue: 1488.00, kwh: 3410, energy: 682.00, staff: 300.00, maint: 50.00, contribution: 456.00}
-      actual: {crate_days: 4340, occupancy_pct: 35, revenue: 868.00, collected: 820.00, outstanding: 48.00, kwh_model: 2635, kwh: 2650, energy: 530.00, staff: 300.00, maint: 50.00, contribution: -12.00}
-      energy_per_crate_day: 0.1221
+      plan:   {crate_days: 7440, occupancy_pct: 60, revenue: 1488.00, kwh: 1716.18, energy: 343.24, staff: 300.00, maint: 50.00, contribution: 794.76}
+      actual: {crate_days: 4340, occupancy_pct: 35, revenue: 868.00, collected: 820.00, outstanding: 48.00, kwh_model: 1544.436, kwh: 1576.3, energy: 315.26, staff: 300.00, maint: 50.00, contribution: 202.74}
+      energy_per_crate_day: 0.0726
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
-      variance: -468.00
+      variance: -592.02
       bridge:
         - {driver: OCCUPANCY_REVENUE, overlap_group: MWEA-2026-10-REV, amount: -620.00, basis: "3,100 crate-days x {fig:sites[harvest-cold/Room A · Mwea].actual.nodes.rate}", class: ECONOMIC_ACTUAL}
-        - {driver: OCCUPANCY_ENERGY_VOLUME, overlap_group: MWEA-2026-10-ENERGY, amount: 155.00, basis: "775 kWh x {fig:sites[harvest-cold/Room A · Mwea].actual.nodes.elec_price} less energy at lower occupancy (not a saving)", class: DERIVED}
-        - {driver: ENERGY_EFFICIENCY, overlap_group: MWEA-2026-10-ENERGY, amount: -3.00, basis: "{fig:sites[harvest-cold/Room A · Mwea].actual.nodes.excess_kwh} kWh above model, inside 5% tolerance", class: DERIVED}
+        - {driver: OCCUPANCY_ENERGY_VOLUME, overlap_group: MWEA-2026-10-ENERGY, amount: 34.35, basis: "171.74 kWh x {fig:sites[harvest-cold/Room A · Mwea].actual.nodes.elec_price} less energy at lower occupancy (not a saving)", class: DERIVED}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: MWEA-2026-10-ENERGY, amount: -6.37, basis: "{fig:sites[harvest-cold/Room A · Mwea].actual.nodes.excess_kwh} kWh above model, inside 5% tolerance", class: DERIVED}
     decision:
       thread: "Mwea earns least per crate-day"
       origin: PLAN_VARIANCE
       options:
         - {id: MWEA-AGG, kind: DEMAND_CONTRACT, customer: "Mwea Horticulture Aggregators (draft contract, {rec:evaluation.options.MWEA-AGG.params.crates.value} crates Dec-Mar at {rec:evaluation.options.MWEA-AGG.params.contract_rate.value})",
-           economics: {crate_days_month: 4500, revenue_monthly: 810.00, energy_monthly: 225.00, handling_monthly: 100.00, net_monthly: 485.00, months: 4,
-                       one_off: 270.00, one_off_detail: "sales 150 + ethylene curtain 120", net_contract: 1670.00, class: MODELLED},
+           economics: {crate_days_month: 4500, revenue_monthly: 810.00, energy_monthly: 49.86, handling_monthly: 100.00, net_monthly: 660.14, months: 4,
+                       one_off: 270.00, one_off_detail: "sales 150 + ethylene curtain 120", net_contract: 2370.56, class: MODELLED},
            compatibility: "avocado with cabbage needs segregation (curtain) and a shared 5 C setpoint", crew_visits: 1, disposition: RECOMMENDED,
            condition: "contract signed"}
-        - {id: MWEA-COMPRESSOR, kind: CAPEX, capex: 4800.00, disposition: REJECTED, reason: "energy matches the occupancy model (+0.6%); no equipment problem to fix"}
+        - {id: MWEA-COMPRESSOR, kind: CAPEX, capex: 4800.00, disposition: REJECTED, reason: "energy matches the occupancy model (+2.1%); no equipment problem to fix"}
         - {id: MWEA-NOACT, kind: NO_ACTION, disposition: ACCEPTABLE}
   - site: "Room B · Thika"
     observations: {october: {cooling_minutes_unavailable: 72, batches_exposed: 1, excursion_crates: 120, excursion_days: 1, backup_unproven_from: "2026-10-06", unproven_nights_without_stock: 0, unproven_nights_rota_covered: 0,
@@ -468,13 +469,14 @@ tenants:
     role_in_story: "commercially strong; backup generator failed to start (v7.0 INC-203, F-118, F-119) and exposed one batch; EPC-covered start controller; insurance below deductible"
     reuse: "v7.0 GreenHarvest Cold Room pages, re-based as Thika (same incident, same times, same asset GEN-CR-01)"
     period:
-      plan:   {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh: 3720, energy: 744.00, staff: 350.00, maint: 80.00, liability: 0.00, contribution: 562.00}
-      actual: {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, collected: 1650.00, outstanding: 86.00, kwh_model: 3720, kwh: 3720, energy: 744.00, staff: 350.00, maint: 80.00, liability: 108.00, contribution: 454.00}
+      plan:   {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh: 1784.87, energy: 356.97, staff: 350.00, maint: 80.00, liability: 0.00, contribution: 949.03}
+      actual: {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, collected: 1650.00, outstanding: 86.00, kwh_model: 1784.872, kwh: 1771.35, energy: 354.27, staff: 350.00, maint: 80.00, liability: 108.00, contribution: 843.73}
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: ESTIMATED, liability: RECORDED}
       coverage_note: "October refrigeration service invoice not received; plan amount carried as ESTIMATED"
-      variance: -108.00
+      variance: -105.30
       bridge:
         - {driver: CUSTOMER_COMPENSATION, overlap_group: THIKA-2026-10-LIAB, amount: -108.00, basis: "credit note CN-0412: 6 crates downgraded from export grade by QA, compensated at the declared {rec:tenants[harvest-cold].sites[Room B · Thika].incident.batches[B-1031].declared_value_per_crate} per crate", class: ECONOMIC_ACTUAL}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: THIKA-2026-10-ENERGY, amount: 2.70, basis: "{fig:sites[harvest-cold/Room B · Thika].actual.nodes.excess_kwh} kWh against the model, inside 5% tolerance (D-DD.144)", class: DERIVED}
     incident:
       date: "2026-10-06"
       ids: {incident: INC-203, findings: [F-118, F-119], work: WR-019, action: ACT-051}
@@ -510,22 +512,22 @@ tenants:
     code: COLD-KIRI
     role_in_story: "busy room with a normalised energy inefficiency; repair beats replace on 12 months"
     period:
-      plan:   {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh: 4030, energy: 806.00, staff: 400.00, maint: 80.00, contribution: 698.00}
-      actual: {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, collected: 1900.00, outstanding: 84.00, kwh_model: 4030, kwh: 5000, energy: 1000.00, staff: 400.00, maint: 80.00, contribution: 504.00}
-      energy_per_crate_day: 0.1008
+      plan:   {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh: 1853.57, energy: 370.71, staff: 400.00, maint: 80.00, contribution: 1133.29}
+      actual: {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, collected: 1900.00, outstanding: 84.00, kwh_model: 1853.568, kwh: 2113.60, energy: 422.72, staff: 400.00, maint: 80.00, contribution: 1081.28}
+      energy_per_crate_day: 0.0426
       coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
-      variance: -194.00
+      variance: -52.01
       bridge:
-        - {driver: ENERGY_EFFICIENCY, overlap_group: KIRI-2026-10-ENERGY, amount: -194.00, basis: "{fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.excess_kwh} kWh (24%) above occupancy/ambient model x {fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.elec_price}", class: DERIVED}
+        - {driver: ENERGY_EFFICIENCY, overlap_group: KIRI-2026-10-ENERGY, amount: -52.01, basis: "{fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.excess_kwh} kWh (14%) above occupancy/ambient model x {fig:sites[harvest-cold/Room C · Kirinyaga].actual.nodes.elec_price}", class: DERIVED}
     decision:
-      thread: "Kirinyaga uses 24% more energy than its occupancy explains"
+      thread: "Kirinyaga uses 14% more energy than its occupancy explains"
       origin: PLAN_VARIANCE
       options:
         - {id: KIRI-REPAIR, kind: REPAIR, cost: 350.00, detail: "condenser clean + leak repair", recovery_share: 0.80, recovery_range: [0.60, 0.90],
-           economics: {monthly: 155.20, net_12m: 1512.40, class: MODELLED}, crew_visits: 1, disposition: RECOMMENDED}
-        - {id: KIRI-REPLACE, kind: CAPEX, capex: 4800.00, economics: {monthly: 234.30, basis: "full 970 kWh excess recovered (194.00) + 5% better than model, 201.5 kWh x 0.20 (40.30)", net_12m: -1988.40, class: MODELLED}, disposition: DEFERRED,
+           economics: {monthly: 41.61, net_12m: 149.26, class: MODELLED}, crew_visits: 1, disposition: RECOMMENDED}
+        - {id: KIRI-REPLACE, kind: CAPEX, capex: 4800.00, economics: {monthly: 70.54, basis: "full excess recovered, 260.032 kWh, + 5% better than model, 92.678 kWh: 352.710 kWh x 0.20", net_12m: -3953.50, class: MODELLED}, disposition: DEFERRED,
            reason: "negative on 12 months; revisit if verified recovery after repair is below 60%"}
-        - {id: KIRI-NOACT, kind: NO_ACTION, economics: {monthly: -194.00}, disposition: ACCEPTABLE}
+        - {id: KIRI-NOACT, kind: NO_ACTION, economics: {monthly: -52.01}, disposition: ACCEPTABLE}
   portfolio:
     protect_effects:
       - decision: "Thika backup start controller"
@@ -567,20 +569,20 @@ tenants:
            sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "nights 6/7 to 31 Oct/1 Nov: no rota in October"}}
         - {id: stock_value_exposed, unit: USD, objective: P3, class: EXPOSURE, target: 0.00, sites: {"Room B · Thika": 2160.00}, portfolio: LISTED, note: "customer-owned stock; at stake, not money; exposure values are listed by site, never summed"}
         - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, items: [{site: "Room B · Thika", right: "EPC workmanship warranty on the start controller", value: 710.00, state: "accepted 17 Oct; replacement {rec:tenants[harvest-cold].sites[Room B · Thika].entitlement.remedy_scheduled}"}]}
-    plan_contribution: 1716.00
-    actual_contribution: 946.00
+    plan_contribution: 2877.08
+    actual_contribution: 2127.75
     chain: {capacity_crate_days: 37200, occupied_crate_days: 22940, plan_crate_days: 26040, revenue: 4588.00, plan_revenue: 5208.00,
-            collected: 4370.00, outstanding: 218.00, cost_to_serve: 3642.00, plan_cost_to_serve: 3492.00, revenue_variance: -620.00, cost_variance: -150.00}
-    variance: -770.00
-    coverage: {cost_recorded_usd: 3562.00, cost_total_usd: 3642.00, cost_recorded_share: 0.9780}
+            collected: 4370.00, outstanding: 218.00, cost_to_serve: 2460.25, plan_cost_to_serve: 2330.92, revenue_variance: -620.00, cost_variance: -129.33}
+    variance: -749.33
+    coverage: {cost_recorded_usd: 2380.25, cost_total_usd: 2460.25, cost_recorded_share: 0.9675}
     allocation:
       recommended: [THIKA-EPC-STOPGAP, KIRI-REPAIR, MWEA-AGG]
       spend: 720.00
       spend_breakdown: {THIKA-EPC-STOPGAP: 100.00, KIRI-REPAIR: 350.00, MWEA-AGG: 270.00}
       valued_option_costs: 620.00      # KIRI-REPAIR 350 + MWEA-AGG 270
       unvalued_spend: 100.00           # THIKA-EPC-STOPGAP: valued on Protect measures, not in money
-      modelled_12m_change: {KIRI-REPAIR: 1512.40, MWEA-AGG: 1670.00, total: 3182.40, class: MODELLED, note: "the Mwea contract's 4 months fall inside the 12-month horizon"}
-      downside: {value: 1512.40, sensitivity: "the aggregator does not sign", others: {kirinyaga_recovery_60pct: 2716.80}, class: MODELLED}
+      modelled_12m_change: {KIRI-REPAIR: 149.26, MWEA-AGG: 2370.56, total: 2519.82, class: MODELLED, note: "the Mwea contract's 4 months fall inside the 12-month horizon"}
+      downside: {value: 149.26, sensitivity: "the aggregator does not sign", others: {kirinyaga_recovery_60pct: 2395.01}, class: MODELLED}
       technician_visits_used: 2
       excluded: [{id: KIRI-REPLACE, reason: "negative 12-month net"}, {id: MWEA-COMPRESSOR, reason: "no fault"}, {id: THIKA-SELF, reason: "voids cover"}]
       switches:   # assumptions shown as switches on the plan (main design §2.4)
@@ -1867,7 +1869,7 @@ oracle:   # PRIVATE expectation oracle: compared against computed results; never
   - {id: OR-MG-4, expect: "Mto energy-to-cash: 140 unbilled mapping, 40 authorised, 120 unexplained unpriced; billed 2,160 = 1,890 + 150 + 120"}
   - {id: OR-MG-5, expect: "Portfolio bridge sums to -852.00 with residual lines explicit"}
   - {id: OR-ENT-1, expect: "INV-MT-02 POTENTIALLY_COVERED; GEN-KS-01 EXPIRED_AND_EXCLUDED; BAT-001 INSUFFICIENT_EVIDENCE; no remedy booked as money"}
-  - {id: OR-CC-1, expect: "Mwea normalised energy within tolerance -> occupancy root cause; Kirinyaga +24% -> efficiency root cause"}
+  - {id: OR-CC-1, expect: "Mwea normalised energy within tolerance -> occupancy root cause; Kirinyaga +14% -> efficiency root cause"}
   - {id: OR-CC-2, expect: "B-1031 exposed 2,160 (EXPOSURE), damage 108, liability 108; B-1034 not exposed (peak 5.4 below 12); B-1029 excluded (checked out 5 Oct)"}
   - {id: OR-EV-1, expect: "EMB-CHEAPEST has the lowest bill (12,975/month) and is REJECTED (3 buses short); EMB-DEADLINE RECOMMENDED (13,356/month), valued 8,082.00/month against November no-action 21,438.00"}
   - {id: OR-EV-2, expect: "CH-K2 outranks CH-R7 connector 2"}
@@ -1884,7 +1886,7 @@ checks:
   - "portfolio: sum(site variance) == portfolio.variance"
   - "mini: revenue == billed_kwh x tariff; diesel_cost == diesel_l x price"
   - "mini: collected + in_transit + outstanding == revenue"
-  - "cold: revenue == crate_days x 0.20; kwh_model == 1550 + 0.25 x crate_days"
+  - "cold: revenue == crate_days x 0.20; kwh_model == 1304 + 0.0554 x crate_days"
   - "ev: energy_cost == peak_cost + offpeak_cost + demand_cost"
   - "allocation spend == sum(spend_breakdown) <= budget"
 operations:   # design rev 16.16 §2.10 (owner OD-26, 20 Nov: "they should be seamlessly integrated through propoer design not just a patch";
@@ -2177,7 +2179,7 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
     harvest-cold/Room B · Thika:
       actual: {crate_days: occupancy 0.68 0.71 0.70}
     harvest-cold/Room C · Kirinyaga:
-      actual: {crate_days: occupancy 0.79 0.81 0.80, kwh: cold_kwh cooling 1.05 1.10 1.17}   # efficiency drift toward October's +24%
+      actual: {crate_days: occupancy 0.79 0.81 0.80, kwh: cold_kwh cooling 1.05 1.10 1.17}   # efficiency drift toward October's condition f = 500/403 (D-DD.143; the writer's EFFICIENCY_CONDITION, D-DD.144)
     metro-bus/Ruiru:
       plan:   {energy_cost: per_day, maintenance: fixed, total: sum energy_cost maintenance, departures_required: fleet_nights}   # October's plan is stated only as a bill total; history keeps that form
     metro-bus/Embakasi:

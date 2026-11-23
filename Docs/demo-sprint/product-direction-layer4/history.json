@@ -26,7 +26,7 @@
   ],
   "schema": "assetops.history/1",
   "shape_source": "synthetic",
-  "view_digest": "4f193c5a31a71990ba9506338fe6ae7d179d5e6e505480663c61563139630779"
+  "view_digest": "0f377675ee76a370b15a0730ec1b774c506d5de1355e59b2a29942b16df63c5a"
  },
  "tenants": {
   "harvest-cold": {
@@ -34,7 +34,7 @@
     "2026-07": {
      "actual": {
       "crate_days": 6944,
-      "kwh": 3181,
+      "kwh": 1688,
       "maint": 5000,
       "outstanding": 7680,
       "staff": 30000
@@ -49,16 +49,16 @@
      "period_end": "2026-07-31",
      "plan": {
       "crate_days": 7440,
-      "kwh": 3410,
+      "kwh": 1716,
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "667b5d562c2474b00bba640f7171c0bdfa05abf2f858a2d90fdf79437f6e6dc4"
+     "scope_digest": "dcc5c22eed02de715e21ad7f601745e74f355192799b9fb6d16cae766c4ccad5"
     },
     "2026-08": {
      "actual": {
       "crate_days": 6076,
-      "kwh": 2969,
+      "kwh": 1627,
       "maint": 5000,
       "outstanding": 6720,
       "staff": 30000
@@ -73,16 +73,16 @@
      "period_end": "2026-08-31",
      "plan": {
       "crate_days": 7440,
-      "kwh": 3410,
+      "kwh": 1716,
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "233162c95aacdaa0386a26ff2b5369e5a70f199ccc840935493e1ad5f4d868f9"
+     "scope_digest": "485ac36efd0e14c34007f5ad54397f3a65c3a385f4b4d05ff74806ee2a967a18"
     },
     "2026-09": {
      "actual": {
       "crate_days": 5040,
-      "kwh": 2893,
+      "kwh": 1654,
       "maint": 5000,
       "outstanding": 5574,
       "staff": 30000
@@ -97,18 +97,18 @@
      "period_end": "2026-09-30",
      "plan": {
       "crate_days": 7200,
-      "kwh": 3300,
+      "kwh": 1661,
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "65e732b5eabeb65c4f1840f9d2394dcfbdc0b47862c70bb8e9c68cac07389ef9"
+     "scope_digest": "f9d52e646137dd6891a9b6117e6bb229fb5a8a92cfb627e36cf87abc81a68d43"
     }
    },
    "Room B · Thika": {
     "2026-07": {
      "actual": {
       "crate_days": 8432,
-      "kwh": 3522,
+      "kwh": 1698,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8354,
@@ -125,17 +125,17 @@
      "period_end": "2026-07-31",
      "plan": {
       "crate_days": 8680,
-      "kwh": 3720,
+      "kwh": 1785,
       "liability": 0,
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "c26bf50701977f58bcc459b19d9d8e7107ae367800e386809da31bb919debcb5"
+     "scope_digest": "ac7ef6e6493bcd8a58abd909d812501300eab649602915882b8df031b438cb09"
     },
     "2026-08": {
      "actual": {
       "crate_days": 8804,
-      "kwh": 3622,
+      "kwh": 1718,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8723,
@@ -152,17 +152,17 @@
      "period_end": "2026-08-31",
      "plan": {
       "crate_days": 8680,
-      "kwh": 3720,
+      "kwh": 1785,
       "liability": 0,
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "3ec2308d176a8dacfcdc1c88c7ab07ea66cbe3371e50af03a6b39a78d62fdd68"
+     "scope_digest": "a37e941387acc7323829f7fd839c1c37ff614aec56fdbcfe3b3142547035b8cc"
     },
     "2026-09": {
      "actual": {
       "crate_days": 8400,
-      "kwh": 3710,
+      "kwh": 1796,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8323,
@@ -179,19 +179,19 @@
      "period_end": "2026-09-30",
      "plan": {
       "crate_days": 8400,
-      "kwh": 3600,
+      "kwh": 1727,
       "liability": 0,
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "5f5c6db6666fe1312fbbdddc81d0a4859fd8538612e9d28cf6500afcd5443b85"
+     "scope_digest": "842a38b866afb81f7fd950c940a32610628e5ce71261cd6e15cbd230576e5f8f"
     }
    },
    "Room C · Kirinyaga": {
     "2026-07": {
      "actual": {
       "crate_days": 9796,
-      "kwh": 4199,
+      "kwh": 1939,
       "maint": 8000,
       "outstanding": 8295,
       "staff": 40000
@@ -206,16 +206,16 @@
      "period_end": "2026-07-31",
      "plan": {
       "crate_days": 9920,
-      "kwh": 4030,
+      "kwh": 1854,
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "044881aad54e6b06956e6da3f85a86c0ecd8d1fb7c2fafd04ad344d7c2711820"
+     "scope_digest": "406daf324ff0e0583f9c89c18577026b5faf35c662647e0f0aad1d609c1c365b"
     },
     "2026-08": {
      "actual": {
       "crate_days": 10044,
-      "kwh": 4467,
+      "kwh": 2046,
       "maint": 8000,
       "outstanding": 8505,
       "staff": 40000
@@ -230,16 +230,16 @@
      "period_end": "2026-08-31",
      "plan": {
       "crate_days": 9920,
-      "kwh": 4030,
+      "kwh": 1854,
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "c56b302efb52483318c98603008d37573fff6f0b6ef51e62905200241f49b2e8"
+     "scope_digest": "a831c700a81620336452578c86cb7f97e89368bd4b50aea58ed51b55682d8356"
     },
     "2026-09": {
      "actual": {
       "crate_days": 9600,
-      "kwh": 4622,
+      "kwh": 2148,
       "maint": 8000,
       "outstanding": 8129,
       "staff": 40000
@@ -254,11 +254,11 @@
      "period_end": "2026-09-30",
      "plan": {
       "crate_days": 9600,
-      "kwh": 3900,
+      "kwh": 1794,
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "5e20195dce062b7eea89f34582ba6d3ee6b68964214cb8a642d58367f25fd885"
+     "scope_digest": "724962f1a27d3cc641873a89492ed5ca39f17445d2833e2296545bc4db81f0fb"
     }
    }
   },
