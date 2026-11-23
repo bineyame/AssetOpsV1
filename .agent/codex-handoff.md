@@ -46,8 +46,9 @@ In flight (branch, what is left):
 - `fix/main-4d-litre` (e009a72a8): NOT merged on its own (it makes `sitesList.test.tsx` "World A, October" fail).
   DD3d-b takes it in; 3 points to judge there: iap tests 6/8 need a Site below target; a 5c accounts input moved
   5,100 to 2,100; 3b1 t1 / 3b3 t6 replace the manifest's dispatch version before comparing.
-- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix): shell frontend tests failing on main; review found the
-  flake not gone (`review-main-shellfix.md` M1), fix round running, then re-review.
+- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix, 0da64f3a5): fixes 5 of main's 12 frontend failures, but its
+  `settledScreen` change breaks 6 tests in `src/sites` and `src/work`; fix round 2 running; not merged. Acceptance is the
+  WHOLE frontend suite (`npx --no-install vitest run`), not shell and estate only. 7 other main failures are in the baseline.
 - `test_0k4b_properties` p6 fails on main (run 23 Nov): DD3b2's `pv-array-share` property is a catalogue message that
   the test's `NAMES` does not list. Goes into the next DD3d-b run.
 - Main's known failing ids: `.agent/main-baseline/b27f7c32c.md` (partial; on disk only).
