@@ -166,6 +166,13 @@ def test_a_fresh_database_on_unchanged_inputs_writes_a_new_context_folder_and_ex
     assert {p.name: p.read_bytes() for p in (world / "alpha" / "sealed" / first).iterdir()} == before
 
 
+def test_the_output_line_carries_sealed_dir_as_slug_sealed_context12(world, capsys) -> None:
+    assert run(world, Resolver()) == 0
+    line = json.loads(capsys.readouterr().out)
+    (folder,) = _folders(world)
+    assert line["sealed_dir"] == f"alpha/sealed/{folder}/"
+
+
 def test_the_same_database_rerun_uses_the_same_folder_and_writes_no_new_bytes(world) -> None:
     assert run(world, Resolver()) == 0
     (folder,) = _folders(world)

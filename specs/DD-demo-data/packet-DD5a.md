@@ -113,6 +113,7 @@ review per the card).
   missing `connector_id` beside a `session_id` to `WORLD_SEAL_EV_UNCORRELATED`; both exit 2.
 - L2: `WorldSealRefused` carries `day`; the loader names that day's readings file (Site-level refusals keep the first).
 - L3: `SealedBatchFiles.write_new` uses `O_CREAT|O_EXCL` plus fsync.
+- Output line `sealed_dir` (`<slug>/sealed/<context12>/`, null when no readings files) added per card line 37, for DD5b's rung manifest; test shown failing first.
 - L4: state entry 212 marked superseded by 213; `ev_session_id` claim removed.
 - Tests (each shown failing first, `/opt/assetecon/evidence/DD5a/fix/red.txt`: 10 failed): new `test_dd5a_sealed_batch_files.py`,
   additions to `test_dd5a_world_seal.py` and `test_dd5a_load_world_inputs.py`. Existing sealed-dir reads in two tests

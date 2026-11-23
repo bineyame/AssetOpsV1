@@ -17,7 +17,7 @@ re-seals and refuses `WORLD_SEALED_BYTES_DIFFER` if the bytes differ; a rebuilt 
 sealed batches load after the `/1` batch files. A tenant folder may also hold `staged/`, `sealed/` and `disorder/`.
 
 One JSON line per tenant on stdout: `{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes",
-"readings_files", "sealed_batches"}`.
+"readings_files", "sealed_batches", "sealed_dir"}`.
 Exit 0 done; 2 this command refused (`<CODE> <batch or -> <detail>` on stderr); 3 a database error
 (`DATABASE_ERROR <class>`, never the URL); 4 the commercial step failed (`COMMERCIAL_EXIT <tenant> <exit>` after the
 loader's own lines; that tenant's telemetry and later tenants are not loaded). Developer diagnostics only; nothing
@@ -93,7 +93,7 @@ def seal_context_key(contexts: Sequence[SealContext]) -> str:
     return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:12]
 
 
-def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[int, list[bytes]]:
+def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[int, list[bytes], str | None]:
     """The tenant's readings files sealed (D-DD.139), written to `sealed/` once (D-DD.140); returns the number of
     readings files and the sealed batch bytes in sealing order."""
     files = sorted((tenant / TELEMETRY).glob("*.readings.json"), key=lambda p: p.name)
@@ -124,7 +124,8 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
         sealed += [(b.name, b.text.encode("utf-8")) for b in batches]
     from assetops_backend.evidence.composition import build_sealed_batch_files
 
-    files_out = build_sealed_batch_files(tenant / SEALED / seal_context_key(contexts))
+    key = seal_context_key(contexts)
+    files_out = build_sealed_batch_files(tenant / SEALED / key)
     present = files_out.existing()
     names = {name for name, _ in sealed}
     for name, body in sealed:
@@ -133,7 +134,7 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
     for name in sorted(set(present) - names):
         raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "stray")
     files_out.write_new(sealed)
-    return len(files), [body for _, body in sealed]
+    return len(files), [body for _, body in sealed], f"{tenant.name}/{SEALED}/{key}/"
 
 
 def _database_resolver(url: str, ledger: Any) -> SealResolver:
@@ -193,13 +194,13 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
                 sys.stderr.write(f"COMMERCIAL_EXIT {slug} {commercial_exit}\n")
                 return 4
         loaded = None
-        readings_files, sealed = 0, []
+        readings_files, sealed, sealed_dir = 0, [], None
         if (tenant / TELEMETRY).is_dir():
             files = sorted((tenant / TELEMETRY).glob("*.batch.json"), key=lambda p: p.name)
             if any((tenant / TELEMETRY).glob("*.readings.json")):
                 if seal_context is None:
                     seal_context = _database_resolver(url, ledger)
-                readings_files, sealed = _seal_tenant(tenant, digests, seal_context)
+                readings_files, sealed, sealed_dir = _seal_tenant(tenant, digests, seal_context)
             try:
                 loaded = BulkEvidenceLoad(ledger).load([f.read_bytes() for f in files] + sealed)
             except BulkLoadRefused as error:
@@ -209,7 +210,7 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
             "batches": 0 if loaded is None else loaded.batches,
             "already_loaded": 0 if loaded is None else loaded.already_loaded,
             "envelopes": 0 if loaded is None else loaded.envelopes,
-            "readings_files": readings_files, "sealed_batches": len(sealed),
+            "readings_files": readings_files, "sealed_batches": len(sealed), "sealed_dir": sealed_dir,
         }, sort_keys=True) + "\n")
     return 0
 
