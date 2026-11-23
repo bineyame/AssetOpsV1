@@ -45,9 +45,9 @@ STUBS = {
 PENDING = {"C-DD6": ("KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b"),
            "C-DD7": ("mini-grid load served + unserved = delivered_kwh: unserved energy is no readings channel (DD3a writes "
                      "it to measured.json only); the readings-side clause lands with DD3b/DD5",
-                     "EV kwh_2200_2400, kwh_0000_0500 (meter_billed leaves, read by `M`'s EV structure, "
-                     "structure/rows_ev_depot.py): D-DD.99's EV month has no hour sums, so `meter_billed` writes them "
-                     "metered: null; the exact clause waits for the Architect"),
+                     "EV kwh_2200_2400, kwh_0000_0500 (D-DD.158): each `measured.json` window is judged exactly "
+                     "against site-meter/import when the world's measured.json is given; the loaded world's fetch is "
+                     "DD5b's (D-DD.160)"),
            "C-DD20": ("KISIWA-001 unserved evening energy after 2026-10-30T18:40, none from 2026-08-17T11:00 to then DD3b",
                       "MTO-001 generator litres per day after 2026-10-28T11:02 above the 28 days before DD3b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
@@ -726,12 +726,45 @@ def _manifest_kwh(manifest: dict) -> dict[tuple[str, str], object]:
     return out
 
 
-def judge_meter_books(manifest: dict, readings: dict[str, list[dict]], rows: list[dict], sites: tuple[str, ...]) -> Result:
+#: D-DD.158: C-DD7's EV hour windows, the checker's own (`measured.json` window -> local minutes [from, to) of a day).
+EV_WINDOWS = {"2200_2400": (22 * 60, 24 * 60), "0000_0500": (0, 5 * 60)}
+
+
+def _windows_metered(rows: list[dict], channel: tuple[str, str]) -> dict[tuple[str, str], Fraction]:
+    """Site-meter energy by (local month, window), exact: a row's minutes inside the window, at its mean kW."""
+    out: dict[tuple[str, str], Fraction] = {}
+    for r in rows:
+        if (r["source_id"], r["signal_id"]) != channel:
+            continue
+        a, b = datetime.fromisoformat(r["start"]), datetime.fromisoformat(r["end"])
+        start = a.hour * 60 + a.minute
+        end = start + int((b - a).total_seconds()) // 60
+        kw = Fraction(Decimal(r["value"]))
+        for name, (lo, hi) in EV_WINDOWS.items():
+            minutes = max(0, min(end, hi) - max(start, lo))
+            out[(r["start"][:7], name)] = out.get((r["start"][:7], name), Fraction(0)) + kw * Fraction(minutes, 60)
+    return out
+
+
+def judge_meter_books(manifest: dict, readings: dict[str, list[dict]], rows: list[dict], sites: tuple[str, ...],
+                      measured: dict[str, dict] | None = None) -> Result:
     """C-DD7, exact: the cold bill's kWh equals the room meter's; each EV invoice band's kWh equals the Site meter's
     energy in that price class of the schedule in force, DEMAND the largest 30-minute mean; each departure's
     `block_met` is delivered >= the roster's required, delivered never above it (so undelivered = required - delivered
-    is the rest), and each roster bus-night has one departure. Metered kWh is printed beside `M`'s, as information."""
+    is the rest), and each roster bus-night has one departure. Metered kWh is printed beside `M`'s, as information.
+    `measured` (Site code -> `measured.json` months): each EV month's `windows` equals the Site meter's energy over the
+    same local minutes, exactly (D-DD.158); without it that clause stays pending."""
     detail, info = [], []
+    for code in sites if measured is not None else ():
+        channel = _meter_of(code)
+        if not code.startswith("EV-") or channel is None or code not in measured:
+            continue
+        metered = _windows_metered(readings.get(code, []), channel)
+        for month, block in sorted(measured[code].items()):
+            for name, value in sorted(block.get("windows", {}).items()):
+                if _milli(metered.get((month, name), Fraction(0))) != Decimal(value):
+                    detail.append(f"{code} {month} window {name}: measured {value} kWh, meter "
+                                  f"{_milli(metered.get((month, name), Fraction(0)))}")
     known = _manifest_kwh(manifest)
     for code in sites:
         mine = [r for r in rows if r.get("site_code") == code]
@@ -778,7 +811,8 @@ def judge_meter_books(manifest: dict, readings: dict[str, list[dict]], rows: lis
             if r["body"]["block_met"] != (delivered >= required):
                 detail.append(f"{code} {key[0]} {key[1]}: block_met {r['body']['block_met']} with {delivered} of {required}")
         detail += [f"{code} {k[0]} {k[1]}: no departure for the roster night" for k in sorted(set(roster) - departed)]
-    return Result("C-DD7", not detail, detail[:40], list(PENDING["C-DD7"]), info)
+    pending = [p for p in PENDING["C-DD7"] if measured is None or not p.startswith("EV kwh_2200_2400")]
+    return Result("C-DD7", not detail, detail[:40], pending, info)
 
 
 def check_meter_books(inputs: "Inputs") -> Result:

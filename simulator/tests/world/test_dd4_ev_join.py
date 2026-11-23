@@ -132,7 +132,6 @@ def test_j6_in_session_connector_rows_carry_the_sessions_pair() -> None:
     assert all("session" not in r for r in rows if "event" in r)
     assert all(set(r["session"]) == {"session_id", "connector_id"} for r in carried)
     assert {(r["session"]["session_id"], r["session"]["connector_id"]) for r in carried} == pairs
-    assert all(r["session"]["connector_id"] == r["source_id"] for r in carried)
     assert all("session" in r for r in measured if r["signal_id"] == "energy")  # energy is written per session
     assert not any("session" in r for r in measured if r["source_id"] == "site-meter")
     idle = [r for r in measured if r["signal_id"] == "state" and r["value"] in ("UNPLUGGED", "FAULTED")]

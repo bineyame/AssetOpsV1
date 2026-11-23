@@ -686,7 +686,8 @@ def pack_family(site: dict) -> str | None:
 class VerticalBinding:
     """The frame's binding of a vertical run's pack rows (D-DD.81, D-DD.91): each `(device_id, signal_id)` resolves to
     exactly one binding row; a value is rounded to the millesimal or checked against the binding's state map; an event
-    row has value null, unit `event` and its `event` object. Rows sort by (start, source_id, signal_id, ordinal)."""
+    row has value null, unit `event` and its `event` object; a measurement row given an eighth element (the EV run's
+    session pair, D-DD.161) carries it as `session`. Rows sort by (start, source_id, signal_id, ordinal)."""
 
     def __init__(self, site: dict) -> None:
         self.code, self.zone = site["code"], _zone(site)
@@ -706,7 +707,7 @@ class VerticalBinding:
 
     def rows(self, pack_rows: list[tuple]) -> list[dict]:
         out = []
-        for device, signal, start, end, value, unit, event in pack_rows:
+        for device, signal, start, end, value, unit, event, *rest in pack_rows:
             binding = self.rows_by_channel.get((device, signal)) or self.by_asset.get((device, signal))
             if binding is None:
                 bound_twice = (device, signal) in self.by_asset
@@ -734,6 +735,8 @@ class VerticalBinding:
                 else:
                     raise TelemetryRefused("TEL_PACK", f"{self.code} {start.isoformat()} {device}/{signal} has no value")
                 row.update(value=text, unit=binding["source_unit"])
+                if rest and rest[0] is not None:  # D-DD.161: an in-session EV connector row's session pair
+                    row["session"] = dict(rest[0])
             out.append(row)
         return sorted(out, key=lambda r: (r["start"], r["source_id"], r["signal_id"],
                                           r["event"]["ordinal"] if "event" in r else 0))
