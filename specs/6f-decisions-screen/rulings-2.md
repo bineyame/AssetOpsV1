@@ -1,4 +1,4 @@
-# 6f rulings, part 2 (D-P6.88 to D-P6.98): the 6f1 U1 reviews' questions
+# 6f rulings, part 2 (D-P6.88 to D-P6.99): the 6f1 U1 reviews' questions
 
 Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-6f1-U1.md` at `ef2a81039`
 (`task/6f1-decisions`), `decisions/evaluate.py` and `structure/difference.py` on main `93ed567d7`, the mock's `uxDecisionSlots`
@@ -161,7 +161,7 @@ documents, but `difference` stores an effect row for every changed leaf, and tha
   | | `MISSING_BEFORE` | "Not in these figures: {newer}, stated by {newer_person} on {newer_day}: {newer_basis}" |
   | `cost_answer` | `STATED_BEFORE` | "{amount} one-off, stated by {person}; a newer cost is not in this result" |
   | | `NIL_BEFORE` | "No one-off cost; a newer cost is not in this result" |
-  | `missing` | `STATED_SINCE` | "Not available yet: what it needs was stated after the options were worked out" |
+  | `missing` | `STATED_SINCE` | "Not available yet: what was asked for was stated after the options were worked out" (D-P6.99) |
   | `newer_inputs` (new) | `COST` | "A one-off cost was stated after these figures were worked out; they do not include it." |
   | | `DOCUMENT` | "A document was stated after these figures were worked out; they do not include it." |
   | | `COST_AND_DOCUMENT` | "A one-off cost and a document were stated after these figures were worked out; they do not include them." |
@@ -170,9 +170,10 @@ documents, but `difference` stores an effect row for every changed leaf, and tha
   | `rec_figure` | `BEFORE` | "{value} over {horizon}, against doing nothing; to be worked out again" |
   | `eyebrow` | `REC_BEFORE` | "Recommended earlier" |
 
-  - A missing entry is "stated since" when it is `ONE_OFF` or `ONE_OFF_CURRENCY` and the option has a newer one-off, or names a
-    factor in `newer_records`. A result, an effect row and `first_missing` show the first entry that is **not** stated since;
-    `STATED_SINCE` when none is left. So a page never asks for what a person has already given.
+  - A missing entry is "stated since" when it is `ONE_OFF` or `ONE_OFF_CURRENCY` and the option has a newer one-off, or is
+    `OPTION_RECORD` or `CURRENCY_MISMATCH` and names a factor in `newer_records` (narrowed by D-P6.99). A result, an effect row and
+    `first_missing` show the first entry that is **not** stated since; `STATED_SINCE` when none is left. So a page never asks for
+    what a person has already given.
   - `newer_inputs` is drawn while `newer`, in every state: in `rec.notes` before `can_choose`, and in the evidence lines after
     `valued_by`.
   - `VALUE_BEFORE`, `BEFORE`, `REC_BEFORE` and `AGAIN` only while `newer` and no choice is recorded (after a choice nothing is owed).
@@ -261,3 +262,22 @@ documents, but `difference` stores an effect row for every changed leaf, and tha
   yet. We suggest 'Estimated'. A cost a person stated stays 'Declared', and the demo Sites stay 'Simulated' or 'Emulated', so nothing changes in the demo.
   Is 'Estimated' right?"
 - **If yes:** one branch in `_Page.evidence`, F6-N's and F6-T's literals; a fast-lane change after U1, before the first pilot Site. Until then D-P6.96 (e).
+
+## D-P6.99 A newer document answers only the document's own entry; `STATED_SINCE` says what was asked for (amends D-P6.94)
+
+- **Ruling.** The builder's narrowing is accepted (`T.COST_KINDS`, `T.DOCUMENT_KINDS` at `3c71cb6a9`); D-P6.94's "or names a factor in
+  `newer_records`" was too wide.
+- **Checked, every entry kind × every lever.** `OPTION_RECORD` with a factor: only `stated_changes`, a `RECORD` leaf with no document; a newer
+  document answers it. `CURRENCY_MISMATCH` with a factor: only N2's branch; a newer document may answer it, and the next run judges it.
+  `CURRENCY_MISMATCH` with no factor (the fold's): may be the month's own, so it stays. The month's own record (`NOT_CONNECTED`,
+  `HELD_NOT_CALCULATED` and the providers' causes; 6h names it when a document is held over a missing level): a document never
+  answers it, and on cold and EV Sites it is the usual case. `ZERO_DENOMINATOR` names a node, never a `RECORD` leaf; the base's
+  `CURRENCY_MISMATCH:` causes carry a suffix, so they cannot match. `OPTION_STUDY` and `SITE_MONTH_SIMULATION` (`charging_schedule`, the grid)
+  take no document. Cost kinds: all ten levers.
+- **Same class, other direction (found here).** With no document, `stated_changes` names the document and stops, so a leaf whose month's
+  own level is also missing hides that level in the run's row. "What it needs was stated" is then false on the same Sites: the next run asks for
+  the month's record. The page knows only what the run asked for, so `STATED_SINCE` reads "Not available yet: what was asked for was stated
+  after the options were worked out". No model change: which lack is named first is 6h's order, and no figure depends on it.
+- **Builder:** that text in `decision_page.missing`, its case and its literals; one test: a document stated after a run over a leaf whose month's
+  level is missing reads `STATED_SINCE`, and the run after it names the month's record. Nothing else. Units unchanged.
+- **Reverse:** D-P6.94's wide rule and text.
