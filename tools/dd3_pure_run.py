@@ -308,6 +308,15 @@ def ledger_from_record(record: dict) -> dict:
     return {key: Fraction(record["ledger"][key]) for key in LEDGER_KEYS}
 
 
+def run_inputs_sha256(code: str, notes: list[dict], first: str, last: str) -> str:
+    """DD3b review H1: the hash of what the notes run reads (the Site, the books from the live history with the notes,
+    the span). The record carries it, so a world that moves under the record is seen without a rerun."""
+    from assetops_simulator.world.canonical import canonical_bytes, sha256_hex
+
+    inputs = {"site": site_inputs(code), "books": _with_notes(plain_books(code), notes), "span": [first, last]}
+    return sha256_hex(canonical_bytes(inputs))
+
+
 def read_leaves_file() -> dict:
     if LEAVES_FILE.exists():
         return json.loads(LEAVES_FILE.read_text(encoding="utf-8"))
@@ -343,7 +352,8 @@ def print_leaves(code: str, first: str, last: str, write: bool = False, check: b
     period = site["period"]
     record = {"site_code": code, "span": [first, last], "month": "2026-10",
               "ledger": {key: str(Fraction(run.ledger["2026-10"][key])) for key in LEDGER_KEYS},
-              "candidate_days": candidate_days, "peak_evening_generator_kw": str(peak)}
+              "candidate_days": candidate_days, "peak_evening_generator_kw": str(peak),
+              "inputs_sha256": run_inputs_sha256(code, entry["notes"], first, last)}
     leaves = october_leaves(ledger_from_record(record), entry["notes"], price, period["plan"], period["actual"])
     actual, balance = period["actual"], period.get("fuel_balance", {})
     print(f"{code} October leaves from the notes run ({first}..{last}; {len(entry['notes'])} notes; price {price})")
