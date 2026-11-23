@@ -3,7 +3,7 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`); DD3a in_review with open questions (`packet-DD3a.md`); DD4a in_review, run 3 (D-DD.89, D-DD.119-122) done (`packet-DD4a.md`); DD3c in_review (`packet-DD3c.md`); DD4b in_review, run 7 (`packet-DD4b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75), and by D-DD.143 to D-DD.152 to 51.5 u, and by D-DD.153 and D-DD.154 to **53.75 u in twelve parts** (new DD3d, fuel records and the tolerance floor, 2.25 u), and by D-DD.156 to **54.0 u** (DD3d 2.5 u), and by D-DD.157 to D-DD.160 to **55.0 u** (DD4b 5.0, DD5b 4.0, DD6 5.25 u), and by D-DD.161 to **55.5 u** (DD4b 5.25, DD5a 3.75 u), and by D-DD.163 to **57.25 u** (DD3d 4.25 u), and by D-DD.164 to **58.0 u** (DD3b 7.25 u: the history seed loop), and by D-DD.166 to 59.75 u and D-DD.167 to D-DD.171 to **60.75 u in thirteen parts** (DD3d 6.5 u split into DD3d-a 2.75 and DD3d-b 3.75, DD5a 4.0, DD5b 4.25). `WK-SC` (3.0 u, D-DD.172, outside DD): `spec-WK-SC.md`. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75), and by D-DD.143 to D-DD.152 to 51.5 u, and by D-DD.153 and D-DD.154 to **53.75 u in twelve parts** (new DD3d, fuel records and the tolerance floor, 2.25 u), and by D-DD.156 to **54.0 u** (DD3d 2.5 u), and by D-DD.157 to D-DD.160 to **55.0 u** (DD4b 5.0, DD5b 4.0, DD6 5.25 u), and by D-DD.161 to **55.5 u** (DD4b 5.25, DD5a 3.75 u), and by D-DD.163 to **57.25 u** (DD3d 4.25 u), and by D-DD.164 to **58.0 u** (DD3b 7.25 u: the history seed loop), and by D-DD.166 to 59.75 u and D-DD.167 to D-DD.171 to **60.75 u in thirteen parts** (DD3d 6.5 u split into DD3d-a 2.75 and DD3d-b 3.75, DD5a 4.0, DD5b 4.25), and by D-DD.175 and D-DD.176 to **61.25 u** (DD3b 7.75 u). `WK-SC` (3.0 u, D-DD.172, outside DD): `spec-WK-SC.md`. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
 D-DD.17 to D-DD.165 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
@@ -616,6 +616,8 @@ is `NOT_READ_BY_A_LEAF`. The roster covers July to October here, and DD4.3 exten
 "revenue", "fuel_cost" | "energy_cost", "source_ref"}]}`.
 - There is one statement per history month. Each figure is the sum of that month's emitted rows, and `source_ref` is
   "Emulated management accounts, {Month YYYY}, final".
+- Fuel is a stocked good: a trading month with no FUEL row states `fuel_cost` "0.00" (fuel bought, D-DD.175). A month
+  with no energy bill, or with cost and no revenue, is refused (`STATEMENT_INCOMPLETE`).
 - For cold and EV, the energy cost sums the measured bill or invoice rows, so the file is written after §5.6.
 - Lakeside's October stays in the walk definition (Kisiwa's disagreement). Harvest Cold's and Metro Bus's October
   statements (final) are included, because Q11 gives their months a snapshot to reconcile.
@@ -851,7 +853,7 @@ lines and rulings each part needs, with tests, plants, reach set and merge order
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (15.0 u in three parts; DD3b 5.75 u in parts DD3b1-DD3b3 by D-DD.142, 7.25 u by D-DD.150-152 and D-DD.164; D-DD.44, D-DD.73, D-DD.79, D-DD.80, D-DD.96, D-DD.107, D-DD.116: DD3a = DD3.1, DD3.2, 6.0 u (D-DD.102), `task/DD3a-mini-reality`; DD3b = DD3.3, 4.0 u, `task/DD3b-mini-units`; DD3c = DD3.4, 3.25 u, `task/DD3c-unit-roles`)
+### DD3: the mini-grid's operating reality (15.0 u in three parts; DD3b 5.75 u in parts DD3b1-DD3b3 by D-DD.142, 7.25 u by D-DD.150-152 and D-DD.164, 7.75 u by D-DD.175 and D-DD.176; D-DD.44, D-DD.73, D-DD.79, D-DD.80, D-DD.96, D-DD.107, D-DD.116: DD3a = DD3.1, DD3.2, 6.0 u (D-DD.102), `task/DD3a-mini-reality`; DD3b = DD3.3, 4.0 u, `task/DD3b-mini-units`; DD3c = DD3.4, 3.25 u, `task/DD3c-unit-roles`)
 
 - **DD3.1 Writer core and Kobo on v8 (2.75; D-DD.79, D-DD.80).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11, C-DD12 and C-DD21 go live. The kernel's forcing index and its
@@ -866,7 +868,7 @@ lines and rulings each part needs, with tests, plants, reach set and merge order
   First run: D-DD.97's load timing (+0.25) and D-DD.104's battery start (+0.25), both before the notes. The notes run
   starts once DD4a (D-DD.103's span to 6 Nov 06:00) is on main (D-DD.107).
   The history seed covers no run-written October key (D-DD.164, `RUN_WRITTEN`); acceptance is one notes/leaves/`M`
-  pass with `history.json` byte-identical on a second generate and every `--check` exit 0; Kisiwa's candidate share
+  pass, then generates 2 and 3 byte-identical with every `--check` exit 0, the move from generate 1 to 2 only in `RUN_DERIVED` values (D-DD.176); a month with no fuel bought states fuel 0.00 (D-DD.175); Kisiwa's candidate share
   is printed old → new and restated in the story (D-DD.165).
 - **DD3.4 Unit roles in the readers (3.25; D-DD.41, D-DD.44; part DD3c, D-DD.107; pre-flight ruled by D-DD.108 to
   D-DD.116).** `sites/unit_roles.py`: the Site-from-units rule (state as D-DD.111; installed and available rating as

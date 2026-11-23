@@ -3426,3 +3426,84 @@ O1, O2 and `owner-demo-data-answers-2026-11-22.md` (D-DD.166 approved); `review-
   Results cells (with "IA-P lane" kept); 6h §7's decisions are WK-SC's; the C-DD17 served table is D-DD.153's states
   (bands unchanged by D-DD.164's re-seed); D-DD.166 moves no DD6 judge. Nothing else in the three cards disagrees
   with D-DD.17 to D-DD.173.
+
+# DD rulings, round 27 (D-DD.175 to D-DD.176): a month with no fuel bought; D-DD.164's fixed point restated
+
+Architect (Claude, DD lane), 2026-11-23. Read: `DD3b-handoff.md` "Fix round 1" on `task/DD3b-mini-plant` (e9ce0dd91);
+D-DD.163, D-DD.164, D-DD.165, D-DD.170; `simulator/assetops_simulator/world/statements.py` (`figures_from_rows`),
+`world/exports.py` (the statements call: FUEL expense rows), `simulator/tests/world/test_dd2_nodes.py` (statements
+tests), `backend/assetops_backend/structure/reconciliation.py` (`_heading`: no used line and 0.00 stated is MATCHED,
+`NONE_RECORDED_ZERO_STATED`, and never opens the gate; `standing`). No run was made; no database touched.
+
+- **D-DD.175 BLOCKER: a trading month with no fuel bought has a statement whose fuel line is 0.00. The statement
+  states fuel bought, never burned × price. Absence means zero only for a stocked good (fuel); an energy bill's
+  absence is still refused** (model, W6 class of D-DD.92/D-DD.163; amends spec §5.4 and DD2.5's refusal; +0.25 u DD3b).
+  - *What is wrong.* `figures_from_rows` refuses a month with revenue and no cost rows. That rule assumed a cost row
+    every trading month, which held while invoices stated the month's fuel cost. Since D-DD.92 and D-DD.163, fuel is
+    a stocked good: bought on delivery, burned from the tank. A month burning tank fuel with no delivery is a real
+    month, and its accounts show no fuel purchase. Lakeside July after the restated notes is that month.
+  - *Rejected: the fuel line from burned × price.* D-DD.163 made the management accounts state fuel bought, compared
+    with the recorded invoices (reconciliation's heading, "Fuel bought (invoices)"). Burned × price on that line
+    would be a second figure for the heading's quantity. July would read NOT_COMPARABLE (`NOT_RECEIVED`: the accounts
+    state an amount, no invoice is recorded), and August and September NOT_MATCHED against their invoices: a false
+    disagreement made by the world. A second key in `assetops.world-statements/1` is rejected too: the product's
+    statement has one fuel field (a data contract, D-DD.163), and the burned cost is already the product's own node.
+  - *Rule (`world/statements.py`).*
+    - `ZERO_WHEN_NONE = {"fuel_cost": True, "energy_cost": False}` beside `COST_KEYS`.
+    - `figures_from_rows(revenue_rows, cost_rows, months, cost_key)`: a month with neither is absent (unchanged). A
+      month with revenue and no cost row is `(revenue, Decimal("0.00"))` when `ZERO_WHEN_NONE[cost_key]`, otherwise
+      `STATEMENT_INCOMPLETE {month}`. A month with cost rows and no revenue is still `STATEMENT_INCOMPLETE {month}`
+      (no trading month without billing). An unknown `cost_key` is `STATEMENT_COST_KEY` (as `statements_document`).
+    - `exports.py` passes `"fuel_cost"`; the cold and EV callers (DD4.4) pass `"energy_cost"`. The docstring states
+      the rule. The written figure is `"0.00"`; `source_ref` is unchanged ("..., final").
+  - *What the product then shows (no product change).* Lakeside's July statement: revenue Σ billing, fuel 0.00.
+    `_heading` reads the fuel heading MATCHED with `NONE_RECORDED_ZERO_STATED`; July's statement never opens the
+    gate (3A7: "a missing figure is never 0 ... that never opens the gate"), and July's money reads reconciled only
+    through another month that opens it (August and September carry invoices). The packet prints the served July
+    standing for Lakeside and for each Site; nothing is typed (D-DD.93). If no Lakeside history month opens the
+    gate after this, stop for the Architect.
+  - *Tests (first, in `test_dd2_nodes.py`).* (a) `fuel_cost`: revenue rows, no cost rows in 2026-07 → `fuel_cost`
+    `"0.00"` and revenue Σ rows. (b) `energy_cost`: the same → `STATEMENT_INCOMPLETE 2026-07` (the existing test,
+    with the key passed). (c) Either key: cost rows, no revenue → `STATEMENT_INCOMPLETE`. (d) On the regenerated
+    world, Lakeside's July statement has `fuel_cost` `"0.00"` and equals Σ July FUEL rows (zero), the existing July
+    assertion made to hold for an empty sum. Then the 101 failures and 40 errors are rerun; the handoff's probe gives
+    15 failed (7 main-identical, 8 re-pins of the re-seeded world), and any other failure still blocks.
+  - *Checks.* `EMU_FUEL` (Σ invoices = fuel bought) holds as 0 = 0. C-DD4 is unchanged (it judges the burned
+    `fuel_cost` node from `history.json`, not the statement).
+  - *Owner, plainly.* In July Lakeside bought no diesel: the generators ran on fuel already in the tanks. So July's
+    accounts show fuel bought $0.00, and the fuel the generators burned is still costed on screen (litres × price).
+    Nothing is asked; you are told.
+  - *Where and size.* DD3b fix round 1, before the pure DIR: +0.25 u (rule, caller, four tests). DD3b 7.25 → 7.5 u.
+
+- **D-DD.176 D-DD.164's fixed point is restated: the fixed point is generates 2 and 3 byte-identical with every
+  `--check` exit 0, and the move from generate 1 to 2 is proved values-only by a test. The move is honest** (model;
+  amends D-DD.164 acceptance step 5 and D-DD.170's "including step 5"; +0.25 u DD3b).
+  - *Why step 5 was mis-stated.* Step 1 is generated before step 3 writes the October leaves. `scale` makes history's
+    `necessary_l` / `candidate_l` October × weight × jitter, and D-DD.164 itself calls them values that move with
+    October. So when step 3 changes an October leaf (Kisiwa's), generate 2 must differ from generate 1 in exactly
+    those values, and in `meta.view_digest` (a digest of the view, which includes `M`). Byte-identity to step 1 would
+    hold only if the leaves had not moved. A fixed point is a state that a further pass leaves unchanged, so it is
+    proved after the write, not against the state before it.
+  - *Is the move honest? Yes.* No seed moved (0 scope digests, equal jitter), no writer input moved (the mini writer
+    reads `delivered_kwh` and the declared `unexplained_l`, D-DD.18/D-DD.92; cold and EV exports byte-identical), and
+    the leaves recomputed on generate 2 equal those written (every `--check` exit 0). History's scaled litres follow
+    October's restated litres through the link the spec declares; nothing was tuned. Kisiwa Jul-Sep scaled necessary
+    805/796/739 → 802/793/737 and candidate 54/51/71 → 56/53/73 are reported in the packet as such.
+  - *Acceptance (replaces D-DD.164 step 5; steps 1-4, 6, 7 unchanged; applies to D-DD.170's re-proof too).*
+    - 5a. `world_history.py generate` after `M` is written (generate 2), then step 6 (`--restate-notes --check` and
+      `--leaves --check` exit 0 at Kobo, Kisiwa and Mto).
+    - 5b. A third generate is byte-identical to generate 2. The two hashes go in the evidence.
+    - 5c. `step1-vs-step2.txt` lists every differing JSON path. Each is `meta.view_digest` or a path in
+      `history.RUN_DERIVED`; any other path stops for the Architect (the table missed a key).
+  - *Declared table (`world/history.py`).* `RUN_DERIVED: dict[str, tuple[str, ...]]`, by vertical: the history keys
+    computed from a `RUN_WRITTEN` value. `MINI_GRID`: `necessary_l`, `candidate_l`, plus any key `scale` (or another
+    history function) computes from a `RUN_WRITTEN` key, which the builder lists from the code in pre-flight. Cold and
+    EV: empty unless the code shows one. A static assertion: `RUN_DERIVED` is disjoint from `PHYSICAL_READS` and from
+    every key a writer reads (`telemetry.books_for`, `telemetry_cold.cold_books_for`); a derived key a writer reads
+    would be D-DD.164's loop again, and stops.
+  - *Guard test (in `test_scope_run_written.py`, default suite).* On a copy of the view, change each `RUN_WRITTEN`
+    October key of Kobo, Kisiwa and Mto and recompute the July-September history for that scope (in memory, no file;
+    the per-scope function the existing guard uses). Every changed history path is in `RUN_DERIVED`, and no
+    `PHYSICAL_READS` value moves. Plant: a function that also scales `delivered_kwh` fails it.
+  - *Where and size.* DD3b fix round 1: +0.25 u (table, assertion, guard, the step-5 evidence already made). DD3b
+    7.5 → **7.75 u**; DD 60.75 → **61.25 u**. Spec DD3.3's acceptance sentence is restated.
