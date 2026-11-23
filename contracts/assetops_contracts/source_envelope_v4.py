@@ -29,8 +29,9 @@ identity and the source/mapping fields that batch homogeneity and identity need.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, replace
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping
 
 from assetops_contracts.control import DISCRETE_UNIT
 from assetops_contracts.source_envelope import (
@@ -693,6 +694,44 @@ V4_EV_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("site-meter", "import"): replace(_interval("kW"), role="ev_site_import"),
 }
 
+#: D-DD.138: the one Site import tuple every world depot declares, with the lab's mapping.
+_WORLD_EV_SITE_IMPORT = ("site-meter", "import")
+_WORLD_EV_DEVICE = re.compile(r"(ch-[a-z][a-z0-9]*-c[1-9][0-9]*)-(charger-controller|connector-controller|connector-meter)")
+
+
+def world_ev_channel_mappings(device_ids: Iterable[str]) -> dict[tuple[str, str], ChannelMapping]:
+    """D-DD.138: a world depot's closed v4 table, generated from the device IDs its `/2` Foundation declares.
+
+    `_ev_connector(prefix)` for exactly each `ch-<charger code lower>-c<n>` prefix the devices name, plus the Site
+    import. Any other device ID refuses (`ValueError`), so the table stays closed per Site."""
+    prefixes: set[str] = set()
+    for device in device_ids:
+        if device == _WORLD_EV_SITE_IMPORT[0]:
+            continue
+        match = _WORLD_EV_DEVICE.fullmatch(device)
+        if match is None:
+            raise ValueError(f"{device!r} is not a world EV depot device")
+        prefixes.add(match.group(1))
+    table: dict[tuple[str, str], ChannelMapping] = {}
+    for prefix in sorted(prefixes):
+        table.update(_ev_connector(prefix))
+    table[_WORLD_EV_SITE_IMPORT] = replace(_interval("kW"), role="ev_site_import")
+    return table
+
+
+#: D-DD.138: the connector prefixes each world depot's `/2` file declares (DD1.2 `metro-bus`); a test proves each
+#: equals its Foundation's.
+WORLD_EV_CONNECTOR_PREFIXES: Mapping[str, tuple[str, ...]] = {
+    "EV-EMB": tuple(f"ch-e{n}-c{c}" for n in range(1, 11) for c in (1, 2)),
+    "EV-KAS": tuple(f"ch-k{n}-c{c}" for n in range(1, 5) for c in (1, 2)),
+    "EV-RUI": tuple(f"ch-r{n}-c{c}" for n in range(1, 13) for c in (1, 2)),
+}
+
+#: D-DD.138: the closed world EV table (every depot), beside the lab table, which is unchanged.
+V4_WORLD_EV_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = world_ev_channel_mappings(
+    f"{prefix}-{kind}" for prefixes in WORLD_EV_CONNECTOR_PREFIXES.values() for prefix in prefixes
+    for kind in ("charger-controller", "connector-controller", "connector-meter"))
+
 #: W4-02 closure 4 B2: the closed `authored-mini-depth-cases/1` table - exactly these three tuples. Distinct role
 #: names from cold's `backup_start_event`/`backup_bus_state`; the cold table above is unchanged.
 V4_MINI_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
@@ -711,6 +750,7 @@ V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("connector-controller", "fault-event"): replace(_events("EV_CONNECTOR_FAULT", "EV_CONNECTOR_CLEAR"),
                                                      role="ev_connector_fault"),
     **V4_EV_CHANNEL_MAPPINGS,
+    **V4_WORLD_EV_CHANNEL_MAPPINGS,
     **V4_MINI_CHANNEL_MAPPINGS,
 }
 

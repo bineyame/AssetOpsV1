@@ -26,6 +26,7 @@ from assetops_backend.sites.foundation_content import content_digest
 from assetops_contracts.source_envelope import canonical_json
 from assetops_contracts.gateway_report import (
     DeviceReportV2,
+    cold_correlation_id,  # D-DD.139: lives in contracts; still importable from here
     cold_event_id,
     cold_report_key,
     device_report_v2_text,
@@ -122,13 +123,6 @@ def _observation_rows(definition: ColdScenarioDefinition) -> tuple:
                         release_at=None if o.release_at is None else _at(o.release_at))
         for o in definition.observations
     )
-
-
-def cold_correlation_id(*, scenario_sha256: str, correlation_key: tuple[str, int]) -> str:
-    """The outage/attempt or door-cycle correlation of a cold event: `cold-` + SHA-256 of canonical
-    `[scenario_sha256, kind, ordinal]`, kind `outage` or `door`, ordinal one-based."""
-    kind, ordinal = correlation_key
-    return "cold-" + hashlib.sha256(canonical_json([scenario_sha256, kind, ordinal]).encode("utf-8")).hexdigest()
 
 
 def report_of(observation: ColdObservation, scenario_sha256: str) -> DeviceReportV2:

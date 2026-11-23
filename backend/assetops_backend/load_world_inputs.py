@@ -4,11 +4,20 @@
 
 `DIR` holds one directory per tenant slug, each with at most `commercial/` (the tenant's DS1b canonical files, loaded
 through 3A2's intake by `load_emulated_exports`, the one commercial path) and `telemetry/` (Batch V2 files
-`*.batch.json`, loaded in sorted name order by the bulk evidence load). Before any connection: `DATABASE_URL` must
+`*.batch.json`, loaded in sorted name order by the bulk evidence load, and readings files `*.readings.json`). Before
+any connection: `DATABASE_URL` must
 be set and name a permitted database (a `<prefix>_audit*` database or a harness clone on the test container, never an
 operator's), and every selected tenant directory must hold nothing else.
 
-One JSON line per tenant on stdout: `{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes"}`.
+Readings (DD5a; spec §4.6 as amended by D-DD.139, D-DD.140): each Site's readings files are sealed by
+`evidence/world_seal.seal_readings` against the Site's pinned binding snapshot (the Site resolved by
+`PostgresEvidenceLedger.site_scope`, its `foundation_digest` from `site-inputs.json` beside the tenant folders) and
+written once to `<slug>/sealed/<context12>/` (D-DD.167: keyed by the database's ids); a re-run against the same database
+re-seals and refuses `WORLD_SEALED_BYTES_DIFFER` if the bytes differ; a rebuilt database writes a new folder. The
+sealed batches load after the `/1` batch files. A tenant folder may also hold `staged/`, `sealed/` and `disorder/`.
+
+One JSON line per tenant on stdout: `{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes",
+"readings_files", "sealed_batches", "sealed_dir"}`.
 Exit 0 done; 2 this command refused (`<CODE> <batch or -> <detail>` on stderr); 3 a database error
 (`DATABASE_ERROR <class>`, never the URL); 4 the commercial step failed (`COMMERCIAL_EXIT <tenant> <exit>` after the
 loader's own lines; that tenant's telemetry and later tenants are not loaded). Developer diagnostics only; nothing
@@ -17,17 +26,25 @@ here is served (D-DS3.7).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
 from assetops_backend.evidence.ledger import LedgerUnavailable
+from assetops_backend.evidence.world_seal import SealContext, WorldSealRefused, context_from_snapshot, seal_readings
 
 COMMERCIAL = "commercial"
 TELEMETRY = "telemetry"
-_LAYOUT = frozenset({COMMERCIAL, TELEMETRY})
+SEALED = "sealed"
+#: D-DD.140: `staged/` (canonical JSON loaded by its own step) and `disorder/` (planted files) are accepted here.
+_LAYOUT = frozenset({COMMERCIAL, TELEMETRY, SEALED, "staged", "disorder"})
+SITE_INPUTS = "site-inputs.json"
+#: `(slug, site code, first reading start, last reading end, foundation_digest)` -> the Site's seal context.
+SealResolver = Callable[[str, str, datetime, datetime, str], SealContext]
 
 
 class _Refused(Exception):
@@ -61,7 +78,94 @@ def _tenants(world: Path, only: str | None) -> list[Path]:
     return tenants
 
 
-def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int] | None) -> int:
+def _digests(world: Path) -> dict[tuple[str, str], str]:
+    path = world / SITE_INPUTS
+    if not path.is_file():
+        return {}
+    return {(s["tenant"], s["code"]): s["foundation_digest"] for s in json.loads(path.read_bytes())["sites"]}
+
+
+def seal_context_key(contexts: Sequence[SealContext]) -> str:
+    """D-DD.167: the 12 hex of SHA-256 over the canonical JSON of the sorted `[site_code, gateway_id, source_id,
+    binding_set_id, foundation_digest]` lists of the Sites sealed; it changes when the database is rebuilt."""
+    rows = sorted([c.site_code, c.gateway_id, s, c.binding_set_id, c.foundation_digest]
+                  for c in contexts for s in {str(b["source_id"]) for b in c.bindings.values()})
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:12]
+
+
+def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[int, list[bytes], str | None]:
+    """The tenant's readings files sealed (D-DD.139), written to `sealed/` once (D-DD.140); returns the number of
+    readings files and the sealed batch bytes in sealing order."""
+    files = sorted((tenant / TELEMETRY).glob("*.readings.json"), key=lambda p: p.name)
+    by_site: dict[str, list[tuple[date, list, str]]] = {}
+    for path in files:
+        document = json.loads(path.read_bytes())
+        by_site.setdefault(document["site_code"], []).append(
+            (date.fromisoformat(document["day"]), document["readings"], path.name))
+    sealed: list[tuple[str, bytes]] = []
+    contexts: list[SealContext] = []
+    for code in sorted(by_site):
+        days = sorted(by_site[code], key=lambda d: d[0])
+        first = days[0][2]
+        digest = digests.get((tenant.name, code))
+        if digest is None:
+            raise _Refused("WORLD_TELEMETRY_UNRESOLVED", first, f"foundation_digest {code}")
+        rows = [r for _, day_rows, _ in days for r in day_rows]
+        if not rows:
+            continue
+        try:
+            context = resolve(tenant.name, code, min(datetime.fromisoformat(r["start"]) for r in rows),
+                              max(datetime.fromisoformat(r["end"]) for r in rows), digest)
+            batches = seal_readings(context, [(d, day_rows) for d, day_rows, _ in days])
+        except WorldSealRefused as refused:
+            named = next((name for d, _, name in days if d.isoformat() == refused.day), first)
+            raise _Refused(refused.code, named, refused.detail) from None
+        contexts.append(context)
+        sealed += [(b.name, b.text.encode("utf-8")) for b in batches]
+    from assetops_backend.evidence.composition import build_sealed_batch_files
+
+    key = seal_context_key(contexts)
+    files_out = build_sealed_batch_files(tenant / SEALED / key)
+    present = files_out.existing()
+    names = {name for name, _ in sealed}
+    for name, body in sealed:
+        if name in present and present[name] != body:
+            raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "re-seal")
+    for name in sorted(set(present) - names):
+        raise _Refused("WORLD_SEALED_BYTES_DIFFER", name, "stray")
+    files_out.write_new(sealed)
+    return len(files), [body for _, body in sealed], f"{tenant.name}/{SEALED}/{key}/"
+
+
+def _database_resolver(url: str, ledger: Any) -> SealResolver:
+    """The Site's scope by `site_scope(slug, code)` and its binding snapshot over the readings span, as the gateway
+    downloads it (`sites.registered_basis.select_registered_basis`, which calls `acquisition_snapshot`)."""
+    from assetops_backend.sites.composition import build_foundation_store
+    from assetops_backend.sites.foundation_service import FoundationService, utc_now
+    from assetops_backend.sites.registered_basis import BasisRefused, select_registered_basis
+
+    store = build_foundation_store(url)
+
+    def resolve(slug: str, code: str, start: datetime, end: datetime, digest: str) -> SealContext:
+        scope = ledger.site_scope(slug, code)
+        if scope is None:
+            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"site {code}")
+        service = FoundationService(store, slug, utc_now)
+        tenant = service.tenant()
+        site = service.site(tenant, code)
+        if site is None or site.id != scope[1]:
+            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"site {code}")
+        try:
+            basis = select_registered_basis(service, tenant, site, start=start, end=end, knowledge_at=None)
+        except BasisRefused as refused:
+            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"bindings {code} {refused.code}") from None
+        return context_from_snapshot(code, str(scope[1]), basis.snapshot.document, basis.snapshot.sha256, digest)
+
+    return resolve
+
+
+def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int] | None,
+         seal_context: SealResolver | None = None) -> int:
     from assetops_backend.evidence.bulk_load import BulkEvidenceLoad, BulkLoadRefused, permitted_database
 
     url = os.environ.get("DATABASE_URL")
@@ -79,6 +183,7 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
         from assetops_backend.evidence.composition import build_evidence_ledger
 
         ledger = build_evidence_ledger(url)
+    digests = _digests(args.world)
     for tenant in tenants:
         slug = tenant.name
         commercial_exit = None
@@ -89,10 +194,15 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
                 sys.stderr.write(f"COMMERCIAL_EXIT {slug} {commercial_exit}\n")
                 return 4
         loaded = None
+        readings_files, sealed, sealed_dir = 0, [], None
         if (tenant / TELEMETRY).is_dir():
             files = sorted((tenant / TELEMETRY).glob("*.batch.json"), key=lambda p: p.name)
+            if any((tenant / TELEMETRY).glob("*.readings.json")):
+                if seal_context is None:
+                    seal_context = _database_resolver(url, ledger)
+                readings_files, sealed, sealed_dir = _seal_tenant(tenant, digests, seal_context)
             try:
-                loaded = BulkEvidenceLoad(ledger).load([f.read_bytes() for f in files])
+                loaded = BulkEvidenceLoad(ledger).load([f.read_bytes() for f in files] + sealed)
             except BulkLoadRefused as error:
                 raise _Refused(error.code, error.external_batch_id, error.detail) from None
         sys.stdout.write(json.dumps({
@@ -100,16 +210,18 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
             "batches": 0 if loaded is None else loaded.batches,
             "already_loaded": 0 if loaded is None else loaded.already_loaded,
             "envelopes": 0 if loaded is None else loaded.envelopes,
+            "readings_files": readings_files, "sealed_batches": len(sealed), "sealed_dir": sealed_dir,
         }, sort_keys=True) + "\n")
     return 0
 
 
 def main(argv: Sequence[str] | None = None, *, ledger: Any = None,
-         load_exports: Callable[..., int] | None = None) -> int:
-    """`ledger` and `load_exports` are injected by tests; the checks before any connection always run."""
+         load_exports: Callable[..., int] | None = None, seal_context: SealResolver | None = None) -> int:
+    """`ledger`, `load_exports` and `seal_context` are injected by tests; the checks before any connection always
+    run."""
     args = build_parser().parse_args(list(argv) if argv is not None else None)
     try:
-        return _run(args, ledger, load_exports)
+        return _run(args, ledger, load_exports, seal_context)
     except _Refused as refused:
         sys.stderr.write(f"{refused.code} {refused.batch or '-'} {refused.detail}\n")
         return 2

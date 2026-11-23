@@ -2241,7 +2241,6 @@
  ],
  "backend/assetops_backend/evidence/adapters/postgres_evidence_ledger.py": [
   "a:PostgresEvidenceLedger._run:d62e790475ef",
-  "a:PostgresEvidenceLedger.bulk_admit.work:39d85c31a476",
   "a:PostgresEvidenceLedger.bulk_admit.work:616da9411abe",
   "a:PostgresEvidenceLedger.bulk_admit.work:6472a5018ed4",
   "a:PostgresEvidenceLedger.register_publication.work:0f4253dccb50",

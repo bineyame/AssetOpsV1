@@ -734,3 +734,21 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   `check_manifest.py` 6 FAIL = main's 6 (digests re-based, dated notes); 6h parity golden unedited.
 - Open: vNEXT mock JS, `gen_docs.cjs`, CHANGE-REGISTER, fixture-mapping (alignment pass); packet deviations 8-10 for the
   Architect; two reach-set failures (`test_3b1` t1, `test_3b3` t6, dispatch-3.2 vs 3.3) are main's own.
+## DD5a part 1: contracts/bindings half (DD5.1 units 1-2; in_review, partial; `specs/DD-demo-data/packet-DD5a.md`)
+- World cold and EV conversions publish v4 channel metadata (D-DD.138); mini-grid conversions stay v3. Closed world EV
+  table generated from each depot's `/2` devices (`world_ev_channel_mappings`); lab tables byte-identical.
+- `evidence/world_seal.seal_readings` seals readings as the gateway would (v3 mini, v4 cold/EV; 256 per batch; one
+  sequence per source over the span; cold ids per D-DD.91); `cold_correlation_id` now in contracts. (`ev_session_id`
+  was withdrawn by D-DD.161; superseded by the complete entry below.)
+- Superseded by the complete entry below (units 3 and 4 are built there).
+
+## DD5a complete: sealing at load and the cold and EV bulk path (DD5.1; in_review; `specs/DD-demo-data/packet-DD5a.md`)
+- An EV session has one id, the pack's: the sealer copies `session_id`/`connector_id` from the event or the row's
+  `session` object; `ev_session_id` is gone from contracts (D-DD.161). Only connector energy claims a session.
+- `load_world_inputs` seals `*.readings.json` per Site against the pinned snapshot (resolved by `site_scope` and
+  `select_registered_basis`), writes `<slug>/sealed/` once through `evidence/adapters/sealed_batch_files.py`, refuses a
+  differing re-seal, then bulk-loads `/1` files and the sealed batches.
+- The bulk path admits MINIGRID, COLDCHAIN and EV_CHARGING (`BULK_PROVEN_SITE_TYPES`), each with a parity file; any
+  other type stays `BULK_SITE_TYPE_UNPROVEN`.
+- Left open: DD4b's writer must put `session` on in-session connector rows before real EV days seal; the EV fault
+  event's `connector_id` source (Architect); `world.env`, C6 glob and C-DD8 wiring are DD5b's.
