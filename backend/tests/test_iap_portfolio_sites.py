@@ -213,7 +213,10 @@ FIXTURE_REFS = (*REFS, SiteRef("COLD-001", "Cold Room", "COLDCHAIN"), SiteRef("E
 def _fixture_bodies() -> dict:
     return {"sites-2026-10.json": sites({"2026-10": world("A")[0]}, "2026-10-01", "2026-10-31", FIXTURE_REFS),
             "sites-2026-09-10.json": sites(_world_p(), "2026-09-01", "2026-10-31", FIXTURE_REFS),
-            "sites-none-2026-11.json": sites({}, "2026-10-01", "2026-10-31", FIXTURE_REFS)}
+            "sites-none-2026-11.json": sites({}, "2026-10-01", "2026-10-31", FIXTURE_REFS),
+            # IA-P3 P4b (pre-flight Q9; D-IAP.25, D-IAP.26): World G names Thika on the Sites list and Outcomes.
+            "sites-g-2026-10.json": sites({"2026-10": world("G")[0]}, "2026-10-01", "2026-10-31", (*REFS, THIKA)),
+            "sites-g-2026-09-10.json": sites(_world_p("G"), "2026-09-01", "2026-10-31", (*REFS, THIKA))}
 
 
 def test_9_fixtures_are_current() -> None:

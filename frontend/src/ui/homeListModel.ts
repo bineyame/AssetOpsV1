@@ -74,7 +74,7 @@ function plain(text: string): string {
 
 function inScope<T>(def: ListDefModel<T>, item: T, scope: string): boolean {
   if (scope === "all" || def.site === undefined) return true;
-  if (scope.startsWith("site:")) return def.site(item) === scope.slice(5);
+  if (scope.startsWith("site:")) return def.site(item).toLowerCase() === scope.slice(5).toLowerCase();
   if (scope.startsWith("group:")) return def.domain !== undefined && def.domain(item) === scope.slice(6);
   return true;
 }

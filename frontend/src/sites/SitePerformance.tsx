@@ -12,6 +12,7 @@
  * period (no Finding, owner ruling 2026-10-03) needs most. Nothing is
  * recomputed: each row is the backend assessment by its `assessment_id`.
  */
+import { SiteSectionItem } from "../ui/SiteSections";
 import type { FindingClient } from "./findingClient";
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { PerformanceDispatch } from "./PerformanceDispatch";
@@ -68,6 +69,8 @@ export interface SitePerformanceProps {
   /** The subtab in the address; the first served subtab when absent. */
   capabilityId: string | undefined;
   subtabHref: (capabilityId: string) => string;
+  /** IA-P P5 (spec §2.3): the line ends with Health. */
+  healthHref?: string;
   findingHref: (assessmentId: string) => string;
   /** The same Finding's Analysis tab. */
   findingAnalysisHref: (assessmentId: string) => string;
@@ -108,6 +111,7 @@ export function SitePerformance({
   profile,
   capabilityId,
   subtabHref,
+  healthHref,
   findingHref,
   findingAnalysisHref,
   recordHref,
@@ -157,6 +161,7 @@ export function SitePerformance({
           profile={profile}
           current={capabilityId ?? "dispatch"}
           subtabHref={subtabHref}
+          healthHref={healthHref}
         />
         {capabilityId === undefined || capabilityId === "dispatch" ? (
           <PerformanceDispatch
@@ -202,7 +207,8 @@ export function SitePerformance({
 
   return (
     <div className="site-performance">
-      <nav className="site-tabs site-subtabs" aria-label={PERFORMANCE_SUBTABS_LABEL}>
+      <nav className="site-tabs site-subtabs site-sections" aria-label={PERFORMANCE_SUBTABS_LABEL}>
+        <span className="site-sections__lead">In Performance:</span>
         <ol className="site-tabs__list">
           {subtabs.map((item) => (
             <li className="site-tabs__item" key={item.id}>
@@ -218,6 +224,7 @@ export function SitePerformance({
               </Link>
             </li>
           ))}
+          {healthHref === undefined ? null : <SiteSectionItem link={{ label: "Health", href: healthHref, current: false }} />}
         </ol>
       </nav>
       {RENDERABLE.has(current.id) ? (

@@ -772,13 +772,12 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     const { client, detailCalls } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
     const main = await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(KNOWN)}`, client);
     expect(detailCalls).toEqual([{ id: DOMAIN_ID, knownAt: KNOWN }]);
-    const crumbs = main.querySelector("[data-domain-action-crumbs]") as HTMLElement;
+    // IA-P P5 (D-IAP.38 Q20): the object-page trail `Actions › {Site} › {code}`; the `· site:` suffix became the Site part.
+    const crumbs = main.querySelector('nav[aria-label="Breadcrumb"]') as HTMLElement;
     const items = Array.from(crumbs.querySelectorAll("li")).map(text);
-    expect(items).toEqual(["Actions", "ACT-051", "Verification"]);
-    expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
-    expect(crumbs.querySelectorAll("li a")).toHaveLength(1);
-    expect(text(crumbs.querySelector("[data-domain-action-crumb-site]"))).toBe("· site: GreenHarvest Cold Room");
-    expect(crumbs.querySelector("[data-domain-action-crumb-site] a")?.getAttribute("href")).toBe(`/sites/${SITE}`);
+    expect(items).toEqual(["Actions", "GreenHarvest Cold Room", "ACT-051"]);
+    expect(Array.from(crumbs.querySelectorAll("li a")).map((a) => a.getAttribute("href"))).toEqual(["/actions", `/sites/${SITE}`]);
+    expect(text(crumbs.querySelector('[aria-current="page"]'))).toBe("ACT-051");
     expect(text(main.querySelector("h1"))).toBe("ACT-051 · Witness automatic-start test");
     expect(main.textContent).toContain("Has backup service been restored after the inspection?");
     const openSite = main.querySelector("[data-domain-action-open-site]") as HTMLElement;
@@ -871,7 +870,8 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(text(panel)).toContain("Cold work unavailable");
     expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe("You do not have access to this site.");
     expect(text(main.querySelector("h1"))).toBe("Action");
-    expect(main.querySelector("[data-domain-action-crumb-code]")).toBeNull();
+    // IA-P P5 (D-IAP.38 Q20): before a read names the code, the trail's title part reads `Action`.
+    expect(text(main.querySelector('nav[aria-label="Breadcrumb"] [aria-current="page"]'))).toBe("Action");
     expect(main.querySelector("[data-domain-action-notice]")).toBeNull();
     // post-W6 B15-04: a 403 offers no Reload; a 503 does.
     expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();

@@ -12,6 +12,7 @@ import type {
   SiteTemplateListResult,
 } from "../siteTemplateCatalogClient";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 
 /**
@@ -105,6 +106,7 @@ function renderAt(
         flags={flags}
         siteTemplateCatalog={catalog}
         siteDirectory={EMPTY_SITE_DIRECTORY}
+        portfolioSites={sitesE1()} estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -421,8 +423,9 @@ describe("templates never appear as sites", () => {
   it("still renders the first-run empty Sites index when the gate is open", async () => {
     renderAt("/sites");
 
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory's.
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
   });
 

@@ -94,7 +94,8 @@ afterEach(() => {
 
 describe("Site Work tab", () => {
   it("is a rendered Site tab that opens /sites/{site}/work", () => {
-    const work = OPERATOR_SITE_TABS.find((tab) => tab.label === "Work");
+    // IA-P P5 (spec §2.3): the Work tab is now Operations (same /work path).
+    const work = OPERATOR_SITE_TABS.find((tab) => tab.label === "Operations");
     expect(work?.href("KOBO-001")).toBe("/sites/KOBO-001/work");
   });
 
@@ -112,7 +113,8 @@ describe("Site Work Actions list", () => {
     mount(workUrl(WINDOW));
     await settledScreen();
     expect(q("[data-site-work-state]")?.getAttribute("data-site-work-state")).toBe("current-rows");
-    expect(screen.getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
+    // IA-P P5 (spec §2.3): the Work page lights the Operations tab.
+    expect(screen.getByRole("link", { name: "Operations" }).getAttribute("aria-current")).toBe("page");
     expect(q("[data-site-work-scope]")?.textContent).toContain(`${POSITIVE.total_count} Actions created`);
     const rows = qa("[data-site-work-row]");
     expect(rows.map((r) => r.getAttribute("data-site-work-row"))).toEqual(POSITIVE.rows.map((r) => r.action_id));

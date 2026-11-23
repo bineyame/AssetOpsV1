@@ -32,6 +32,11 @@ export interface RangeMatrixEntry {
   /** A legacy address that forwards to another row's page (whose row applies); the forward drops the range. */
   forwards?: boolean;
   /**
+   * D-IAP.47: the page is an alias that redirects to the Findings list at `scope=site:{id}` (D-IAP.42); the redirect
+   * keeps `from`, `to` and `known_at`, and the list reads the range (the `/findings` list tests own that).
+   */
+  alias?: boolean;
+  /**
    * An R page whose `?day=` opens one day (SR-5b/5c drill-in): the test checks the bar names that day. "on-load": the
    * page names its day once the day's own read loads (the Overview board, which may serve another day), so under the
    * all-refused fixture the test checks only that the bar never says "now" (named test limit; its own test pins the day).
@@ -85,7 +90,8 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/performance/:capabilityId`, "/performance/availability", ["ev"], "R", "reads the window (rev 10b.4)"),
   ...rows(`${S}/performance/:capabilityId`, "/performance/energy", ["ev"], "R", "reads the window (rev 10b.4)"),
   // Findings
-  ...rows(`${S}/findings`, "/findings", ALL, "R", "the Finding index reads the range (rev 10.5)"),
+  ...rows(`${S}/findings`, "/findings", ["mini"], "R", "the Finding index reads the range (rev 10.5)"),
+  ...rows(`${S}/findings`, "/findings", ["cold", "ev"], "R", "alias: redirects to /findings?scope=site:{id} with the range kept (D-IAP.42, D-IAP.47)", { alias: true }),
   ...rows(`${S}/findings/:findingId`, "/findings/f1", ALL, "N", "one Finding at its own episode (D-SR.64)"),
   ...rows(`${S}/findings/:findingId/:findingView`, "/findings/f1/analysis", ALL, "N", "one Finding at its own episode (D-SR.64)"),
   // Financials

@@ -24,6 +24,7 @@ import { type WorkIndexBody, type WorkRow } from "../workClient";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName, siteWindowText } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { isShellInboxRead } from "../../test/shellReads";
 
 const DAY = { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" };
 const K = "2026-10-07T00:00:00.000000Z";
@@ -125,6 +126,7 @@ function serve(gets: Record<string, Served>) {
   vi.stubGlobal("fetch", async (url: string) => {
     const path = decodeURIComponent(String(url));
     const overlay = path.includes("/work/decision-contexts?");
+    if (isShellInboxRead(path)) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: path } }), { status: 599 });
     (overlay ? contextRequests : /[?&]limit=1(&|$)/.test(path) ? countRequests : requests).push(path);
     const hit = gets[path] ?? (overlay ? unlinkedContexts(path) : undefined);
     if (!hit) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: path } }), { status: 599 });

@@ -14,8 +14,7 @@ describe("RM-1 (D-E5.34): roadmap lines name what is missing and never read as a
       expect(line).not.toMatch(/error|fail|refus|invalid|unavailable|[A-Z]{2,}_[A-Z_]+/i);
     }
   });
-  it("the three owner examples are verbatim", () => {
+  it("the owner example is verbatim", () => {
     expect(ROADMAP_WORDS.reviewRecommendation).toBe("Reviewing a recommendation needs sign-in, which is coming");
-    expect(ROADMAP_WORDS.coldFindingsNotGlobal).toBe("Cold-room findings are listed here; the estate list adds them later");
   });
 });

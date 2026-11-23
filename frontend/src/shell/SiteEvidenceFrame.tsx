@@ -10,6 +10,7 @@ import { localView } from "../sites/findingPresentation";
 import { deriveSiteView } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { EvidenceSections } from "./siteSections";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
@@ -110,7 +111,12 @@ export function SiteEvidenceFrame({
       params,
       coldSite,
       coldAssessment,
-      tabs: <OperatorSiteTabs siteId={siteId} current="Evidence" search={coldTabSearch(site, params)} />,
+      tabs: (
+        <>
+          {/* IA-P P5: the cold Evidence page draws the one Evidence line itself (Records · Analysis · Uploads). */}
+          <OperatorSiteTabs siteId={siteId} current="Evidence" search={coldTabSearch(site, params)} />
+        </>
+      ),
       sitesPath,
     });
   }
@@ -133,6 +139,7 @@ export function SiteEvidenceFrame({
         headingId={SITE_EVIDENCE_HEADING_ID}
       />
       <OperatorSiteTabs siteId={siteId} current="Evidence" />
+      <EvidenceSections siteId={site.site_id} current="Records" siteType={site.site_type} />
       <SiteEvidence
         siteId={site.site_id}
         client={evidence}

@@ -1,6 +1,7 @@
 import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
+import { SiteSections, type SiteSectionLink } from "../ui/SiteSections";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord, plainCode } from "./coldAssessmentWords";
 import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";
@@ -89,6 +90,8 @@ export interface EvSiteRoutes {
   availability: string;
   /** W5-03a E3: the selected EV Energy / site power depth page (Performance subtab). */
   energy: string;
+  /** IA-P P5 (spec §2.3): the Site's Uploads page, the last link of the one Evidence line. */
+  uploads?: string;
   /** post-W6 W2-EV R254 (Q15): the EV Health page the Charger condition card's View detail opens. */
   health: string;
   /** post-W6 W2-EV R258 (Q15): the EV Work page the Cause row's next step opens. */
@@ -413,6 +416,15 @@ function Subtabs({ view, routes, window, scenarioAt }: { view: EvSiteView; route
     return `${base}${base.includes("?") ? "&" : "?"}${new URLSearchParams({ scenario_at: scenarioAt }).toString()}`;
   })();
   if (!evidence && !financial) return null;
+  if (evidence) {
+    // IA-P P5 (spec §2.3): one Evidence line, "In Evidence: Records · Analysis · Uploads".
+    const links: SiteSectionLink[] = [
+      { label: "Records", href: sel(routes.evidence, window), current: view === "evidence", data: { "data-ev-subtab": "evidence" } },
+      { label: "Analysis", href: sel(routes.analysis, window), current: view === "analysis", data: { "data-ev-subtab": "analysis" } },
+      ...(routes.uploads === undefined ? [] : [{ label: "Uploads", href: routes.uploads, current: false }]),
+    ];
+    return <SiteSections tab="Evidence" links={links} />;
+  }
   const items: [EvSiteView, string, string][] = evidence
     ? [
         ["evidence", "Overview", sel(routes.evidence, window)],

@@ -503,3 +503,40 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   `specs/IA-P-product-shape/packet-IA-P2.md` (the per-file migration of 140 existing frontend tests, plants, counts).
 - Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
   MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.
+
+## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b, P5, P6 and P7 built; in_review)
+
+- Pre-flight for the whole part: `specs/IA-P-product-shape/IA-P3-preflight.md` (28 questions with defaults; Q21 blocks only
+  P5's `/sites/:id/findings` alias). Meeting point with 6f1: `decisionItems(` (6f1 U2's W6 sweep, §4.4).
+- P4b: `/sites` is the Sites list on `HomeList` (`estate/sitesList.tsx`), rows from E1 (`estate/portfolioSitesClient.ts`) in
+  E1's order, then directory Sites E1 lacks; tiles Sites, Below target, Gap to target (E1 `total.gap` only unfiltered, R6);
+  "Waiting for a choice" from E0 with the 31-day window note in the column heading; mode `none`: notes, no target facet.
+  Outcomes: L1 E1 headline, L2 the same rows (no tools, no tiles), L3 cards then "Each Site's objectives". `/sites` is a
+  range page. `HomeList` gained `def.more` and a column `note`. Gate S1 in `tools/iap_gates.cjs`.
+- D-IAP.35 applied: a directory-only row takes its Group from `site_type` (`DOMAIN_WORD`) and its waiting count from E0;
+  the More line has the singular "Not shown: 1 Site.". `HomeList` gained `options.labelledBy` (the `/sites` table is a
+  named keyboard region again). 41 existing tests migrated (`packet-IA-P3.md` §2); test helpers `test/sitesE1.ts`,
+  `test/rangeHrefs.ts`; `settledScreen` waits on "Loading Sites…".
+- P5 (D-IAP.38 to D-IAP.47): six Site tabs (`SITE_TAB_OF`, `ui/SiteSections`), object pages without a tab row and with
+  three-part crumbs, one Evidence line per vertical. `/sites/:id/findings` redirects on COLD and EV to
+  `/findings?scope=site:{id}` (range and `known_at` kept; `siteFindingsAlias`); MINI keeps its index (MD-IAP-15, the
+  estate withholds a PARTIAL mini Site). Parity proven by `test_iap_site_findings_parity_postgres.py` (subset, plus a hard
+  named-field projection compare, D-IAP.46; plants `estatedrift`, `sitedrop`) and `siteFindingsParity.test.ts`.
+  Lifecycle word on Sites and Outcomes rows (D-IAP.44). `SitesIndex`, `ColdFindingIndex`, `EvFindingIndex` deleted
+  (D-IAP.45, D-IAP.47); the Site's early warnings and the cold index's table columns have no home on the Findings list
+  (`packet-IA-P3.md` §7.3). Gates T1, T2. `RangeMatrixEntry.alias` marks the alias rows.
+- P6 (D-IAP.37): "Waiting for you" in the top bar (`shell/WaitingForYou.tsx`); badge = the Decisions tile through
+  one function (`waitingForAChoice`, 6f1 U2 re-sources it); rows only via `decisionItems(` on the Decisions read's cache
+  key (`EstateClientProvider` in `App`); `ui/Drawer.tsx` (moved from DeepDiveMonth). Gate W1.
+- P7 (D-IAP.40): top bar Scope · Search · range bar · Waiting for you. `shell/ScopeSwitch.tsx` (writes `scope=` keeping
+  the list's parameters; a Site entry off a list opens the Site; `EverySiteChip` "This page shows every Site" on the
+  Overview, Demand & capacity, Outcomes, Results, Evidence & records, MD-IAP-5, R798); `shell/SearchPalette.tsx` (Ctrl K,
+  Sites/Decisions/Findings/Actions/live rail items, ANDed words, first 20, reads only while open). The directory reaches
+  the shell through `EstateClientProvider`'s `directory`. The Outcomes and Demand tabs read page 1 from the shared cache
+  (one request with the shell's). Walk pages +4 (Q26). Gate K1.
+- Fix round 1 (D-IAP.48 to D-IAP.51): Findings and Actions take a group's rows from the Site directory
+  (`estate/siteDomains.ts`, read only for a group scope; loading and refusal-with-retry states; chip word by
+  `DOMAIN_WORD`); `/results` reads through `useEstateRead`; `EverySiteChip` is the class rule (every non-list,
+  non-Site operator page); Outcomes L2 lists directory-only Sites as `/sites` does; Site scope matches case-blind.
+- Left open: the demo prebuild (part IA-PD, D-IAP.36); a range-less address reads the default window once first;
+  scoped reads for the hub pages (MD-IAP-5).

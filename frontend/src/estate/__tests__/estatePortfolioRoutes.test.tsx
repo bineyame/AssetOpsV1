@@ -58,8 +58,10 @@ describe("W3-03 Portfolio shell route", () => {
     expect(screen.getByRole("main", { name: "Portfolio" })).toBeTruthy();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio"); // IA-P2 P3b (spec §5.3): the header is the title alone
     // IA-P2 P3b (D-IAP.2): the Overview reads E2 (`/api/portfolio/period`), not the estate portfolio, so no estate
-    // read is made here; the Outcomes tab's one read is pinned in the tab-route tests below.
-    expect(client.portfolioCalls).toBe(0);
+    // read is made here; the Outcomes tab's one read is pinned in the tab-route tests below. IA-P P6: the reads are the
+    // shell's "Waiting for you" (its badge): a bare `/portfolio` is read at the default window on mount, then again
+    // when `SharedRangeOutlet` completes the address.
+    expect(client.portfolioCalls).toBe(2);
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     const portfolio = within(rail).getByRole("link", { name: "Portfolio" });
     // SR-1: the shell filled the empty address with the default range, and the rail carries it.
@@ -102,6 +104,7 @@ describe("PF-T Portfolio tab routes", () => {
     await settledScreen();
     expect(where()).toBe(`/portfolio/demand-and-capacity?${WINDOW}`);
     expect(screen.getByRole("main", { name: "Portfolio" })).toBe(main);
+    // IA-P P7 (packet §9): the Outcomes tab and the shell's "Waiting for you" share the one cached read; the tab switch adds none.
     expect(client.portfolioCalls).toBe(1);
   });
 

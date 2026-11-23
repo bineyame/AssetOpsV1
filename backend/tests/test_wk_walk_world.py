@@ -877,7 +877,7 @@ def test_t8_smoke_node_env_is_exactly_six(env, capsys):
     assert nenv == {"PATH": "/usr/bin", "HOME": "/home/x", "PW": "/pw/pc", "CHROME": "/pw/chrome",
                     "FONTCONFIG_FILE": "/pw/fonts.conf", "LD_LIBRARY_PATH": "/pw/lib"}
     assert argv[:4] == ["node", "tools/walk_world_smoke.cjs", "--base", "http://127.0.0.1:5491"]
-    assert len(json.loads(argv[5])) == 10 and argv[7] == "/opt/assetecon/evidence/WK/1123/"
+    assert len(json.loads(argv[5])) == 14 and argv[7] == "/opt/assetecon/evidence/WK/1123/"
     assert ("walk-smoke", False) in env.required                       # M2: smoke takes a heavy-tool slot
 
 
@@ -1361,7 +1361,9 @@ def test_t11_smoke_pages():
     d = world.read_definition(DEFINITION)
     pages = WK.smoke_pages(WK.read_walk_definition(WALK_DEFINITION, d), d)
     assert pages == ["/portfolio", "/portfolio/month?month=2026-10", "/sites", "/sites/KISIWA-001", "/sites/KOBO-001",
-                     "/sites/MTO-001", "/findings", "/actions", "/evidence", "/financials"]
+                     "/sites/MTO-001", "/findings", "/actions", "/evidence", "/financials",
+                     # IA-P P7 (spec WK, pre-flight Q26): the IA-P pages join the walk.
+                     "/decisions", "/results", "/portfolio/outcomes", "/portfolio/demand-and-capacity"]
 
 
 def test_t11_smoke_script_help():

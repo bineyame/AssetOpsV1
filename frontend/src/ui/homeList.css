@@ -23,6 +23,10 @@
   font-size: var(--font-size-700);
   color: var(--text-primary);
 }
+.hl-tile small {
+  font-size: var(--font-size-200); /* IA-P P4b: a tile's note; never under 12 px (gate R6) */
+  color: var(--text-secondary);
+}
 .hl-caption {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-200);
@@ -87,7 +91,9 @@
 .hl-table tbody th[scope="row"] {
   background: transparent; /* L1: the focused row's outline runs round the title cell too */
 }
-.hl-table th[scope="row"] small {
+.hl-table th[scope="row"] small,
+.hl-table td small,
+.hl-table th[scope="col"] small {
   display: block;
   font-size: var(--font-size-200); /* never under 12 px (gate R6); the browser's small is 0.83em */
   font-weight: var(--weight-regular);

@@ -7,9 +7,7 @@ import {
   siteDetailHref,
   siteEvidenceHref,
   siteFinancialsHref,
-  siteFindingsHref,
   siteFoundationHref,
-  siteHealthHref,
   sitePerformanceHref,
   siteWorkHref,
 } from "./operatorSiteRoutes";
@@ -65,23 +63,43 @@ export interface OperatorSiteTab {
 }
 
 /**
- * The canonical Site tab inventory, in v6.9's order with Health placed where
- * the decision puts it.
+ * IA-P P5 (spec §2.3, D-IAP.7, D-IAP.38 Q17): the Site's six tabs, in order. The paths keep today's segments (MD-IAP-8):
+ * Operations opens `/work`, Setup opens `/foundation`. Health sits in Performance's section line, Uploads in
+ * Evidence's, Changes and Assets in Setup's (`ui/SiteSections`). Findings leaves the row for the Findings home.
  */
 export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
   { label: "Overview", capability: true, href: siteDetailHref },
-  { label: "Foundation", capability: true, href: siteFoundationHref },
-  // S7-01b: gateway contact, last-reported gateway facts and the battery entry.
-  { label: "Health", capability: true, href: (siteId) => siteHealthHref(siteId) },
-  // T028: Performance (Dispatch its only subtab) and the scoped Findings index.
+  // S6-03: Work, now Operations, with its Actions, Incidents and Maintenance lists.
+  { label: "Operations", capability: true, href: (siteId) => siteWorkHref(siteId) },
   { label: "Performance", capability: true, href: (siteId) => sitePerformanceHref(siteId) },
-  { label: "Findings", capability: true, href: siteFindingsHref },
-  // S6-03: Work, with Actions its only list (Incidents and Maintenance are not built).
-  { label: "Work", capability: true, href: (siteId) => siteWorkHref(siteId) },
   // S4-02a: Overview (Finding bridge, price in use) and Assumptions.
   { label: "Financials", capability: true, href: (siteId) => siteFinancialsHref(siteId) },
   { label: "Evidence", capability: true, href: siteEvidenceHref },
+  { label: "Setup", capability: true, href: siteFoundationHref },
 ];
+
+/** The six tab labels. */
+export type OperatorSiteTabLabel = "Overview" | "Operations" | "Performance" | "Financials" | "Evidence" | "Setup";
+
+/** The labels a frame may still name its page by: v6.9's eight, which map onto the six. */
+export type LegacySiteTabLabel = "Foundation" | "Health" | "Findings" | "Work";
+
+/**
+ * IA-P P5 (spec §6 P5): the old-label map. Every frame's `current` goes through it, so a page named by its old tab
+ * lights the new one. A Site Findings index (kept for a vertical whose alias has not shipped, MD-IAP-15) lights Evidence.
+ */
+export const SITE_TAB_OF: Record<OperatorSiteTabLabel | LegacySiteTabLabel, OperatorSiteTabLabel> = {
+  Overview: "Overview",
+  Foundation: "Setup",
+  Health: "Performance",
+  Performance: "Performance",
+  Findings: "Evidence",
+  Work: "Operations",
+  Financials: "Financials",
+  Evidence: "Evidence",
+  Operations: "Operations",
+  Setup: "Setup",
+};
 
 /** The tabs this build renders: the inventory filtered by capability. */
 export const OPERATOR_SITE_TABS: OperatorSiteTab[] =
@@ -97,8 +115,8 @@ export interface OperatorSiteTabsProps {
    * destination would be an address with a hole in it.
    */
   siteId: string | undefined;
-  /** The label of the tab the reader is currently on. */
-  current: string;
+  /** The tab the reader is on, by its label or its old label (mapped through `SITE_TAB_OF`). */
+  current: OperatorSiteTabLabel | LegacySiteTabLabel;
   /**
    * post-W6 W2-EV (R347 common mechanism): a domain Site's own destinations for
    * some tabs (EV Overview -> `/ev`, Evidence -> `/ev/evidence`, ...). Tabs not
@@ -111,9 +129,6 @@ export interface OperatorSiteTabsProps {
    */
   search?: string;
 }
-
-/** The fixed tab labels of the canonical inventory. */
-export type OperatorSiteTabLabel = "Overview" | "Foundation" | "Health" | "Performance" | "Findings" | "Work" | "Financials" | "Evidence";
 
 /** post-W6 W2-EV: per-label href overrides for a domain Site. */
 export type OperatorSiteTabHrefs = Partial<Record<OperatorSiteTabLabel, (siteId: string) => string>>;
@@ -129,6 +144,7 @@ export function operatorSiteTabHref(tab: OperatorSiteTab, siteId: string, hrefs?
 
 export function OperatorSiteTabs({ siteId, current, hrefs, search }: OperatorSiteTabsProps) {
   const rowRef = useCurrentTabInView<HTMLElement>();
+  const lit = SITE_TAB_OF[current];
   if (siteId === undefined) {
     return null;
   }
@@ -141,7 +157,7 @@ export function OperatorSiteTabs({ siteId, current, hrefs, search }: OperatorSit
             <Link
               className="site-tabs__link"
               to={operatorSiteTabHref(tab, siteId, hrefs, search)}
-              aria-current={tab.label === current ? "page" : undefined}
+              aria-current={tab.label === lit ? "page" : undefined}
             >
               {tab.label}
             </Link>

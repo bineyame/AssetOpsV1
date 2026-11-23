@@ -16,6 +16,7 @@ import {
   type EstateQuery,
   type EstateResult,
 } from "./estateClient";
+import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 
 /** The page size and the page count `loadAllPages` follows (spec §4.1: 20 pages of 50 are 1,000 rows). */
 export const ALL_PAGES_LIMIT = 50;
@@ -137,6 +138,30 @@ export function createEstateReadCache(): EstateReadCache {
 }
 
 const CacheContext = createContext<EstateReadCache | null>(null);
+
+/**
+ * IA-P P6 (D-IAP.37 Q12): the app's estate client, so the shell's "Waiting for you" reads on the Decisions read's
+ * cache key (the same client object, so no second read). `App` provides the client its routes get.
+ */
+const ClientContext = createContext<EstateClient | null>(null);
+/** IA-P P7: the app's Site directory, for the shell's scope menu and search (read only when either opens). */
+const DirectoryContext = createContext<SiteDirectoryClient | null>(null);
+
+export function EstateClientProvider({ client, directory, children }: { client: EstateClient; directory?: SiteDirectoryClient; children: ReactNode }) {
+  return (
+    <ClientContext.Provider value={client}>
+      <DirectoryContext.Provider value={directory ?? null}>{children}</DirectoryContext.Provider>
+    </ClientContext.Provider>
+  );
+}
+
+export function useProvidedEstateClient(): EstateClient | null {
+  return useContext(ClientContext);
+}
+
+export function useProvidedSiteDirectory(): SiteDirectoryClient | null {
+  return useContext(DirectoryContext);
+}
 
 export function EstateReadCacheProvider({ children }: { children: ReactNode }) {
   const cache = useRef<EstateReadCache | null>(null);

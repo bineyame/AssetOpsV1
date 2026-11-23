@@ -150,6 +150,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
       ["Fuel", null],
       ["Renewable", "page"],
       ["Backup", null],
+      ["Health", null], // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line
     ]);
     // Q5: the local date of the shell's UTC day, sent as site-local midnight bounds in UTC.
     expect(client.getRenewable).toHaveBeenCalledWith(CODE, {

@@ -1,7 +1,6 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { displayCode } from "../ui/displayCode";
 import { linkBound, useLegacyFocusDayRewrite, windowBound } from "../ui/sharedRange";
-import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -37,7 +36,6 @@ import {
   actionWindowRefusal,
 } from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
-import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { MillVerificationBody, useMillVerification } from "../sites/SiteMillVerification";
 import { createMillVerificationClient, type MillVerificationClient } from "../sites/millVerificationClient";
@@ -89,7 +87,7 @@ import {
   serviceWindowFromParams,
   type MiniDepthClient,
 } from "../sites/miniDepthClient";
-import { ColdFindingFrame, ColdFindingIndex, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
+import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
@@ -98,7 +96,6 @@ import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
 import { EV_SITE_TAB_HREFS, evSiteRoutes, evWorkTabHrefs, evWorkTabSearch } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
-import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -107,13 +104,15 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { Breadcrumbs, Disclosure, Notice, PageHeader, Panel, RailIcon, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { Breadcrumbs, type Crumb, Disclosure, Notice, PageHeader, Panel, RailIcon, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { localView } from "../sites/findingPresentation";
 import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { EvidenceSections, SetupSections, siteFindingsAliased, siteFindingsAlias } from "./siteSections";
 import {
   FINDING_CHILD_VIEWS,
   ACTIONS_PATH,
+  DECISIONS_ROOT_PATH,
   FINANCIALS_PATH,
   FINDINGS_PATH,
   findingHref,
@@ -132,11 +131,11 @@ import {
   siteFinancialAssumptionsHref,
   siteFinancialScenariosHref,
   siteFinancialsHref,
+  siteHealthHref,
   siteOpportunityHref,
   sitePricesHref,
   siteFoundationChangeHref,
   siteFoundationHref,
-  siteFoundationViewHref,
   sitePerformanceHref,
   FINDINGS_OPPORTUNITIES_PATH,
   domainWorkQuery,
@@ -292,6 +291,7 @@ export function SitePerformanceFrame({
             <EvSessionsFrame
               view={evView}
               subtabHref={(id) => `${sitePerformanceHref(site.site_id, id)}${coldWindowSearch(window)}`}
+              healthHref={`${siteHealthHref(site.site_id)}${coldWindowSearch(window)}`}
               performanceHref={sitePerformanceHref(site.site_id)}
               depth={
                 evView === "availability" ? (
@@ -333,6 +333,7 @@ export function SitePerformanceFrame({
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
               ]}
               subtabHref={(id) => `${sitePerformanceHref(site.site_id, id)}${coldWindowSearch(window)}`}
+              healthHref={`${siteHealthHref(site.site_id)}${coldWindowSearch(window)}`}
               depth={coldDepth}
               routes={coldSiteRoutes(site.site_id)}
             />
@@ -364,6 +365,7 @@ export function SitePerformanceFrame({
                 profile={presentationProfileFor(site.site_type)}
                 current={capabilityId}
                 subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
+                healthHref={siteHealthHref(site.site_id)}
               />
               {capabilityId === "service" ? (
                 <MiniService
@@ -439,6 +441,7 @@ export function SitePerformanceFrame({
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
+            healthHref={siteHealthHref(site.site_id)}
             findingHref={(id) => findingHref(site.site_id, id)}
             findings={DEFAULT_FINDINGS}
             siteFindingHref={(id) => siteFindingHref(site.site_id, id)}
@@ -500,8 +503,6 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
-  coldAssessment,
-  evAssessment,
   outcomeBoard,
   fuelBalance = DEFAULT_FUEL_BALANCE,
 }: {
@@ -513,9 +514,8 @@ export function SiteFindingsFrame({
   fuelBalance?: FuelBalanceClient;
   /** OUT-C U5: the Site board, for the early-warning list under the Findings list. */
   outcomeBoard?: OutcomeBoardClient;
-  /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
-  coldAssessment?: ColdAssessmentClient;
-  evAssessment?: EvAssessmentClient;
+  // D-IAP.42: a COLDCHAIN or EV_CHARGING Site's index is the Findings list at its scope (the redirect below), so the
+  // frame reads no cold or EV Findings itself.
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -528,7 +528,10 @@ export function SiteFindingsFrame({
       title="Findings"
       headingId={SITE_FINDINGS_HEADING_ID}
     >
-      {(site) => (
+      {(site) => siteFindingsAliased(site.site_type) ? (
+        // D-IAP.42: COLD and EV alias to the Findings list at this Site's scope, the range kept (both parity layers pass).
+        <Navigate replace to={siteFindingsAlias(site.site_id, params)} />
+      ) : (
         <main aria-labelledby={SITE_FINDINGS_HEADING_ID}>
           <Breadcrumbs
             trail={[
@@ -545,41 +548,11 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
-          {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
-            <>
-            <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
-            <ColdFindingIndex
-              siteId={site.site_id}
-              siteName={site.display_name}
-              window={coldWindowFromParams(params)}
-              client={coldAssessment}
-              routes={coldSiteRoutes(site.site_id)}
-              lenses={null} /* RM-2: no lens is supported on a cold Site */
-              earlyWarnings={
-                outcomeBoard === undefined ? null : (
-                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
-                )
-              }
-            />
-            </>
-          ) : site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
-            <EvFindingIndex
-              siteId={site.site_id}
-              siteName={site.display_name}
-              window={coldWindowFromParams(params)}
-              client={evAssessment}
-              findingBase={(id) => siteFindingHref(site.site_id, id)}
-              sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
-              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
-              earlyWarnings={
-                outcomeBoard === undefined ? null : (
-                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
-                )
-              }
-            />
-          ) : (
+          {/* D-IAP.42: COLD and EV redirected above; a kept index (MD-IAP-15) lights Evidence, Findings in its line. */}
+          {(
           <>
           <OperatorSiteTabs siteId={siteId} current="Findings" />
+          <EvidenceSections siteId={site.site_id} current="Findings" siteType={site.site_type} />
           <SiteFindingIndex
             siteId={site.site_id}
             opportunityHelper={site.site_type === "MINIGRID"}
@@ -729,14 +702,27 @@ const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
 /** u6 ruling 4: the plain helper beside the canonical mini row on child views (outside the guarded tab). */
 export const ANALYSIS_HELPER_ALTERNATIVES =
   "Analysis unavailable for this authored alternative; use the Finding overview and evidence.";
-/** u6 ruling 1: the W1 detail supplies no public Finding code. */
+
 /**
- * post-W6 W4 R328 (Q15, build ruling 1): the crumb slot between `Findings` and the section. The selected mini Finding
- * read carries no public Finding code yet, so the slot reads `Finding` in every state and never says the code is
- * unavailable. R328 stays open: a backend slice must expose a stable Site-scoped public code first; never synthesize
- * one from a UUID, title or display order.
+ * IA-P P5 (spec "Object pages", D-IAP.38 Q20; closes R383): every object page (a Finding detail, the fuel Finding, the
+ * domain-action verifications, a Site Action detail) draws no Site tab row, and its `ui/Breadcrumbs` trail has exactly
+ * three parts, `[home list] › [Site name] › [title]`. The home list is Decisions on `recommendation`/`alternatives`,
+ * Findings on every other Finding view, Actions on an Action.
  */
-export const FINDING_CRUMB = "Finding";
+const OBJECT_HOME = {
+  findings: { label: "Findings", to: FINDINGS_PATH },
+  decisions: { label: "Decisions", to: DECISIONS_ROOT_PATH },
+  actions: { label: "Actions", to: ACTIONS_PATH },
+} as const satisfies Record<string, Crumb>;
+
+function findingHomeCrumb(findingView: string | null | undefined): Crumb {
+  return findingView === "recommendation" || findingView === "alternatives" ? OBJECT_HOME.decisions : OBJECT_HOME.findings;
+}
+
+/** The first two parts of an object page's trail; the page appends its own title as the current (third) part. */
+function objectPageTrail(home: Crumb, site: { site_id: string; display_name: string }): Crumb[] {
+  return [home, { label: site.display_name, to: siteDetailHref(site.site_id) }];
+}
 /** u6 ruling 3: a cold or EV Finding child address. */
 export const FINDING_SECTION_UNAVAILABLE = "This Finding section is not available for this kind of Finding.";
 /** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
@@ -752,7 +738,8 @@ function ownPeriodRead(params: URLSearchParams): ColdWindowQuery {
 
 export function SiteFindingFrame({
   detail,
-  sitesPath,
+  // IA-P P5: kept for the shared frame signature; the object-page trail has no Sites crumb.
+  sitesPath: _sitesPath,
   findings = DEFAULT_FINDINGS,
   actions = DEFAULT_ACTIONS,
   coldAssessment,
@@ -805,12 +792,7 @@ export function SiteFindingFrame({
               window={ownPeriodRead(params)}
               client={evAssessment}
               analysisHref={(search) => `${evSiteRoutes(site.site_id).analysis}${search}`}
-              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
-              parentTrail={[
-                { label: "Sites", to: sitesPath },
-                { label: site.display_name, to: siteDetailHref(site.site_id) },
-                { label: "Findings", to: siteFindingsHref(site.site_id) },
-              ]}
+              parentTrail={objectPageTrail(findingHomeCrumb(findingView), site)}
             />
           );
         }
@@ -824,12 +806,7 @@ export function SiteFindingFrame({
               window={ownPeriodRead(params)}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" search={coldWindowSearch(window)} />}
-              parentTrail={[
-                { label: "Sites", to: sitesPath },
-                { label: site.display_name, to: siteDetailHref(site.site_id) },
-                { label: "Findings", to: siteFindingsHref(site.site_id) },
-              ]}
+              parentTrail={objectPageTrail(findingHomeCrumb(findingView), site)}
             />
           );
         }
@@ -837,7 +814,6 @@ export function SiteFindingFrame({
           return (
             <CanonicalMiniFinding
               site={site}
-              routeSiteId={siteId}
               findingId={id}
               view={view}
               revisionId={revisionId}
@@ -855,17 +831,9 @@ export function SiteFindingFrame({
         const root = `${siteFindingHref(site.site_id, id)}${coldWindowSearch(coldWindowFromParams(params))}`;
         return (
           <main aria-labelledby={SITE_FINDING_HEADING_ID}>
-            <Breadcrumbs
-              trail={[
-                { label: "Sites", to: sitesPath },
-                { label: site.display_name, to: siteDetailHref(site.site_id) },
-                { label: "Findings", to: siteFindingsHref(site.site_id) },
-                view === "finding" ? { label: "Finding" } : { label: "Finding", to: root },
-              ]}
-            />
+            {/* IA-P P5 (D-IAP.38 Q20): an object page, `[home list] › [Site] › [title]`, no Site tab row. */}
+            <Breadcrumbs trail={[...objectPageTrail(findingHomeCrumb(findingView), site), { label: title }]} />
             <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={view === "finding" ? (headline?.sentence ?? `${site.display_name} · finding`) : `${site.display_name} · finding`} />
-            {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
-            <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
               <Panel heading="Finding" headingId="site-finding-domain-unavailable-heading">
                 <p data-finding-domain-unavailable>{FINDING_DOMAIN_UNAVAILABLE}</p>
@@ -909,12 +877,11 @@ type MiniSelection =
  * W4-03 unit 6b: the canonical mini Finding shell. Its six context tabs are, in order, `Overview`, unavailable
  * `Analysis`, `Evidence`, live `Alternatives`, `Recommendation`, `History` (u5 6b). One W1 Finding read
  * (`getFinding(site, finding, revision_id|null)`) resolves the exact selected revision before any Alternatives href or
- * Alternatives read exists, and the same resolved selection pins the sibling tabs (u6 ruling 5). The global breadcrumb
- * is `Findings › Finding › {section} · site: {Site}` (u6 ruling 1, u5 6b; post-W6 W4 R328).
+ * Alternatives read exists, and the same resolved selection pins the sibling tabs (u6 ruling 5). IA-P P5 (D-IAP.38
+ * Q20): the breadcrumb is the object-page trail `{Findings|Decisions} › {Site} › {title}`, with no Site tab row.
  */
 function CanonicalMiniFinding({
   site,
-  routeSiteId,
   findingId: id,
   view,
   revisionId,
@@ -926,7 +893,6 @@ function CanonicalMiniFinding({
   financials,
 }: {
   site: SiteDetailReadModel;
-  routeSiteId: string | undefined;
   findingId: string;
   view: FindingChildView | "finding" | null;
   revisionId: string | null;
@@ -1018,35 +984,13 @@ function CanonicalMiniFinding({
     child("recommendation"),
     child("history"),
   ];
-  const section = view === "finding" ? "Overview" : view === null ? null : FINDING_SECTION_LABELS[view];
   const dispatch = (day: string, intervalRevisionId?: string | null) =>
     `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
     (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
   return (
     <main aria-labelledby={SITE_FINDING_HEADING_ID}>
-      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-mini-finding-crumbs>
-        <ol className="breadcrumbs__list">
-          <li className="breadcrumbs__item">
-            <Link to={FINDINGS_PATH}>Findings</Link>
-          </li>
-          {selection.status === "loading" ? null : (
-            <li className="breadcrumbs__item">
-              <span data-finding-crumb>{FINDING_CRUMB}</span>
-            </li>
-          )}
-          {section === null ? null : (
-            <li className="breadcrumbs__item">
-              <span className="breadcrumbs__current" aria-current="page">
-                {section}
-              </span>
-            </li>
-          )}
-        </ol>
-        <span className="mini-finding-crumbs__site" data-mini-finding-site>
-          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
-          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-        </span>
-      </nav>
+      {/* IA-P P5 (D-IAP.38 Q20): an object page, `[home list] › [Site] › [title]`; the section row names the section. */}
+      <Breadcrumbs trail={[...objectPageTrail(findingHomeCrumb(view), site), { label: title }]} />
       <PageHeader
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
@@ -1067,17 +1011,7 @@ function CanonicalMiniFinding({
           )
         }
       />
-      {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row. post-W6 W1-b
-          Q26/Q52: Recommendation drops it too (B4-04). Overview, Analysis, Evidence and History keep it as a registered
-          departure: MOCK DEVIATION D2 (R383; supersedes W1-a's R395), labelled visibly immediately below the retained row. */}
-      {view === "alternatives" || view === "recommendation" ? null : (
-        <>
-          <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
-          <p className="mock-deviation-line" data-mock-deviation="R383">
-            MOCK DEVIATION D2 (R383)
-          </p>
-        </>
-      )}
+      {/* IA-P P5 (D-IAP.38 Q20; closes R383): every Finding view is an object page and draws no Site tab row. */}
       {view === null ? (
         <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
           <p data-finding-read="not_found">
@@ -1725,28 +1659,8 @@ function DomainActionShell({
       : null;
   return (
     <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-shell={state.status}>
-      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-domain-action-crumbs>
-        <ol className="breadcrumbs__list">
-          <li className="breadcrumbs__item">
-            {/* U2: the mock's Actions crumb names the global Actions root (domain-limited per M4/R02). */}
-            <Link to="/actions">Actions</Link>
-          </li>
-          {loaded === null ? null : (
-            <li className="breadcrumbs__item" data-domain-action-crumb-code>
-              {displayCode(loaded.action.action_code)}
-            </li>
-          )}
-          <li className="breadcrumbs__item">
-            <span className="breadcrumbs__current" aria-current="page">
-              Verification
-            </span>
-          </li>
-        </ol>
-        <span className="mini-finding-crumbs__site" data-domain-action-crumb-site>
-          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
-          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-        </span>
-      </nav>
+      {/* IA-P P5 (D-IAP.38 Q20): an object page, `Actions › {Site} › {title}`; no Site tab row. */}
+      <Breadcrumbs trail={[...objectPageTrail(OBJECT_HOME.actions, site), { label: loaded === null ? "Action" : displayCode(loaded.action.action_code) }]} />
       <PageHeader
         title={
           loaded !== null
@@ -2065,32 +1979,8 @@ export function SiteActionFrame({
         const href = (target: ActionView, chosen: ActionSelector) => siteActionHref(site.site_id, id, target, chosen);
         return (
           <main aria-labelledby={SITE_ACTION_HEADING_ID}>
-            {/* post-W6 shell R203 (Q19): the mock's Action-rooted trail, `Actions › {code} › {section} · site: {site}`,
-                in the existing domain Action crumb shape. The code appears only once the W1 Action read has named it
-                (SiteAction reports `{code} · Battery reserve trial` through onTitle; "Action" while loading). */}
-            <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
-              <ol className="breadcrumbs__list">
-                <li className="breadcrumbs__item">
-                  <Link to="/actions">Actions</Link>
-                </li>
-                {w1ActionCode(title) === null ? null : (
-                  <li className="breadcrumbs__item" data-action-crumb-code>
-                    {w1ActionCode(title)}
-                  </li>
-                )}
-                {view === null ? null : (
-                  <li className="breadcrumbs__item">
-                    <span className="breadcrumbs__current" aria-current="page">
-                      {ACTION_VIEW_LABELS[view]}
-                    </span>
-                  </li>
-                )}
-              </ol>
-              <span className="mini-finding-crumbs__site" data-action-crumb-site>
-                <span className="mini-finding-crumbs__lead">· site:</span>{" "}
-                <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-              </span>
-            </nav>
+            {/* IA-P P5 (D-IAP.38 Q20): an object page, `Actions › {Site} › {title}`; no Site tab row. */}
+            <Breadcrumbs trail={[...objectPageTrail(OBJECT_HOME.actions, site), { label: w1ActionCode(title) ?? "Action" }]} />
             {/* post-W6 W1-b Q35 / R229: the Action description joins the subtitle only once the loaded Action has named
                 its code; pending or unknown shows only the Site. Q27 / R205: `Open site` header action. Q26 / R204:
                 no Site tab row on the five Action views (B4-04). */}
@@ -2198,15 +2088,15 @@ export function SiteFoundationChangeFrame({
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
               // post-W6 shell R152 (Q16): the same leaf as the bare Changes route.
-              { label: "Change & effect" },
+              { label: "Changes" },
             ]}
           />
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <SetupSections siteId={site.site_id} current="Changes" />
           {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
           <RangeNotUsed note="current settings" />
-          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <SiteFoundationChange
             siteId={site.site_id}
             changeId={changeId ?? ""}
@@ -2230,14 +2120,14 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
-              { label: "Change & effect" },
+              { label: "Changes" },
             ]}
           />
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <SetupSections siteId={site.site_id} current="Changes" />
           {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
           <RangeNotUsed note="current settings" />
-          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           {/* W1-F5b: the changes screen's two v69 slots, with the no-selection gap inside each. */}
           <NoChangeSelected foundationHref={siteFoundationHref(site.site_id)} />
         </main>
@@ -2664,7 +2554,8 @@ export const SITE_FUEL_FINDING_HEADING_ID = "site-fuel-finding-heading";
 
 export function SiteFuelFindingFrame({
   detail,
-  sitesPath,
+  // IA-P P5: kept for the shared frame signature; the object-page trail has no Sites crumb.
+  sitesPath: _sitesPath,
   client = DEFAULT_FUEL_BALANCE,
 }: {
   detail: SiteDetailClient;
@@ -2678,7 +2569,7 @@ export function SiteFuelFindingFrame({
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Findings" headingId={SITE_FUEL_FINDING_HEADING_ID}>
       {(site) => (
-        <SiteFuelFindingPage site={site} sitesPath={sitesPath} siteId={siteId} findingId={findingId ?? ""} revisionId={params.get("revision_id")} client={client} />
+        <SiteFuelFindingPage site={site} findingId={findingId ?? ""} revisionId={params.get("revision_id")} client={client} />
       )}
     </SiteScoped>
   );
@@ -2686,15 +2577,11 @@ export function SiteFuelFindingFrame({
 
 function SiteFuelFindingPage({
   site,
-  sitesPath,
-  siteId,
   findingId,
   revisionId,
   client,
 }: {
   site: LoadedSite;
-  sitesPath: string;
-  siteId: string | undefined;
   findingId: string;
   revisionId: string | null;
   client: FuelBalanceClient;
@@ -2703,14 +2590,8 @@ function SiteFuelFindingPage({
   const title = read?.status === "loaded" ? read.value.lines.title : null;
   return (
     <main aria-labelledby={SITE_FUEL_FINDING_HEADING_ID}>
-      <Breadcrumbs
-        trail={[
-          { label: "Sites", to: sitesPath },
-          { label: site.display_name, to: siteDetailHref(site.site_id) },
-          title === null ? { label: "Findings" } : { label: "Findings", to: siteFindingsHref(site.site_id) },
-          ...(title === null ? [] : [{ label: title }]),
-        ]}
-      />
+      {/* IA-P P5 (D-IAP.38 Q20): an object page, `Findings › {Site} › {title}`; no Site tab row. */}
+      <Breadcrumbs trail={[...objectPageTrail(OBJECT_HOME.findings, site), { label: title ?? "Finding" }]} />
       {read?.status === "loaded" ? (
         // UQ-FI-2 P3 (D-UQFI.18): the Finding's title, then its first lifecycle sentence once, like the mini Finding frames.
         <PageHeader title={read.value.lines.title} headingId={SITE_FUEL_FINDING_HEADING_ID} subtitle={read.value.lines.claim ?? read.value.lines.no_longer ?? undefined} />
@@ -2723,7 +2604,6 @@ function SiteFuelFindingPage({
           headingId={SITE_FUEL_FINDING_HEADING_ID}
         />
       )}
-      <OperatorSiteTabs siteId={siteId} current="Findings" />
       <SiteFuelFindingBody
         read={read}
         revisionHref={(revision) => siteFuelFindingHref(site.site_id, findingId, revision)}
@@ -2765,23 +2645,8 @@ function MillVerificationPage({ site, actionId, client }: { site: LoadedSite; ac
   const code = body?.action_code ? displayCode(body.action_code) : null;
   return (
     <main aria-labelledby={SITE_MILL_VERIFICATION_HEADING_ID}>
-      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
-        <ol className="breadcrumbs__list">
-          <li className="breadcrumbs__item">
-            <Link to="/actions">Actions</Link>
-          </li>
-          {code === null ? null : <li className="breadcrumbs__item">{code}</li>}
-          <li className="breadcrumbs__item">
-            <span className="breadcrumbs__current" aria-current="page">
-              Verification
-            </span>
-          </li>
-        </ol>
-        <span className="mini-finding-crumbs__site">
-          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
-          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-        </span>
-      </nav>
+      {/* IA-P P5 (D-IAP.38 Q20): an object page, `Actions › {Site} › {title}`; no Site tab row. */}
+      <Breadcrumbs trail={[...objectPageTrail(OBJECT_HOME.actions, site), { label: code ?? "Action" }]} />
       <PageHeader
         title={
           body?.title ? (
@@ -2835,23 +2700,8 @@ function FuelVerificationPage({ site, actionId, client }: { site: LoadedSite; ac
   const code = body?.action_code ? displayCode(body.action_code) : null;
   return (
     <main aria-labelledby={SITE_FUEL_VERIFICATION_HEADING_ID}>
-      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-action-crumbs>
-        <ol className="breadcrumbs__list">
-          <li className="breadcrumbs__item">
-            <Link to="/actions">Actions</Link>
-          </li>
-          {code === null ? null : <li className="breadcrumbs__item">{code}</li>}
-          <li className="breadcrumbs__item">
-            <span className="breadcrumbs__current" aria-current="page">
-              Verification
-            </span>
-          </li>
-        </ol>
-        <span className="mini-finding-crumbs__site">
-          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
-          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-        </span>
-      </nav>
+      {/* IA-P P5 (D-IAP.38 Q20): an object page, `Actions › {Site} › {title}`; no Site tab row. */}
+      <Breadcrumbs trail={[...objectPageTrail(OBJECT_HOME.actions, site), { label: code ?? "Action" }]} />
       <PageHeader
         title={
           body?.title ? (

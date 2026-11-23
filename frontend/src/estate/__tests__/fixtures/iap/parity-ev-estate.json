@@ -1,0 +1,166 @@
+{
+  "coverage": {
+    "sites": [
+      {
+        "committed_watermark": "2026-10-06T09:00:00Z",
+        "days": null,
+        "job_state": "SETTLED",
+        "match_state": "NOT_APPLICABLE",
+        "selection_id": "00000000-0000-4000-a000-000000000560",
+        "site_id": "00000000-0000-4000-a000-000000000001",
+        "source_freshness": "NOT_APPLICABLE",
+        "state": "CURRENT"
+      }
+    ],
+    "state": "COMPLETE"
+  },
+  "lens": "all",
+  "next_cursor": null,
+  "opportunities": [],
+  "order": "episode_start desc, finding_id asc",
+  "rows": [
+    {
+      "categories": {
+        "items": [
+          {
+            "category": "PROTECT_ASSET",
+            "label": "Protect asset and capital",
+            "outcomes": [
+              {
+                "key": "EV-1",
+                "label": "Buses ready for service"
+              }
+            ],
+            "role": "MOVES"
+          },
+          {
+            "category": "GROW_REVENUE",
+            "label": "Grow revenue",
+            "outcomes": [
+              {
+                "key": "EV-3",
+                "label": "Charger use"
+              }
+            ],
+            "role": "MOVES"
+          },
+          {
+            "category": "PROTECT_ASSET",
+            "label": "Protect asset and capital",
+            "outcomes": [
+              {
+                "key": "EV-4",
+                "label": "Charger life"
+              }
+            ],
+            "role": "CHECKED"
+          }
+        ],
+        "policy_version": "outcome-map/1",
+        "state": "MAPPED"
+      },
+      "confidence": null,
+      "confidence_reasons": [],
+      "consequence": {
+        "amount": null,
+        "amount_high": null,
+        "amount_low": null,
+        "currency": null,
+        "source_revision_id": null,
+        "state": "UNPRICED"
+      },
+      "episode_start": "2026-10-06T08:01:00Z",
+      "finding_id": "00000000-0000-4000-8000-000000000001",
+      "finding_label": "Observed EV charging interruption",
+      "finding_revision_id": "00000000-0000-4000-8000-000000000002",
+      "lens_flags": [
+        "RISK"
+      ],
+      "lifecycle": "SUPPORTED",
+      "link_refs": {
+        "finding": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "kind": "FINDING",
+          "site": "EV-LAB-001",
+          "window": {
+            "from": "2026-10-06T08:00:00.000000Z",
+            "known_at": "2026-10-06T09:00:00.000000Z",
+            "to": "2026-10-06T09:00:00.000000Z"
+          }
+        },
+        "site": {
+          "kind": "SITE",
+          "site": "EV-LAB-001",
+          "view": "ev"
+        }
+      },
+      "links": {
+        "finding": "/sites/EV-LAB-001/findings/00000000-0000-4000-8000-000000000001?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A00%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+        "site": "/sites/EV-LAB-001/ev"
+      },
+      "priority": null,
+      "site_code": "EV-LAB-001",
+      "site_id": "00000000-0000-4000-a000-000000000001",
+      "site_name": "EV charging lab",
+      "source_provenance": {
+        "basis_sha256": "sha256:a00d41cbaea59b191a0658f8b6715cc43972c5f293da551f0da7d6c5c01066a9",
+        "classification": "REGISTERED_SIMULATION",
+        "evidence_ids": [
+          "00000000-0000-4000-a000-000000000112",
+          "00000000-0000-4000-a000-000000000156",
+          "00000000-0000-4000-a000-000000000181"
+        ],
+        "reasons": [],
+        "source_ids": [
+          "00000000-0000-4000-a000-000000000004",
+          "00000000-0000-4000-a000-000000000005"
+        ],
+        "state": "REGISTERED_SIMULATION"
+      },
+      "status": "CURRENT",
+      "title": "Observed EV charging interruption"
+    }
+  ],
+  "schema_version": "estate-finding-index-2",
+  "scope": {
+    "access_basis": "sha256:6db6f13d693b36a4a9c359ef045a0075b2b87751cb40229852c5c72404e9b512",
+    "authorized_site_count": 1,
+    "covered_site_count": 1,
+    "tenant_id": "00000000-0000-4000-a000-000000000559"
+  },
+  "selection_token": "sha256:ff19e2a5c49e23baa31dc01b76900b9aad279f9a039d3d695f7e860b45fabd36",
+  "state_filter": "all",
+  "status": "CURRENT",
+  "summary": {
+    "awaiting_verification": 0,
+    "basis_count": 1,
+    "claims": {
+      "count.opportunities": {
+        "basis": "NOT_KNOWN",
+        "days": {
+          "complete": 0,
+          "expected": 31,
+          "low": 0,
+          "no_data": 31,
+          "partial": 0,
+          "pending": 0
+        },
+        "key": "count.opportunities",
+        "text": "Not known yet",
+        "value": 0
+      }
+    },
+    "high_priority": null,
+    "low_confidence": null,
+    "opportunity_count": 0,
+    "supported_findings": 1,
+    "unconfirmed_findings": 0
+  },
+  "total_count": 1,
+  "window": {
+    "bounds": "[from, to)",
+    "from": "2026-10-01T00:00:00Z",
+    "known_at": "2026-11-22T18:52:30Z",
+    "to": "2026-11-01T00:00:00Z"
+  }
+}

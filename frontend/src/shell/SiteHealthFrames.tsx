@@ -27,6 +27,7 @@ import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref, siteUploadsHref } from "./operatorSiteRoutes";
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { EvidenceSections, HealthSections, SetupSections } from "./siteSections";
 import { RangeNotUsed, RangeSpan, useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { capWindow, focusDayOf, rangeWindow, readSharedRange } from "../ui/sharedRange";
@@ -53,6 +54,7 @@ function EvHealthWithTabs({ siteId, window, client }: { siteId: string; window: 
   return (
     <>
       <OperatorSiteTabs siteId={siteId} current="Health" hrefs={EV_SITE_TAB_HREFS} search={search} />
+      <HealthSections siteId={siteId} search={search} />
       <ReportSelected.Provider value={report}>
         <EvHealthDepth siteCode={siteId} window={window} client={client} sessionsPath={sitePerformanceHref(siteId, "sessions")} />
       </ReportSelected.Provider>
@@ -104,7 +106,12 @@ export function SiteHealthFrame({
             description={SITE_SCREEN_DESCRIPTIONS.health}
             headingId={SITE_HEALTH_HEADING_ID}
           />
-          {site.site_type === "EV_CHARGING" ? null : <OperatorSiteTabs siteId={site.site_id} current="Health" search={coldTabSearch(site, params)} />}
+          {site.site_type === "EV_CHARGING" ? null : (
+            <>
+              <OperatorSiteTabs siteId={site.site_id} current="Health" search={coldTabSearch(site, params)} />
+              <HealthSections siteId={site.site_id} search={coldTabSearch(site, params)} />
+            </>
+          )}
           <HealthLinksContext.Provider value={LINKS}>
             {site.site_type === "COLDCHAIN" ? (
               /* W5-F1 F1-1 (R22): v69 cold-health ends at Condition and evidence; no Data sources panel. */
@@ -214,12 +221,14 @@ export function SiteAssetsFrame({
             trail={[
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Health", to: siteHealthHref(site.site_id) },
+              // IA-P P5 (handoff run 3 risk): Assets lights Setup, so its crumb no longer goes through Health.
               { label: "Battery" },
             ]}
           />
           <PageHeader title="Battery" headingId={SITE_BATTERY_HEADING_ID} subtitle={`Site: ${site.display_name}`} />
-          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          {/* D-IAP.38 Q18: Assets lights Setup. */}
+          <OperatorSiteTabs siteId={site.site_id} current="Setup" />
+          <SetupSections siteId={site.site_id} current="Assets" />
           {/* SR-4c (D-SR.43): the battery list and page are Foundation configuration, not ranged. */}
           <RangeNotUsed note="current settings" />
           <HealthLinksContext.Provider value={LINKS}>
@@ -254,7 +263,6 @@ export function SiteAssetFrame({
             trail={[
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Health", to: siteHealthHref(site.site_id) },
               { label: "Battery", to: siteAssetsHref(site.site_id) },
               { label: title },
             ]}
@@ -269,7 +277,8 @@ export function SiteAssetFrame({
                 : `Battery · site: ${site.display_name}`
             }
           />
-          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <OperatorSiteTabs siteId={site.site_id} current="Setup" />
+          <SetupSections siteId={site.site_id} current="Assets" />
           <RangeNotUsed note="current settings" />
           <HealthLinksContext.Provider value={LINKS}>
             <SiteBattery
@@ -289,8 +298,7 @@ export function SiteAssetFrame({
 /**
  * UP-1 (rev 7 §7.5, D-UP.3/4): `/sites/{site}/uploads`, Kobo's "Upload readings" (mockup v72 Parts B-E). The page
  * asks the server whether the upload is on for this Site and says so plainly when it is not.
- * MOCK DEVIATION: the breadcrumb keeps the Site and Health steps (the mock shows "Sites / Upload readings"), so the
- * way back to the Health tab is one click.
+ * IA-P P5 (D-IAP.38 Q18): the crumb is Sites › {Site} › Upload readings; the page lights Evidence.
  */
 export function SiteUploadsFrame({ detail, sitesPath, uploads }: {
   detail: SiteDetailClient;
@@ -307,7 +315,6 @@ export function SiteUploadsFrame({ detail, sitesPath, uploads }: {
             trail={[
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Health", to: siteHealthHref(site.site_id) },
               { label: "Upload readings" },
             ]}
           />
@@ -316,6 +323,9 @@ export function SiteUploadsFrame({ detail, sitesPath, uploads }: {
             headingId={SITE_UPLOADS_HEADING_ID}
             subtitle={`Send ${site.display_name}'s readings as a file. You see what will be saved before anything is saved.`}
           />
+          {/* D-IAP.38 Q18: Uploads gains the tab row and lights Evidence. */}
+          <OperatorSiteTabs siteId={site.site_id} current="Evidence" />
+          <EvidenceSections siteId={site.site_id} current="Uploads" siteType={site.site_type} />
           <ReadingUploadPage
             siteId={site.site_id}
             siteName={site.display_name}
