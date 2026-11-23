@@ -756,3 +756,13 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   the tolerance from `M`, judges Kisiwa's candidate share per month and C-DD20 Kisiwa by D-DD.148 (C-DD20 passes).
 - Open: `M` unchanged (Kisiwa and Mto bridges do not close by `-candidate x price`; D-DD.131 stop); Kisiwa candidate
   time 11.27 % (Aug) and 10.17 % (Oct) against D-DD.148's 1 %; C-DD17 July/August fail by construction (0 L burned).
+
+## DD3b3 run 2: `M` rev 16.20 and the D-DD.30 chain (in_review; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: October's Lakeside fuel leaves are the notes run's (`config/world/fuel-leaves.json`, a builder file, packet
+  deviation 16); three fuel lines per bridge, so Kobo 120.50, Kisiwa 1,759.80 and Mto 255.00 close; OR-MG-2 prints Kisiwa's
+  candidate time per month with no bound; C-DD17 judges tolerance only in burning months and the draw to 0.1 L. history.json,
+  the fixture view, goldens and pins regenerated once; 114 anchored figures in 17 docs swept; `dd_check --pure` exit 0.
+- Open: six H5 history checks fail (unexplained litres above 2 % of the lower diesel); the D-DD.76 storage rule now gives
+  1,500 / 2,000 / 500 L against the ruled 2,500 / 5,000 / 1,000; vNEXT mock sentences left for the alignment pass.
+

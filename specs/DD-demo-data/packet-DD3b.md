@@ -1,4 +1,4 @@
-# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2: writer, model, checks and pure runs; DD3b3: notes, books, leaves table, `--pure` by D-DD.148/149; `M` commit held for the Architect)
+# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2: writer, model, checks and pure runs; DD3b3: notes, books, leaves table, `--pure` by D-DD.148/149; `M` commit made in run 2, D-DD.150-152)
 
 Branch `task/DD3b-mini-plant` (worktree `/opt/assetecon/AssetOpsV1-dd3b`), base main `6e3c02ab5`. Part 1 of 3
 (D-DD.142: DD3b1 2.0 u). Scope: D-DD.127 and spec DD §4.3, in `simulator/assetops_simulator/packs/mini_grid.py` and
@@ -298,6 +298,63 @@ Kobo, `tools/dd3_pure_run.py --books <exports>` (no-load 0.62, 1 Jul-31 Oct), be
 Nothing fitted: the shape is D-DD.97's tuple, the SOC the warm-up's exact value. Pins moved earlier: Lakeside's F
 digest `4e36563d...` -> `25345568...` (D-DD.128).
 
+## DD3b3 run 2 (D-DD.150-152): `M` rev 16.20, regeneration, sweep, pure DIR
+
+Commits: `6ea2b4cae` tests first (11 of 11 failed), `fbcb1d741` code (restated bridge, `--leaves`, C-DD17/OR-MG-2 judges),
+`96a859ef3` M series 1/3 (`config/world/fuel-leaves.json`), `a46ba3255` M series 2/3 (`M` rev 16.20), `8ace02f64` M series 3/3
+(history.json, fixture view, goldens, re-pins, anchored-figure sweep, re-bases). Evidence: `/opt/assetecon/evidence/DD3b/`.
+
+- **`M` rev 16.20** (series 2/3): October leaves from `fuel-leaves.json` (Kobo 634 L, Kisiwa 904 L, Mto 32 L), three fuel
+  lines per mini bridge (D-DD.150; all three close: Kobo 120.50, Kisiwa 1,759.80, Mto 255.00), `fuel_balance` and
+  GENERATOR_SUPPORT_CANDIDATE from the run, OR-MG-2 and GEN-KS-02 at 70 % (D-DD.151). Portfolio: actual contribution 4,430.30
+  (target 2,295.00, +2,135.30: revenue -97.00, cost +2,232.30), cost to serve 5,257.70, recorded 4,557.70 (86.7 %).
+- **Regeneration (series 3/3, D-DD.30 chain).** `world_history.py generate` then `check` exit 0 (before: `DS1_CHECK_DIFF meta`).
+  `period.actual` is a scope-digest input, so every Lakeside Site's July-September leaves were re-drawn once (Kobo July
+  necessary 703 -> 476, candidate 257 -> 20; the depots and cold rooms did not move). The fixture view
+  (`simulator/tests/world/fixtures/view_v1.json`) was regenerated from `M` (`world_history.py view`); goldens
+  `history_v1.json` (`--update-golden`) and `scope_seasons_main.json` (Lakeside digests and the history sha, hand-written from the
+  regenerated file, docstring dated); `derived-values.json`, `missing-records.json`, `fixtures.js`, `index.html`
+  regenerated (`gen_fixtures.py`, `build.mjs`).
+- **Re-pins (each the regenerated value, D-DD.93):** `test_3a3_exports` billing a61c37b8... and collections fe1ca6a4...
+  (expenses unchanged); `test_dd2_nodes` October diesel/fuel (Kobo 634 / 792.5, Kisiwa 904 / 1,175.2, Mto 32 / 40), Kobo July
+  billed 8,318 -> 8,190, revenue 3,327.20 -> 3,276.00, collected 3,059.74 -> 3,012.62, fuel 972 -> 508 L; checker plant "8319 != 8318"
+  -> "8191 != 8190"; backend `test_dd2_check` the same July figures (fuel cost 1,215 -> 635).
+  A pre-existing failure at `a8ae8828a` fixed: `test_dd4_cold_books` (CLI byte check) lacked the Lakeside expenses file that
+  D-DD.129 requires.
+- **check_manifest.** Main (`9c38b69ac`, measured in a temporary worktree, removed): 7,795 passed, 6 failed (A1, A2, A3, A5,
+  walkthroughs figures, H9 baseline), 4,531 before the history checks, 5 failed. Branch after the sweep: **4,557 before the
+  history checks with the same 5 failed** (7,666+ total; the count is higher, not equal, because M gained bridge lines and the docs
+  gained markers), plus **six H5 failures** (Known Deviation 17). The sweep: 114 anchored/computed figures re-written by a
+  script from the check's own values (`<!--fig:...-->`, `<!--figx:...-->`), 12 record figures at `<!--rec:path-->`, and the
+  hand-typed Kobo, Kisiwa and Mto factor tables, portfolio table and fuel-balance rows of `worked-portfolios.md`, the
+  Necessary-running bullet of `layer4-transformation-design.md` (now "below target (+263.75)"), five computed deltas marked
+  with `figx`. Docs touched: layer4-transformation-design, worked-portfolios, decision-loop-specification, delivery-plan,
+  economic-metric-and-effect-contracts, domain-and-decision-models, integration-source-to-canonical-design, demo-build-cost-plan,
+  phase-plan-and-acceptance, plan-and-action-workflow, product-transition-and-roadmap, two-week-build-plan, vertical-factor-map,
+  go-to-market commercial-plan and website-content, `interactive-mockup-vNEXT/walkthroughs.md`. Re-based with dated notes:
+  H8 (derived-values, missing-records), H10, K8, K13 (four parts). **The vNEXT mock's other content is left for the
+  alignment pass** (the figures the check reads were swept; sentences that say Kobo is below plan or that Kisiwa is worse than
+  plan now describe the opposite and were not re-written beyond the figures).
+- **`dd_check --pure` exit 0** on the full Jul-Oct DIR (`pure-r2`, from `world_history.py exports`, `site-inputs`, `telemetry --site`
+  x3, `measured.json` merged by hand because the writer refuses a non-empty `--out`): C-DD8 PASS (Kobo October 1,256.0 + 400.0 -
+  1,021.8 - 514.2 = 120.0 L; Kisiwa candidate time printed 18.80 / 17.77 / 0.00 / 10.67 %, no bound); C-DD17 PASS (July and
+  August no burn, 12 L; September 1.43 %; October 18.92 % above, as expected; draw equality to 0.1 L held, no widening);
+  C-DD20 PASS (Mto 0.00 L/day before 28 Oct 11:00, 9.14 after).
+- **Plants** (`test_dd3b3_notes.py`, base 23 passed; each reverted): draw equality removed 2 failed; negative balance allowed 1
+  failed; tolerance side inverted 1 failed; a bound put back on Kisiwa's share 1 failed; a month with no computed minutes
+  passing 1 failed.
+
+- **Reach set (once, `tools/heavy-slot.sh --db-lane -- bash reach.sh`, revision `8ace02f64`, `/opt/assetecon/evidence/DD3b/reach.log`):
+  PARTIAL, NOT CLEAN.** Backend 32 files: **31 failed, 1213 passed, 1 skipped** (337.58 s); the log holds only the backend run's summary (the host and
+  simulator lines of `reach.sh` did not report; `simulator/tests/world` alone passed 398 at `8ace02f64`, `world-r2c.log`). The 31 are backend tests that hand-pin October's old Lakeside story and are caused
+  by `M` rev 16.20 (main's baseline `.agent/main-baseline/23d2cd9f6.md` lists none of them): `test_3a3_load_emulated_postgres` 1,
+  `test_3b1_structure_registry` 2, `test_3b3_structure_evaluate` 1, `test_3b4_observer` 6, `test_3b4_observer_postgres` 5,
+  `test_4b_money_leaves` 2, `test_4b_money_leaves_postgres` 1, `test_5b_attribution` 4, `test_5b_attribution_postgres` 1,
+  `test_ddr_rehearsal_postgres` 7, `test_ds4_world_postgres` 1 (`reach-failures.txt`). Causes seen: Kobo October contribution
+  883.00 -> 1,565.50, Kobo fuel cost 1,475.00 -> 792.50, Kisiwa fuel 3,120.00 -> 1,175.20 in hand figures; the observer now
+  classes Kobo's `necessary_l` FAVOURABLE where tests expect RAISED (Kobo's necessary litres are now below target); the DDR
+  rehearsal's G4/G5-G8 gates move with the figures. **Open: these re-pins are the next step (handoff).**
+
 ## Known Deviations
 
 1. **Unit events are not POINT forcings in the kernel's terms (D-DD.127 says POINT, indexed by step, D-DD.75).**
@@ -337,22 +394,35 @@ digest `4e36563d...` -> `25345568...` (D-DD.128).
 11. **Two world facts against the oracle**, reported, not tuned: Kisiwa candidate minutes > 0 (OR-MG-2 says 0);
     Kisiwa October unserved 0 kWh (C-DD20 expects unserved evening energy after 30 Oct 18:40). Both to the Architect.
 
-12. **`M` commit held (D-DD.131 stop).** Kisiwa's and Mto's bridges do not close on the restated leaves: gap
+12. **(Closed by D-DD.150, run 2: three fuel lines per bridge.) `M` commit held (D-DD.131 stop).** Kisiwa's and Mto's bridges do not close on the restated leaves: gap
     -87.10 (Kisiwa) and -40.00 (Mto), each exactly `-candidate_l x price`; their bridges carry no CANDIDATE_RUNNING
     line. Kobo closes. So no leaf, `fuel_balance`, `findings_expected`, OR-MG-2, D-DD.30 chain output or
     `worked-portfolios.md:74` was changed. **Question:** add a CANDIDATE_RUNNING line to Kisiwa's and Mto's bridges
     (as Kobo's), or fold the candidate into the necessary line, or another rule? BATTERY_NEAR_RESERVE (22 days) waits
     with it (the product's warning, not a writer figure).
-13. **Kisiwa candidate time above 1 % in August (11.27 %) and October (10.17 %)** by D-DD.149's measure (generator
+13. (Closed by D-DD.151: printed, no bound.) **Kisiwa candidate time above 1 % in August (11.27 %) and October (10.17 %)** by D-DD.149's measure (generator
     above 0 kW while PV >= 1.1 x load). D-DD.148's bound came from July and one 30 Oct day; the full run disagrees.
     Reported, not tuned; for the Architect (OR-MG-2's restated wording).
-14. **C-DD17 July and August fail by construction** since D-DD.104 (Kobo burns 0 L, so the 12 L draw is 100 % of
+14. (Closed by D-DD.152: judged in burning months.) **C-DD17 July and August fail by construction** since D-DD.104 (Kobo burns 0 L, so the 12 L draw is 100 % of
     consumed). For the Architect: the clause's "within 2 % July-September" needs a rule for a month with no burn.
 15. Books: for a Site in the notes file the FUEL rows are purchases, but `diesel_l` / `diesel_cost` are still marked
     written in the unwritten list (no new reason word was ruled). Notes after 31 Oct are not placed (the span is the
     tool's; exports write Jul-Oct only).
+16. **`config/world/fuel-leaves.json` is the builder's choice, not ruled.** It is the notes run's October ledger per mini Site
+    (`dd3_pure_run.py --leaves --write|--check`, mirroring `fuel-notes.json`); the test of `M` recomputes the October leaves from
+    it. D-DD.131 rules the leaves, not the file. Judge or replace.
+17. **Six H5 failures (check_manifest).** `unexplained_l <= 2 % of diesel_l` fails for Kobo July-September (12, 12, 11 L of
+    508, 510, 483) and Kisiwa July-September (20, 19, 18 L of 885, 867, 835): October's diesel fell by about half (D-DD.131/150)
+    while the history rule keeps the unexplained draw. October's own Kisiwa 20 of 904 L is 2.2 %, above the 2 % that M's finding
+    text calls "within". Not fixed: the options (a lower history draw in `history.rules`, H5 in the check, or D-DD.152's absolute
+    floor) are design. For the Architect.
+18. **D-DD.76 tanks against the storage rule.** The rule's arithmetic on the regenerated history gives Kobo 1,500, Kisiwa 2,000,
+    Mto 500 L; the ruling's values (2,500, 5,000, 1,000) stay declared. `test_each_lakeside_tank...` now pins both. For the
+    Architect.
+19. **Narrative drift in docs.** Figures were made equal to the check's values; prose that says Kobo is under plan (contribution
+    now +120.50) or Kisiwa is worse than plan (now +1,759.80), and the Kisiwa "within tolerance" wording, were not re-written.
+    The vNEXT mock content is left for the alignment pass.
 
 ## Next
 
-The Architect on deviations 12-14; then DD3b3's `M` commit (D-DD.131 leaves via `--leaves`, a test that `M` equals the
-tool's output, the D-DD.30 chain), then the one DD3b review.
+The Architect on deviations 16-19 (12-14 are answered by D-DD.150-152); the review; the alignment pass for the mock's sentences.

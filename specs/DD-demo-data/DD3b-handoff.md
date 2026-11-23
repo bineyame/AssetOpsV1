@@ -1,4 +1,4 @@
-# DD3b handoff (PARTIAL: DD3b3 run 2 under D-DD.150-152; `M` commit series 2 of 3 done, the D-DD.30 sweep open)
+# DD3b handoff (run 2 PARTIAL at slice end: DD3b3 built and committed; the reach set found 31 backend failures to re-pin; see below)
 
 Branch `task/DD3b-mini-plant`, worktree `/opt/assetecon/AssetOpsV1-dd3b`, main merged at `98713f07a` (D-DD.150-152,
 DD3c; Lakeside-alone site-inputs hash re-pinned `7d582e06...`). Packet: `packet-DD3b.md` (not yet updated for run 2).
@@ -40,3 +40,15 @@ Evidence: `/opt/assetecon/evidence/DD3b/` (tests-first log, leaves log, check_ma
 
 - The sweep touches ~18 owner-facing docs by hand-typed figures; each must equal the check's value, nothing else.
 - Exports for the pure DIR read `M` October; build the DIR after the sweep only if `M` moves again.
+
+
+## Run 2 end state (supersedes the Next list above)
+
+Done: M series 3/3 (`8ace02f64`), `dd_check --pure` exit 0, plants, packet run-2 section, state entry 214, spec status. check_manifest:
+4,557 before history, the same 5 failed as main plus six H5 (packet deviation 17; main measured at `9c38b69ac`).
+Reach set ran once at `8ace02f64` (`/opt/assetecon/evidence/DD3b/reach.log`, failures in `reach-failures.txt`): backend 31 failed,
+1213 passed; **the host and simulator lines of the script did not report** (read the log; simulator/tests/world alone: 398 passed
+at `8ace02f64`, `world-r2c.log`). Next: re-pin the 31 backend tests (hand figures: Kobo 883.00 -> 1,565.50, fuel 1,475.00 ->
+792.50, Kisiwa fuel 3,120.00 -> 1,175.20; observer necessary_l FAVOURABLE not RAISED; DDR rehearsal gates), focused reruns only,
+then guards (`tools/check-architecture.ps1` with `ASSETOPS_GUARD_PYTHON`, `tools/checks/statement_catalogue.py`,
+`tools/check-agent-workflow.ps1`) and update the packet's reach paragraph. Fresh-session context was near its limit.
