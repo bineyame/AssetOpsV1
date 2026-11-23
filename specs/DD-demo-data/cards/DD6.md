@@ -1,6 +1,6 @@
 # Build card: DD6, the world built and served
 
-Part DD6 = DD6.1 to DD6.3 with D-DD.133 to D-DD.136 (D-DD.137 outside DD). **4.75 u**, branch `task/DD6-world`, one
+Part DD6 = DD6.1 to DD6.3 with D-DD.133 to D-DD.136 (D-DD.137 outside DD). **5.25 u** (4.75, +0.5 by D-DD.157), branch `task/DD6-world`, one
 discovery review. Card by the DD lane Architect, 23 Nov, under `.ai/ROLE_CONFIG.md` "Fourth audit" (a). Line numbers
 are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22`. Read only the lines named here,
 then the code. A question the lines do not answer stops only the affected unit and goes to the lane Architect; count
@@ -42,6 +42,15 @@ it in the packet.
      and the owner's walk stay untouched.
 3. **The build, measured, and the runbook pass (0.75; DD6.3 S939-943; D-DD.136 R2351-2357; D-DD.15).**
    - One build on a quiet machine: `systemd-inhibit --what=sleep:idle` around it, `--cap-seconds 28800`.
+   - One writer process per tenant (D-DD.160; D-DD.99: one `measured.json` per tenant, written by the frame). The
+     build asserts exactly one `<slug>/telemetry/measured.json` per tenant before `exports --telemetry`; several
+     processes would write several files and exports refuses `EMU_MEASURED` (exit 3).
+4. **Cold history on the meter (0.5; D-DD.157, rulings round 23).** Before the build: each cold room's `history.json`
+   `actual.kwh` July-September is set to that room-month's metered kWh from the cold tenant's `measured.json`,
+   rounded half-even to whole kWh (1659.750 → 1660; D-DD.162); `kwh_model` and plan `kwh` unchanged. Then the D-DD.30 chain (`world_history.py
+   check`, view, goldens, fixtures) and re-pins, each the regenerated value (D-DD.93). Any H-check (H5's anchor "within
+   5 % of `kwh_model`" first) or C-DD failure stops for the Architect with the figures. The packet lists every moved
+   figure; `meter_billed` prints equal pairs for those rows.
    - Record each rung's seconds and size and the cold and EV seconds per Site-day (C-DD15). DS7 is pulled only if
      L2 exceeds 4 h (D-DD.15).
    - Evidence `/opt/assetecon/evidence/DD/<UTC date>-<commit12>/`, created by the build step.
@@ -49,11 +58,21 @@ it in the packet.
      `Docs/engineering/operator-deep-dive-runbook.md` and `specs/ON1-operator-tenant/runbook.md`; then
      `test_ddr_rehearsal_check.py`.
 
+## Facts the code fixes (D-DD.162)
+
+- Protected: the owner's walk and ports 5490/8990/8992 (above); the `/1` walk definition reads unchanged.
+- Names: device and channel ids come from the Foundation (`/2` files), never from a ruling's typed name.
+- Decimals: readings, `measured.json` and books are compared as `Decimal` values, never as strings; history cold `kwh`
+  is whole kWh (unit 4).
+- Ids: no id is formed in DD6; the sealer's ids are DD5a's (D-DD.161).
+- Tests: nothing under `backend/` imports `gateway`, `host` or `simulator` (dependency-direction guard, tests
+  included); a test that needs them lives in `host/tests/` or `simulator/tests/`.
+
 ## Rules that apply (by id)
 
 D-DD.11, D-DD.15, D-DD.26, D-DD.27, D-DD.28 (R157-167: `dd_check` reads the product through an in-process ASGI client,
 no port), D-DD.84, D-DD.133 to D-DD.136, D-DD.137 (pending listing only; `WK-SC` is built only on the owner's yes),
-D-DD.142, D-DD.153 (C-DD17 served), D-DD.154 (the records C-DD17 and C-DD8 read are loaded by DD5b).
+D-DD.142, D-DD.153 (C-DD17 served), D-DD.154 (the records C-DD17 and C-DD8 read are loaded by DD5b), D-DD.157 (cold history), D-DD.160 (one writer per tenant), D-DD.162 (facts).
 
 ## Tests (each can fail) and plants
 

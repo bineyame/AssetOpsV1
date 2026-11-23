@@ -2916,3 +2916,172 @@ The owner is informed of both; **D-DD.154** is a structure finding the owner may
     **53.75 u in twelve parts**.
   - *Owner.* Informed. Weigh in if month-end dips at 00:00 should instead follow a stated operator dip time; nothing
     else in the story moves.
+
+# DD rulings, round 23 (D-DD.155 to D-DD.160): DD3b3 deviations 17 (H5) and 18 (the tanks); DD4b review Q1-Q4; DD5a's blocker and deviations; the card sweep
+
+Architect (Claude, DD lane, fresh hand-off), 2026-11-23. Read: `packet-DD3b.md` on `task/DD3b-mini-plant` (4154c09bb),
+deviations 16-19; D-DD.76, D-DD.92 "Tanks stay", D-DD.131, D-DD.150 to D-DD.154; `check_manifest.py` H5 (branch line
+1512); `simulator/tests/world/test_dd3_telemetry.py::test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month`
+(branch); `M` lines 123, 198, 2178; owner §"D-DD.76 tank sizes". For D-DD.157 to D-DD.160: `review-DD4b.md` (branch `task/DD4b-ev-measured`) Q1-Q4
+and its residual-risk note on `measured.json`; D-DD.20, D-DD.99, D-DD.124, D-DD.144; `cards/DD5b.md`, `cards/DD6.md`.
+For D-DD.161 and D-DD.162: `packet-DD5a.md` (ba6282a8d) deviations 1-5; `evidence/world_seal.py` (`_value`, the EV
+refusal); `source_envelope_v3.is_canonical_decimal`; DD4b's `world/telemetry_ev.py` (c86af1a2e: `_rows`, `_event`)
+and `packs/ev_charger.scoped_session_id`; D-DD.91, D-DD.123, D-DD.138, D-DD.139; `cards/DD5a.md`.
+No run was made; no database touched. The owner is informed of all eight; none moves a figure the owner approved.
+D-DD.157 moves Kirinyaga's History series onto the meter (the drift story reads the same, more plainly).
+
+- **D-DD.155 Deviation 18: the declared tanks stay 2,500 / 5,000 / 1,000 L, as the owner approved. The 1,500 / 2,000 /
+  500 L are D-DD.76's sizing rule re-run on the restated fuel figures, which D-DD.92 already forbids; the test stops
+  re-running it** (test; restates D-DD.76's rule as a declaration-time sizing, not a standing invariant).
+  - *Where the smaller figures come from.* Not from `M`'s declarations, the `/2` file or the history's own fields: the
+    `/2` and `/1` files still declare 2,500 / 5,000 / 1,000 L, SITE, version 1 (branch lines 830, 285, 1365). The test
+    recomputes D-DD.76's rule (twice the largest month, rounded up to a standard size) on today's `history.json` and
+    `M` rev 16.20. Those months fell when D-DD.92 and D-DD.131 made consumption the readings' (Kobo largest 634 L in
+    October, so 1,268 to 1,500; Kisiwa 904, so 1,808 to 2,000; Mto below 250, so 500). D-DD.76 sized the tanks on the
+    books of 22 Nov (1,180 / 2,400 / 320 L delivered). D-DD.92 then ruled: "D-DD.76's rule is not re-run on restated
+    books, which would be circular". The tank now drives the purchases (the reorder rule), so sizing it from its own
+    outputs is a loop. Its input was also *delivered* litres; the test feeds it consumption. The builder kept the
+    declared sizes, correctly; only the test's second pin is wrong.
+  - *Rule.* The test keeps one assertion on the declared figures, `declared == {KISIWA-001: (5000, SITE, 1), KOBO-001:
+    (2500, SITE, 1), MTO-001: (1000, SITE, 1)}`, and replaces the recomputation with D-DD.76's own inputs typed as
+    constants, `SIZED_ON = {"KOBO-001": 1180, "KISIWA-001": 2400, "MTO-001": 320}` (comment: "D-DD.76, books of 22 Nov;
+    not re-run on restated books, D-DD.92"), asserting the rule on those gives the declared sizes. It no longer reads
+    `history.json` or `M`. The test is renamed `test_each_lakeside_tank_is_declared_at_its_d_dd_76_size`.
+  - *Figures that move.* None. The tanks, the 50 % start, the reorder notes, D-DD.153's a (25 / 50 / 10 L) and every
+    story figure stay. The packet's deviation 18 closes.
+  - *Where.* The DD3b3 fix round (Sonnet), 0 u.
+
+- **D-DD.156 Deviation 17: the history is right; H5 is the old relative-only rule. H5 judges with D-DD.153's tolerance,
+  max(2 % × `diesel_l`, 2a), restated in DD3d where a is declared** (check, W6 class: every restatement of the
+  unexplained-fuel tolerance follows D-DD.153; amends `M` lines 123 and 198 wording; +0.25 u DD3d).
+  - *Why the history stands.* The 12 / 12 / 11 L (Kobo) and 20 / 19 / 18 L (Kisiwa) draws are declared world causes
+    (D-DD.19; D-DD.152 "the draw stands"). Lowering them in `history.rules` to pass a 2 % line would fit the world to a
+    check. H5's question is "may history show the unexplained-fuel finding before October?". The finding's band is now
+    D-DD.153's, so H5 asks it with that band. It is the same fault D-DD.153 fixed in the observer and C-DD17: a
+    relative band that shrinks with consumption flags draws inside the tank's measurement error.
+  - *Rule.* For a mini-grid Site's actual side: `unexplained_l <= max(D("0.02") × diesel_l, 2 × a)`. `a` is the Site's
+    `fuel-level-sensor-accuracy` read by H5's own JSON read of Lakeside's `/2` file, matched by site code, as C-DD17
+    reads it; the factor 2 is typed with a comment citing D-DD.153 (W2: no import from the product). The label prints
+    both terms: `H5 {scope}: unexplained_l 20 <= max(2% of diesel_l 885 = 17.70, 2a = 100)`. No a declared at a
+    mini-grid Site is a FAIL ("no declared level accuracy"); it never falls back to 2 % alone.
+  - *Projected.* Kobo July-September 12 / 12 / 11 against max(10.16-10.20, 50): pass. Kisiwa 20 / 19 / 18 against
+    max(16.70-17.70, 100): pass. The six failures close. October is not in H5 (it is the finding month).
+  - *`M` wording (the same class).* Line 198, Kisiwa's UNEXPLAINED_RESIDUAL basis: "within 2% tolerance" becomes
+    "within tolerance (the larger of 2 % and the tank's 100 L measurement floor), reported not investigated". Kisiwa's
+    October 20 L of 904 is 2.2 %, inside the 100 L floor. Line 123, Kobo's note: "above 2% tolerance" becomes "above
+    tolerance (the tank's 50 L measurement floor; 2 % is 12.68 L)". Kobo's 120 L stays the October beat.
+  - *When.* DD3d.2, with the `/2` declarations it reads (a in DD3b3 would have nothing to read). DD3b3 merges with
+    exactly these six H5 lines listed as known in its packet, closed by DD3d. DD3d follows DD3b3 directly, so the
+    window is one part. Any other new check_manifest failure still blocks DD3b3.
+  - *Units.* +0.25 u in DD3d (H5 read and label, two `M` strings, the check counts in the packet). DD3d 2.25 → **2.5 u**;
+    DD 53.75 → **54.0 u in twelve parts**.
+  - *Owner, plainly.* Kobo and Kisiwa lose a few litres a month in July to September that nobody has explained. Those
+    amounts are smaller than the tank gauge can measure, so they are not shown as a problem. Only Kobo's October
+    120 L is. Nothing to decide; weigh in only if you want those small amounts shown anyway.
+
+- **D-DD.157 DD4b Q1: one figure per cold room-month. D-DD.144's parenthesis was wrong; DD6 sets `history.json`'s
+  cold `actual.kwh` July-September from the meter** (model; amends D-DD.144 R2505 and D-DD.20's "beside, as
+  information" for cold history `kwh`; +0.5 u DD6).
+  - *What is wrong.* D-DD.144 says "every cold `kwh` leaf (history and period) is the meter's". On DD4b, history
+    July-September is the restated model's output, 0.6-7.2 % off the bills (Kirinyaga +5.2 / +7.2 / +6.5 %). DD4b
+    follows D-DD.20 and the spec (the pairs print in `meter_billed`, C-DD4 excludes them), so the branch is right
+    and the ruling text is wrong. Left so, the product holds two figures for one room-month: the History series and
+    the bill. The owner's rule is one figure, loyal to the operating world, and the meter is the operating world.
+  - *Rule.* D-DD.144 R2505 reads "Every cold period `kwh` leaf is the meter's". In DD6, before the world build,
+    each cold room's `history.json` `actual.kwh` July-September is set to that room-month's metered kWh from the
+    cold tenant's `measured.json` (DD4b's frame output), rounded half-even to whole kWh, the leaf's precision (D-DD.162). Then the D-DD.30
+    chain: `world_history.py check`, view, goldens, fixtures, re-pins each to the regenerated value (D-DD.93). Not
+    circular: the cold writer no longer reads `kwh` (review Q1). `meter_billed` then prints equal pairs for those
+    rows. `kwh_model` and plan `kwh` stay the model's: the drift is meter against model, which is the story.
+  - *Stops.* Any H-check or C-DD check that then fails (H5's anchor "within 5 % of `kwh_model`" first) stops for
+    the Architect, with the figures; nothing is tuned. The packet lists every moved figure.
+  - *DD4b.* No change on that branch.
+  - *Units.* DD6 4.75 → **5.25 u** (DD6.4 below).
+
+- **D-DD.158 DD4b Q2: the EV month carries the two hour-window sums, and C-DD7's EV window clause goes live in a DD4b
+  follow-up before DD6** (schema; amends D-DD.99's EV `<month>`; +0.25 u DD4b).
+  - *Why.* D-DD.20 lists `kwh_2200_2400` and `kwh_0000_0500` as metered leaves and `rows_ev_depot.py` reads them
+    (`scheduled_kwh_night`), but D-DD.99's EV month has no field, so they are written `metered: null`. The writer
+    already holds the depot import by minute. Doing it now avoids a second 26-minute EV plant run in DD6.
+  - *Rule.* D-DD.99's EV `<month>` gains `"windows": {"2200_2400": <kWh>, "0000_0500": <kWh>}`: sums of the depot
+    import over local-clock minutes [22:00, 24:00) and [00:00, 05:00) of each day in the month, exact, rounded once
+    to the month's kWh precision. The key set stays fixed per vertical (an absent or extra key refuses
+    `TEL_FOUNDATION`). `meter_billed` writes them as `metered`. C-DD7's EV clause adds: each window equals
+    the sum of `site-meter/import` over the same minutes, exactly.
+  - *Where.* A DD4b follow-up on its branch after the review fixes (`task/DD4b-ev-measured`), merged with DD4b,
+    before DD6 builds. DD4b 4.75 → **5.0 u**.
+
+- **D-DD.159 DD4b Q3: C-DD5's cadence table is ratified; states and events are "ungridded"** (wording; amends
+  D-DD.124 R2196 and spec §4.3's reading words where they say "on change"; 0 u).
+  - *Why.* The writers repeat an unchanged state every minute or every 5 minutes; a strict "only on change" rule
+    would fail correct writers. Counting a sample at a slot's start is faithful to the readings.
+  - *Rule.* D-DD.124's parenthesis reads "(5-minute means; states and events ungridded: an unchanged state may
+    repeat)". The checker's `CADENCE` value `ON_CHANGE` is renamed `UNGRIDDED` in DD4b's L-fix commit (decided, not
+    a preference: the label must say what is judged).
+
+- **D-DD.160 DD4b Q4 and the review's `measured.json` note: the hand-offs are written on the cards. DD5b alone owns
+  C-DD7's mini-grid clause and the `stored_books` fetch; DD6 runs one writer process per tenant** (sequencing;
+  +0.25 u DD5b).
+  - *DD5b (card line, unit 2).* `stored_books` fetches TARIFF_SCHEDULE, FLEET_ROSTER and DEPARTURE as well. C-DD7's
+    mini-grid clause (load served + unserved = `delivered_kwh`, exactly) reads unserved from the loaded world's
+    `<slug>/telemetry/measured.json` `unserved_kwh` (no readings channel carries it). The pending text "DD3b/DD5"
+    becomes "DD5b". DD5b 3.75 → **4.0 u**.
+  - *DD6 (card line, unit 3).* D-DD.99 makes `measured.json` one file per tenant, written by the frame. The world
+    build runs each tenant's Sites in one writer process; several processes write several files and `exports
+    --telemetry` refuses `EMU_MEASURED` (exit 3). The build asserts one `measured.json` per tenant before exports.
+  - *Units (D-DD.155 to D-DD.160).* DD 54.0 (after D-DD.156) → **55.0 u in twelve parts**: DD3d 2.5, DD4b 5.0,
+    DD5b 4.0, DD6 5.25.
+
+- **D-DD.161 DD5a BLOCKER and deviations 1, 3, 4: D-DD.138's v4 publish is for world conversions only (narrowing
+  confirmed); the Foundation's `site-meter` stands; the sealer writes canonical decimals; an EV session has one id,
+  the pack's, carried by the writer and copied by the sealer** (BLOCKER, protected seam `contracts/` and the binding
+  service; amends D-DD.138 and D-DD.139's EV-id bullet; +0.25 u DD4b, +0.25 u DD5a).
+  - *Deviation 5, the blocker: confirmed.* D-DD.138's finding was the world path (`onboard_operator apply
+    --bindings`, D-DD.36); its rule was worded wider than its cause. The Lab's W2-02 design (a v3 conversion, then
+    a v4 PUBLISH revision) is existing, tested behaviour and the rule must not change it. Rule: `convert(...,
+    world_conversion: bool = False)`; v4 metadata is published at conversion only when `world_conversion` is True
+    **and** the role set is v4 (`cold-roles-1`, `ev-roles-1`), from that role set's closed table. Only
+    `onboard_operator apply --bindings` passes True. Mini-grid world role sets stay v3 either way. Test: the 24 Lab
+    tests pass unedited, and a plant passing True from a Lab replay fails one of them.
+  - *Deviation 1: confirmed.* D-DD.138 said the table is generated from the Foundation; the depots' `/2` files and
+    conversions declare `site-meter`, so the entry is `("site-meter", "import")`. "`site-meter-1`" in D-DD.138
+    (from D-DD.38) is wrong text; generation wins over a typed name (W6: no typed device name in a ruling stands
+    against the Foundation).
+  - *Deviation 2: accepted as built* (recomputed v3 formation from stored rows, plus no v4 rows), since
+    `bindings_sha256` carries fresh UUIDs.
+  - *Deviation 3: confirmed.* The readings writer prints exact millesimal text ("4.000"); envelopes admit only the
+    canonical spelling. The sealer writes the same value canonically ("4"; "0" for zero; no exponent). It asserts
+    `Decimal(out) == Decimal(in)` and `is_canonical_decimal(out)` (imported from `source_envelope_v3`) per value.
+    Readings files are unchanged. Every check that compares a reading to a book compares `Decimal` values, never
+    strings (C-DD7, C-DD8, D-DD.157's leaves).
+  - *Deviation 4, and the class behind it: one id per EV session.* D-DD.139 had the sealer form a new
+    `ev_session_id(foundation_digest, connector, ordinal)`. DD4b's writer already carries the pack's id
+    (`scoped_session_id`, Q3: `ev-` + SHA-256 of `[scenario_sha256, "session", private_label]`) on each session event
+    with `connector_id` (D-DD.123). Two formations would give one session two ids, so the event and the connector's
+    energy would not correlate. Rule: the pack's id is the only one.
+    - DD4b follow-up (with D-DD.158, +0.25 u, DD4b 5.0 → **5.25 u**): a connector measurement row inside a session
+      carries `"session": {"session_id", "connector_id"}`, the same pair as that session's events. The depot import
+      and rows outside a session carry none.
+    - DD5a (fix round, +0.25 u, DD5a 3.5 → **3.75 u**): `ev_session_id` is withdrawn from `contracts/`. The sealer
+      copies `session_id` and `connector_id` from the event object or the row's `session` object, and
+      `correlation_id` = `session_id`. An EV event without a session forms its ids as a cold event does (D-DD.91,
+      `cold_event_id` / `cold_correlation_id` over its `correlation`). `WORLD_SEAL_EV_EVENT_PENDING` is removed. An
+      EV event that has neither a session nor a `correlation` refuses `WORLD_SEAL_EV_UNCORRELATED`, exit 2. Parity
+      test on hand rows in DD4b's shape: one session event and one in-session connector energy give equal
+      `session_id` and `correlation_id`.
+  - *Test placement (standing).* The dependency-direction guard forbids `gateway`, `host` and `simulator` imports
+    anywhere under `backend/`, tests included. A parity test against the gateway lives in `host/tests/`, as DD5a
+    built it.
+
+- **D-DD.162 The card sweep: the remaining cards name the same five kinds of fact** (cards; 0 u). Each card gains a
+  "Facts the code fixes" list: (1) protected existing behaviour the part must not change; (2) device and channel
+  names as the Foundation declares them, never as a ruling typed them; (3) decimal spelling: compare `Decimal`
+  values, write canonical text; (4) the keys an id is formed on; (5) where a test may live under the import guard.
+  DD5a gets the five DD5a facts above. DD5b and DD6 get their own, below. Swept: neither card types a device name or
+  an id key. Both now state the import guard and the Decimal rule. Each also names the protected behaviour it
+  touches: for DD5b the `/1` definition path and the Lab replays; for DD6 the owner's walk and ports
+  5490/8990/8992, already stated.
+  - *DD6 D-DD.157 precision.* `history.json` cold `kwh` leaves are whole kWh. The meter value is written rounded
+    half-even to whole kWh (1659.750 → 1660), the History series' precision. The bill keeps the exact meter kWh.
+    The two are one figure at two precisions, and `meter_billed` prints the pair.
+  - *Units (D-DD.161, D-DD.162).* DD 55.0 → **55.5 u in twelve parts**: DD4b 5.25, DD5a 3.75.
