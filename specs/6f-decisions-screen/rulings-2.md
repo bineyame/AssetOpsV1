@@ -44,7 +44,7 @@ Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-
   | some (Thika T1) | new `BOUNDS_PART` "Some options valued; no option recommended until the limits are checked" | new `BOUNDS_PART` "No option is recommended until the limits for this decision are checked. No value yet: {unvalued}." |
   | none (Ruiru, Kisiwa) | `INCOMPLETE` (the missing sentence) | new `BOUNDS_NONE` "No option is recommended until the options have values and the limits for this decision are checked. No value yet: {unvalued}." then the missing sentence |
 
-  Sweep of the class: `rec_heading` is D-P6.82b's. `valued_by` gains `NO_VALUE` "Worked out on {day} by {person}; no option
+  Sweep of the class: `rec_heading` is D-P6.82 (b)'s. `valued_by` gains `NO_VALUE` "Worked out on {day} by {person}; no option
   has a value yet", when no option but the baseline has a value (F6-B, F6-S). `choice` `*_STALE` reads "... worked out again since
   this choice." (true with or without values). `disposition` `CONDITIONAL` is set only on a value: kept.
 - **Tie rule (M3).** 6c is not changed: a named option's distance is 0, so the highest value wins, which is the right
@@ -60,7 +60,7 @@ Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-
   - `why_answer` NEAR_OPTION is withdrawn (variant, `OPTION_TWIN` entry, case); a named recommendation whose value is
     not the best raises a named `ValueError`. New `why_answer` BOUNDS "The limits for this decision are not checked yet"
     (outcome `BOUNDS_NOT_CHECKED`). NONE becomes "Rejected or deferred: {rejected}" (the mock's fact, singular-safe;
-    the baseline not counted, D-P6.82a: F6-B "Rejected or deferred: 13 of 13 options").
+    the baseline not counted, D-P6.82 (a): F6-B "Rejected or deferred: 13 of 13 options").
 - **`can_choose` (M4).** Shown only with a run, no choice and no recommendation (6a H2, H3). Amends §3.3: F6-A and a kept
   decision lose it; `NOTHING_ADMITTED` keeps `NONE_ONLY`.
 - **INCOMPLETE notes.** Setting: "No option is recommended until every setting that passes the service checks has a
@@ -100,7 +100,7 @@ Architect (Claude), 2026-11-23. Continues `rulings.md` (15k cap). Read: `review-
 - **Reopened, the review is right: point 4.** `missing` NIL_DENOMINATOR takes `{factor}` (in-sentence, as D-P6.81 wrote); slot
   `factor_label` goes. The handoff's "same text" is false: "Not available yet: Tariff cannot ..." capitalises mid-sentence, unlike
   every sibling. **Not reopened:** 1 (agrees), 2 (slots optional), 3 (agrees), 5 (`DECLARED`), 6 (`MONTH`; its words below), 7 (agrees).
-  L7 is D-P6.86's (no card marked). M7 is D-P6.82c's; no `NONE_OPTION` (a named option is never `REJECTED`).
+  L7 is D-P6.86's (no card marked). M7 is D-P6.82 (c)'s; no `NONE_OPTION` (a named option is never `REJECTED`).
 - **`assumed`** takes in-sentence words (D-P6.72), registry order (H3).
 - **Accepted as the review proposes:** H3, H4, M5, M6 (`checks` BASE "The baseline"; `banned_in` over every served
   string of every fixture; the exemption case-blind), L5 (`limits` columns are six, DAWN last), L6 (`cards_note` `EMULATED` "Each
