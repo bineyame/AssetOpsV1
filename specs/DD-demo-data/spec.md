@@ -3,10 +3,10 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`); DD3a in_review with open questions (`packet-DD3a.md`); DD4a in_review, run 3 (D-DD.89, D-DD.119-122) done (`packet-DD4a.md`); DD3c in_review (`packet-DD3c.md`); DD4b in_review, run 7 (`packet-DD4b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75), and by D-DD.143 to D-DD.152 to 51.5 u, and by D-DD.153 and D-DD.154 to **53.75 u in twelve parts** (new DD3d, fuel records and the tolerance floor, 2.25 u), and by D-DD.156 to **54.0 u** (DD3d 2.5 u), and by D-DD.157 to D-DD.160 to **55.0 u** (DD4b 5.0, DD5b 4.0, DD6 5.25 u), and by D-DD.161 to **55.5 u** (DD4b 5.25, DD5a 3.75 u). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75), and by D-DD.143 to D-DD.152 to 51.5 u, and by D-DD.153 and D-DD.154 to **53.75 u in twelve parts** (new DD3d, fuel records and the tolerance floor, 2.25 u), and by D-DD.156 to **54.0 u** (DD3d 2.5 u), and by D-DD.157 to D-DD.160 to **55.0 u** (DD4b 5.0, DD5b 4.0, DD6 5.25 u), and by D-DD.161 to **55.5 u** (DD4b 5.25, DD5a 3.75 u), and by D-DD.163 to **57.25 u** (DD3d 4.25 u). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.162 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.163 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md`, `index-rulings-29.md` and `index-rulings-30.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -874,7 +874,7 @@ lines and rulings each part needs, with tests, plants, reach set and merge order
   conversion moves to roles-5 with D-DD.114's normalised parity of its product outputs. Five parts (D-DD.116). Merges
   before DD5.1 loads Kisiwa's or Mto's readings.
 
-### DD3d: fuel records and the tolerance floor (2.5 u, D-DD.153, D-DD.154, D-DD.156; `task/DD3d-fuel-floor`; after DD3b3 merges, before DD5b loads)
+### DD3d: fuel records, the tolerance floor and the fuel cost (4.25 u, D-DD.153, D-DD.154, D-DD.156, D-DD.163; `task/DD3d-fuel-floor`; after DD3b3 merges, before DD5b loads)
 
 - **DD3d.1 Fuel records (1.0; D-DD.154).** `fuel-records.json` (`assetops.world-fuel-records/1`) per mini-grid Site from
   `world/exports.py`: FUEL_DELIVERY per accepted note, TANK_DIP at each month's first 00:00 local (1 Jul to 1 Nov) at
@@ -886,6 +886,10 @@ lines and rulings each part needs, with tests, plants, reach set and merge order
   the Kobo parity test drops its injection; C-DD17 restated. Discovery review.
 - **DD3d.3 H5 on the floor (0.25; D-DD.156).** `check_manifest.py` H5: `unexplained_l <= max(2 % × diesel_l, 2a)`, a read
   from Lakeside's `/2` file (no a is a FAIL); `M` lines 123 and 198 wording. Closes DD3b3's six known H5 lines.
+- **DD3d.4 Fuel cost is burned × price (1.75; D-DD.163).** `fuel_cost` unstated (structure v5); invoices renamed
+  `fuel_bought` (price and reconciliation, label "Fuel bought (invoices)"); Lakeside's declared diesel prices recorded;
+  G4 accepts the declared price in a month with no invoice; C-DD4 judges mini `diesel_l`/`fuel_cost` again; DDR
+  statements as offsets from the invoices; expect-file literals re-pinned. Closes DD3b3's eight known DDR/t12 lines.
 
 ### DD4: cold and EV operating reality, and the measured books (10.25 u in two parts; DD4b 4.75 u with DD4.5 by D-DD.142, 5.0 u by D-DD.158, 5.25 u by D-DD.161; D-DD.88, D-DD.96, D-DD.101, D-DD.107: DD4a = DD4.1, DD4.2, 5.5 u (D-DD.107), `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.75 u (D-DD.101), `task/DD4b-ev-measured`)
 
@@ -1033,7 +1037,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.162**: `rulings.md` (D-DD.155 the declared tanks stay, D-DD.156 H5 on the floor, D-DD.157 to D-DD.160 the DD4b review, D-DD.161 DD5a's blocker, D-DD.162 the card sweep; D-DD.150 to D-DD.152 owner-answered 23 Nov; D-DD.153 the tolerance floor, D-DD.154 the fuel records, DD3d) (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
+- **D-DD.17 to D-DD.163**: `rulings.md` (D-DD.155 the declared tanks stay, D-DD.156 H5 on the floor, D-DD.157 to D-DD.160 the DD4b review, D-DD.161 DD5a's blocker, D-DD.162 the card sweep, D-DD.163 fuel cost is burned × price; D-DD.150 to D-DD.152 owner-answered 23 Nov; D-DD.153 the tolerance floor, D-DD.154 the fuel records, DD3d) (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.

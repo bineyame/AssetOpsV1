@@ -3085,3 +3085,76 @@ D-DD.157 moves Kirinyaga's History series onto the meter (the drift story reads 
     half-even to whole kWh (1659.750 → 1660), the History series' precision. The bill keeps the exact meter kWh.
     The two are one figure at two precisions, and `meter_billed` prints the pair.
   - *Units (D-DD.161, D-DD.162).* DD 55.0 → **55.5 u in twelve parts**: DD4b 5.25, DD5a 3.75.
+
+# DD rulings, round 24 (D-DD.163): a month's fuel cost is the fuel burned, not the fuel bought
+
+Architect (Claude, DD lane), 2026-11-23. Read: `DD3b-handoff.md` "Run 3 state" and `packet-DD3b.md` reach table on
+`task/DD3b-mini-plant` (22cf40ec3); D-DD.18, D-DD.92, D-DD.130, D-DD.131; `structure/rows_mini_grid.py` (`fuel_cost`
+= `diesel_l * diesel_price`, `stated_by` EXPENSE (FUEL)), `structure/evaluate.py` `_stated_node` (a stated record
+governs the node), `structure/sources.py` `STATED_STATE` and `ASSUMPTION_WORDS`, `structure/money.py`
+(`_ROWS["fuel_cost"]`, `_diesel_price`), `structure/reconciliation.py` (`used_lines`, `HEADING_WORDS`),
+`deep_dive/tables.py`, `rehearsal_check.py` G4/G5, `backend/tests/test_ddr_rehearsal_postgres.py` and
+`fixtures/ddr/lakeside-2026-10.expect.json`. No run was made; no database touched. The owner is informed; the
+headline the owner was told (about +2,135) is what the screen will show.
+
+- **D-DD.163 The product's month fuel cost is consumption × price, the node's own expression. The fuel invoices
+  state purchases, a different quantity, and stop stating `fuel_cost`. A month with no invoice prices its fuel at
+  the Site's declared diesel price, labelled Assumed. The statements and screen literals follow** (model, W6 class;
+  completes D-DD.92 and D-DD.130 in the product; amends D-DD.130's C-DD4 clause; adds DD3d.4).
+  - *What is wrong.* D-DD.92 made purchases and consumption two quantities, and D-DD.130 put the purchases in the
+    books. The product's `fuel_cost` node, though, is `diesel_l × diesel_price` (consumption) with a `stated_by`
+    record: the month's fuel invoices. In `_stated_node` the record governs, so the served fuel cost is whatever
+    was bought that month: Kisiwa 1,040, Kobo 500, Mto nothing. `M` and the model say 1,175.20 / 792.50 / 40.00.
+    `stated_by` assumed purchases equal consumption, which is only true for a Site without storage. With a tank,
+    cost to serve and contribution would swing with delivery dates: Mto would show $0 of fuel while burning 32 L.
+    The model's figure is the loyal one. The cause is two figures for one quantity, so the fix is in the model.
+  - *Rule (product).*
+    - `fuel_cost` is no longer a stated node. `rows_mini_grid.py` drops its `stated_by` (structure version 5;
+      revenue, `metered_kwh` and `billed_kwh` keep theirs), and `STATED_STATE["MINI_GRID"]` drops `fuel_cost`.
+      The node folds from `diesel_l × diesel_price`, with `diesel_l` the readings' litres split (D-DD.18). No
+      `diesel_l`, no fuel cost ("not available yet"; never the invoices instead).
+    - The invoices keep two jobs, under their own name:
+      - `diesel_price`, unchanged (D-4B.6): invoice spend ÷ invoice litres in a month with invoices.
+      - Fuel bought. `money._ROWS["fuel_cost"]` and `READ_AS["fuel_cost"]` are renamed `fuel_bought`, with the
+        literal FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"). It is not a
+        structure row.
+    - Reconciliation (`structure/reconciliation.py`) still compares the management accounts' fuel figure with
+      the recorded invoices, a completeness check on the books. Its heading key becomes `FUEL_BOUGHT`, label
+      "Fuel bought (invoices)"; the statement CLI's `--fuel-cost` flag and the stored field keep their names (a
+      data contract; the label carries the meaning).
+    - Deep dive (`deep_dive/tables.py`): the `fuel_cost` step's value is the node's. Its evidence stays
+      `FUEL_INVOICES`, now as the price's evidence, beside the litres.
+  - *Mto's price.* No invoice in the month gives the product's existing fallback: the Site's declared
+    `diesel_price_per_litre`, ASSUMED, worded "Declared diesel price per litre, not a fuel invoice". The fuel in
+    Mto's tank was bought before the span, so that is the honest price. The world declares it: DD3d.4 records
+    Lakeside's per-Site declared price from `M`'s `prices.diesel_usd_per_l` (Kobo 1.25, Kisiwa 1.30, Mto 1.25)
+    through the product's existing price-assumption path (the one PR1/PR2a write; the builder names the function
+    in pre-flight; if no loader-callable path exists, stop for the Architect). G4 (`rehearsal_check.py`) changes:
+    a Site-month with a fuel invoice needs `commercial:` sources as today; one without needs the declared price,
+    evidence ASSUMED, and prints "declared, no fuel invoice this month". A missing price is still a FAIL.
+  - *Statements (DDR S5/S8).* The management accounts state fuel bought, compared with the recorded invoices. The
+    rehearsal's designed beats stay as offsets from the recorded total: S8 final = invoices + 5.00 (MATCHED within
+    the 1 % tolerance); S5 draft = invoices + 105.00 (NOT_MATCHED). On today's books, invoices are 1,540.00, so
+    S8 is **1,545.00** and S5 is **1,645.00** (were 5,000 / 5,100 against 4,995). The test computes them from the
+    expect file's invoice total, never types them. Revenue 9,700.00 keeps its offset from the served revenue the
+    same way.
+  - *Screen literals (expect file).* Each literal is re-pinned to the served value (D-DD.93), and the packet maps
+    each to its `M` figure. Projected from `M` rev 16.20:
+    - Portfolio fuel: Actual **$2,007.70** · Target $4,240.00 · Difference **−$2,232.30**; effect on contribution
+      **+$2,232.30**.
+    - Headline: contribution **+$2,135.30** against target (actual 4,430.30, target 2,295.00); Grow −$97.00,
+      Optimize +$2,232.30.
+    - The sentences are the product's own copy for a favourable gap, not hand-written. A served figure that
+      differs from `M` by more than money rounding stops for the Architect.
+  - *Checks.* C-DD4 judges mini-grid `diesel_l` and `fuel_cost` again (served = `M`), reversing D-DD.130's drop.
+    `EMU_FUEL` stays Σ invoices = fuel bought. `test_ds4_world_postgres` t12 then compares like with like.
+  - *Owner, plainly.* A month's fuel cost is now what the generators burned, priced per litre. Fuel deliveries
+    are shown separately as "fuel bought". The Portfolio headline stays at about **+2,135 above target**, as you
+    were told. Without this ruling the screen would have shown about +2,603, because it was counting October's
+    deliveries (1,540) instead of the fuel burned (2,007.70). Mto's fuel is priced at its declared 1.25 per litre,
+    marked Assumed, since it bought no fuel in these months.
+  - *Where and size.* DD3d.4 (product reader, discovery review with DD3d): +1.75 u (structure v5 and money rename
+    0.5; reconciliation and deep-dive label 0.25; declared prices recorded and G4 0.5; re-pins, DDR expect file,
+    C-DD4 restored 0.5). DD3d 2.5 → **4.25 u**; DD 55.5 → **57.25 u**. DD3b3 merges with exactly the seven DDR
+    rehearsal failures and `test_ds4_world_postgres` t12 listed as known, closed by DD3d.4. DD3d follows DD3b3
+    directly. Any other failure still blocks.
