@@ -709,7 +709,9 @@ class VerticalBinding:
         for device, signal, start, end, value, unit, event in pack_rows:
             binding = self.rows_by_channel.get((device, signal)) or self.by_asset.get((device, signal))
             if binding is None:
-                raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} has no binding row")
+                bound_twice = (device, signal) in self.by_asset
+                raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} is bound twice by asset_code" if bound_twice
+                                       else f"{self.code} {device}/{signal} has no binding row")
             self.used.add((binding["device_id"], binding["signal_id"]))
             row = {"source_id": binding["device_id"], "signal_id": binding["signal_id"],
                    "start": start.astimezone(self.zone).isoformat(), "end": end.astimezone(self.zone).isoformat()}

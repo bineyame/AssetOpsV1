@@ -1276,7 +1276,7 @@ def empty_states(root, doc):
 # the manifest before `history:` moves with the rev 16.20 structure and the restated stated fields (H10). The previous H8_DERIVED_SHA was
 # b6a37dc910900d70cf6717db5bd5b3056c4a86a181d413f5778304230fddb4cc; H10_MANIFEST_SHA 5f880ea11bae5aa13a56b125fda5e713ff5047c9d0279f42a54f3fb2008fadee.
 # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was 00afe2d6b94e48055e96deaa89d9748570d8b5074004d6c7a83d19ae93d7897d.
-H8_DERIVED_SHA = "eedf75f35ebb085cae419f8368ab1599c0b047e5fb85e9210d706ab5b9b5fb2d"   # derived-values.json at the DD4b D-DD.125 base (was the DD4a D-DD.89 base)
+H8_DERIVED_SHA = "eedf75f35ebb085cae419f8368ab1599c0b047e5fb85e9210d706ab5b9b5fb2d"   # derived-values.json at the DD4b DD4.6 (D-DD.144) base (was the DD4a D-DD.89 base)
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the 0K4m base (was the DS1p base)
 # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17663a.
 H10_MANIFEST_SHA = "e167155eddbe27587773285db0533db89fc033da7d6419f548b3e8de76ef8fe4"  # the manifest at the DS1p base, plus

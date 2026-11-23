@@ -311,7 +311,7 @@ Embakasi plan: 86,800 kWh at 30% peak = 26,040 × 0.24 = 6,249.60 + 60,760 × 0.
 
 Ruiru's +19.68 is **not attributed: the plan is declared only as a bill total**. It is not a residual ("not explained by the model" applies only where an observed total exceeds what modelled children explain); the structure states the missing plan factors rather than inventing a split (E9, AT-11).
 
-**Early visibility.** On 1 Nov 23:40 Kasarani's charger CH-K2 failed (contactor weld). The deliverable-energy node fell from 4 × 50 kW × 7 h = 1,400 to 3 × 50 × 7 = **1,050 kWh** per night against **1,200**<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> required (8 buses × 150), and 3 chargers fill 6 of the 8 buses in the 7 h window: two buses short each night. The departures bound was at risk from that night, days before any penalty (2 missed departures, 600.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change-->, ECONOMIC_ACTUAL by 6 Nov) or invoice existed.
+**Early visibility.** On 1 Nov 23:40 Kasarani's charger CH-K2 failed (contactor weld). The deliverable-energy node fell from 4 × 50 kW × 7 h = 1,400 to 3 × 50 × 7 = **1,050 kWh** per night against **1,200**<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> required (8 buses × 150), and 3 chargers fill 6 of the 8 buses in the 7 h window: two buses short each night. The departures bound was at risk from that night, days before any penalty (7 missed departures, 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties-->, ECONOMIC_ACTUAL by 6 Nov) or invoice existed.
 
 ### 3.4 Protect, observed in the three portfolios
 

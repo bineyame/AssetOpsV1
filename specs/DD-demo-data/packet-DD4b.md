@@ -284,3 +284,5 @@ the full span), through `tools/heavy-slot.sh`, scratch `/tmp/claude-1001/dd45-pl
 3. The telemetry CLI byte-checks the roster and the cold ledger only for tenants the run writes (`--site`).
 4. An EV FAULT event carries `correlation: ["fault", n]` (per-connector episode) and session events `correlation:
    null` with `session_id` (the id is formed at sealing, D-DD.139).
+
+**Fix round (Lows).** L1: four Kasarani figures restated (7 missed, 840.00 anchored to the Site penalties node, 2 short a night, stopgap 225, departures 5 to 0, worked-portfolios 5 to 0); L2: H8 comment now says the DD4.6 (D-DD.144) base; L3: telemetry.py refuses a doubly bound asset as "bound twice by asset_code" (developer-facing refusal, not in the statement catalogue).

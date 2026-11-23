@@ -615,7 +615,7 @@ The idle connector at Ruiru (CH-R7 connector 2, one interrupted session on 6 Oct
 | Kasarani cover | +375.00<!--fig:options.KAS-OEM-STOPGAP.value--> | 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
 | **The plan** | **+95,859.00<!--fig:plans.metro-bus.default.value-->** | **1,725.00<!--fig:plans.metro-bus.default.valued_option_costs-->** |
 
-**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the protective items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 2 → 0.
+**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the protective items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 5 → 0.
 
 **4. Downside.** If Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff), the schedule saves nothing: the plan is worth 95,859.00<!--fig:plans.metro-bus.default.value--> − 95,484.00<!--fig:-options.EMB-DEADLINE.value--> = +375.00<!--fig:plans.metro-bus.downside-->, the Kasarani cover only.
 
