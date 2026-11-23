@@ -19,7 +19,9 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
+from fractions import Fraction
 from pathlib import Path
 from typing import Callable
 
@@ -35,14 +37,19 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
-    "C-DD5": "DD4.4", "C-DD7": "DD4.4",
     "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
     "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
-    "C-DD19": "DD3.3", "C-DD20": "DD4.4",
+    "C-DD19": "DD3.3",
 }
 #: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
-PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
-                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")}
+PENDING = {"C-DD6": ("KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b"),
+           "C-DD7": ("mini-grid load served + unserved = delivered_kwh: unserved energy is no readings channel (DD3a writes "
+                     "it to measured.json only); the readings-side clause lands with DD3b/DD5",
+                     "EV kwh_2200_2400, kwh_0000_0500 (meter_billed leaves, read by `M`'s EV structure, "
+                     "structure/rows_ev_depot.py): D-DD.99's EV month has no hour sums, so `meter_billed` writes them "
+                     "metered: null; the exact clause waits for the Architect"),
+           "C-DD20": ("KISIWA-001 unserved evening energy after 2026-10-30T18:40, none from 2026-08-17T11:00 to then DD3b",
+                      "MTO-001 generator litres per day after 2026-10-28T11:02 above the 28 days before DD3b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
@@ -56,6 +63,8 @@ class Result:
     passed: bool
     detail: list[str] = field(default_factory=list)
     pending: list[str] = field(default_factory=list)
+    #: printed beside the result, never judged (C-DD7's manifest figures, C-DD20's series)
+    info: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -525,27 +534,38 @@ def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
-#: C-DD6's live clauses (D-DD.121), the checker's own reading of `M`: Thika's failure on its own unit at its minute
-#: (GEN-CR-01 is the generator controller's channel), and the two batches present that night with their limits.
-FAILURES_LIVE = ({"site": "COLD-THIKA", "unit": "GEN-CR-01", "source_id": "generator-controller",
-                  "at": "2026-10-06T19:11"},)
+#: C-DD6's live clauses (D-DD.121), the checker's own reading of `M`: each failure on its own unit's channels at its
+#: local instant (`at` is a prefix: Ruiru's is the day `M` names, D-DD.123), and the two batches present that night at
+#: Thika with their limits. GEN-CR-01 is the generator controller's channel; CH-K2 faults both its connectors.
+FAILURES_LIVE = ({"site": "COLD-THIKA", "unit": "GEN-CR-01", "source_ids": ("generator-controller",), "outcome": "FAILED",
+                  "at": "2026-10-06T19:11"},
+                 {"site": "EV-KAS", "unit": "CH-K2", "outcome": "FAULTED", "at": "2026-11-01T23:40",
+                  "source_ids": ("ch-k2-c1-connector-controller", "ch-k2-c2-connector-controller")},
+                 {"site": "EV-RUI", "unit": "CH-R7 c2", "outcome": "FAULTED", "at": "2026-10-06",
+                  "source_ids": ("ch-r7-c2-connector-controller",)})
 EXCURSIONS = ({"site": "COLD-THIKA", "batch": "B-1031", "day": "2026-10-06", "limit_c": Decimal(5), "above_minutes": 15},
               {"site": "COLD-THIKA", "batch": "B-1034", "day": "2026-10-06", "limit_c": Decimal(12)})
 CHAMBER = "chamber-probe"
 
 
-def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
-    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape): each live failure is a FAILED event on its
-    own channel at its local minute, and on no other channel then; B-1031 is above 5 degC for more than 15 minutes by
+def judge_failures_at_instant(readings: dict[str, list[dict]], sites: tuple[str, ...] | None = None) -> Result:
+    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape), over the clauses of `sites` (all by
+    default): each live failure is its outcome's event on its own channels at its local instant, and on no other
+    channel then; B-1031 is above 5 degC for more than 15 minutes by
     the 5-minute readings' lower bound ((n - 1) x 5 for n consecutive readings above); B-1034 stays below 12 degC."""
     detail = []
     for clause in FAILURES_LIVE:
+        if sites is not None and clause["site"] not in sites:
+            continue
         rows = readings.get(clause["site"], [])
-        failed = {r["source_id"] for r in rows if r.get("unit") == "event" and r["event"].get("outcome") == "FAILED"
-                  and r["start"][:16] == clause["at"]}
-        if failed != {clause["source_id"]}:
-            detail.append(f"{clause['site']} {clause['unit']}: FAILED at {clause['at']} on {sorted(failed) or 'nothing'}")
+        failed = {r["source_id"] for r in rows if r.get("unit") == "event"
+                  and r["event"].get("outcome") == clause["outcome"] and r["start"].startswith(clause["at"])}
+        if failed != set(clause["source_ids"]):
+            detail.append(f"{clause['site']} {clause['unit']}: {clause['outcome']} at {clause['at']} on "
+                          f"{sorted(failed) or 'nothing'}")
     for clause in EXCURSIONS:
+        if sites is not None and clause["site"] not in sites:
+            continue
         chamber = [(r["start"], Decimal(r["value"])) for r in readings.get(clause["site"], [])
                    if r["source_id"] == CHAMBER and r["start"].startswith(clause["day"])]
         if not chamber:
@@ -576,6 +596,255 @@ def stored_readings(database_url: str) -> dict[str, list[dict]]:
 
 def check_failures(inputs: "Inputs") -> Result:
     return judge_failures_at_instant(stored_readings(inputs.database_url))
+
+
+# --- C-DD5, C-DD7, C-DD20 (DD4.4; D-DD.55, D-DD.99, D-DD.124): judges on rows -----------------------------------------
+
+#: C-DD5's cadence table, the checker's own (D-DD.31, D-DD.124): states and events on change, with no grid; every other
+#: unit is a mean inside one 5-minute slot aligned to :00 (an EV row may be a piece of its slot, cut at a session edge)
+#: or a sample at the slot's start instant (the cold probes).
+CADENCE = {"state": "ON_CHANGE", "event": "ON_CHANGE"}
+MEAN_SLOT = timedelta(minutes=5)
+SIMULATED = "SIMULATED"
+#: D-DD.103: the span ends at 06:00 local on `M` `as_of`; it starts on `M` history's first month (+03:00, no DST).
+SPAN_END_LOCAL = "06:00:00+03:00"
+
+
+def span_of(manifest: dict) -> tuple[datetime, datetime]:
+    first = min(manifest["history"]["months"])
+    return (datetime.fromisoformat(f"{first}-01T00:00:00+03:00"),
+            datetime.fromisoformat(f"{manifest['as_of']}T{SPAN_END_LOCAL}"))
+
+
+def _slots(start: datetime, a: datetime, b: datetime) -> range:
+    return range((a - start) // MEAN_SLOT, -((start - b) // MEAN_SLOT))
+
+
+def judge_cadence(readings: dict[str, list[dict]], source_modes: dict[str, str], sites: tuple[str, ...],
+                  start: datetime, end: datetime, outages: dict[str, list[tuple[datetime, datetime]]]) -> Result:
+    """C-DD5: each Site has readings, its source mode is SIMULATED (`source_modes` is a store field, a separate input),
+    every row lies in the span and keeps the cadence table, and every 5-minute slot of the span holds a mean unless a
+    declared outage covers it."""
+    detail = []
+    every = set(range((end - start) // MEAN_SLOT))
+    for code in sites:
+        rows = readings.get(code, [])
+        if not rows:
+            detail.append(f"{code}: no readings")
+            continue
+        if source_modes.get(code) != SIMULATED:
+            detail.append(f"{code}: source_mode {source_modes.get(code)} is not {SIMULATED}")
+        covered, off, outside = set(), [], []
+        for r in rows:
+            a, b = datetime.fromisoformat(r["start"]), datetime.fromisoformat(r["end"])
+            if a < start or b > end or b < a:
+                outside.append(r["start"])
+            elif CADENCE.get(r["unit"]) != "ON_CHANGE":
+                i = (a - start) // MEAN_SLOT
+                if a < b <= start + MEAN_SLOT * (i + 1) or (a == b and a == start + MEAN_SLOT * i):
+                    covered.add(i)
+                else:
+                    off.append(f"{r['source_id']}/{r['signal_id']} {r['start']}..{r['end']}")
+        declared = {i for a, b in outages.get(code, ()) for i in _slots(start, a, b)}
+        missing = sorted(every - covered - declared)
+        if outside:
+            detail.append(f"{code}: {len(outside)} rows outside the span, first {outside[0]}")
+        if off:
+            detail.append(f"{code}: {len(off)} rows off the cadence (a mean inside one 5-minute slot, or a sample at its "
+                          f"start), first {off[0]}")
+        if missing:
+            days = sorted({(start + MEAN_SLOT * i).date().isoformat() for i in missing})
+            detail.append(f"{code}: gap of {len(missing)} 5-minute slots on {len(days)} days, first "
+                          f"{(start + MEAN_SLOT * missing[0]).isoformat()}")
+    return Result("C-DD5", not detail, detail[:40])
+
+
+def stored_source_modes(database_url: str) -> dict[str, str]:
+    """C-DD5's `source_mode` per Site from the clone: empty until DD5's loader stores the world's readings."""
+    return {}
+
+
+def check_cadence(inputs: "Inputs") -> Result:
+    sites = tuple(s["code"] for t in inputs.manifest["tenants"] for s in t["sites"])
+    return judge_cadence(stored_readings(inputs.database_url), stored_source_modes(inputs.database_url), sites,
+                         *span_of(inputs.manifest), {})
+
+
+#: C-DD7's meters, the checker's own (Site code prefix -> the meter channel the books bill).
+METERS = {"COLD-": ("compressor-meter", "power"), "EV-": ("site-meter", "import")}
+
+
+def _meter_of(code: str) -> tuple[str, str] | None:
+    return next((m for prefix, m in METERS.items() if code.startswith(prefix)), None)
+
+
+def _milli(value: Fraction) -> Decimal:
+    return Decimal(round(value * 1000)) / 1000  # half-even (Fraction rounding), once
+
+
+def _hhmm(text: str) -> int:
+    hours, minutes = text.split(":")
+    return int(hours) * 60 + int(minutes)
+
+
+def _metered(rows: list[dict], channel: tuple[str, str], schedules: list[dict]) -> tuple[dict, dict, list[str]]:
+    """Energy by (month, price class) and the largest 30-minute mean by month (:00 and :30 windows), exact."""
+    bands: dict[tuple[str, str], Fraction] = {}
+    windows: dict[tuple[str, str], Fraction] = {}
+    problems: list[str] = []
+    for r in rows:
+        if (r["source_id"], r["signal_id"]) != channel:
+            continue
+        a, b = datetime.fromisoformat(r["start"]), datetime.fromisoformat(r["end"])
+        kwh = Fraction(Decimal(r["value"])) * Fraction(int((b - a).total_seconds()), 3600)
+        month, day, minute = r["start"][:7], r["start"][:10], a.hour * 60 + a.minute
+        name = "ALL"
+        if schedules:
+            found = [s for s in schedules if s["clocks"]["effective_from"] <= day <= s["clocks"].get("effective_to", "9999")]
+            hit = [x["band"].split("-")[0] for x in (found[0]["body"]["bands"] if len(found) == 1 else [])
+                   if _hhmm(x["from"]) <= minute < _hhmm(x["to"])]
+            if len(hit) != 1:
+                problems.append(f"{r['start']} is in {len(found)} schedules / {len(hit)} bands")
+                continue
+            name = hit[0]
+        bands[(month, name)] = bands.get((month, name), Fraction(0)) + kwh
+        window = f"{r['start'][:14]}{'00' if a.minute < 30 else '30'}"
+        windows[(month, window)] = windows.get((month, window), Fraction(0)) + kwh
+    demand: dict[str, Fraction] = {}
+    for (month, _w), kwh in windows.items():
+        demand[month] = max(demand.get(month, Fraction(0)), kwh * 2)
+    return bands, demand, problems
+
+
+def _manifest_kwh(manifest: dict) -> dict[tuple[str, str], object]:
+    out = {}
+    for tenant in manifest.get("tenants", []):
+        for site in tenant["sites"]:
+            kwh = site.get("period", {}).get("actual", {}).get("kwh")
+            if tenant.get("vertical") == "COLD_CHAIN" and kwh is not None:
+                out[(site["code"], manifest["accounting_period"])] = kwh
+    return out
+
+
+def judge_meter_books(manifest: dict, readings: dict[str, list[dict]], rows: list[dict], sites: tuple[str, ...]) -> Result:
+    """C-DD7, exact: the cold bill's kWh equals the room meter's; each EV invoice band's kWh equals the Site meter's
+    energy in that price class of the schedule in force, DEMAND the largest 30-minute mean; each departure's
+    `block_met` is delivered >= the roster's required, delivered never above it (so undelivered = required - delivered
+    is the rest), and each roster bus-night has one departure. Metered kWh is printed beside `M`'s, as information."""
+    detail, info = [], []
+    known = _manifest_kwh(manifest)
+    for code in sites:
+        mine = [r for r in rows if r.get("site_code") == code]
+        charges = [r for r in mine if r["kind"] == "CHARGE" and r.get("quantity", {}).get("unit") in ("kWh", "kW")]
+        channel = _meter_of(code)
+        if charges and channel is not None:
+            schedules = [r for r in mine if r["kind"] == "TARIFF_SCHEDULE"] if code.startswith("EV-") else []
+            meter_rows = readings.get(code, [])
+            if not any((r["source_id"], r["signal_id"]) == channel for r in meter_rows):
+                detail.append(f"{code}: books without readings of {channel[0]}/{channel[1]}")
+                continue
+            bands, demand, problems = _metered(meter_rows, channel, schedules)
+            detail += [f"{code} {p}" for p in problems[:5]]
+            for r in charges:
+                month, qty = r["clocks"]["recognition_period"], Decimal(r["quantity"]["value"])
+                band = r["body"].get("band")
+                if r["quantity"]["unit"] == "kW":
+                    metered, label = demand.get(month, Fraction(0)), f"{code} {month} {band}"
+                elif band is None:
+                    metered = sum((v for (m, _n), v in bands.items() if m == month), Fraction(0))
+                    label = f"{code} {month} bill"
+                    if (code, month) in known:
+                        info.append(f"info: {label} {r['quantity']['value']} kWh; M {known[(code, month)]} kWh")
+                else:
+                    metered, label = bands.get((month, band), Fraction(0)), f"{code} {month} {band}"
+                if _milli(metered) != qty:
+                    detail.append(f"{label}: book {r['quantity']['value']} {r['quantity']['unit']}, meter {_milli(metered)}")
+            invoiced = {(r["clocks"]["recognition_period"], r["body"].get("band")) for r in charges if r["body"].get("band")}
+            for month, name in sorted(bands) if invoiced else ():
+                if any(m == month for m, _b in invoiced) and (month, name) not in invoiced:
+                    detail.append(f"{code} {month} {name}: metered {_milli(bands[(month, name)])} kWh, not invoiced")
+        roster = {(r["body"]["vehicle_ref"], r["clocks"]["effective_from"]): Decimal(r["body"]["required_kwh"])
+                  for r in mine if r["kind"] == "FLEET_ROSTER"}
+        departed = set()
+        for r in (r for r in mine if r["kind"] == "DEPARTURE"):
+            key = (r["body"]["vehicle_ref"], r["body"]["service_day"])
+            departed.add(key)
+            if key not in roster:
+                detail.append(f"{code} {key[0]} {key[1]}: departure without a roster night")
+                continue
+            delivered, required = Decimal(r["body"]["kwh_at_departure"]), roster[key]
+            if delivered > required:
+                detail.append(f"{code} {key[0]} {key[1]}: delivered {delivered} kWh above required {required}")
+            if r["body"]["block_met"] != (delivered >= required):
+                detail.append(f"{code} {key[0]} {key[1]}: block_met {r['body']['block_met']} with {delivered} of {required}")
+        detail += [f"{code} {k[0]} {k[1]}: no departure for the roster night" for k in sorted(set(roster) - departed)]
+    return Result("C-DD7", not detail, detail[:40], list(PENDING["C-DD7"]), info)
+
+
+def check_meter_books(inputs: "Inputs") -> Result:
+    sites = tuple(s["code"] for t in inputs.manifest["tenants"] for s in t["sites"])
+    return judge_meter_books(inputs.manifest, stored_readings(inputs.database_url), stored_books(inputs.database_url),
+                             sites)
+
+
+#: C-DD20's directions (spec §8.1), the checker's own: kWh per crate-day rises each whole month at Mwea (as its
+#: occupancy falls) and Kirinyaga; Embakasi's metered peak share rises each month.
+STORY_MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")
+PER_CRATE_DAY = ("COLD-MWEA", "COLD-KIRI")
+OCCUPANCY_FALLS = ("COLD-MWEA",)
+PEAK_SHARE = ("EV-EMB",)
+
+
+def crate_days_of(inputs: "Inputs") -> dict[str, dict[str, int]]:
+    """Occupied crate-days per cold Site and month: `history.json` (July-September) and `M`'s October actual."""
+    out: dict[str, dict[str, int]] = {}
+    for _t, vertical, _name, code, month, record, *_rest in _site_months(inputs, None):
+        if vertical == "COLD_CHAIN" and "crate_days" in record:
+            out.setdefault(code, {})[month] = int(record["crate_days"])
+    return out
+
+
+def _rising(values: list[Fraction]) -> bool:
+    return all(b > a for a, b in zip(values, values[1:]))
+
+
+def judge_story_directions(rows: list[dict], crate_days: dict[str, dict[str, int]]) -> Result:
+    """C-DD20 on the measured books: a failure stops for the Architect; nothing is tuned."""
+    detail, info = [], []
+
+    def usage(code: str, month: str, band=None) -> list[Fraction]:
+        return [Fraction(Decimal(r["quantity"]["value"])) for r in rows
+                if r.get("site_code") == code and r["kind"] == "CHARGE" and r["clocks"]["recognition_period"] == month
+                and r.get("quantity", {}).get("unit") == "kWh" and (band is None or r["body"].get("band") == band)]
+
+    for code in PER_CRATE_DAY:
+        crates = crate_days.get(code, {})
+        missing = [m for m in STORY_MONTHS if len(usage(code, m)) != 1 or not crates.get(m)]
+        if missing:
+            detail.append(f"{code}: no bill or crate-days for {missing}")
+            continue
+        per = [usage(code, m)[0] / crates[m] for m in STORY_MONTHS]
+        info.append(f"info: {code} kWh per crate-day " + ", ".join(f"{m} {float(v):.4f}" for m, v in zip(STORY_MONTHS, per)))
+        if not _rising(per):
+            detail.append(f"{code}: kWh per crate-day does not rise each month")
+        if code in OCCUPANCY_FALLS and not _rising([Fraction(-crates[m]) for m in STORY_MONTHS]):
+            detail.append(f"{code}: occupancy (crate-days) does not fall each month")
+    for code in PEAK_SHARE:
+        shares = []
+        for m in STORY_MONTHS:
+            total, peak = sum(usage(code, m), Fraction(0)), sum(usage(code, m, "PEAK"), Fraction(0))
+            shares.append(peak / total if total else None)
+        if None in shares:
+            detail.append(f"{code}: no invoice for {[m for m, s in zip(STORY_MONTHS, shares) if s is None]}")
+            continue
+        info.append(f"info: {code} peak share " + ", ".join(f"{m} {float(v):.4f}" for m, v in zip(STORY_MONTHS, shares)))
+        if not _rising(shares):
+            detail.append(f"{code} peak share does not rise each month")
+    return Result("C-DD20", not detail, detail, list(PENDING["C-DD20"]), info)
+
+
+def check_story(inputs: "Inputs") -> Result:
+    return judge_story_directions(stored_books(inputs.database_url), crate_days_of(inputs))
 
 
 GENERATOR_MODULES = ("simulator/assetops_simulator/world", "tools/world_history.py")
@@ -773,7 +1042,8 @@ LIVE: dict[str, Callable[[Inputs], Result]] = {
     "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
     "C-DD16": check_datasheet,
     "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
-    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures}
+    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures,
+    "C-DD5": check_cadence, "C-DD7": check_meter_books, "C-DD20": check_story}
 
 
 def run(inputs: Inputs, only: tuple[str, ...] = ORDER) -> list[Result]:
@@ -816,6 +1086,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {line}")
             for line in r.pending:
                 print(f"  pending: {line}")
+            for line in r.info:
+                print(f"  {line}")
     return 0 if all(r.passed for r in results) else 1
 
 

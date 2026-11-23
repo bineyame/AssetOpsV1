@@ -47,7 +47,7 @@ def test_v1_files_and_profiles_round_trip() -> None:
 
 
 def test_v2_roster_one_row_per_bus_night_july_to_october() -> None:
-    roster = rows("profile.ev-fleet-roster")
+    roster = [r for r in rows("profile.ev-fleet-roster") if r["clocks"]["effective_from"][:7] in MONTHS]  # DD4.3 adds Nov
     count = Counter((r["site_code"], r["clocks"]["effective_from"][:7]) for r in roster)
     assert count == {(code, month): buses * days for code, (buses, _) in SITES.items()
                      for month, days in MONTHS.items()}
@@ -86,7 +86,8 @@ def test_v4_one_roster_writer() -> None:
                    if m.code == "EV-KAS" and m.month == "2026-10")
     wider = exports_ev.roster_rows(october, zone_currency(view)[0],
                                    [date(2026, 11, 1) + timedelta(days=k) for k in range(6)])
-    assert len(wider) == 8 * 6 and wider[0]["clocks"]["effective_from"] == "2026-11-01"
+    spare = len(exports_ev.SPARE_NIGHTS["EV-KAS"])  # DD4.3: the spare bus on its nights (pre-flight Q9)
+    assert len(wider) == 8 * 6 + spare and wider[0]["clocks"]["effective_from"] == "2026-11-01"
 
 
 def test_v5_tickets_from_the_incident_blocks() -> None:

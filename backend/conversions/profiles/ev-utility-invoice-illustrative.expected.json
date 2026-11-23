@@ -2,12 +2,12 @@
   {
     "format_version": 1,
     "kind": "CHARGE",
-    "source_record_id": "gen:EV-RUI:2026-10:invoice:PEAK",
+    "source_record_id": "gen:EV-EMB:2026-10:invoice:OFFPEAK",
     "source_version": "1",
-    "site_code": "EV-RUI",
+    "site_code": "EV-EMB",
     "subject": {
       "kind": "SITE",
-      "ref": "EV-RUI"
+      "ref": "EV-EMB"
     },
     "clocks": {
       "effective_from": "2026-10-01",
@@ -15,18 +15,108 @@
       "recognition_period": "2026-10"
     },
     "quantity": {
-      "value": "6076",
+      "value": "46355.767",
       "unit": "kWh"
     },
     "amount": {
-      "value": "1458.24",
+      "value": "5562.69",
       "currency": "USD"
     },
     "body": {
-      "account_ref": "EV-RUI-UTIL",
+      "account_ref": "EV-EMB-UTIL",
+      "band": "OFFPEAK",
+      "line_type": "USAGE",
+      "tariff_code": "C-114"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:EV-EMB:2026-10:invoice:PEAK",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "SITE",
+      "ref": "EV-EMB"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "40579.000",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "9738.96",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "EV-EMB-UTIL",
       "band": "PEAK",
       "line_type": "USAGE",
-      "tariff_code": "C-117"
+      "tariff_code": "C-114"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:EV-EMB:2026-10:invoice:DEMAND",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "SITE",
+      "ref": "EV-EMB"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "492.667",
+      "unit": "kW"
+    },
+    "amount": {
+      "value": "5912.00",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "EV-EMB-UTIL",
+      "band": "DEMAND",
+      "line_type": "DEMAND",
+      "tariff_code": "C-114"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:EV-KAS:2026-10:invoice:FLAT",
+    "source_version": "1",
+    "site_code": "EV-KAS",
+    "subject": {
+      "kind": "SITE",
+      "ref": "EV-KAS"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "37200.000",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "5580.00",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "EV-KAS-UTIL",
+      "band": "FLAT",
+      "line_type": "USAGE",
+      "tariff_code": "FLAT-EV-KASARANI"
     }
   },
   {
@@ -45,16 +135,46 @@
       "recognition_period": "2026-10"
     },
     "quantity": {
-      "value": "54684",
+      "value": "48566.667",
       "unit": "kWh"
     },
     "amount": {
-      "value": "6562.08",
+      "value": "5828.00",
       "currency": "USD"
     },
     "body": {
       "account_ref": "EV-RUI-UTIL",
       "band": "OFFPEAK",
+      "line_type": "USAGE",
+      "tariff_code": "C-117"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:EV-RUI:2026-10:invoice:PEAK",
+    "source_version": "1",
+    "site_code": "EV-RUI",
+    "subject": {
+      "kind": "SITE",
+      "ref": "EV-RUI"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+    },
+    "quantity": {
+      "value": "12193.333",
+      "unit": "kWh"
+    },
+    "amount": {
+      "value": "2926.40",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "EV-RUI-UTIL",
+      "band": "PEAK",
       "line_type": "USAGE",
       "tariff_code": "C-117"
     }
@@ -75,11 +195,11 @@
       "recognition_period": "2026-10"
     },
     "quantity": {
-      "value": "380",
+      "value": "400.000",
       "unit": "kW"
     },
     "amount": {
-      "value": "4560.00",
+      "value": "4800.00",
       "currency": "USD"
     },
     "body": {
@@ -87,36 +207,6 @@
       "band": "DEMAND",
       "line_type": "DEMAND",
       "tariff_code": "C-117"
-    }
-  },
-  {
-    "format_version": 1,
-    "kind": "CHARGE",
-    "source_record_id": "gen:EV-EMB:2026-11:invoice:NIGHT",
-    "source_version": "1",
-    "site_code": "EV-EMB",
-    "subject": {
-      "kind": "SITE",
-      "ref": "EV-EMB"
-    },
-    "clocks": {
-      "effective_from": "2026-11-01",
-      "effective_to": "2026-12-01",
-      "recognition_period": "2026-11"
-    },
-    "quantity": {
-      "value": "4200",
-      "unit": "kWh"
-    },
-    "amount": {
-      "value": "378.00",
-      "currency": "USD"
-    },
-    "body": {
-      "account_ref": "EV-EMB-UTIL",
-      "band": "NIGHT",
-      "line_type": "USAGE",
-      "tariff_code": "C-114"
     }
   }
 ]

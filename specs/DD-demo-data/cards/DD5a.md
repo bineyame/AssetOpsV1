@@ -1,6 +1,6 @@
 # Build card: DD5a, sealing and the cold and EV bulk path
 
-Part DD5a = DD5.1 with D-DD.138 to D-DD.140. **3.5 u**, branch `task/DD5a-seal`, one discovery review (protected
+Part DD5a = DD5.1 with D-DD.138 to D-DD.140. **3.75 u** (3.5, +0.25 by D-DD.161), branch `task/DD5a-seal`, one discovery review (protected
 seams: `contracts/`, the binding service, the evidence ledger). Card by the DD lane Architect, 23 Nov, under
 `.ai/ROLE_CONFIG.md` "Fourth audit" (a). Line numbers are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at
 `task/DD-rulings-22`. Read only the lines named here, then the code. A question the lines do not answer stops only
@@ -41,6 +41,23 @@ the affected unit and goes to the lane Architect (`rulings.md`); count it in the
      stays in `BULK_REFUSALS` for any other type; `test_ds3_bulk_load_postgres.py` `case_coldchain_site` becomes an
      unknown-type case.
 
+## Facts the code fixes (D-DD.161, D-DD.162; added after the build found them)
+
+- Protected: the Lab's W2-02 design (v3 conversion, then a v4 PUBLISH revision; 24 tests). v4 metadata at conversion
+  only when `convert(..., world_conversion=True)`, passed only by `onboard_operator apply --bindings`, and the role
+  set is v4. Unit 1's first bullet reads with this.
+- Names: the depot import is `("site-meter", "import")`, generated from the Foundation; "`site-meter-1`" above and
+  in D-DD.138 is wrong text.
+- Decimals: readings print millesimal text ("4.000"); the sealer writes the same value canonically ("4", "0" for
+  zero, no exponent), asserting `Decimal` equality and `is_canonical_decimal`.
+- Ids: an EV session's id is the pack's `scoped_session_id`, carried by DD4b's writer on session events and on
+  in-session connector rows (`"session": {"session_id", "connector_id"}`), keyed on the connector, not a device.
+  The sealer copies it; `ev_session_id` is withdrawn; `correlation_id` = `session_id`. An EV event with no session
+  uses D-DD.91's cold formation over its `correlation`; with neither, `WORLD_SEAL_EV_UNCORRELATED`, exit 2.
+  `WORLD_SEAL_EV_EVENT_PENDING` is removed (fix round, +0.25 u; part 3.75 u).
+- Tests: the dependency-direction guard forbids `gateway`, `host` and `simulator` imports under `backend/`, tests
+  included; the gateway parity test lives in `host/tests/test_dd5a_world_seal_parity.py`.
+
 ## Rules that apply (by id)
 
 - D-DD.8 readings sealed at load (S, §9 list); D-DD.9 bulk path after parity; D-DD.28 (R157-167) C6 judges sealed
@@ -49,7 +66,7 @@ the affected unit and goes to the lane Architect (`rulings.md`); count it in the
 - D-DD.72 (R874) a reading's `source_id` is its binding row's `device_id` = envelope `device_id`.
 - D-DD.91 (R1455-1477) event rows and their ids; D-DD.103 (R1826-1858) `READINGS_SPAN`, last day file to 06:00.
 - D-DD.118 (R2110-2117): bulk load does not call `analytics/service.fuel_basis`; confirm with one grep, record it.
-- D-DD.138 to D-DD.140 as above. D-DD.142 (R2436-2445) sizes.
+- D-DD.138 to D-DD.140 as above, D-DD.138 narrowed and D-DD.139's EV id replaced by D-DD.161; D-DD.162. D-DD.142 (R2436-2445) sizes.
 
 ## Tests (each can fail) and plants
 

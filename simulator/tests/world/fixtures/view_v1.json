@@ -413,10 +413,10 @@
   {
    "capacity_crates_per_room": 400,
    "energy_model": {
-    "base_kwh": 1550,
-    "form": "kWh_month = 1550 + 0.25 x crate_days at reference ambient 24 C (+2.5% per C above)",
-    "k_kwh_per_crate_day": "0.25",
-    "status": "[proposed] per-room normalisation; coefficients fitted on 60 days of meter + occupancy per room in a pilot",
+    "base_kwh": 1304,
+    "form": "kWh_month = 1304 + 0.0554 x crate_days at reference ambient 24 C (+2.5% per C above)",
+    "k_kwh_per_crate_day": "0.0554",
+    "status": "fitted on Jul-Sep meter + occupancy, Mwea and Thika (D-DD.144)",
     "tolerance_pct": 5
    },
    "prices": {
@@ -429,11 +429,11 @@
      "period": {
       "actual": {
        "collected": "820.0",
-       "contribution": "-12.0",
+       "contribution": "202.74",
        "crate_days": 4340,
-       "energy": "530.0",
-       "kwh": 2650,
-       "kwh_model": 2635,
+       "energy": "315.26",
+       "kwh": "1576.3",
+       "kwh_model": "1544.436",
        "maint": "50.0",
        "occupancy_pct": 35,
        "outstanding": "48.0",
@@ -447,10 +447,10 @@
        "staff": "RECORDED"
       },
       "plan": {
-       "contribution": "456.0",
+       "contribution": "794.8",
        "crate_days": 7440,
-       "energy": "682.0",
-       "kwh": 3410,
+       "energy": "343.2",
+       "kwh": 1716,
        "maint": "50.0",
        "occupancy_pct": 60,
        "revenue": "1488.0",
@@ -464,11 +464,11 @@
      "period": {
       "actual": {
        "collected": "1650.0",
-       "contribution": "454.0",
+       "contribution": "843.73",
        "crate_days": 8680,
-       "energy": "744.0",
-       "kwh": 3720,
-       "kwh_model": 3720,
+       "energy": "354.27",
+       "kwh": "1771.35",
+       "kwh_model": "1784.872",
        "liability": "108.0",
        "maint": "80.0",
        "occupancy_pct": 70,
@@ -484,10 +484,10 @@
        "staff": "RECORDED"
       },
       "plan": {
-       "contribution": "562.0",
+       "contribution": "949.0",
        "crate_days": 8680,
-       "energy": "744.0",
-       "kwh": 3720,
+       "energy": "357.0",
+       "kwh": 1785,
        "liability": "0.0",
        "maint": "80.0",
        "occupancy_pct": 70,
@@ -502,11 +502,11 @@
      "period": {
       "actual": {
        "collected": "1900.0",
-       "contribution": "504.0",
+       "contribution": "1081.28",
        "crate_days": 9920,
-       "energy": "1000.0",
-       "kwh": 5000,
-       "kwh_model": 4030,
+       "energy": "422.72",
+       "kwh": "2113.6",
+       "kwh_model": "1853.568",
        "maint": "80.0",
        "occupancy_pct": 80,
        "outstanding": "84.0",
@@ -520,10 +520,10 @@
        "staff": "RECORDED"
       },
       "plan": {
-       "contribution": "698.0",
+       "contribution": "1133.2",
        "crate_days": 9920,
-       "energy": "806.0",
-       "kwh": 4030,
+       "energy": "370.8",
+       "kwh": 1854,
        "maint": "80.0",
        "occupancy_pct": 80,
        "revenue": "1984.0",

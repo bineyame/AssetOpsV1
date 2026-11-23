@@ -83,7 +83,7 @@ OWN_HOME_MAP = {
     "above": "ABOVE",
     "calendar": "CALENDAR",
 }
-COUNTS = {COLD: (23, 13), EV: (23, 19)}
+COUNTS = {COLD: (23, 13), EV: (23, 20)}  # DD4.5 (D-DD.125): + buses_full_by_charger
 
 # ---------------------------------------------------------------- spec §2.2.1 and §2.2.2, written again (W2)
 
@@ -106,7 +106,7 @@ _NODE_TABLE = (
     (COLD, ("chamber_minutes", "cooling_available_minutes"), MINUTE, "SUM"),
     (EV, ("deliverable_kwh_night", "scheduled_kwh_night", "supplied_kwh_night", "required_kwh_night"), KWH / DAY,
      "NONE"),
-    (EV, ("buses_short_per_night",), ONE, "NONE"),
+    (EV, ("buses_full_by_charger", "buses_short_per_night"), ONE, "NONE"),  # DD4.5 (D-DD.125)
     (EV, ("departures_required", "departures_missed", "nights_below_required", "charger_days_out_of_service",
           "departures_met"), DAY, "SUM"),
     (EV, ("peak_cost", "offpeak_cost", "night_cost", "demand_cost", "energy_cost", "penalties", "cost_to_serve",
@@ -165,7 +165,7 @@ def test_1_order_counts_and_version(key):
     n_leaves, n_nodes = COUNTS[key]
     ids = [r.factor_id for r in reg.rows]
     assert reg.structure_key == key and reg.version == 1
-    assert len(ids) == n_leaves + n_nodes == {COLD: 36, EV: 42}[key]
+    assert len(ids) == n_leaves + n_nodes == {COLD: 36, EV: 43}[key]
     assert ids[:n_leaves] == list(leaves_of(key))
     assert ids[n_leaves:] == list(MANIFEST["structures"][key])
     assert all(r.tolerance is None and r.stated_by is None for r in reg.rows)  # D-3B6.2, .9
@@ -288,9 +288,9 @@ SIDES = (
 #: Skipped with its reason: a stated total with no factor behind it (manifest `home_categories.residuals`).
 SKIPPED = {("metro-bus/Ruiru", "plan"): "a stated total with no factor behind it; no nodes in derived-values.json"}
 HAND = {
-    ("harvest-cold/Room A · Mwea", "actual"): {"contribution": "-12.00", "kwh_model": "2635.00",
+    ("harvest-cold/Room A · Mwea", "actual"): {"contribution": "202.74", "kwh_model": "1544.44",
                                                "chamber_minutes": "44640"},
-    ("harvest-cold/Room B · Thika", "actual"): {"contribution": "454.00", "crate_days_without_excursion": "8560"},
+    ("harvest-cold/Room B · Thika", "actual"): {"contribution": "843.73", "crate_days_without_excursion": "8560"},
     ("metro-bus/Embakasi", "actual"): {"cost_to_serve": "22744.80", "cost_per_departure_met": "36.69",
                                        "contribution": "-22744.80"},
     ("metro-bus/Ruiru", "actual"): {"charger_days_out_of_service": "26"},
@@ -309,6 +309,8 @@ def cold_ev_leaves(site: str, side: str, key: str) -> dict[str, LeafValue]:
     out = {}
     for leaf in MANIFEST["factor_map"][key]:
         value = Decimal(str(nodes[leaf]))
+        if leaf == "k_kwh_per_crate_day":  # DD4.6 (D-DD.144): derived-values.json holds nodes at 2 decimals (0.06); the slope is M's own
+            value = Decimal(str(next(t for t in MANIFEST["tenants"] if t["tenant"] == "harvest-cold")["energy_model"][leaf]))
         if sources[leaf]["absent"] == "OPTION_ONLY":
             out[leaf] = LeafValue(value, "NEUTRAL", ("pack",), None, None, None)
         else:
@@ -346,7 +348,7 @@ def test_4_every_factor_equals_the_pack_to_the_cent(site, side, key):
 
 PORTFOLIOS = {
     "harvest-cold": (COLD, ("Room A · Mwea", "Room B · Thika", "Room C · Kirinyaga"),
-                     {"contribution": "946.00", "revenue": "4588.00", "excursion_crates": "120"}),
+                     {"contribution": "2127.75", "revenue": "4588.00", "excursion_crates": "120"}),
     "metro-bus": (EV, ("Embakasi", "Kasarani", "Ruiru"),
                   {"cost_to_serve": "41705.12", "departures_met": "1302", "charger_out_days": "26"}),
 }

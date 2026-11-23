@@ -147,12 +147,12 @@ Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (1
 
 | Site | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
-| Kobo | 1,445.00 | 883.00 | −562.00 | +38.00 | −600.00 |
+| Kobo | 1,445.00 | 883.00 | −562.00 | +38.00 | −600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.cost_to_serve}-{sites.lakeside-power/Kobo.plan.nodes.cost_to_serve})--> |
 | Kisiwa | −65.00 | −250.00 | −185.00 | −55.00 | −130.00 |
 | Mto | 915.00 | 810.00 | −105.00 | −80.00 | −25.00 |
 | **Lakeside Power** | **2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->** | **1,443.00<!--fig:portfolio.lakeside-power.actual.sums.contribution-->** | **−852.00** | **−97.00** | **−755.00** |
 
-Each "of which" is the Site's change in revenue or in cost to serve from its table above: Kobo's cost is fuel 875.00 → 1,475.00 (−600.00), Kisiwa's fuel 2,990.00 → 3,120.00 (−130.00), Mto's revenue 2,240.00 → 2,160.00 (−80.00) and its fuel 300 L → 320 L (−25.00). Revenue 9,785.00<!--fig:portfolio.lakeside-power.plan.sums.revenue--> → 9,688.00<!--fig:portfolio.lakeside-power.actual.sums.revenue--> (−97.00); cost to serve 7,490.00<!--fig:portfolio.lakeside-power.plan.sums.cost_to_serve--> → 8,245.00<!--fig:portfolio.lakeside-power.actual.sums.cost_to_serve--> (−755.00). Of the 8,245.00, everything except Kisiwa's O&M (700.00, an Estimate) is recorded: 8,245.00 − 700.00 = 7,545.00<!--rec-->, or 91.5%.
+Each "of which" is the Site's change in revenue or in cost to serve from its table above: Kobo's cost is fuel 875.00 → 1,475.00 (−600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.diesel_l}-{sites.lakeside-power/Kobo.plan.nodes.diesel_l})*{sites.lakeside-power/Kobo.plan.nodes.diesel_price}-->), Kisiwa's fuel 2,990.00 → 3,120.00 (−130.00), Mto's revenue 2,240.00 → 2,160.00 (−80.00) and its fuel 300 L → 320 L (−25.00). Revenue 9,785.00<!--fig:portfolio.lakeside-power.plan.sums.revenue--> → 9,688.00<!--fig:portfolio.lakeside-power.actual.sums.revenue--> (−97.00); cost to serve 7,490.00<!--fig:portfolio.lakeside-power.plan.sums.cost_to_serve--> → 8,245.00<!--fig:portfolio.lakeside-power.actual.sums.cost_to_serve--> (−755.00). Of the 8,245.00, everything except Kisiwa's O&M (700.00, an Estimate) is recorded: 8,245.00 − 700.00 = 7,545.00<!--rec-->, or 91.5%.
 
 **The surprise.** Kisiwa burns the most diesel (2,400 L) and has nothing to save: every generator interval is necessary. Kobo, with half the diesel, has 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of candidate running in October, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f; the next step weighs the settings that would cut it.
 
@@ -345,7 +345,7 @@ Every figure in this table is Calculated: the recommendations are searched again
 
 #### Observe
 
-A cold room's contribution is revenue minus cost to serve. Revenue is occupied crate-days × the storage rate. Energy is what the occupancy model expects plus any excess above it; the model is **base 1,550 kWh + 0.25 kWh per crate-day** a month (Declared input, to be fitted per room in a pilot). Cost to serve is energy × price + staff + maintenance + customer compensation (liability).
+A cold room's contribution is revenue minus cost to serve. Revenue is occupied crate-days × the storage rate. Energy is what the occupancy model expects plus any excess above it; the model is **base 1,304 kWh + 0.0554 kWh per crate-day** a month (fitted on the July–September meter and occupancy of Mwea and Thika, D-DD.144). Cost to serve is energy × price + staff + maintenance + customer compensation (liability).
 
 **Prices (Record).** Storage 0.20<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.rate--> per crate-day; electricity 0.20<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.elec_price--> per kWh. Room capacity 400 crates × 31 days = 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days.
 
@@ -354,23 +354,25 @@ A cold room's contribution is revenue minus cost to serve. Revenue is occupied c
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (60% targeted, 35% actual) | 7,440<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.crate_days--> | 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.crate_days--> | −3,100 | 0.20 | −620.00<!--rec--> | Record |
-| Energy the model expects (kWh): 1,550 + 0.25 × crate-days | 3,410<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh_model--> | 2,635<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh_model--> | −775 | 0.20 | +155.00<!--rec--> (less energy at lower occupancy, not a saving) | Calculated |
-| Energy above the model (kWh) | 0 | 15<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh--> | +15 | 0.20 | −3.00<!--rec--> | Calculated from the meter: 2,650 kWh metered |
+| Energy the model expects (kWh): 1,304 + 0.0554 × crate-days | 1,716.18<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh_model--> | 1,544.44<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh_model--> | −171.74 | 0.20 | +34.35<!--rec--> (less energy at lower occupancy, not a saving) | Calculated |
+| Energy above the model (kWh) | −0.18<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.excess_kwh--> | 31.86<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh--> | +32.04<!--figx:{sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh}-{sites.harvest-cold/Room A · Mwea.plan.nodes.excess_kwh}--> | 0.20 | −6.41<!--rec--> | Calculated from the meter: 1,576.30<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh--> kWh metered; the target is the model in whole kWh, 1,716<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh--> |
 | Staff | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.staff--> | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.staff--> | 0 | | 0.00 | Record |
 | Maintenance | 50.00 | 50.00 | 0 | | 0.00 | Record |
-| **Contribution** | **456.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.contribution-->** | **−12.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.contribution-->** | | | **−468.00** | Calculated |
+| **Contribution** | **794.80<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.contribution-->** | **202.74<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.contribution-->** | | | **−592.06** | Calculated |
 
-Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the model is 15 ÷ 2,635 = 0.6% of it, inside the 5% tolerance (Declared input): the equipment is fine; the room is under-occupied.
+Sum: −620.00<!--rec--> + 34.35 − 6.41 = **−592.06**. Its 31.86 kWh above the model is 31.86 ÷ 1,544.44 = 2.1% of it, inside the 5% tolerance (Declared input): the equipment is fine; the room is under-occupied.
 
 ##### Thika
 
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (70%) | 8,680<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.crate_days--> | 8,680 | 0 | 0.20 | 0.00 | Record |
-| Energy (kWh), on the model | 3,720<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.kwh--> | 3,720<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh--> | 0 | 0.20 | 0.00 | Record |
+| Energy (kWh): target the model in whole kWh, actual the meter | 1,785<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.kwh--> | 1,771.35<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh--> | −13.65<!--figx:{sites.harvest-cold/Room B · Thika.actual.nodes.kwh}-{sites.harvest-cold/Room B · Thika.plan.nodes.kwh}--> | 0.20 | +2.73<!--rec--> | Record (meter): −13.52<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.excess_kwh--> kWh against the model's 1,784.87<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh_model-->, 0.8% below it, inside the 5% tolerance |
 | Customer compensation | 0.00 | 108.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.liability--> | +108.00 | | −108.00<!--rec--> | Record (credit note CN-0412) |
 | Staff, maintenance | 350.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.staff-->, 80.00 | 350.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.staff-->, 80.00 | 0 | | 0.00 | staff Record; maintenance Estimate (the October service invoice has not arrived) |
-| **Contribution** | **562.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution-->** | **454.00<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution-->** | | | **−108.00** | Calculated |
+| **Contribution** | **949.00<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.contribution-->** | **843.73<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.contribution-->** | | | **−105.27** | Calculated |
+
+Sum: −108.00 + 2.73 = **−105.27**.
 
 **Where the 108.00 comes from (Record).** On 6 Oct the grid failed at 19:11 and backup generator GEN-CR-01 did not start automatically (start-controller fault); it was started by hand at 20:22. The chamber was above its 2–4 °C band for 75–85 minutes, peaking at 5.4 °C at 20:25. Batch B-1031 (French beans, export grade, limit 5 °C) had 120<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.excursion_crates--> crates exposed, declared at 18.00<!--rec:tenants[harvest-cold].sites[Room B · Thika].incident.batches[B-1031].declared_value_per_crate--> a crate: 2,160.00<!--rec--> **at stake, not money**. QA downgraded 6 crates; 6 × 18.00 = 108.00 confirmed damage, which the customer contract makes the operator's liability. Avocados (limit 12 °C) were not exposed; the cabbage batch had left on 5 Oct.
 
@@ -381,27 +383,27 @@ Protect, observed: from 6 Oct the backup start was unproven and stock was presen
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (80%) | 9,920<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.crate_days--> | 9,920 | 0 | 0.20 | 0.00 | Record |
-| Energy the model expects (kWh) | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh_model--> | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> | 0 | 0.20 | 0.00 | Calculated |
-| Energy above the model (kWh) | 0 | 970<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> | +970 | 0.20 | −194.00<!--rec--> | Calculated from the meter: 5,000<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh--> kWh metered |
+| Energy the model expects (kWh) | 1,853.57<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh_model--> | 1,853.57<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> | 0 | 0.20 | 0.00 | Calculated |
+| Energy above the model (kWh) | 0.43<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.excess_kwh--> | 260.03<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> | +259.60<!--figx:{sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh}-{sites.harvest-cold/Room C · Kirinyaga.plan.nodes.excess_kwh}--> | 0.20 | −51.92<!--rec--> | Calculated from the meter: 2,113.60<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh--> kWh metered; the target is the model in whole kWh, 1,854<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh--> |
 | Staff, maintenance | 400.00, 80.00 | 400.00, 80.00 | 0 | | 0.00 | Record |
-| **Contribution** | **698.00<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.contribution-->** | **504.00<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.contribution-->** | | | **−194.00** | Calculated |
+| **Contribution** | **1,133.20<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.contribution-->** | **1,081.28<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.contribution-->** | | | **−51.92** | Calculated |
 
 ##### The portfolio
 
 | Room | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
-| Mwea | 456.00 | −12.00 | −468.00 | −620.00<!--rec--> | +155.00 − 3.00 |
-| Thika | 562.00 | 454.00 | −108.00 | 0.00 | −108.00 |
-| Kirinyaga | 698.00 | 504.00 | −194.00 | 0.00 | −194.00 |
-| **Harvest Cold** | **1,716.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->** | **946.00<!--fig:portfolio.harvest-cold.actual.sums.contribution-->** | **−770.00** | **−620.00<!--rec-->** | **−150.00<!--rec-->** |
+| Mwea | 794.80 | 202.74 | −592.06 | −620.00<!--rec--> | +34.35 − 6.41 |
+| Thika | 949.00 | 843.73 | −105.27 | 0.00 | −108.00 + 2.73 |
+| Kirinyaga | 1,133.20 | 1,081.28 | −51.92 | 0.00 | −51.92 |
+| **Harvest Cold** | **2,877.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->** | **2,127.75<!--fig:portfolio.harvest-cold.actual.sums.contribution-->** | **−749.25** | **−620.00<!--rec-->** | **−129.25<!--rec-->** |
 
-Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (target 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 3,492.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 3,642.00<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+155.00 − 3.00 − 108.00 − 194.00 = −150.00<!--rec--> against target). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (3,642.00 − 80.00) ÷ 3,642.00 = 97.8%.
+Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (target 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 2,331.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 2,460.25<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+34.35 − 6.41 − 108.00 + 2.73 − 51.92 = −129.25<!--rec--> against target). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (2,460.25 − 80.00) ÷ 2,460.25 = 96.7%.
 
-**The surprise.** Mwea has the *highest* energy cost per crate-day (2,650 kWh × 0.20 = 530.00, ÷ 4,340 crate-days = 0.1221<!--rec:tenants[harvest-cold].sites[Room A · Mwea].period.energy_per_crate_day-->) and nothing wrong with its equipment. Kirinyaga looks efficient (5,000 kWh × 0.20 = 1,000.00, ÷ 9,920 = 0.1008<!--rec:tenants[harvest-cold].sites[Room C · Kirinyaga].period.energy_per_crate_day-->) but uses 970 ÷ 4,030 = 24% more energy than its occupancy explains.
+**The surprise.** Mwea has the *highest* energy cost per crate-day (1,576.30 kWh × 0.20 = 315.26, ÷ 4,340 crate-days = 0.0726<!--rec:tenants[harvest-cold].sites[Room A · Mwea].period.energy_per_crate_day-->) and nothing wrong with its equipment. Kirinyaga looks efficient (2,113.60 kWh × 0.20 = 422.72, ÷ 9,920 = 0.0426<!--rec:tenants[harvest-cold].sites[Room C · Kirinyaga].period.energy_per_crate_day-->) but uses 260.03 ÷ 1,853.57 = 14% more energy than its occupancy explains.
 
 #### Evaluate
 
-**Mwea: low occupancy** (no action: contribution stays near −12.00 a month; acceptable but leaves the room 65% empty).
+**Mwea: low occupancy** (no action: contribution stays near 202.74 a month; acceptable but leaves the room 65% empty).
 
 | Input | Figure | How it is known |
 |---|---|---|
@@ -412,10 +414,10 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Sign the aggregator's off-season contract | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate-->; model energy +0.25 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.25 kWh × 0.20 = −225.00<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+1,670.00<!--fig:options.MWEA-AGG.value-->. Recommended** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
-| Replace the compressor | none: energy matches the model | 4,800<!--rec:tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-COMPRESSOR].capex--> for no factor change | Rejected: no equipment fault to fix |
+| Sign the aggregator's off-season contract | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate-->; model energy +0.0554 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.0554 kWh × 0.20 = −49.86<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+660.14<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 660.14<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+2,370.56<!--fig:options.MWEA-AGG.value-->. Recommended** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
+| Replace the compressor | none: energy is within the 5% tolerance of the model (+2.1%) | 4,800<!--rec:tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-COMPRESSOR].capex--> for no factor change | Rejected: no equipment fault to fix |
 
-**Kirinyaga: energy above the model** (no action: 194.00<!--rec--> a month continues).
+**Kirinyaga: energy above the model** (no action: 52.01<!--rec--> a month continues).
 
 | Input | Figure | How it is known |
 |---|---|---|
@@ -424,8 +426,8 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Condenser clean and leak repair | excess × (1 − 0.80): 970 → 194 kWh, so 776 kWh less a month | 776 kWh × 0.20 = +155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+1,512.40<!--fig:options.KIRI-REPAIR.value-->. Recommended** |
-| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model: 970 + (1 − 0.95) × 4,030 = 970 + 201.5 kWh less a month | (970 + 201.5) kWh × 0.20 = +234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
+| Condenser clean and leak repair | excess × (1 − 0.80): 260.032 → 52.006 kWh, so 208.026 kWh less a month | 208.026 kWh × 0.20 = +41.61<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 41.61<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+149.26<!--fig:options.KIRI-REPAIR.value-->. Recommended** |
+| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model: 260.03 + (1 − 0.95) × 1,853.57 = 260.03 + 92.68 kWh less a month | (260.03 + 92.68) kWh × 0.20 = +70.54<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 70.54<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −3,953.50<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
 
 **Thika: backup start controller.**
 
@@ -459,9 +461,9 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 
 | Valued option | 12-month value | One-off inside it |
 |---|---:|---:|
-| Kirinyaga repair | +1,512.40<!--fig:options.KIRI-REPAIR.value--> | 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> |
-| Mwea contract (its 4 months fall inside the horizon) | +1,670.00<!--fig:options.MWEA-AGG.value--> | 270.00<!--fig:options.MWEA-AGG.operator_one_off--> |
-| **The plan** | **+3,182.40<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
+| Kirinyaga repair | +149.26<!--fig:options.KIRI-REPAIR.value--> | 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> |
+| Mwea contract (its 4 months fall inside the horizon) | +2,370.56<!--fig:options.MWEA-AGG.value--> | 270.00<!--fig:options.MWEA-AGG.operator_one_off--> |
+| **The plan** | **+2,519.82<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
 
 **3. Spend not valued in money.** The Thika stopgap, 100.00<!--fig:plans.harvest-cold.default.not_valued_in_money-->: nights with stock and no backup cover from 6 Nov go from 2 (no action) to 0.
 
@@ -469,14 +471,14 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 
 | Case | Option | How its value follows | 12-month value |
 |---|---|---|---:|
-| The plan as proposed | | | +3,182.40<!--fig:plans.harvest-cold.default.value--> |
-| Kirinyaga repair recovers 60%, not 80% | Kirinyaga repair | 12 × (970 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | +1,046.80<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct--> |
-| | *The plan* | Mwea +1,670.00<!--fig:options.MWEA-AGG.value--> unchanged | *+2,716.80<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value-->* |
-| **Downside: the aggregator does not sign** | Mwea contract drops | 3,182.40<!--fig:plans.harvest-cold.default.value--> − 1,670.00<!--fig:-options.MWEA-AGG.value--> | **+1,512.40<!--fig:plans.harvest-cold.downside-->** |
+| The plan as proposed | | | +2,519.82<!--fig:plans.harvest-cold.default.value--> |
+| Kirinyaga repair recovers 60%, not 80% | Kirinyaga repair | 12 × (260.03 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | +24.45<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct--> |
+| | *The plan* | Mwea +2,370.56<!--fig:options.MWEA-AGG.value--> unchanged | *+2,395.01<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value-->* |
+| **Downside: the aggregator does not sign** | Mwea contract drops | 2,519.82<!--fig:plans.harvest-cold.default.value--> − 2,370.56<!--fig:-options.MWEA-AGG.value--> | **+149.26<!--fig:plans.harvest-cold.downside-->** |
 
 **5. Listed beside, not added.** Thika's exposed batch, 2,160.00 at stake (customer-owned stock, not money); the 710.00<!--fig:options.THIKA-EPC-STOPGAP.rights.claimable_cover--> controller cover, kept.
 
-**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +1,512.40<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> crew visit.
+**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +149.26<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> crew visit.
 
 #### Prove
 
@@ -499,11 +501,11 @@ Charging is a cost centre; there is no charging revenue. The outcome is **cost p
 | Energy, all hours (kWh) | 86,800 | 86,800 | 0 | | | Record |
 | of which at peak (30% targeted, 55% actual) | 26,040<!--fig:sites.metro-bus/Embakasi.plan.nodes.peak_kwh--> | 47,740<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_kwh--> | +21,700 moved from 0.12 to 0.24 | +0.12 | −2,604.00<!--rec--> | Record (meter intervals) |
 | Highest monthly kW | 450<!--fig:sites.metro-bus/Embakasi.plan.nodes.max_kw--> | 500<!--fig:sites.metro-bus/Embakasi.actual.nodes.max_kw--> | +50 | 12.00 | −600.00<!--rec--> | Record |
-| Maintenance | 600.00 | 600.00 | 0 | | 0.00 | Record |
+| Maintenance | 600.00<!--fig:sites.metro-bus/Embakasi.plan.nodes.maintenance--> | 600.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.maintenance--> | 0 | | 0.00 | Record |
 | *Bill lines* | *peak 26,040 × 0.24 = 6,249.60<!--fig:sites.metro-bus/Embakasi.plan.nodes.peak_cost-->, off-peak 60,760<!--fig:sites.metro-bus/Embakasi.plan.nodes.kwh_2200_2400--> × 0.12 = 7,291.20<!--fig:sites.metro-bus/Embakasi.plan.nodes.offpeak_cost-->, demand 450 × 12.00 = 5,400.00<!--fig:sites.metro-bus/Embakasi.plan.nodes.demand_cost-->* | *peak 47,740 × 0.24 = 11,457.60<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_cost-->, 22:00–24:00 15,500<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_2200_2400--> × 0.12 = 1,860.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.offpeak_cost-->, 00:00–05:00 23,560<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_0000_0500--> × 0.12 = 2,827.20<!--fig:sites.metro-bus/Embakasi.actual.nodes.night_cost-->, demand 500 × 12.00 = 6,000.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.demand_cost-->* | | | | Calculated |
 | **Cost to serve** | **19,540.80<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_to_serve-->** | **22,744.80<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_to_serve-->** | | | **−3,204.00** | Calculated |
 
-Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (target 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
+Sum: −2,604.00 − 600.00<!--figx:-({sites.metro-bus/Embakasi.actual.nodes.demand_cost}-{sites.metro-bus/Embakasi.plan.nodes.demand_cost})--> = **−3,204.00**. All 620 departures met (Record); 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (target 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
 
 ##### Kasarani
 
@@ -517,11 +519,11 @@ Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 
 |---|---:|---:|---|
 | Chargers in service | 4 | 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.chargers_in_service--> | Record (fault log) |
 | Energy deliverable a night (kWh) | 1,400 | 1,050<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.deliverable_kwh_night--> (3 × 50 kW × 7 h) | Calculated |
-| Buses short a night | 0 | 1<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.buses_short_per_night--> (1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> needed − 1,050 = 150 kWh short, one bus's charge) | Calculated |
+| Buses short a night | 0 | 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.buses_short_per_night--> (1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> needed; 3 chargers × 2 buses each in the 7 h window fill 6 of 8; the energy alone, 150 kWh short, is one bus's charge) | Calculated |
 | Nights short | 0 | 5<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.short_nights--> | Calculated |
 | Nights the spare bus covered | | 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.spare_bus_nights--> | Record (roster) |
-| Departures missed | 0 | 5 − 3 = 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> | Calculated |
-| Penalties | 0.00 | 2 × 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> = 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> | Calculated |
+| Departures missed | 0 | 2 × 5 − 3 = 7<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> | Calculated |
+| Penalties | 0.00 | 7 × 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> = 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> | Calculated |
 
 ##### Ruiru
 
@@ -561,7 +563,7 @@ The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure me
 | Deadline-aware schedule, 22:00–05:15 at 400<!--fig:options.EMB-DEADLINE.params.max_kw_option--> kW | billed hours 2 + 5 at 400 kW = 2,800 kWh a night, exactly the requirement (05:00–05:15 is slack for a late bus and is not billed); peak 0; 400 kW × 2 h × 31 = 24,800 kWh × 0.12 = 2,976.00; 400 kW × 5 h × 31 = 62,000 kWh × 0.09 = 5,580.00; demand 400 kW × 12.00 = 4,800.00<!--rec-->; the energy check leaves 0<!--fig:options.EMB-DEADLINE.bound.buses_short_per_night--> buses short a night, so 0<!--fig:options.EMB-DEADLINE.protect.departures_missed--> departures are missed (per-bus departure timing Not available yet: the Embakasi schedule replay, not run) | 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> | 21,438.00 − 13,356.00 = **8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change-->** a month; 12 × 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> − one-off 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | **+95,484.00<!--fig:options.EMB-DEADLINE.value-->. Recommended**, once the tariff is confirmed from the invoice |
 | Cheapest bill: 00:00–05:00 at the 500 kW limit | 500 kW × 5 h = 2,500<!--fig:options.EMB-CHEAPEST.bound.supplied_kwh_night--> kWh a night against 2,800 needed | 12,975.00<!--fig:options.EMB-CHEAPEST.energy_bill_option--> | 2,500 kWh × 31 nights × 0.09 + 500 kW × 12.00 = 12,975.00: cheaper only because it buys less energy | **Rejected**: 300 kWh short a night is 3<!--fig:options.EMB-CHEAPEST.bound.buses_short_per_night--> buses at 140 kWh, so 3 × 31 = 93<!--fig:options.EMB-CHEAPEST.protect.departures_missed--> departures missed a month; every departure must be met |
 
-**Kasarani: charger CH-K2.** From 6 Nov there are 3<!--fig:options.KAS-OEM-WAIT.params.days_to_restore--> nights to the restore, one bus short each night, and the roster frees the spare bus on 1<!--fig:options.KAS-OEM-WAIT.params.spare_cover--> of them.
+**Kasarani: charger CH-K2.** From 6 Nov there are 3<!--fig:options.KAS-OEM-WAIT.params.days_to_restore--> nights to the restore, two buses short each night, and the roster frees the spare bus on 1<!--fig:options.KAS-OEM-WAIT.params.spare_cover--> of them.
 
 | Input | Figure | How it is known |
 |---|---|---|
@@ -574,9 +576,9 @@ The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure me
 
 | Option | Factor changes | One-off | Departures missed | How the value follows | Result |
 |---|---|---:|---:|---|---|
-| Wait for the supplier | 3 short nights − 1 spare-bus night | none | 2<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> | penalties 2 × 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> = 240.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> | Rejected: 2 departures missed; every departure must be met |
-| Supplier remedy plus cover: the 2 uncovered buses charge at Ruiru | the 2 bus-nights covered | 2 × 45.00 = 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0<!--fig:options.KAS-OEM-STOPGAP.protect.departures_missed--> | penalties avoided +240.00<!--fig:options.KAS-OEM-STOPGAP.monthly_or_horizon_change--> − 90.00<!--fig:-options.KAS-OEM-STOPGAP.operator_one_off--> | **+150.00<!--fig:options.KAS-OEM-STOPGAP.value-->. Recommended**: the only option that misses no departure and keeps the cover; valued in money because it changes the penalties factor |
-| Local repair (restores 7 Nov) | 1 short night, no spare | 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | 1<!--fig:options.KAS-LOCAL.protect.departures_missed--> | 1 penalty fewer than waiting, +120.00<!--fig:options.KAS-LOCAL.monthly_or_horizon_change-->, − 380.00<!--fig:-options.KAS-LOCAL.operator_one_off--> = −260.00<!--fig:options.KAS-LOCAL.value--> | Rejected: voids the power-stage cover (380.00<!--fig:options.KAS-LOCAL.rights.cover_lost--> lost) and still misses a departure |
+| Wait for the supplier | 3 short nights × 2 buses − 1 spare-bus night | none | 5<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> | penalties 5 × 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> = 600.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> | Rejected: 5 departures missed; every departure must be met |
+| Supplier remedy plus cover: the 5 uncovered bus-nights charge at Ruiru | the 5 bus-nights covered | 5 × 45.00 = 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0<!--fig:options.KAS-OEM-STOPGAP.protect.departures_missed--> | penalties avoided +600.00<!--fig:options.KAS-OEM-STOPGAP.monthly_or_horizon_change--> − 225.00<!--fig:-options.KAS-OEM-STOPGAP.operator_one_off--> | **+375.00<!--fig:options.KAS-OEM-STOPGAP.value-->. Recommended**: the only option that misses no departure and keeps the cover; valued in money because it changes the penalties factor |
+| Local repair (restores 7 Nov) | 1 short night × 2 buses, no spare | 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | 2<!--fig:options.KAS-LOCAL.protect.departures_missed--> | 3 penalties fewer than waiting, +360.00<!--fig:options.KAS-LOCAL.monthly_or_horizon_change-->, − 380.00<!--fig:-options.KAS-LOCAL.operator_one_off--> = −20.00<!--fig:options.KAS-LOCAL.value--> | Rejected: voids the power-stage cover (380.00<!--fig:options.KAS-LOCAL.rights.cover_lost--> lost) and still misses 2 departures |
 | Reschedule charging | none: the tariff is flat | | | nothing to save | Rejected |
 
 **Ruiru: the city offers more buses.** These are compared with the import limit; their cost is a service expansion, so they are listed beside the plan, not valued.
@@ -601,25 +603,25 @@ The idle connector at Ruiru (CH-R7 connector 2, one interrupted session on 6 Oct
 
 | Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
-| Kasarani cover | 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0 |
+| Kasarani cover | 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0 |
 | Embakasi schedule | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | 0 (remote) |
-| **Spend** | **1,590.00<!--fig:plans.metro-bus.default.spend-->** | **0<!--fig:plans.metro-bus.default.crew_visits_used--> of 2** |
+| **Spend** | **1,725.00<!--fig:plans.metro-bus.default.spend-->** | **0<!--fig:plans.metro-bus.default.crew_visits_used--> of 2** |
 
 **2. What is valued in money.**
 
 | Valued option | 12-month value | One-off inside it |
 |---|---:|---:|
 | Embakasi schedule | +95,484.00<!--fig:options.EMB-DEADLINE.value--> | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> |
-| Kasarani cover | +150.00<!--fig:options.KAS-OEM-STOPGAP.value--> | 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
-| **The plan** | **+95,634.00<!--fig:plans.metro-bus.default.value-->** | **1,590.00<!--fig:plans.metro-bus.default.valued_option_costs-->** |
+| Kasarani cover | +375.00<!--fig:options.KAS-OEM-STOPGAP.value--> | 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
+| **The plan** | **+95,859.00<!--fig:plans.metro-bus.default.value-->** | **1,725.00<!--fig:plans.metro-bus.default.valued_option_costs-->** |
 
-**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the protective items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 2 → 0.
+**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the protective items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 5 → 0.
 
-**4. Downside.** If Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff), the schedule saves nothing: the plan is worth 95,634.00<!--fig:plans.metro-bus.default.value--> − 95,484.00<!--fig:-options.EMB-DEADLINE.value--> = +150.00<!--fig:plans.metro-bus.downside-->, the Kasarani cover only.
+**4. Downside.** If Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff), the schedule saves nothing: the plan is worth 95,859.00<!--fig:plans.metro-bus.default.value--> − 95,484.00<!--fig:-options.EMB-DEADLINE.value--> = +375.00<!--fig:plans.metro-bus.downside-->, the Kasarani cover only.
 
 **5. Listed beside, not added.** Absorbing 6 buses at Ruiru avoids a 60,000.00<!--fig:options.RUI-4CHARGERS.operator_one_off--> charger purchase; a different comparison, so it is not added.
 
-**6. When a condition changes (the switch).** Whether the tariff is confirmed from the invoice is set by a person: yes (default) gives the plan above; no gives spend 1,590.00<!--fig:plans.metro-bus.default.spend--> − 1,500.00<!--fig:-options.EMB-DEADLINE.operator_one_off--> = 90.00<!--fig:plans.metro-bus.switch_cases.False.spend--> and value +150.00<!--fig:plans.metro-bus.switch_cases.False.value-->.
+**6. When a condition changes (the switch).** Whether the tariff is confirmed from the invoice is set by a person: yes (default) gives the plan above; no gives spend 1,725.00<!--fig:plans.metro-bus.default.spend--> − 1,500.00<!--fig:-options.EMB-DEADLINE.operator_one_off--> = 225.00<!--fig:plans.metro-bus.switch_cases.False.spend--> and value +375.00<!--fig:plans.metro-bus.switch_cases.False.value-->.
 
 #### Prove
 
@@ -636,7 +638,7 @@ The same physical event, a failed asset, leads to different choices because of t
 | Kisiwa genset GEN-KS-01 | warranty ended 30 Jun 2026; 1,000-hour service missed | run hours 1,240 | operator-funded repair, now | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> |
 | Kobo battery BAT-001 | warranty to 2034 with temperature and capacity conditions | no temperature sensor, no commissioning capacity test | assemble evidence first; a claim now would fail | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off-->; 64,000.00 of cover at stake |
 | Thika GEN-CR-01 start controller | EPC workmanship warranty to 2027; quarterly tests 3 of 3 logged | event log, recorded inspection | supplier remedy + stopgap | 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off--> |
-| Kasarani CH-K2 | parts warranty + service agreement (48 h response, 5 business days to restore) | fault log, ticket | supplier remedy + cover | 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
+| Kasarani CH-K2 | parts warranty + service agreement (48 h response, 5 business days to restore) | fault log, ticket | supplier remedy + cover | 225.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
 | Kisiwa O&M contract | 48 h response; 10% fee credit when late; weather exclusion | 96 h response; calm weather bulletin | flag for human review | potential 70.00, never booked until a credit note |
 
 Every state is set by a person from a recorded document or event. The screen always says: *This is not a legal decision. Coverage is decided by the supplier or insurer.*
@@ -688,7 +690,7 @@ Each released Action still counts in the plan, on its item (design §2.4 step 4)
 
 `demo-site-scenario-manifest.yaml` defines three operators with three sites each, built backwards from each portfolio's executive choice: every site carries one contrast and one negative control, and the rights contrast is embedded in repair decisions rather than added as extra sites. The manifest's rev 4 re-expresses every site period as a factor structure with the value chain as backbone, re-bases Thika and Ruiru on the v7.0 incidents so the preserved drill-down pages and the figures describe one world, and values Embakasi's schedule against November no-action. Ground truth lives only in the manifest's private `oracle:`; every product figure must be computed through the real ingest and analytics path and compared against it.
 
-**The illustration is itself evaluated, all the way down** (owner, 17 Nov, ninth to eleventh messages). The manifest holds only inputs. `structures:` declares every layer of each vertical: value-chain stages and leaks; physical splits and capacity (necessary and candidate running, normalised energy, chargers in service against the import limit, crate-days against room capacity); cost to serve and the outcome; and the Protect and O2 measures. `factor_map:` turns each site's source records into leaf factors, including dated records (a generator failed on 30 Oct, an inverter on 28 Oct, a backup start unproven since 6 Oct, a connector out since 6 Oct), so the period's own Protect measures — obligation hours without redundancy at Kisiwa 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> and Mto 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy-->, 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika (unproven, stock present and no rota, each a record), 6 asset-days out; and for November to date at Kasarani 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures missed — are evaluated, not typed, as are the 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties those departures cost, a cost-to-serve line under Optimize. `evaluation:` gives each option's parameters with provenance, its factor changes as expressions, its cost lines with the right that could bear each (eligibility and claim progress kept apart), the rights it sets or voids, and restore dates derived from what drives them; it also declares the obligation bounds of each vertical with their reasons. `plans:` lists each portfolio's decisions with their bound policy: protective and valued decisions are searched together under the budget, the crew-visit limit and the dated dependencies; an option that breaks its decision's hard bounds is left out unless no option of that decision can keep them, and the recommended set breaks the bounds least, then is worth most, then spends least (Kisiwa: no option restores a backup at once, so all three stay in the search and the 15-hour repair is recommended over the 105-hour replacement). One redundancy rule applies to every Lakeside decision: obligation hours with no backup supply (owner question Q15). No option carries a typed admissibility: rights lapse at their notice deadlines, unauthorised repairs void cover, and the cover bound tests what is lost. `evaluate_structure.py` produces every figure in `derived-values.json`; the mock-up takes them from it; `check_manifest.py` asserts every stated figure in the manifest against the evaluation, every figure tagged in the documents (`<!--fig:path-->`) against its evaluated value with its sign, that the headline figures (spend, value and visits for each proposed plan; the period's Protect statement) are tagged, that no evaluated money figure of a proposed plan or option appears untagged in a figure-bearing document (record figures carry a record tag, checked against the manifest), the absence of superseded figures, and that untagged money figures are evaluated values or declared inputs. **Inputs by design, and flagged where shown:** the replay inputs, read from 0K4d's v8 studies through `replay-studies.json` and labelled Simulated (Kobo's admission result and dawn information, the huller's and the welder's litres per kWh, fuel at half inverter capacity); the gaps that read Not available yet (Kobo's two settings' litres and value, the Kisiwa battery's value, Embakasi's per-bus departure timing); quotes (repair, installation, the 45 per bus charged away from Kasarani, a 1-day local repair); the depot roster (the spare bus is free on 1 of the nights to a restore); one procurement assumption (Thika's self-funded controller fitted the same day); the batch-exposure observer's output (crate-minutes above the limit) and the battery-evidence record count; one assumption with no model (Kisiwa's 60 kWh battery saving, Q14). Ruiru's October target is a bill total and is labelled "not decomposed", never counted as evaluated.
+**The illustration is itself evaluated, all the way down** (owner, 17 Nov, ninth to eleventh messages). The manifest holds only inputs. `structures:` declares every layer of each vertical: value-chain stages and leaks; physical splits and capacity (necessary and candidate running, normalised energy, chargers in service against the import limit, crate-days against room capacity); cost to serve and the outcome; and the Protect and O2 measures. `factor_map:` turns each site's source records into leaf factors, including dated records (a generator failed on 30 Oct, an inverter on 28 Oct, a backup start unproven since 6 Oct, a connector out since 6 Oct), so the period's own Protect measures — obligation hours without redundancy at Kisiwa 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> and Mto 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy-->, 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika (unproven, stock present and no rota, each a record), 6 asset-days out; and for November to date at Kasarani 7<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures missed — are evaluated, not typed, as are the 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties those departures cost, a cost-to-serve line under Optimize. `evaluation:` gives each option's parameters with provenance, its factor changes as expressions, its cost lines with the right that could bear each (eligibility and claim progress kept apart), the rights it sets or voids, and restore dates derived from what drives them; it also declares the obligation bounds of each vertical with their reasons. `plans:` lists each portfolio's decisions with their bound policy: protective and valued decisions are searched together under the budget, the crew-visit limit and the dated dependencies; an option that breaks its decision's hard bounds is left out unless no option of that decision can keep them, and the recommended set breaks the bounds least, then is worth most, then spends least (Kisiwa: no option restores a backup at once, so all three stay in the search and the 15-hour repair is recommended over the 105-hour replacement). One redundancy rule applies to every Lakeside decision: obligation hours with no backup supply (owner question Q15). No option carries a typed admissibility: rights lapse at their notice deadlines, unauthorised repairs void cover, and the cover bound tests what is lost. `evaluate_structure.py` produces every figure in `derived-values.json`; the mock-up takes them from it; `check_manifest.py` asserts every stated figure in the manifest against the evaluation, every figure tagged in the documents (`<!--fig:path-->`) against its evaluated value with its sign, that the headline figures (spend, value and visits for each proposed plan; the period's Protect statement) are tagged, that no evaluated money figure of a proposed plan or option appears untagged in a figure-bearing document (record figures carry a record tag, checked against the manifest), the absence of superseded figures, and that untagged money figures are evaluated values or declared inputs. **Inputs by design, and flagged where shown:** the replay inputs, read from 0K4d's v8 studies through `replay-studies.json` and labelled Simulated (Kobo's admission result and dawn information, the huller's and the welder's litres per kWh, fuel at half inverter capacity); the gaps that read Not available yet (Kobo's two settings' litres and value, the Kisiwa battery's value, Embakasi's per-bus departure timing); quotes (repair, installation, the 45 per bus charged away from Kasarani, a 1-day local repair); the depot roster (the spare bus is free on 1 of the nights to a restore); one procurement assumption (Thika's self-funded controller fitted the same day); the batch-exposure observer's output (crate-minutes above the limit) and the battery-evidence record count; one assumption with no model (Kisiwa's 60 kWh battery saving, Q14). Ruiru's October target is a bill total and is labelled "not decomposed", never counted as evaluated.
 
 **Documented limits of the illustration** (rev 13 final review, class ii; full list in `design-appendix.md` §6):
 - **Unchecked rendered copies (F3).** Some manifest copies the screen renders are not checked against anything. These include listed-beside amounts, billing charges, the huller's revenue and fuel lines, replay-record copies, the budget copy, coverage shares, site variances and bridge amounts. All are correct today.

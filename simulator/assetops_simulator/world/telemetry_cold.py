@@ -11,7 +11,7 @@ days `first..last`, one continuous execution advanced one local day at a time (D
   - `ledger`: the Site's `STORAGE_MOVEMENT` records as the storage ledger exports them (D-DD.85 lots);
   - `cooling`: the manifest's `history.families.cooling` (`season`, `day`), `seasons` (month -> season) and
     `day_classes` (class -> ISO weekdays);
-  - `efficiency`: month -> `f_m` as exact text (absent = 1; spec §4.4);
+  - `efficiency`: month -> `f_m` as exact text (absent = 1; spec §4.4), from `EFFICIENCY_CONDITION` (D-DD.144);
   - `events`: story forcings `{"kind", "at", "source"}` (`at` an ISO instant on a minute; D-DD.83's Thika
     sequence), read from `M` by the frame.
 - Forcings (D-DD.85, D-DD.86): `CRATES_IN n`/`CRATES_OUT n` at each movement in the span; one door cycle
@@ -36,7 +36,7 @@ from zoneinfo import ZoneInfo
 from ..packs.cold import (DD_LOAD_PARAMETERS, FORCING_EFFECTS, PROPERTY_FIELDS, V2_FORCING_ASSETS, ColdForcingRow,
                           ColdPack, ColdParameters, ColdState)
 from ..packs.errors import PhysicallyUnacceptable
-from .telemetry import TelemetryRefused, _months_without_books, span_days
+from .telemetry import TelemetryRefused, span_days
 
 STEP = timedelta(minutes=1)
 DOOR_MINUTES = 5  # spec §4.4: door per movement
@@ -126,6 +126,7 @@ class ColdSiteRun:
         self.advanced = 0
         self._records: dict[date, list[tuple]] = {}
         self._month_rounding: dict[str, Fraction] = {}
+        self._room_kwh: dict[str, Fraction] = {}  # the room meter's exact slot energy by local month (D-DD.99)
 
     # -- inputs ---------------------------------------------------------------------------------------------------
 
@@ -214,6 +215,11 @@ class ColdSiteRun:
             state.rounding_total - self.state.rounding_total)
         self.state = state
         self._records[day] = rows
+        for r in rows:
+            if r[0] == "compressor-meter" and r[6] is None:  # 5-minute INTERVAL_MEAN kW x the slot's hours = the slot's exact energy
+                month = r[2].astimezone(self.zone).strftime("%Y-%m")
+                self._room_kwh[month] = self._room_kwh.get(month, Fraction(0)) + r[4] * Fraction(
+                    int((r[3] - r[2]).total_seconds()), 3600)
         self.advanced += 1
         return day
 
@@ -227,6 +233,10 @@ class ColdSiteRun:
         start = r.interval_start if r.measurement == "INTERVAL_MEAN" else r.source_time
         return (r.device_id, r.signal_id, start, r.source_time, r.value, r.unit, None)
 
+    def release_day(self, day: date) -> None:
+        """Drop a day's rows once the frame has written them (DD4b run 5: one day held at a time)."""
+        self._records.pop(day, None)
+
     def day_records(self, day: date) -> list[tuple]:
         """The day's pack rows `(device_id, signal_id, start, end, value, unit, event)`, UTC instants, exact values;
         `event` is the event's fields (D-DD.91) or None for a measurement."""
@@ -236,6 +246,15 @@ class ColdSiteRun:
 
     def conditions(self) -> list[dict]:
         return list(self._conditions)
+
+    @property
+    def end_local(self) -> datetime:
+        """The span's end instant, local time (D-DD.103)."""
+        return self.end.astimezone(self.zone)
+
+    def measured_months(self) -> dict[str, dict]:
+        """D-DD.99 cold `<month>`: `{"room_kwh"}`, the room meter's energy, exact (the frame rounds once)."""
+        return {m: {"room_kwh": v} for m, v in sorted(self._room_kwh.items())}
 
     def private_parameters(self) -> dict:
         p = self.load
@@ -276,27 +295,19 @@ def cold_ledger_files(view: dict, history: dict, records) -> list:
     return out
 
 
-def _efficiency(view: dict, tenant: dict, site: dict) -> dict[str, str]:
-    """D-DD.119 `f_m`: the history months' `cooling` arguments of the Site's own `actual.kwh` rule (read by
-    `world/history.py`'s parser), the accounting period's kwh / kwh_model, and that value for a month after it."""
-    from .history import ANCHOR, _number, _parse, _Scope
+#: D-DD.144 (amends D-DD.119's `f_m` source; values D-DD.143): the declared compressor efficiency condition by Site
+#: code and local month, exact text. Kirinyaga alone carries one (the `KIRI-REPAIR` condenser and leak repair); a room
+#: or month absent here has f = 1. `M`'s period kwh / kwh_model follow the meter since DD4.6, so they can no longer be
+#: the input that drives it. Parity: `golden/efficiency_condition_main.json` (the view at main 6e3c02ab5).
+EFFICIENCY_CONDITION: dict[str, dict[str, str]] = {
+    "COLD-KIRI": {"2026-07": "21/20", "2026-08": "11/10", "2026-09": "117/100", "2026-10": "500/403",
+                  "2026-11": "500/403"},
+}
 
-    hist = view["history"]
-    rule = hist.get("sites", {}).get(f"{tenant['tenant']}/{site['site']}", {}).get("actual", {}).get("kwh")
-    if rule is None:
-        return {}
-    out: dict[str, str] = {}
-    for month in sorted(hist["months"]):
-        scope = _Scope(view, tenant, site, month, False)
-        entry = scope.listed(_parse(scope, "kwh", rule), "kwh")
-        if entry != ANCHOR:
-            out[month] = str(_number(entry, scope.key, "kwh"))
-    accounting = view["accounting_period"]
-    actual = site["period"]["actual"]
-    period = Fraction(str(actual["kwh"])) / Fraction(str(actual["kwh_model"]))
-    for month in (accounting, *_months_without_books(accounting)):
-        out[month] = str(period)
-    return out
+
+def _efficiency(site: dict) -> dict[str, str]:
+    """The Site's `f_m` table: `EFFICIENCY_CONDITION`'s entry, or none (f = 1 in every month)."""
+    return dict(EFFICIENCY_CONDITION.get(site["code"], {}))
 
 
 def cold_books_for(view: dict, history: dict, records, *, ledgers: list | None = None) -> dict[str, dict]:
@@ -312,10 +323,10 @@ def cold_books_for(view: dict, history: dict, records, *, ledgers: list | None =
             code = site["code"]
             out[code] = {"ledger": [r for r in rows if r["site_code"] == code],
                          "cooling": hist["families"]["cooling"], "seasons": hist["seasons"],
-                         "day_classes": hist["day_classes"], "efficiency": _efficiency(view, tenant, site),
+                         "day_classes": hist["day_classes"], "efficiency": _efficiency(site),
                          "events": list(STORY_EVENTS.get(code, ()))}
     return out
 
 
-__all__ = ["ColdSiteRun", "cold_parameters", "day_ambient", "EVENT_FORCINGS", "STORY_EVENTS", "cold_books_for",
-           "cold_ledger_files"]
+__all__ = ["ColdSiteRun", "cold_parameters", "day_ambient", "EFFICIENCY_CONDITION", "EVENT_FORCINGS", "STORY_EVENTS",
+           "cold_books_for", "cold_ledger_files"]

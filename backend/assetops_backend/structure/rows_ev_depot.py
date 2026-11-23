@@ -1,6 +1,6 @@
 """3B6: the captive EV depot structure, version 1 (spec §2.2; D-3B6.1, D-3B6.2, D-3B6.3, D-3B6.9).
 
-One literal tuple of 42 rows: the 23 leaves in `canonical.leaves_of("EV_DEPOT_CAPTIVE")` order, then the 19 nodes in
+One literal tuple of 43 rows: the 23 leaves in `canonical.leaves_of("EV_DEPOT_CAPTIVE")` order, then the 20 nodes in
 the manifest's `structures.EV_DEPOT_CAPTIVE` order. Every literal is written here, never read from the catalogue or the
 manifest (W2); the parity test compares them. There is no `revenue` row: the registry declares it not applicable
 (`not_applicable`, D-3B6.3), and `contribution` is `0 - cost_to_serve` as the manifest states. No row states a total
@@ -79,7 +79,7 @@ ROWS: tuple[FactorRow, ...] = (
           "ZERO_WHEN_HELD", composes="SUM"),
     _leaf("penalty_rate", MONEY / DAY, Home(_OPTIMIZE, "O1"),
           "DOCUMENT", "CONTRACT_DOCUMENT (service contract penalty term)", "ZERO_WHEN_HELD", composes="NONE"),
-    # ---- nodes (19), expressions verbatim from the manifest's structures.EV_DEPOT_CAPTIVE
+    # ---- nodes (20; DD4.5 adds buses_full_by_charger, D-DD.125), expressions verbatim from the manifest's structures.EV_DEPOT_CAPTIVE
     _node("deliverable_kwh_night", "min(chargers_in_service * charger_kw, import_limit_kw) * window_h", KWH / DAY,
           Home(_PROTECT, "P1"), composes="NONE"),
     _node("scheduled_kwh_night", "(peak_kwh + kwh_2200_2400 + kwh_0000_0500) / nights_in_period", KWH / DAY,
@@ -87,8 +87,11 @@ ROWS: tuple[FactorRow, ...] = (
     _node("supplied_kwh_night", "min(deliverable_kwh_night, scheduled_kwh_night)", KWH / DAY, Home(_PROTECT, "P1"),
           composes="NONE"),
     _node("required_kwh_night", "buses * kwh_per_bus_night", KWH / DAY, Home(_PROTECT, "P1"), composes="NONE"),
-    _node("buses_short_per_night", "ceil(max(required_kwh_night - supplied_kwh_night, 0) / kwh_per_bus_night)", ONE,
+    _node("buses_full_by_charger", "chargers_in_service * floor(charger_kw * window_h / kwh_per_bus_night)", ONE,
           Home(_PROTECT, "P1"), composes="NONE"),
+    _node("buses_short_per_night",
+          "max(ceil(max(required_kwh_night - supplied_kwh_night, 0) / kwh_per_bus_night),"
+          " max(buses - buses_full_by_charger, 0))", ONE, Home(_PROTECT, "P1"), composes="NONE"),
     _node("departures_required", "buses * nights_in_period", DAY, Home(_GROW, "G2"), composes="SUM"),
     _node("departures_missed",
           "max(buses_short_per_night * short_nights - spare_bus_nights - covered_bus_nights, 0)"

@@ -612,8 +612,8 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M541 | `structures.MINI_GRID.revenue` | billed_kwh * tariff + productive_kwh * p | (b) structure declaration | spec §3; node expression | evaluation fails without it |
 | M542 | `structures.MINI_GRID.shortfall_backed` | min(1, floor(standby_kw / max(lost_unit_ | (b) structure declaration | spec §3; node expression | evaluation fails without it |
 | M543 | `tenants[harvest-cold].capacity_crates_per_room` | 400 | (b) record | tenant record | moves evaluated values in 5 of 5 worlds |
-| M544 | `tenants[harvest-cold].energy_model.base_kwh` | 1550 | (b) record | energy model coefficients ([proposed], fitted in a pilot) | moves evaluated values in 5 of 5 worlds |
-| M545 | `tenants[harvest-cold].energy_model.k_kwh_per_crate_day` | 0.25 | (b) record | energy model coefficients ([proposed], fitted in a pilot) | moves evaluated values in 5 of 5 worlds |
+| M544 | `tenants[harvest-cold].energy_model.base_kwh` | 1304 | (b) record | energy model coefficients (fitted on Jul-Sep meter + occupancy, Mwea and Thika; D-DD.144) | moves evaluated values in 5 of 5 worlds |
+| M545 | `tenants[harvest-cold].energy_model.k_kwh_per_crate_day` | 0.0554 | (b) record | energy model coefficients (fitted on Jul-Sep meter + occupancy, Mwea and Thika; D-DD.144) | moves evaluated values in 5 of 5 worlds |
 | M546 | `tenants[harvest-cold].portfolio.operations.measures[cooling_availability].denominator` | chamber_minutes | (b) structure declaration | O2 measure definition (spec §3) | evaluation fails without it |
 | M547 | `tenants[harvest-cold].portfolio.operations.measures[cooling_availability].id` | cooling_availability | (b) structure declaration | O2 measure definition (spec §3) | moves evaluated values in 5 of 5 worlds |
 | M548 | `tenants[harvest-cold].portfolio.operations.measures[cooling_availability].numerator` | cooling_available_minutes | (b) structure declaration | O2 measure definition (spec §3) | evaluation fails without it |
@@ -630,12 +630,12 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M559 | `tenants[harvest-cold].sites[Room A · Mwea].observations.october.excursion_crates` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M560 | `tenants[harvest-cold].sites[Room A · Mwea].observations.october.excursion_days` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M561 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.crate_days` | 4340 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M562 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.kwh` | 2650 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M562 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.kwh` | 1576.3 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M563 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.maint` | 50.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M564 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.outstanding` | 48.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M565 | `tenants[harvest-cold].sites[Room A · Mwea].period.actual.staff` | 300.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M566 | `tenants[harvest-cold].sites[Room A · Mwea].period.plan.crate_days` | 7440 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M567 | `tenants[harvest-cold].sites[Room A · Mwea].period.plan.kwh` | 3410 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M567 | `tenants[harvest-cold].sites[Room A · Mwea].period.plan.kwh` | 1716 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M568 | `tenants[harvest-cold].sites[Room A · Mwea].period.plan.maint` | 50.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M569 | `tenants[harvest-cold].sites[Room A · Mwea].period.plan.staff` | 300.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M570 | `tenants[harvest-cold].sites[Room A · Mwea].site` | Room A · Mwea | (b) record | tenant record | evaluation fails without it |
@@ -654,13 +654,13 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M583 | `tenants[harvest-cold].sites[Room B · Thika].observations.october.unproven_nights_rota_covered` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M584 | `tenants[harvest-cold].sites[Room B · Thika].observations.october.unproven_nights_without_stock` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M585 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.crate_days` | 8680 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M586 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.kwh` | 3720 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M586 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.kwh` | 1771.35 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M587 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.liability` | 108.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M588 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.maint` | 80.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M589 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.outstanding` | 86.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M590 | `tenants[harvest-cold].sites[Room B · Thika].period.actual.staff` | 350.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M591 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.crate_days` | 8680 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M592 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.kwh` | 3720 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M592 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.kwh` | 1785 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M593 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.liability` | 0.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M594 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.maint` | 80.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M595 | `tenants[harvest-cold].sites[Room B · Thika].period.plan.staff` | 350.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
@@ -673,12 +673,12 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M602 | `tenants[harvest-cold].sites[Room C · Kirinyaga].observations.october.excursion_crates` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M603 | `tenants[harvest-cold].sites[Room C · Kirinyaga].observations.october.excursion_days` | 0 | (b) record | dated observation | moves evaluated values in 5 of 5 worlds |
 | M604 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.crate_days` | 9920 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M605 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.kwh` | 5000 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M605 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.kwh` | 2113.6 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M606 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.maint` | 80.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M607 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.outstanding` | 84.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M608 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.actual.staff` | 400.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M609 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.plan.crate_days` | 9920 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
-| M610 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.plan.kwh` | 4030 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
+| M610 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.plan.kwh` | 1854 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M611 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.plan.maint` | 80.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M612 | `tenants[harvest-cold].sites[Room C · Kirinyaga].period.plan.staff` | 400.0 | (b) record | period record (ledger, meter, invoice; coverage class) | moves evaluated values in 5 of 5 worlds |
 | M613 | `tenants[harvest-cold].sites[Room C · Kirinyaga].site` | Room C · Kirinyaga | (b) record | tenant record | evaluation fails without it |
