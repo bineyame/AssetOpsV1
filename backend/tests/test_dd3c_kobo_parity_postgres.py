@@ -240,7 +240,7 @@ def _rows(engine, sql: str, **params) -> list[dict]:
         return [dict(r._mapping) for r in c.execute(text(sql), params)]
 
 
-def _state(url, role_set, LAKESIDE, tmp_path, monkeypatch, capsys) -> dict:
+def _state(url, role_set, onboarding, tmp_path, monkeypatch, capsys) -> dict:
     """Publish, load, compute; return each output's rows and its normalised form."""
     _publish(url, onboarding, _world(tmp_path, role_set), monkeypatch, capsys, tmp_path / f"keys-{role_set}")
     engine = create_engine(url)
