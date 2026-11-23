@@ -96,7 +96,7 @@ def _inputs(tmp_path, cold, tamper: bool):
     booksdir = tmp_path / "books"
     booksdir.mkdir()
     for f in books.files:
-        if f.tenant == "harvest-cold":
+        if f.tenant == "harvest-cold" or (f.tenant == "lakeside-power" and f.key == "expenses"):  # D-DD.129
             data = f.data.replace(b"\n", b"\r\n", 1) if tamper and f.key == LEDGER else f.data
             (booksdir / file_name(f)).write_bytes(data)
     onboarding = json.loads((REPOSITORY_ROOT / "backend/tests/fixtures/on1/harvest-cold.onboarding.json").read_text())

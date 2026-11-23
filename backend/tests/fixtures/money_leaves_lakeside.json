@@ -1,5 +1,5 @@
 {
- "_note": "4b spec §4.1 (batch E: DS1b's lakeside-power.expense_ledger October actual records, verbatim)",
+ "_note": "4b spec §4.1 (batch E: DS1b's lakeside-power.expense_ledger October actual records, verbatim; DD3b3: the October fuel lines re-pinned to M rev 16.20, D-DD.150-152: Kobo 634 L 792.50, Kisiwa 904 L 1175.20 (D-DD.164, 2026-11-23: M rev 16.23, Kisiwa 903 L 1173.90), Mto 32 L 40.00 in attribution_lakeside_mto.json)",
  "steps": [
   {
    "at": "2026-11-06T09:00:00+00:00",
@@ -154,7 +154,7 @@
        "recognition_period": "2026-10"
       },
       "amount": {
-       "value": "875.00",
+       "value": "500.00",
        "currency": "USD"
       },
       "status": "PAID",
@@ -164,7 +164,7 @@
        "document_ref": "KOBO-EX-FUEL-1005"
       },
       "quantity": {
-       "value": "700",
+       "value": "400",
        "unit": "L"
       }
      },
@@ -179,7 +179,7 @@
        "recognition_period": "2026-10"
       },
       "amount": {
-       "value": "600.00",
+       "value": "292.50",
        "currency": "USD"
       },
       "status": "INVOICED",
@@ -189,7 +189,7 @@
        "document_ref": "KOBO-EX-FUEL-1020"
       },
       "quantity": {
-       "value": "480",
+       "value": "234",
        "unit": "L"
       }
      },
@@ -303,7 +303,7 @@
        "recognition_period": "2026-10"
       },
       "amount": {
-       "value": "3120.00",
+       "value": "1173.90",
        "currency": "USD"
       },
       "status": "PAID",
@@ -313,7 +313,7 @@
        "document_ref": "KISIWA-EX-FUEL-1010"
       },
       "quantity": {
-       "value": "2400",
+       "value": "903",
        "unit": "L"
       }
      }

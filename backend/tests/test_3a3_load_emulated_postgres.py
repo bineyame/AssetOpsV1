@@ -116,8 +116,8 @@ def test_p3_held_uploads(acme, tmp_path, emulated, capsys) -> None:  # noqa: F81
     fiona = Actor(acme["ids"]["fiona"], FIN)
     org = UploadScope(None, None)
     budget = (directory / "acme.budget.csv").read_bytes()
-    one = budget.replace(b"gen:KOBO-001:2026-10:plan:revenue,1,", b"gen:KOBO-001:2026-10:plan:revenue,2,")
-    two = budget.replace(b"gen:KOBO-001:2026-10:plan:fuel_cost,1,", b"gen:KOBO-001:2026-10:plan:fuel_cost,2,")
+    one = budget.replace(b"gen:KOBO-001:2026-10:plan:om,1,", b"gen:KOBO-001:2026-10:plan:om,2,")
+    two = budget.replace(b"gen:KOBO-001:2026-10:plan:staff,1,", b"gen:KOBO-001:2026-10:plan:staff,2,")
     assert one != budget and two != budget
     kept = uploads.submit(acme["tid"], org, ana, one, file_name="acme.budget.csv",
                           reader_id="budget-illustrative-1", media_type="text/csv")

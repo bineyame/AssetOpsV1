@@ -105,7 +105,7 @@ W1_BOOKS = {
     "fuel_notes": [{"at": "2026-07-01T10:00:00+03:00", "litres": 400},
                    {"at": "2026-07-05T10:00:00+03:00", "litres": 400}],
     "day_weights": {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"},
-}
+}  # `sun_weights` is added in `_writer_case`: the writer no longer defaults it (D-DD.129)
 
 #: W1's Kobo equipment rows, set here (replacing any the /2 file carries): tank 2500 L (D-DD.76) and the three curve
 #: properties at the slot's values. Rated power, SFC and battery capacity are read from the /2 file, so DD3.2 commit 2
@@ -132,7 +132,8 @@ def _writer_case():
         for key, value, unit in W1_ROWS.get(component["type"], ()):
             component["properties"] = [p for p in component["properties"] if p["property_key"] != key]
             component["properties"].append({"property_key": key, "value": value, "unit": unit})
-    return tel.frozen_inputs(kobo, W1_BOOKS, "2026-07-01", "2026-07-07"), MINI_GRID_V8_MODEL
+    books = dict(W1_BOOKS, sun_weights=tel.DEFAULT_SUN_WEIGHTS)  # the tests' hand-made books carry it (D-DD.129)
+    return tel.frozen_inputs(kobo, books, "2026-07-01", "2026-07-07"), MINI_GRID_V8_MODEL
 
 
 def _cause(event_id, address, direction, quantity, shape, offset, duration=None):

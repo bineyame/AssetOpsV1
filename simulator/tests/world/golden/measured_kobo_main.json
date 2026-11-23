@@ -1,13 +1,14 @@
 {
   "files": {
-    "lakeside-power/telemetry/KOBO-001.2026-07-01.readings.json": "4344e432d7a43da0cec45368d68199033ef2f4ace76b4cb3e89cf49fe73c8b23",
-    "lakeside-power/telemetry/KOBO-001.2026-07-02.readings.json": "4a7f081dd8c512099b421b08070964ca4e243d66b30ea1c01939d4188966ca51",
-    "lakeside-power/telemetry/KOBO-001.2026-07-03.readings.json": "a0deddaadd6896a24ef4917c64fd50e7f5f9e4e2539dd74977c9abb5e7aab6c7",
-    "lakeside-power/telemetry/KOBO-001.2026-07-04.readings.json": "87429de10d11bcb230d75dbbf2944e8ef09c039e829d6830ddbe0f4d807baa04",
-    "lakeside-power/telemetry/KOBO-001.2026-07-05.readings.json": "15112c7eb7780e469a8227a5992f645669e321df4e50044f688ec8e12fa5989a",
-    "lakeside-power/telemetry/KOBO-001.2026-07-06.readings.json": "b8737f1e562b30fece421f23b4df2627453e01ff93310a053fda11c5fefe3c0b",
-    "lakeside-power/telemetry/KOBO-001.2026-07-07.readings.json": "6c30c06443b42740d447e41fac1e5e967e5382c2e1873515421329198db15ff0",
-    "lakeside-power/telemetry/measured.json": "97f7318d39888cb3c275dabf1e01d3fe5ef5e3a1e43cd3c2159e04e4558281df"
+    "lakeside-power/telemetry/KOBO-001.2026-07-01.readings.json": "2f0060a555503e4c14a079e2b061f8e0da760151efce12dca8cc1e55c5a32cb0",
+    "lakeside-power/telemetry/KOBO-001.2026-07-02.readings.json": "594e81e241b02180fb70175739f125b5e6fa6c55d5a0f5d7983b63180c8d32d6",
+    "lakeside-power/telemetry/KOBO-001.2026-07-03.readings.json": "c14817f462982800a921a1dd2bf800efd8408bad5a4d01f081e9035ee04a72d2",
+    "lakeside-power/telemetry/KOBO-001.2026-07-04.readings.json": "6b38fab487e9e74fa031e7c248760f597b64d64db5897729a737843d01447c18",
+    "lakeside-power/telemetry/KOBO-001.2026-07-05.readings.json": "afa3914e80fd37eca4bffc284b5c664990c65b307ce0c83a80a4bbe442206696",
+    "lakeside-power/telemetry/KOBO-001.2026-07-06.readings.json": "03c0d6d884552b3602b54e7fd9ad672692a411475a1826b8b9975baf0d8386c5",
+    "lakeside-power/telemetry/KOBO-001.2026-07-07.readings.json": "a97f5c09e5f2c05bd3186aa93e852d4c950566f32c8051c76cdcde586931843e",
+    "lakeside-power/telemetry/measured.json": "3bf5a6356f51da5e5cdf216b3c4225a5fd2798a7f5748761b931dc163d8478e5"
   },
-  "source": "main 0c44ae75b, before DD4.4: Kobo's 7 days from 2026-07-01 on D-DD.75 W1's inputs (test_telemetry_join_parity's)"
+  "source": "main 0c44ae75b, before DD4.4: Kobo's 7 days from 2026-07-01 on D-DD.75 W1's inputs (test_telemetry_join_parity's)",
+  "note_2026_11_23": "Re-based at the merge of main into DD3b (M rev 16.22): Kobo's W1 world is DD3b's (fuel notes, units), so the parity bytes are the DD3b head 22cf40ec3 writer's on the same W1 inputs; the merged writer equals them byte for byte (measured hooks change no mini-grid byte)."
 }

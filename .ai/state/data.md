@@ -761,3 +761,54 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   Full EV plant parity with main except the new fields; fixture `metro-bus.measured.json` regenerated.
 - Open: the live C-DD7 run gets the loaded world's `measured.json` only with DD5b's fetch (D-DD.160); until then the EV
   window line stays pending there.
+
+## DD3b1: mini-grid v9 units (in_review, part 1 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: `MINI_GRID_V9_MODEL` in `packs/mini_grid.py` (D-DD.127): generator and PV-inverter units in component
+  code order, own lifecycles (generator FAILED reachable; `inverter-state` AVAILABLE/FAILED, scenario-owned), the
+  `unit-fail`/`unit-restore` events, `pv-array-share`, the shortest-prefix running set by requested power, the
+  rating-proportional split with per-unit minimum and fuel caps, each unit on its own curve from one tank. One of
+  each runs v8's callables (C-DD19 Kobo October digest test); the unit path forced on one of each equals v8 too.
+  v1-v8, the kernel and the writer are untouched; no figure moved.
+- Open: unit events are read from step exposures, so the writer must declare them as one-minute windows: the kernel
+  never exposes a POINT forcing (packet Known Deviations 1, question to the Architect). DD3b2 (writer units, kit,
+  pure runs, D-DD.97/104/126/128/129/132) and DD3b3 (notes and leaves) follow; `EXECUTABLE_MODELS` not registered.
+
+## DD3b2: the writer runs units; checks and pure runs (in_review, part 2 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: per-unit `NEEDS`, v8 (Kobo) / v9 (Kisiwa, Mto) by Site, unit events and state rows, D-DD.97 shape,
+  D-DD.104 warm-up, D-DD.129 defaults refused. `dd_check`: C-DD6 clauses by evidence (Kisiwa state, Mto power, live;
+  only the EV clauses pending), `--pure DIR` (C-DD8, C-DD17 pure, C-DD20 Kisiwa/Mto, no database), C-DD21's v9 row
+  on Kisiwa. `dd3_pure_run.py --site`. Kobo's world moved (join and forcing-index W1 goldens regenerated; kernel
+  and pack v8 unchanged).
+- Open: every mini Site's notes overfill (bound hit at all three; the strict writer refuses from 1 Aug at Kobo),
+  so no Jul-Oct pure DIR until DD3b3's notes (D-DD.131). Kisiwa candidate minutes > 0 (OR-MG-2) and Kisiwa October
+  unserved 0 (C-DD20) are with the Architect, as are the `--pure` reading defaults (packet Known Deviations 9-11).
+
+## DD3b3: fuel purchases follow the tank (in_review, partial, part 3 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: `config/world/fuel-notes.json` (D-DD.92) from `tools/dd3_pure_run.py --restate-notes` (25 % crossing, next
+  10:00, at most two 400 L notes, OOO-1 dated): Kobo 2 x 400 on 26 Sep + OOO-1, Kisiwa 8 x 400, Mto none Jul-Oct.
+  `exports.py` writes FUEL rows from it (purchases; D-DD.130); C-DD4 no longer judges mini-grid fuel nodes. The strict
+  writer accepts Jul-Oct at all three Sites (no bound hit). `--leaves` prints D-DD.131's table: October diesel Kobo
+  634 L, Kisiwa 904 L (cost 1,175.20, contribution +1,694.80), Mto 32 L, as D-DD.147 projected. `dd_check --pure` reads
+  the tolerance from `M`, judges Kisiwa's candidate share per month and C-DD20 Kisiwa by D-DD.148 (C-DD20 passes).
+- Open: `M` unchanged (Kisiwa and Mto bridges do not close by `-candidate x price`; D-DD.131 stop); Kisiwa candidate
+  time 11.27 % (Aug) and 10.17 % (Oct) against D-DD.148's 1 %; C-DD17 July/August fail by construction (0 L burned).
+
+## DD3b3 run 2: `M` rev 16.20 and the D-DD.30 chain (in_review; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: October's Lakeside fuel leaves are the notes run's (`config/world/fuel-leaves.json`, a builder file, packet
+  deviation 16); three fuel lines per bridge, so Kobo 120.50, Kisiwa 1,759.80 and Mto 255.00 close; OR-MG-2 prints Kisiwa's
+  candidate time per month with no bound; C-DD17 judges tolerance only in burning months and the draw to 0.1 L. history.json,
+  the fixture view, goldens and pins regenerated once; 114 anchored figures in 17 docs swept; `dd_check --pure` exit 0.
+- Open: six H5 history checks fail (unexplained litres above 2 % of the lower diesel); the D-DD.76 storage rule now gives
+  1,500 / 2,000 / 500 L against the ruled 2,500 / 5,000 / 1,000; vNEXT mock sentences left for the alignment pass.
+- Merged main (DD4b) as `M` rev 16.22: both restatements stand; generated files regenerated, digests re-based; open: DDR x7 and ds4 t12 (fuel cost ruling).
+
+## DD3b fix round 2 (in_review; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: D-DD.175 (a month with no fuel bought states fuel 0.00; energy absence still refused), D-DD.176 (`history.RUN_DERIVED`,
+  disjoint from every physical read, guarded for all nine Sites), D-DD.164 re-pins; Kisiwa candidate share printed
+  20.67 / 16.05 / 0 / 10.55 % (threshold sensitivity, D-DD.165); world suite 484 passed; `dd_check --pure` exit 0.
+- Open: six H5 history checks; DDR rehearsal x7 and ds4 t12 on the DB side.

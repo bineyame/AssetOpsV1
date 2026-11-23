@@ -3,6 +3,9 @@
 Shared behaviour, every Site type named: the cold rooms (no `physical` block) stay byte-identical to main; a
 mini-grid Site's kit (no rule reads it) and a depot's unread keys never re-seed a history; a depot's read keys
 (`buses`, `kwh_per_bus_night`) move only that depot's scopes.
+
+Re-pinned at the DD3b fix round (D-DD.164, 2026-11-23): `scope.RUN_WRITTEN` takes cold `actual.kwh` out of the scope
+digest, so the cold digests were re-drawn once and Mwea/Thika history kWh moved (values from the tool, D-DD.30 chain).
 """
 
 from __future__ import annotations

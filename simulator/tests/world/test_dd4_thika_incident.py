@@ -142,7 +142,7 @@ def test_c_dd6_thika_clauses_live_on_the_writer_rows(incident) -> None:
     dd_check = _dd_check()
     result = dd_check.judge_failures_at_instant({"COLD-THIKA": rows}, sites=("COLD-THIKA",))
     assert result.check == "C-DD6" and result.passed, result.detail
-    assert [p.split()[0] for p in result.pending] == ["KISIWA-001", "MTO-001"]  # the EV clauses are live (DD4.4)
+    assert result.pending == []  # the EV clauses (DD4.4) and Kisiwa's and Mto's (D-DD.146) are live
     moved = [dict(r) for r in rows]
     for r in moved:  # the failure planted a minute late: the clause fails
         if r["unit"] == "event" and r["event"]["outcome"] == "FAILED":

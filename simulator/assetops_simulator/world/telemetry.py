@@ -11,8 +11,11 @@ included.
 
 **Inputs the readings follow.** Load is the declared hourly shape (`LOAD_SHAPE_KW`) times the `demand` family's day
 weight, scaled by largest remainder so a month's load energy equals the month's `delivered_kwh` exactly
-(`TEL_INPUT_TOTAL` otherwise). Sun is `SUN_W_PER_M2`: season v2's clear or overcast day on its calendar (1 Sep to
-the last day of Oct), any other day the clear shape times the `solar_surplus` day weight, season x day class (D-DD.77). Deliveries are tank INCREASE points
+(`TEL_INPUT_TOTAL` otherwise). Sun is `SUN_W_PER_M2`: at `SEASON_V2_SUN_SITES` season v2's clear or overcast day on
+its calendar (1 Sep to the last day of Oct), any other day or Site the clear shape times the `solar_surplus` day
+weight, season x day class (D-DD.77, D-DD.129). The pack is v8 for one generator and one inverter, else v9, with each
+unit answered and attached and `UNIT_EVENTS` as one-minute forcings (D-DD.126, D-DD.129, D-DD.145); the starting
+state of charge comes from one warm-up day (D-DD.104). Deliveries are tank INCREASE points
 at each note's instant; the unexplained draw is a tank DECREASE point of the month's `unexplained_l`, in equal daily
 parts at 02:00 local, largest remainder to 0.01 L. The tank starts at 50 % of its capacity. Each is written in the
 readings manifest's `conditions`; the story's answer block is never read (`TEL_ORACLE_READ`).
@@ -46,7 +49,7 @@ from assetops_contracts.world_inputs import (
 
 from ..kernel.execute import start as start_execution
 from ..packs import generator_curve
-from ..packs.mini_grid import MINI_GRID_V8_MODEL
+from ..packs.mini_grid import MINI_GRID_V8_MODEL, MINI_GRID_V9_MODEL
 from . import GENERATOR
 from .allocate import allocate
 from .canonical import canonical_bytes, file_bytes, sha256_hex
@@ -65,8 +68,10 @@ TANK_START_FRACTION = Fraction(1, 2)  # D-DD.19: Assumed, declared in the manife
 DRAW_MINUTE = 120  # 02:00 local
 QUANTUM = Decimal("0.001")  # a reading is written to the millesimal, half-even; exact decimal text
 
-#: The pack the writer drives for a Site whose structure it can run. DD3.3 adds v9.
-PACK = ("mini-grid", 8)
+#: The packs the writer drives (D-DD.129): v8 where a Site has one generator and one inverter, v9 otherwise.
+MODELS = {8: MINI_GRID_V8_MODEL, 9: MINI_GRID_V9_MODEL}
+#: The unit kinds: a Site may have several, each answered per unit (`Need.per_unit`); the lead is the first by code.
+UNIT_KINDS = ("GENERATOR", "INVERTER")
 
 #: Guards against a read of the story's answer key. The writer's own source must not name it (`C-DD12`).
 ORACLE_KEY = "orac" + "le"
@@ -103,28 +108,33 @@ class Need:
     dimension: str
     source_unit: str  # the unit the property is declared in
     divisor: int = 1  # canonical = declared / divisor (L/h to L/min)
+    per_unit: bool = False  # D-DD.129: answered for every unit of its kind; otherwise the lead unit's (D-DD.43)
+    version: int | None = None  # a need only this pack version reads (None: every version)
 
 
 #: The initial values a Site's foundation answers, in the order the backend freezes them. Parity: `C-DD21`.
 NEEDS: tuple[Need, ...] = (
     Need("pv-rated-power", "PV_ARRAY", "pv-rated-power", "kW", "POWER", "kW"),
-    Need("inverter-ac-limit", "INVERTER", "inverter-ac-limit", "kW", "POWER", "kW"),
+    Need("inverter-ac-limit", "INVERTER", "inverter-ac-limit", "kW", "POWER", "kW", per_unit=True),
     Need("battery-energy-capacity", "BATTERY", "battery-energy-capacity", "kWh", "ENERGY", "kWh"),
     Need("pcs-charge-limit", "POWER_CONVERSION_SYSTEM", "pcs-charge-limit", "kW", "POWER", "kW"),
     Need("pcs-discharge-limit", "POWER_CONVERSION_SYSTEM", "pcs-discharge-limit", "kW", "POWER", "kW"),
     Need("pcs-conversion-efficiency", "POWER_CONVERSION_SYSTEM", "pcs-conversion-efficiency", "%", "FRACTION", "%"),
     Need("battery-reserve-state-of-charge", "BATTERY", "reserve-state-of-charge", "%", "FRACTION", "%"),
-    Need("generator-rated-power", "GENERATOR", "generator-rated-power", "kW", "POWER", "kW"),
+    Need("generator-rated-power", "GENERATOR", "generator-rated-power", "kW", "POWER", "kW", per_unit=True),
     Need("generator-specific-fuel-consumption", "GENERATOR", "specific-fuel-consumption", "L/kWh",
-         "VOLUME_PER_ENERGY", "L/kWh"),
+         "VOLUME_PER_ENERGY", "L/kWh", per_unit=True),
     Need("generator-start-soc-threshold", "GENERATOR", "start-soc-threshold", "%", "FRACTION", "%"),
     Need("generator-stop-soc-threshold", "GENERATOR", "stop-soc-threshold", "%", "FRACTION", "%"),
     Need("generator-minimum-runtime", "GENERATOR", "minimum-runtime", "min", "DURATION", "min"),
     Need("generator-start-delay", "GENERATOR", "start-delay", "min", "DURATION", "min"),
     Need("fuel-tank-capacity", "FUEL_TANK", "tank-capacity", "L", "VOLUME", "L"),
-    Need("generator-no-load-fuel-rate", "GENERATOR", "generator-no-load-fuel-rate", "L/min", "VOLUME_RATE", "L/h", 60),
-    Need("generator-minimum-load", "GENERATOR", "generator-minimum-load", "%", "FRACTION", "%"),
+    Need("generator-no-load-fuel-rate", "GENERATOR", "generator-no-load-fuel-rate", "L/min", "VOLUME_RATE", "L/h", 60,
+         per_unit=True),
+    Need("generator-minimum-load", "GENERATOR", "generator-minimum-load", "%", "FRACTION", "%", per_unit=True),
     Need("battery-charge-taper-start", "BATTERY", "battery-charge-taper-start", "%", "FRACTION", "%"),
+    # D-DD.128/129: v9 only; declared in %, read as a fraction (the pack checks 0 < share and that the shares sum to 1)
+    Need("pv-array-share", "INVERTER", "pv-array-share", "1", "FRACTION", "%", 100, per_unit=True, version=9),
 )
 SOC_ADDRESS = "battery-state-of-charge"
 TANK_ADDRESS = "fuel-tank-volume"
@@ -145,10 +155,11 @@ def site_inputs(onboarding: dict, bindings: dict[str, dict]) -> dict:
     """`F` (D-DD.28): each `/2` Site joined with its binding conversion, sorted by Site code. Pure."""
     refuse_oracle(onboarding)
     operator = onboarding["operator"]["slug"]
-    sites = []
+    sites, unbound = [], []
     for site in sorted(onboarding["sites"], key=lambda s: s["code"]):
         binding = bindings.get(site["code"])
-        if binding is None:
+        if binding is None:  # D-DD.129: listed, and written as a `not_written` manifest line, never skipped
+            unbound.append({"tenant": operator, "code": site["code"]})
             continue
         components = [
             {"id": c["id"], "type": c["type"],
@@ -165,18 +176,21 @@ def site_inputs(onboarding: dict, bindings: dict[str, dict]) -> dict:
             "foundation": foundation, "role_set": binding["role_set"], "bindings": rows,
             "foundation_digest": sha256_hex(canonical_bytes({"foundation": foundation, "bindings": rows,
                                                              "role_set": binding["role_set"]}))})
-    return {"schema": SITE_INPUTS_SCHEMA, "generator": GENERATOR, "sites": sites}
+    return {"schema": SITE_INPUTS_SCHEMA, "generator": GENERATOR, "sites": sites, **({"unbound": unbound} if unbound else {})}
 
 
 # --- inputs: shapes, scaling, the frozen record ------------------------------------------------------------------------
 
 #: The declared load shape (kW at each local hour, one shape at every Site; season v2's blocks of
-#: `host/tests/kobo_season.py` read hour by hour). Written in the manifest's `conditions`.
+#: `host/tests/kobo_season.py` read hour by hour, the residential evening block from dark, D-DD.97). Written in the
+#: manifest's `conditions`.
 LOAD_SHAPE_KW: dict[str, tuple[int, ...]] = {
     "clinic": (2, 2, 2, 2, 2, 2, 5, 5, 6, 6, 7, 7, 7, 7, 6, 6, 5, 5, 5, 5, 4, 4, 2, 2),
     "mill": (0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 18, 18, 10, 10, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0),
-    "res": (3, 3, 3, 3, 3, 5, 8, 8, 6, 6, 5, 5, 6, 6, 8, 8, 14, 14, 14, 14, 9, 9, 5, 5),
+    "res": (5, 5, 3, 3, 3, 5, 8, 8, 6, 6, 5, 5, 6, 6, 8, 8, 8, 8, 14, 14, 14, 14, 9, 9),
 }
+LOAD_SHAPE_BASIS = ("residential evening use from dark (18:00 local); Assumed from measured East-African mini-grid "
+                    "profiles")
 #: Plane-of-array irradiance (W/m2) at each local hour, a clear and an overcast day.
 SUN_W_PER_M2: dict[str, tuple[int, ...]] = {
     "clear": (0, 0, 0, 0, 0, 0, 150, 150, 550, 550, 900, 900, 950, 950, 600, 600, 150, 150, 0, 0, 0, 0, 0, 0),
@@ -187,7 +201,11 @@ OVERCAST_DAYS = frozenset({2, 3, 7, 8, 9, 13, 17, 18, 19, 20, 24, 25, 28, 33, 38
 SEASON_V2_DAY_ZERO = date(2026, 9, 1)
 SEASON_V2_DAYS = 61  # D-0K2.1's calendar length: 1 Sep to the end of Oct (host test pins it to kobo_season.SEASON_DAYS)
 SEASON_V2_LAST_DAY = SEASON_V2_DAY_ZERO + timedelta(days=SEASON_V2_DAYS - 1)
-#: D-DD.77: the `solar_surplus` family of the manifest's `history` block, the default (books carry the view's own).
+#: D-DD.129: the Sites whose sun follows season v2's calendar (spec §4.2, D-DD.77); every other Site's every day is
+#: the clear shape times the `solar_surplus` weight.
+SEASON_V2_SUN_SITES = ("KOBO-001",)
+#: D-DD.77: the `solar_surplus` family of the manifest's `history` block (pinned to it by `test_scope_seasons_parity`).
+#: Not a writer default (D-DD.129: the books' `sun_weights` is required); tests' hand-made books carry it.
 #: A day outside season v2's calendar gets the clear shape times season x day-class weight, no jitter.
 DEFAULT_SUN_WEIGHTS = {
     "seasons": {"2026-07": "cool_dry", "2026-08": "cool_dry", "2026-09": "warm_dry", "2026-10": "short_rains",
@@ -198,8 +216,23 @@ DEFAULT_SUN_WEIGHTS = {
 SUN_RULE = "clear shape x solar_surplus day weight (season x day class, no jitter) (D-DD.77)"
 #: Critical-load order (clinic first), by the load component's id; others follow by id.
 CRITICAL_ORDER = ("clinic", "res", "mill")
-#: `demand` family day weights by day class (`history.families.demand.day` of the manifest), the default.
-DEFAULT_DAY_WEIGHTS = {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"}
+
+#: D-DD.126: the unit failures and restores of `M` `operations` (instant, local), parity-tested against it (D-DD.51).
+#: Each is a one-minute WINDOW forcing at its instant, read at the step that holds it (D-DD.145).
+UNIT_EVENTS: tuple[dict[str, str], ...] = (
+    {"site": "KISIWA-001", "unit": "gen-ks-01", "kind": "unit-fail", "at": "2026-08-14T19:20+03:00",
+     "source": "kis-gen1-2026-08-14"},
+    {"site": "KISIWA-001", "unit": "gen-ks-01", "kind": "unit-restore", "at": "2026-08-17T11:00+03:00",
+     "source": "kis-gen1-2026-08-14"},
+    {"site": "KISIWA-001", "unit": "gen-ks-01", "kind": "unit-fail", "at": "2026-10-30T18:40+03:00",
+     "source": "kis-gen1-2026-10-30"},
+    {"site": "MTO-001", "unit": "inv-mt-02", "kind": "unit-fail", "at": "2026-10-28T11:02+03:00",
+     "source": "mto-inv2-2026-10-28"},
+)
+UNIT_EVENT_TIMING = ("unit failures and restores apply at the 5-minute step holding their instant; the controller "
+                     "responds at the next step (Assumed)")
+START_SOC_BASIS = ("Derived: the 00:00 state after one warm-up day of the span's first day from the declared stop "
+                   "threshold (D-DD.104)")
 
 
 def _feeder(component_id: str) -> str:
@@ -255,10 +288,34 @@ def _span_hours(day: date) -> range:
 
 
 def _component(foundation: dict, kind: str, code: str) -> dict:
+    """The one component of a single-cardinality kind (a unit kind has its lead, `_units`)."""
     found = [c for c in foundation["components"] if c["type"] == kind]
+    if kind in UNIT_KINDS:
+        return _units(foundation, kind, code)[0]
     if len(found) != 1:
         raise TelemetryRefused("TEL_FOUNDATION", f"{code} needs exactly one {kind}, has {len(found)}")
     return found[0]
+
+
+def _units(foundation: dict, kind: str, code: str) -> list[dict]:
+    """A unit kind's components in code order (the pack's declared order, spec §4.3); the first is the lead."""
+    found = sorted((c for c in foundation["components"] if c["type"] == kind), key=lambda c: c["id"])
+    if not found:
+        raise TelemetryRefused("TEL_FOUNDATION", f"{code} needs at least one {kind}")
+    return found
+
+
+def pack_version(site: dict) -> int:
+    """D-DD.129: v8 with exactly one generator and one inverter (Kobo), else v9."""
+    kinds = [c["type"] for c in site["foundation"]["components"]]
+    return 8 if all(kinds.count(kind) == 1 for kind in UNIT_KINDS) else 9
+
+
+def _book(books: dict, key: str, code: str):
+    """A required book key (D-DD.129: no hidden default)."""
+    if key not in books:
+        raise TelemetryRefused("TEL_BOOKS", f"{code} the books carry no {key}")
+    return books[key]
 
 
 def _property(component: dict, key: str, code: str) -> Fraction:
@@ -325,8 +382,9 @@ def _draw(day: date, books: dict, code: str) -> Fraction:
 
 
 def _sun(day: date, weights: dict, code: str) -> tuple[Fraction, ...]:
-    """Season v2's day on its calendar; any other day the clear shape times the `solar_surplus` weight (D-DD.77)."""
-    if SEASON_V2_DAY_ZERO <= day <= SEASON_V2_LAST_DAY:
+    """Season v2's day on its calendar at its Sites; any other day the clear shape times the `solar_surplus` weight
+    (D-DD.77, D-DD.129)."""
+    if code in SEASON_V2_SUN_SITES and SEASON_V2_DAY_ZERO <= day <= SEASON_V2_LAST_DAY:
         kind = "overcast" if (day - SEASON_V2_DAY_ZERO).days in OVERCAST_DAYS else "clear"
         return tuple(Fraction(v) for v in SUN_W_PER_M2[kind])
     season = weights["seasons"].get(day.strftime("%Y-%m"))
@@ -336,9 +394,55 @@ def _sun(day: date, weights: dict, code: str) -> tuple[Fraction, ...]:
     return tuple(Fraction(v) * weight for v in SUN_W_PER_M2["clear"])
 
 
+def _unit_events(site: dict, zone: ZoneInfo, start: datetime, end: datetime) -> list[ForcingInput]:
+    """The Site's `UNIT_EVENTS` inside the span, each a one-minute WINDOW at its instant (D-DD.145)."""
+    units = {c["id"] for c in site["foundation"]["components"] if c["type"] in UNIT_KINDS}
+    out = []
+    for event in UNIT_EVENTS:
+        if event["site"] != site["code"]:
+            continue
+        if event["unit"] not in units:
+            raise TelemetryRefused("TEL_FOUNDATION", f"{site['code']} {event['source']} names no unit {event['unit']}")
+        at = datetime.fromisoformat(event["at"]).astimezone(timezone.utc)
+        if not start <= at < end:
+            continue
+        offset = int((at - start).total_seconds() // 60)
+        out.append(ForcingInput(
+            event_id=f"{event['kind']}:{event['unit']}:{event['at']}", address=f"{event['kind']}@{event['unit']}",
+            state_key=event["kind"], parameter_id="unit-event", value=Fraction(1), canonical_unit="1", dimension="COUNT",
+            shape="WINDOW", offset_minutes=offset, duration_minutes=1, requirement="REQUIRED"))
+    return out
+
+
 def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorldInputs:
-    """The Site's one frozen input record for the span (D-DD.69), from `F` and the books alone."""
+    """The Site's one frozen input record for the span (D-DD.69), from `F` and the books alone. Its starting state of
+    charge is the midnight state after one warm-up day (D-DD.104, `warm_up_soc`)."""
+    return _frozen(site, books, first, last, start_soc=warm_up_soc(site, books, first))
+
+
+def warm_up_soc(site: dict, books: dict, first: str) -> Fraction:
+    """D-DD.104: one day of the span's first day's load and sun (no fuel note, no draw, no unit event), from the lead
+    generator's declared stop threshold, with the tank as declared; the state of charge at its end, exact."""
+    code, foundation = site["code"], site["foundation"]
+    threshold = _property(_component(foundation, "GENERATOR", code), "stop-soc-threshold", code)
+    day = first[:10]
+    frozen = _frozen(site, books, day, day, start_soc=threshold, warm_up=True)
+    execution = start_execution(frozen, MODELS[frozen.model_profile_version])
+    execution.run_to_end()
+    if execution.outcome != "COMPLETED":
+        raise TelemetryRefused("TEL_PACK", f"{code} the warm-up day {day} {execution.failure}")
+    battery = _component(foundation, "BATTERY", code)["id"]
+    soc = execution.boundaries[-1].state_sample(f"{SOC_ADDRESS}@{battery}")
+    if soc is None:
+        raise TelemetryRefused("TEL_PACK", f"{code} the warm-up day {day} ends with no state of charge")
+    return soc
+
+
+def _frozen(site: dict, books: dict, first: str, last: str, *, start_soc: Fraction,
+            warm_up: bool = False) -> FrozenWorldInputs:
     code, foundation, zone = site["code"], site["foundation"], _zone(site)
+    version = pack_version(site)
+    model = MODELS[version]
     days, end_minute = span_days(first, last)
     start, end = _utc(zone, days[0]), _utc(zone, days[-1], end_minute)
     duration = (len(days) - 1) * 1440 + end_minute
@@ -346,20 +450,29 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
         raise TelemetryRefused("TEL_FOUNDATION", f"{code} a clock change inside {first}..{last}")
     ids = {kind: _component(foundation, kind, code)["id"] for kind in
            ("PV_ARRAY", "INVERTER", "BATTERY", "POWER_CONVERSION_SYSTEM", "GENERATOR", "FUEL_TANK", "AC_BUS")}
+    generators = [c["id"] for c in _units(foundation, "GENERATOR", code)]
+    inverters = [c["id"] for c in _units(foundation, "INVERTER", code)]
     loads = [c["id"] for c in foundation["components"] if c["type"] == "LOAD"]
 
     initial = []
     for need in NEEDS:
-        component = _component(foundation, need.component_type, code)
-        value = _property(component, need.property_key, code) / need.divisor
-        initial.append(InitialValue(address=f"{need.state_key}@{component['id']}", state_key=need.state_key,
-                                    scope="COMPONENT", parameter_id=f"model-need:{need.property_key}", value=value,
-                                    canonical_unit=need.unit, dimension=need.dimension, answered_by="SITE_FOUNDATION"))
+        if need.version is not None and need.version != version:
+            continue
+        if need.component_type in UNIT_KINDS and need.per_unit:
+            components = _units(foundation, need.component_type, code)
+        else:
+            components = [_component(foundation, need.component_type, code)]
+        for component in components:
+            value = _property(component, need.property_key, code) / need.divisor
+            initial.append(InitialValue(address=f"{need.state_key}@{component['id']}", state_key=need.state_key,
+                                        scope="COMPONENT", parameter_id=f"model-need:{need.property_key}", value=value,
+                                        canonical_unit=need.unit, dimension=need.dimension,
+                                        answered_by="SITE_FOUNDATION"))
     capacity = next(row.value for row in initial if row.state_key == "fuel-tank-capacity")
     tank = f"{TANK_ADDRESS}@{ids['FUEL_TANK']}"
     initial += [
         InitialValue(address=f"{SOC_ADDRESS}@{ids['BATTERY']}", state_key=SOC_ADDRESS, scope="COMPONENT",
-                     parameter_id="starting-state-of-charge", value=Fraction(books.get("start_soc", 40)),
+                     parameter_id="starting-state-of-charge", value=start_soc,
                      canonical_unit="%", dimension="FRACTION", answered_by="SCENARIO"),
         InitialValue(address=tank, state_key=TANK_ADDRESS, scope="COMPONENT", parameter_id="starting-fuel",
                      value=capacity * TANK_START_FRACTION, canonical_unit="L", dimension="VOLUME",
@@ -375,10 +488,12 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
             raise TelemetryRefused("TEL_INPUT_TOTAL", f"{code} {month} has no books")
     blocks = {month: _load_blocks(month, books["day_weights"], books, code) for month in months}
     load_ids = {_feeder(load): load for load in loads}
+    sun_weights = _book(books, "sun_weights", code)
+    notes = _book(books, "fuel_notes", code)
     for index, day in enumerate(days):
         base = index * 1440
         month_blocks = blocks[day.strftime("%Y-%m")]
-        sun = _sun(day, books.get("sun_weights", DEFAULT_SUN_WEIGHTS), code)
+        sun = _sun(day, sun_weights, code)
         for hour in range(end_minute // 60 if day == days[-1] else 24):
             offset = base + hour * 60
             forcings.append(ForcingInput(
@@ -391,9 +506,11 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
                     event_id=f"load:{feeder}:{offset}", address=f"load-demand@{load_ids[feeder]}",
                     state_key="load-demand", parameter_id="world-load", value=kw, canonical_unit="kW",
                     dimension="POWER", shape="WINDOW", offset_minutes=offset, duration_minutes=60, requirement="REQUIRED"))
+    if not warm_up:
+        forcings += _unit_events(site, zone, start, end)
 
     causes = []
-    for note in books.get("fuel_notes", []):
+    for note in () if warm_up else notes:
         at = datetime.fromisoformat(note["at"]).astimezone(zone)
         local_day = at.date()
         if local_day < days[0] or local_day > days[-1] or at.astimezone(timezone.utc) >= end:
@@ -405,7 +522,7 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
             event_id=f"delivery:{note['at']}", address=tank, state_key=TANK_ADDRESS, direction="INCREASE",
             parameter_id="fuel-note", quantity=Fraction(note["litres"]), canonical_unit="L", dimension="VOLUME",
             shape="POINT", offset_minutes=offset, duration_minutes=None))
-    for index, day in enumerate(days):
+    for index, day in enumerate(() if warm_up else days):
         if day == days[-1] and DRAW_MINUTE >= end_minute:
             continue
         draw = _draw(day, books, code)
@@ -416,14 +533,19 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
                 offset_minutes=index * 1440 + DRAW_MINUTE, duration_minutes=None))
     causes.sort(key=lambda c: (c.offset_minutes, c.event_id))
 
-    pcs, battery, generator, inverter, pv = (ids["POWER_CONVERSION_SYSTEM"], ids["BATTERY"], ids["GENERATOR"],
-                                            ids["INVERTER"], ids["PV_ARRAY"])
+    pcs, battery, generator, pv = ids["POWER_CONVERSION_SYSTEM"], ids["BATTERY"], ids["GENERATOR"], ids["PV_ARRAY"]
     ordered = sorted(loads, key=lambda load: (CRITICAL_ORDER.index(_feeder(load)), load))
     digest = site["foundation_digest"]
+    discrete = tuple(DiscreteInitialValue(address=f"{STATE_ADDRESS}@{unit}", state_key=STATE_ADDRESS, scope="COMPONENT",
+                                          value="STOPPED", answered_by="SCENARIO") for unit in generators)
+    if version == 9:
+        discrete += tuple(DiscreteInitialValue(address=f"inverter-state@{unit}", state_key="inverter-state",
+                                               scope="COMPONENT", value="AVAILABLE", answered_by="SCENARIO")
+                          for unit in inverters)
     return FrozenWorldInputs(
         run_id=f"world-{code}", execution_contract_version=EXECUTION_CONTRACT_VERSION, site_id=code,
         foundation_version=1, scenario_id="world-telemetry", scenario_version=1,
-        model_profile_id=MINI_GRID_V8_MODEL.model_profile_id, model_profile_version=MINI_GRID_V8_MODEL.model_profile_version,
+        model_profile_id=model.model_profile_id, model_profile_version=model.model_profile_version,
         publication_profile_id="simulator-lab-publication", publication_profile_version=3,
         interval=FrozenInterval(start_time=_iso_utc(start), end_time=_iso_utc(end), duration_minutes=duration,
                                 timestep_minutes=STEP_MINUTES),
@@ -432,13 +554,13 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
         site_controls=(SiteControlInput("source-priority", (pv, battery, generator)),
                        SiteControlInput("critical-load-priority", tuple(ordered))),
         bus_attachments=(
-            BusAttachmentInput("PV_SOURCE", pv, inverter, ids["AC_BUS"]),
+            *(BusAttachmentInput("PV_SOURCE", pv, inverter, ids["AC_BUS"]) for inverter in inverters),
             BusAttachmentInput("STORAGE", battery, pcs, ids["AC_BUS"]),
-            BusAttachmentInput("GENERATION", generator, None, ids["AC_BUS"]),
-            BusAttachmentInput("FUEL_SUPPLY", ids["FUEL_TANK"], generator, ids["AC_BUS"]),
+            *(attachment for unit in generators for attachment in (
+                BusAttachmentInput("GENERATION", unit, None, ids["AC_BUS"]),
+                BusAttachmentInput("FUEL_SUPPLY", ids["FUEL_TANK"], unit, ids["AC_BUS"]))),
             *(BusAttachmentInput("LOAD", load, None, ids["AC_BUS"]) for load in ordered)),
-        discrete_initial_values=(DiscreteInitialValue(address=f"{STATE_ADDRESS}@{generator}", state_key=STATE_ADDRESS,
-                                                      scope="COMPONENT", value="STOPPED", answered_by="SCENARIO"),))
+        discrete_initial_values=discrete)
 
 
 # --- public records to readings ----------------------------------------------------------------------------------------
@@ -477,8 +599,10 @@ class SiteRun:
         self.days, self.end_minute = span_days(first, last)
         self.day_steps = [STEPS_PER_DAY] * (len(self.days) - 1) + [self.end_minute // STEP_MINUTES]
         self.frozen = frozen_inputs(site, books, first, last)
+        self.pack = ("mini-grid", self.frozen.model_profile_version)
+        self.start_soc = next(r.value for r in self.frozen.initial_values if r.state_key == SOC_ADDRESS)
         self.pairs, self.mappings = self._resolve()
-        self._execution = start_execution(self.frozen, MINI_GRID_V8_MODEL)
+        self._execution = start_execution(self.frozen, MODELS[self.frozen.model_profile_version])
         self.steps_advanced = 0
         self._started = False
         self._bounded_seen = 0
@@ -487,15 +611,27 @@ class SiteRun:
         self.next_day = 0
         self.ledger: dict[str, dict] = {}
         self._day_rows: dict[date, list[dict]] = {}
-        values = {row.state_key: row.value for row in self.frozen.initial_values}
-        self._curve = generator_curve.fuel_curve(values["generator-specific-fuel-consumption"],
-                                                 values["generator-no-load-fuel-rate"], values["generator-rated-power"])
+        values = {row.address: row.value for row in self.frozen.initial_values}
+        #: each generator unit's own fuel curve (D-DD.129: the ledger burns each unit on its curve and sums)
+        self._curves = {
+            unit["id"]: generator_curve.fuel_curve(values[f"generator-specific-fuel-consumption@{unit['id']}"],
+                                                   values[f"generator-no-load-fuel-rate@{unit['id']}"],
+                                                   values[f"generator-rated-power@{unit['id']}"])
+            for unit in _units(site["foundation"], "GENERATOR", self.code)}
         self._tank = next(r.address for r in self.frozen.initial_values if r.state_key == TANK_ADDRESS)
-        self._gen = next(r.address for r in self.frozen.initial_values
-                         if r.state_key == "generator-rated-power").split("@")[1]
+        #: D-DD.145/146: a generator unit's state row of the step holding its event starts at the event's instant
+        self._stamps = {}
+        for forcing in self.frozen.forcings:
+            if forcing.state_key in ("unit-fail", "unit-restore"):
+                unit = forcing.address.split("@", 1)[1]
+                at = (self._start_utc() + timedelta(minutes=forcing.offset_minutes)).astimezone(self.zone)
+                self._stamps[(f"{STATE_ADDRESS}@{unit}", forcing.offset_minutes // STEP_MINUTES + 1)] = at
         self._pcs = next(r.address for r in self.frozen.initial_values
                          if r.state_key == "pcs-charge-limit").split("@")[1]
-        self._start = datetime.fromisoformat(self.frozen.interval.start_time.replace("Z", "+00:00"))
+        self._start = self._start_utc()
+
+    def _start_utc(self) -> datetime:
+        return datetime.fromisoformat(self.frozen.interval.start_time.replace("Z", "+00:00"))
 
     # -- the binding of every public record (D-DD.72) --
 
@@ -509,9 +645,11 @@ class SiteRun:
                 component = next((c for c in foundation["components"] if c["id"] == row["asset_code"]), None)
                 if component is None or component["type"] != component_type:
                     raise TelemetryRefused("TEL_BINDING", f"{code} {role}")
-            if role == "feeder_demand":
+            if role == "feeder_demand" or component_type in UNIT_KINDS:
+                # PER_ASSET roles (D-DD.129): one row for each load or unit, each its own component
                 targets = [(row, row["asset_code"]) for row in rows]
-                if len(targets) != len([c for c in foundation["components"] if c["type"] == "LOAD"]):
+                expected = {c["id"] for c in foundation["components"] if c["type"] == component_type}
+                if len(targets) != len(expected) or {t[1] for t in targets} != expected:
                     raise TelemetryRefused("TEL_BINDING", f"{code} {role}")
             else:
                 if len(rows) != 1:
@@ -573,14 +711,15 @@ class SiteRun:
             boundary, start_minute = boundaries[step], (step - 1) * STEP_MINUTES
             end_at = (self._start + timedelta(minutes=step * STEP_MINUTES)).astimezone(self.zone)
             start_at = (self._start + timedelta(minutes=start_minute)).astimezone(self.zone)
-            self._account(start_at, boundaries[step - 1], boundary)
+            self._account(start_at, boundaries[step - 1], boundary, step)
             for pair in self.pairs:
                 value = self._value(pair, boundary, boundaries[step - 1])
+                stamp = self._stamps.get((pair["address"], step), start_at) if pair["kind"] == "DISCRETE" else start_at
                 out.append({"source_id": pair["source_id"], "signal_id": pair["signal_id"],
-                            "start": start_at.isoformat(), "end": end_at.isoformat(), "value": value, "unit": pair["unit"]})
+                            "start": stamp.isoformat(), "end": end_at.isoformat(), "value": value, "unit": pair["unit"]})
         return sorted(out, key=lambda r: (r["start"], r["source_id"], r["signal_id"]))
 
-    def _account(self, start_at: datetime, previous, boundary) -> None:
+    def _account(self, start_at: datetime, previous, boundary, step: int) -> None:
         """The month ledger: what the measured books and the pure-run table are written from (not published)."""
         month = start_at.strftime("%Y-%m")
         tank = boundary.stock(self._tank)
@@ -599,13 +738,19 @@ class SiteRun:
             for key, value in (("demand_kwh", load.demand_energy), ("served_kwh", load.served_energy),
                                ("unserved_kwh", load.unserved_energy)):
                 row[key][feeder] = row[key].get(feeder, Fraction(0)) + value
-        energy = boundary.interval_measurement(f"generator-output-power@{self._gen}") or Fraction(0)
-        state = previous.discrete_state_for_step(f"{STATE_ADDRESS}@{self._gen}") or "STOPPED"
-        litres = generator_curve.fuel_litres(self._curve, state, Fraction(STEP_MINUTES), energy)
+        energy, litres = Fraction(0), Fraction(0)
+        for unit, curve in self._curves.items():
+            unit_energy = boundary.interval_measurement(f"generator-output-power@{unit}")
+            state = previous.discrete_state_for_step(f"{STATE_ADDRESS}@{unit}")
+            if unit_energy is None or state is None:
+                raise TelemetryRefused("TEL_PACK", f"{self.code} {unit} step {step} ({start_at.isoformat()}) has no "
+                                                   f"{'output' if unit_energy is None else 'state'}")
+            energy += unit_energy
+            litres += generator_curve.fuel_litres(curve, state, Fraction(STEP_MINUTES), unit_energy)
+            if state == "RUNNING":
+                row["generator_minutes"] += STEP_MINUTES  # unit-minutes: each running unit counts
         row["generator_kwh"] += energy
         row["modelled_l"] += litres
-        if state == "RUNNING":
-            row["generator_minutes"] += STEP_MINUTES
         if energy > 0:
             capability = boundary.interval_measurement(f"battery-discharge-capability@{self._pcs}")
             if capability is not None and capability >= energy:
@@ -647,7 +792,7 @@ class SiteRun:
         if kind == "DISCRETE":
             member = boundary.discrete_state(address)
             allowed = pair["conversion"].get("parameters", {}).get("map", {})
-            if member is None or (allowed and member not in allowed):
+            if member is None or member not in allowed:  # an empty map admits nothing (D-DD.129)
                 raise TelemetryRefused("TEL_BINDING", f"{self.code} {pair['role']} state {member}")
             return member
         if kind == "STATE":
@@ -729,7 +874,7 @@ class VerticalBinding:
                     text = _decimal(value)
                 elif isinstance(value, str):
                     allowed = binding["conversion"].get("parameters", {}).get("map", {})
-                    if allowed and value not in allowed:
+                    if value not in allowed:  # an empty map admits nothing (D-DD.129)
                         raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} state {value}")
                     text = value
                 else:
@@ -747,8 +892,10 @@ class VerticalBinding:
 
 
 def supported(site: dict) -> bool:
+    """D-DD.129: one BATTERY and one FUEL_TANK, at least one GENERATOR and one INVERTER."""
     kinds = [c["type"] for c in site["foundation"]["components"]]
-    return all(kinds.count(kind) == 1 for kind in ("GENERATOR", "INVERTER", "BATTERY", "FUEL_TANK"))
+    return (all(kinds.count(kind) == 1 for kind in ("BATTERY", "FUEL_TANK"))
+            and all(kinds.count(kind) >= 1 for kind in UNIT_KINDS))
 
 
 def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str, end: str,
@@ -761,6 +908,11 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
     files, manifests = [], []
     emit = sink if sink is not None else (lambda name, data: files.append((name, data)))
     by_tenant: dict[str, list[SiteRun]] = {}
+    for site in sites.get("unbound", []):  # D-DD.129: a Site with no binding conversion is stated, not skipped
+        if only is None or site["code"] in only:
+            manifests.append((f"{site['tenant']}/telemetry/{site['code']}.manifest.json", {
+                "schema": MANIFEST_SCHEMA, "site_code": site["code"],
+                "not_written": "TEL_BINDING the Site has no binding conversion"}))
     for site in sites["sites"]:
         code = site["code"]
         if only is not None and code not in only:
@@ -827,19 +979,23 @@ def _measured_view(run) -> object:
 def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str]) -> dict:
     return {
         "schema": MANIFEST_SCHEMA, "generator": GENERATOR, "site_code": site["code"], "role_set": site["role_set"],
-        "pack": {"model": PACK[0], "version": PACK[1]}, "foundation_digest": site["foundation_digest"],
+        "pack": {"model": run.pack[0], "version": run.pack[1]}, "foundation_digest": site["foundation_digest"],
         "span": {"first": run.days[0].isoformat(), "last": run.days[-1].isoformat(), "to": run.end_local.isoformat()},
         "private_parameters": {a.address: str(a.value) for a in run.frozen.initial_values},
         "conditions": {
             "load_shape_kw": {k: list(v) for k, v in sorted(LOAD_SHAPE_KW.items())},
+            "load_shape_basis": LOAD_SHAPE_BASIS,
+            "start_soc": {"value": _decimal(run.start_soc), "unit": "%", "basis": START_SOC_BASIS},
+            "unit_events": [dict(e) for e in UNIT_EVENTS if e["site"] == site["code"]],
+            "unit_event_timing": UNIT_EVENT_TIMING,
             "sun_w_per_m2": {k: list(v) for k, v in sorted(SUN_W_PER_M2.items())},
             "overcast_days_from": SEASON_V2_DAY_ZERO.isoformat(), "overcast_day_indices": sorted(OVERCAST_DAYS),
             "sun_outside_calendar": {"rule": SUN_RULE, "calendar": [SEASON_V2_DAY_ZERO.isoformat(),
                                                                      SEASON_V2_LAST_DAY.isoformat()],
-                                     "weights": books.get("sun_weights", DEFAULT_SUN_WEIGHTS)},
+                                     "sites": list(SEASON_V2_SUN_SITES), "weights": books["sun_weights"]},
             "day_weights": books["day_weights"], "tank_start": "50 % of tank-capacity (Assumed, D-DD.19)",
             "declared_draw": "month unexplained_l in equal daily parts at 02:00 local (D-DD.19)",
-            "fuel_notes": books.get("fuel_notes", []), "critical_load_order": list(CRITICAL_ORDER),
+            "fuel_notes": books["fuel_notes"], "critical_load_order": list(CRITICAL_ORDER),
             **_month_without_books(run, books)},
         "mappings": run.mappings, "golden_digests": golden}
 
@@ -875,8 +1031,10 @@ def books_for(view: dict, history: dict, expenses: dict[str, str]) -> dict[str, 
         if tenant.get("vertical") != "MINI_GRID":
             continue
         slug = tenant["tenant"]
+        if slug not in expenses:  # D-DD.129: a mini-grid tenant's expenses file is required, never assumed empty
+            raise TelemetryRefused("TEL_BOOKS", f"{slug} has no expenses file")
         notes: dict[str, list[dict]] = {}
-        for row in csv.DictReader(io.StringIO(expenses.get(slug, ""))):
+        for row in csv.DictReader(io.StringIO(expenses[slug])):
             if row["Category"] == "Diesel":
                 notes.setdefault(row["Site"], []).append({"at": row["Date"], "litres": int(row["Litres"])})
         for site in tenant["sites"]:

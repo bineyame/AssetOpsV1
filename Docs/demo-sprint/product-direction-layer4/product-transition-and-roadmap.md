@@ -40,7 +40,7 @@ flowchart LR
 |---|---|---|
 | 1, 2 | The period's own figure on the Optimize card (CH5); one canonical format | The screens stop understating a month; one contract for every source |
 | 3A (B3) | A commercial record store, file intake, emulators labelled *Emulated* (D14) | Billing, collections and costs beside telemetry, which monitoring tools do not hold |
-| 3B (B1, CH1) | The factor structure from leaves to outcomes; Findings pinned to their factors | Kobo's October contribution, 883<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> against a target of 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution-->, computed factor by factor |
+| 3B (B1, CH1) | The factor structure from leaves to outcomes; Findings pinned to their factors | Kobo's October contribution, 1,565.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> against a target of 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution-->, computed factor by factor |
 | 3C (CH2) | Sign-in and roles (OD-13, OD-14); a named person on every command | Accountability the executive can see |
 | 4, 5 (B2) | Money leaves from records; targets per factor; the bridge | Why the month came in below target, in money |
 | 6 (CH3) | Options valued against no action, bounds first | Choices compared net of their cost: Mto's huller connection is worth 2,213.33<!--fig:options.MTO-HULLER.value--> over twelve months (MODELLED on SIMULATED litres from the M8 replay); Kobo's stop-threshold litres and value are Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f) |

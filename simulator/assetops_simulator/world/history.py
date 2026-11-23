@@ -19,7 +19,7 @@ from . import GENERATOR
 from .allocate import allocate
 from .leaves import MONEY_LEAVES, is_money
 from .months import dates_of, day_class, days_in, next_month, parse_month, period_end
-from .scope import SIDES, merged_rules, physical_read, scope_digest, scope_input, scope_key, seed, unit_interval
+from .scope import PHYSICAL_READS, RUN_WRITTEN, SIDES, merged_rules, physical_read, scope_digest, scope_input, scope_key, seed, unit_interval
 from .view import ManifestView, view_digest
 
 SCHEMA = "assetops.history/1"
@@ -36,6 +36,40 @@ FAMILY_RULES = frozenset({"scale", "trend", "level", "cold_kwh"})
 LIST_RULES = frozenset({"trend", "level", "occupancy", "cold_kwh", "share"})
 ANCHORABLE = frozenset({"occupancy", "cold_kwh", "share"})
 ANCHOR = "anchor"
+
+#: D-DD.176: per vertical, the history keys (either side) computed from a `scope.RUN_WRITTEN` value, so they move with
+#: October's run-written leaves through the rule the spec declares (`scale`/`trend`/`level` read `october(side, leaf)`;
+#: `cold_kwh` reads October's kwh; EV's metered leaves are October × weight). Listed from the code and proved by
+#: `test_scope_run_written.py`: changing a run-written October key moves only these paths. Generate 1 to 2 may move
+#: only these values and `meta.view_digest`; generates 2 and 3 are byte-identical.
+RUN_DERIVED: dict[str, tuple[str, ...]] = {
+    "MINI_GRID": ("necessary_l", "candidate_l"),
+    "COLD_CHAIN": ("kwh",),
+    "EV_DEPOT": ("peak_kwh", "offpeak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw"),
+}
+
+#: D-DD.176: per vertical, the history `actual`/`plan` keys a writer reads: `telemetry.books_for` (delivered kWh and
+#: unexplained litres) and `telemetry_cold.cold_books_for` (its ledger, built by `exports_cold`: crate days,
+#: outstanding, revenue, received). EV's writer reads no history block. Proved by `test_scope_run_written.py`.
+WRITER_READS: dict[str, tuple[str, ...]] = {
+    "MINI_GRID": ("delivered_kwh", "unexplained_l"),
+    "COLD_CHAIN": ("crate_days", "outstanding", "revenue", "received"),
+    "EV_DEPOT": (),
+}
+
+
+def _run_derived_is_never_read_back() -> None:
+    """A derived key that a writer or a physical rule reads would be D-DD.164's loop again: refused at import."""
+    physical = {k for keys in PHYSICAL_READS.values() for k in keys} | set(PHYSICAL_READS)
+    for vertical, derived in RUN_DERIVED.items():
+        if vertical not in RUN_WRITTEN:
+            raise ValueError(f"RUN_DERIVED_VERTICAL {vertical}")
+        for key in derived:
+            if key in physical or key in WRITER_READS.get(vertical, ()):
+                raise ValueError(f"RUN_DERIVED_READ_BACK {vertical} {key}")
+
+
+_run_derived_is_never_read_back()
 
 
 def _refuse(code: str, key: str, leaf: str) -> ValueError:

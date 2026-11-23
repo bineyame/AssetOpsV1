@@ -315,6 +315,11 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "battery-charge-taper-start-basis": PropertyDefinition(
         unit="state", kind="PHYSICAL", display_name=_name("battery_charge_taper_start_basis")
     ),
+    # DD3b2 (D-DD.128): the part of the PV array wired to an inverter unit (mini-grid v9 splits the array by it).
+    "pv-array-share": PropertyDefinition(unit="%", kind="PHYSICAL", display_name=_name("pv_array_share")),
+    "pv-array-share-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name=_name("pv_array_share_basis")
+    ),
     # DIESEL-1 K1 (R3c): the tank level sensor's declared accuracy, read by fuel-balance-1 (K3) as the margin term a.
     "fuel-level-sensor-accuracy": PropertyDefinition(
         unit="L", kind="PHYSICAL", display_name="Fuel level sensor accuracy"
@@ -360,6 +365,8 @@ STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     # 0K4b: where a declared minimum load and taper start come from.
     "generator-minimum-load-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
     "battery-charge-taper-start-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    # DD3b2 (D-DD.128): where a declared PV array share comes from.
+    "pv-array-share-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
     # DIESEL-1 K1: where a declared fuel level sensor accuracy comes from.
     "fuel-level-sensor-accuracy-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_CALIBRATION"}),
 }
@@ -397,6 +404,8 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "generator-minimum-load-basis": "GENERATOR",  # 0K4b
     "battery-charge-taper-start": "BATTERY",  # 0K4b (D-0K4.6)
     "battery-charge-taper-start-basis": "BATTERY",  # 0K4b
+    "pv-array-share": "INVERTER",  # DD3b2 (D-DD.128)
+    "pv-array-share-basis": "INVERTER",  # DD3b2
     "fuel-level-sensor-accuracy": "FUEL_TANK",  # DIESEL-1 K1
     "fuel-level-sensor-accuracy-basis": "FUEL_TANK",  # DIESEL-1 K1
     "technical-loss-band": "LOAD",  # 4a (D-4A.3): per feeder

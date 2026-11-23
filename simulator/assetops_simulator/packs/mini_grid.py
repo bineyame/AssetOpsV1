@@ -57,6 +57,7 @@ from assetops_simulator.kernel.model import (
     Coupling,
     CouplingRefused,
     DiscreteStateSpec,
+    DiscreteValue,
     ModelSpec,
     StateHandler,
     StepContext,
@@ -1872,4 +1873,831 @@ MINI_GRID_V8_MODEL = replace(
     + generator_curve.CURVE_HANDLERS,
     component_relations=tuple(_v8_relation(relation) for relation in MINI_GRID_V7_MODEL.component_relations),
     coupling=MINI_GRID_V8_COUPLING,
+)
+
+
+# --- `mini-grid` v9 (DD3b1, D-DD.127; spec DD §4.3): units ----------------------------------------------------------
+#
+# Ordered generator and PV-inverter units, each with its own lifecycle, and two unit events. With one generator and
+# one inverter every callable below hands the step to v8's own callable (the one-unit fast path), so v8's trajectory
+# is v9's by construction (C-DD19). The multi-unit path is new code beside it; v1-v8 are untouched.
+
+INVERTER_STATE = "inverter-state"
+AVAILABLE = "AVAILABLE"
+UNIT_FAIL = "unit-fail"
+UNIT_RESTORE = "unit-restore"
+PV_ARRAY_SHARE = "pv-array-share"
+
+#: v8's lifecycle with FAILED reachable: `UNIT_FAIL` from any state, `UNIT_RESTORE` back to STOPPED (D-DD.127).
+GENERATOR_LIFECYCLE_V9 = replace(
+    GENERATOR_LIFECYCLE,
+    transitions=GENERATOR_LIFECYCLE.transitions
+    | {(STOPPED, FAILED), (STARTING, FAILED), (RUNNING, FAILED), (FAILED, STOPPED)},
+    statement=(
+        "One generator unit's physical lifecycle. STOPPED starts on a Site policy request and is STARTING for the "
+        "start delay, delivering nothing; RUNNING delivers up to its rating; a policy stop returns it to STOPPED. A "
+        "unit-fail event makes it FAILED from any state, delivering nothing; a unit-restore event returns a FAILED "
+        "unit to STOPPED."
+    ),
+)
+
+INVERTER_LIFECYCLE = DiscreteStateSpec(
+    state_key=INVERTER_STATE,
+    scope="COMPONENT",
+    allowed_values=(AVAILABLE, FAILED),
+    initialization_owner="SCENARIO",
+    initial_values_supported=frozenset({AVAILABLE, FAILED}),
+    transitions=frozenset({(AVAILABLE, FAILED), (FAILED, AVAILABLE)}),
+    observable_signals=("inverter-state",),
+    statement=(
+        "One PV inverter unit: AVAILABLE converts its share of the array up to its AC limit; FAILED delivers "
+        "nothing. A unit-fail event makes it FAILED and a unit-restore event AVAILABLE again."
+    ),
+)
+
+
+def _unit_event(what: str):
+    def consume(value: Fraction, *_: object) -> Fraction:
+        if value != 1:
+            raise PhysicallyUnacceptable(f"a {what} event of {value} is not one event")
+        return Fraction(0)
+
+    return consume
+
+
+def _array_share(value: Fraction, *_: object) -> Fraction:
+    if not 0 < value <= 1:
+        raise PhysicallyUnacceptable(f"a PV array share of {value} is not a part of one array")
+    return value
+
+
+UNIT_EVENT_HANDLERS: tuple[StateHandler, ...] = tuple(
+    StateHandler(
+        handler_id=f"{key}-forcing",
+        state_key=key,
+        scope="COMPONENT",
+        role="FORCING_INPUT",
+        kind="FORCING",
+        dimension="COUNT",
+        statement=statement,
+        consume=_unit_event(key),
+    )
+    for key, statement in (
+        (UNIT_FAIL, "A unit fails at an instant: from the step holding it the unit delivers nothing."),
+        (UNIT_RESTORE, "A failed unit is restored at an instant: from the step holding it the unit can run again."),
+    )
+)
+
+PV_ARRAY_SHARE_HANDLER = daytime._coefficient(
+    PV_ARRAY_SHARE,
+    "pv-array-share-coefficient",
+    "FRACTION",
+    _array_share,
+    "The fraction of the PV array wired to this inverter; a Site's shares sum to one.",
+)
+
+_GENERATOR_UNIT_KEYS = frozenset(
+    {
+        GENERATOR_RATED_POWER,
+        GENERATOR_SPECIFIC_CONSUMPTION,
+        generator_curve.NO_LOAD_FUEL_RATE,
+        generator_curve.MINIMUM_LOAD,
+        START_THRESHOLD,
+        STOP_THRESHOLD,
+        MINIMUM_RUNTIME,
+        START_DELAY,
+    }
+)
+_POLICY_KEYS = (START_THRESHOLD, STOP_THRESHOLD, MINIMUM_RUNTIME, START_DELAY)
+_INVERTER_UNIT_KEYS = frozenset({daytime.INVERTER_LIMIT, PV_ARRAY_SHARE})
+
+
+@dataclass(frozen=True)
+class _GeneratorUnit:
+    generator: str
+    rated: Fraction
+    curve: generator_curve.FuelCurve
+    minimum_kw: Fraction
+
+    @property
+    def state_address(self) -> str:
+        return f"{GENERATOR_STATE}@{self.generator}"
+
+
+@dataclass(frozen=True)
+class _InverterUnit:
+    inverter: str
+    limit: Fraction
+    share: Fraction
+
+    @property
+    def state_address(self) -> str:
+        return f"{INVERTER_STATE}@{self.inverter}"
+
+
+def _components_of(context: StepContext, key: str) -> list[str]:
+    return sorted(daytime._component(a) for a, _ in context.coefficients if a.split("@", 1)[0] == key)
+
+
+def _units_named(context: StepContext) -> tuple[list[str], list[str]]:
+    """The generator and inverter units in declared order (component code order, spec §4.3)."""
+    return _components_of(context, GENERATOR_RATED_POWER), _components_of(context, daytime.INVERTER_LIMIT)
+
+
+def _one_of_each(context: StepContext) -> bool:
+    generators, inverters = _units_named(context)
+    return len(generators) == 1 and len(inverters) == 1
+
+
+def _lead_context(context: StepContext) -> StepContext:
+    """The step as the lead units see it: every other unit's answers and attachments left out, so the Site's plant,
+    tank and control policy are read by v8's own readers from the lead generator and inverter."""
+    generators, inverters = _units_named(context)
+    lead_g, lead_i = generators[0], inverters[0]
+
+    def kept(address: str) -> bool:
+        key, component = address.split("@", 1)[0], daytime._component(address)
+        if key in _GENERATOR_UNIT_KEYS:
+            return component == lead_g
+        if key in _INVERTER_UNIT_KEYS:
+            return component == lead_i
+        return True
+
+    def attached(item) -> bool:
+        if item.role == "GENERATION":
+            return item.component_id == lead_g
+        if item.role == "FUEL_SUPPLY":
+            return item.via_component_id == lead_g
+        if item.role == "PV_SOURCE":
+            return item.via_component_id == lead_i
+        return True
+
+    return replace(
+        context,
+        coefficients=tuple(item for item in context.coefficients if kept(item[0])),
+        bus_attachments=tuple(item for item in context.bus_attachments if attached(item)),
+    )
+
+
+def _value_at(context: StepContext, key: str, component: str, what: str) -> Fraction:
+    found = context.coefficient(f"{key}@{component}")
+    if found is None:
+        raise CouplingRefused(
+            "INITIAL_STATE_UNANSWERED", f"{key}@{component}", f"the {what} {component} has no {key}; it is never assumed"
+        )
+    return found
+
+
+def _unit_plant(context: StepContext):
+    """The lead plant (v8's readers), then every generator and inverter unit, checked."""
+    lead = _lead_context(context)
+    plant, gen = _both(lead)
+    generators, inverters = _units_named(context)
+    units = []
+    for g in generators:
+        rated = _value_at(context, GENERATOR_RATED_POWER, g, "generator")
+        sfc = _value_at(context, GENERATOR_SPECIFIC_CONSUMPTION, g, "generator")
+        no_load = _value_at(context, generator_curve.NO_LOAD_FUEL_RATE, g, "generator")
+        minimum = _value_at(context, generator_curve.MINIMUM_LOAD, g, "generator")
+        units.append(_GeneratorUnit(g, rated, _checked_curve(g, sfc, no_load, rated), rated * minimum / HUNDRED))
+    inverter_units = []
+    for i in inverters:
+        share = context.coefficient(f"{PV_ARRAY_SHARE}@{i}")
+        if share is None and len(inverters) > 1:
+            raise CouplingRefused(
+                "INITIAL_STATE_UNANSWERED", f"{PV_ARRAY_SHARE}@{i}",
+                "a Site with more than one inverter declares each one's share of the array; it is never assumed",
+            )
+        inverter_units.append(
+            _InverterUnit(i, _value_at(context, daytime.INVERTER_LIMIT, i, "PV inverter"), share or Fraction(1))
+        )
+    return plant, gen, tuple(units), tuple(inverter_units)
+
+
+def _unit_state(context: StepContext, address: str) -> DiscreteValue:
+    found = context.discrete_value(address)
+    if found is None:
+        raise CouplingRefused(
+            "INITIAL_STATE_UNANSWERED", address,
+            "a unit's lifecycle state at run start is scenario-owned and the run does not state it; it is never assumed",
+        )
+    return found
+
+
+def prepare_v9(context: StepContext) -> None:
+    """v8's checks on the lead units, then each unit: its state, its curve, its attachments, the shares and the
+    shared policy (the lead's; another unit may restate it, never differ)."""
+    prepare_v8(_lead_context(context))
+    plant, gen, units, inverters = _unit_plant(context)
+    for inverter in inverters:
+        _unit_state(context, inverter.state_address)
+    if sum((i.share for i in inverters), Fraction(0)) != 1:
+        raise CouplingRefused(
+            "TOPOLOGY_INCONSISTENT", f"{PV_ARRAY_SHARE}@{inverters[0].inverter}",
+            f"the inverters' array shares sum to {sum((i.share for i in inverters), Fraction(0))}, not one",
+        )
+    for unit in units:
+        _unit_state(context, unit.state_address)
+        for key in _POLICY_KEYS:
+            restated = context.coefficient(f"{key}@{unit.generator}")
+            if restated is not None and restated != context.coefficient(f"{key}@{gen.generator}"):
+                raise CouplingRefused(
+                    "TOPOLOGY_INCONSISTENT", f"{key}@{unit.generator}",
+                    f"the units share the Site's one control policy, and {unit.generator} states a {key} the lead "
+                    f"{gen.generator} does not",
+                )
+    for role, component, via in (
+        [("GENERATION", u.generator, None) for u in units]
+        + [("FUEL_SUPPLY", gen.tank, u.generator) for u in units]
+        + [("PV_SOURCE", plant.pv, i.inverter) for i in inverters]
+    ):
+        if not any(
+            a.role == role and a.component_id == component and a.via_component_id == via
+            for a in context.bus_attachments
+        ):
+            raise CouplingRefused(
+                "TOPOLOGY_INCONSISTENT", component,
+                f"the frozen run does not connect {component} ({role.lower().replace('_', ' ')}) to the bus"
+                + ("" if via is None else f" through {via}"),
+            )
+
+
+def due_v9(context: StepContext) -> tuple[TransitionRequest, ...]:
+    """Phase A: v8's start-delay rule, for each generator unit on its own timer."""
+    if _one_of_each(context):
+        return due(context)
+    _, gen, units, _ = _unit_plant(context)
+    requests = []
+    for unit in units:
+        current = _unit_state(context, unit.state_address)
+        if current.value != STARTING or current.since_offset is None:
+            continue
+        deadline = current.since_offset + gen.start_delay
+        if deadline > context.from_offset:
+            _refuse_a_deadline_inside_the_step(context, unit.state_address, deadline, "start delay")
+            continue
+        requests.append(
+            TransitionRequest(
+                unit.state_address, RUNNING,
+                f"start delay of {gen.start_delay} min elapsed since STARTING at offset {current.since_offset}",
+            )
+        )
+    return tuple(requests)
+
+
+def _fast(context: StepContext) -> bool:
+    """The one-unit fast path: one generator and one inverter, the inverter AVAILABLE."""
+    if not _one_of_each(context):
+        return False
+    inverter = _units_named(context)[1][0]
+    return _unit_state(context, f"{INVERTER_STATE}@{inverter}").value == AVAILABLE
+
+
+def _pv_parts(plant, inverters, states: dict[str, str], irradiance: Fraction) -> tuple[Fraction, dict[str, Fraction]]:
+    """The array's potential, split by share; each part clipped at its inverter's limit, nothing from a FAILED one."""
+    potential = plant.rated * irradiance / daytime.STANDARD_IRRADIANCE
+    parts = {
+        i.inverter: Fraction(0) if states[i.state_address] == FAILED else min(potential * i.share, i.limit)
+        for i in inverters
+    }
+    return potential, parts
+
+
+def _charge_acceptance(context: StepContext, plant, taper: Fraction, soc: Fraction) -> Fraction:
+    hours = Fraction(context.to_offset - context.from_offset, 60)
+    stored = soc * plant.capacity / HUNDRED
+    by_energy = (plant.capacity - stored) / (plant.efficiency * hours)
+    return min(generator_curve.charge_acceptance_kw(soc, plant.charge_limit, taper), by_energy)
+
+
+def view_v9(context: StepContext) -> ControllerView:
+    """v8's view on the one-unit path. Otherwise v8's entries for the Site (the lead generator's address stands for
+    the generator set: its state the set's, its rating the running units' sum), each unit's state, running time and
+    rating, and the requested generator power P: the demand and the battery's acceptance that solar does not meet."""
+    if _fast(context):
+        return view(context)
+    plant, gen, units, inverters = _unit_plant(context)
+    at = context.from_offset
+    states = {u.state_address: _unit_state(context, u.state_address) for u in units}
+    states.update({i.state_address: _unit_state(context, i.state_address) for i in inverters})
+    irradiance = daytime._required_level(context, daytime.IRRADIANCE_ADDRESS, at)
+    _, parts = _pv_parts(plant, inverters, {a: s.value for a, s in states.items()}, irradiance)
+    available = sum(parts.values(), Fraction(0))
+    reserve, _, _ = daytime._reserve_at(context, plant, at)
+    soc = context.stock(plant.soc_address)
+    demands = [(plant.load_address(load), daytime._required_level(context, plant.load_address(load), at))
+               for load in plant.loads]
+    taper = _cycle_plant(_lead_context(context), gen)[2]
+    requested = max(
+        Fraction(0), sum((kw for _, kw in demands), Fraction(0)) + _charge_acceptance(context, plant, taper, soc) - available
+    )
+    running_for: dict[str, Fraction | None] = {}
+    for unit in units:
+        current = states[unit.state_address]
+        if current.value == RUNNING and current.since_offset is not None:
+            running_for[unit.generator] = Fraction(at - current.since_offset)
+            _refuse_a_deadline_inside_the_step(
+                context, unit.state_address, current.since_offset + gen.minimum_runtime, "minimum runtime"
+            )
+        else:
+            running_for[unit.generator] = None
+    values = [states[u.state_address].value for u in units]
+    aggregate = next((s for s in (RUNNING, STARTING, STOPPED) if s in values), FAILED)
+    running = [u for u in units if states[u.state_address].value == RUNNING]
+    times = [t for t in running_for.values() if t is not None]
+    ids = {"pv": plant.pv, "battery": plant.battery, "generator": gen.generator}
+    entries = [
+        ViewEntry("state-of-charge", plant.soc_address, soc, "%"),
+        ViewEntry("reserve-in-effect", plant.reserve_address, reserve, "%"),
+        ViewEntry("irradiance", daytime.IRRADIANCE_ADDRESS, irradiance, "W/m2"),
+        ViewEntry("pv-available", f"{daytime.PV_AC_POWER}@{inverters[0].inverter}", available, "kW"),
+        *(ViewEntry("load-demand", address, kw, "kW") for address, kw in demands),
+        ViewEntry("generator-state", gen.state_address, aggregate, DISCRETE_UNIT),
+        ViewEntry("generator-running-for", gen.state_address, max(times) if times else None, "min"),
+        ViewEntry("generator-rated-power", f"{GENERATOR_RATED_POWER}@{gen.generator}",
+                  sum((u.rated for u in running), Fraction(0)), "kW"),
+        ViewEntry("start-soc-threshold", f"{START_THRESHOLD}@{gen.generator}", gen.start_threshold, "%"),
+        ViewEntry("stop-soc-threshold", f"{STOP_THRESHOLD}@{gen.generator}", _stop_threshold_at(context, gen)[0], "%"),
+        ViewEntry("minimum-runtime", f"{MINIMUM_RUNTIME}@{gen.generator}", Fraction(gen.minimum_runtime), "min"),
+        ViewEntry("fuel-in-tank", gen.fuel_address, context.stock(gen.fuel_address), "L"),
+        ViewEntry("generator-requested-power", gen.state_address, requested, "kW"),
+    ]
+    for unit in units:
+        entries += [
+            ViewEntry("unit-state", unit.state_address, states[unit.state_address].value, DISCRETE_UNIT),
+            ViewEntry("unit-running-for", unit.state_address, running_for[unit.generator], "min"),
+            ViewEntry("unit-rated-power", unit.state_address, unit.rated, "kW"),
+        ]
+    for rank, source in enumerate(gen.order, start=1):
+        entries.append(ViewEntry("source-priority-rank", ids[source], Fraction(rank), "rank"))
+    return ControllerView(at_offset_minutes=at, for_until_offset=context.to_offset, entries=tuple(entries))
+
+
+def decide_v9(view: ControllerView) -> ControlIntent:
+    """v8's controller for the Site (the battery request and whether the generator set runs), then each unit.
+
+    While the set runs, the units asked to run are the shortest non-empty prefix of the non-FAILED units, in declared
+    order, whose summed rating is at least P (all of them if none suffices). A unit outside it keeps running until its
+    minimum runtime, and a STARTING unit keeps starting (v8's rules, per unit)."""
+    units = [item for item in view.entries if item.name == "unit-state"]
+    if not units:
+        return decide_v8(view)
+    intent = decide_v8(view)
+    site = _generator_request(intent)
+    requested = view.value("generator-requested-power")
+    minimum = view.value("minimum-runtime")
+    running_for = {item.address: item.value for item in view.entries if item.name == "unit-running-for"}
+    rated = {item.address: item.value for item in view.entries if item.name == "unit-rated-power"}
+    chosen: list[str] = []
+    if site.requested == RUN:
+        total = Fraction(0)
+        for item in units:
+            if item.value == FAILED:
+                continue
+            chosen.append(item.address)
+            total += rated[item.address]
+            if total >= requested:
+                break
+    requests = []
+    for item in units:
+        held = running_for[item.address]
+        if item.value == FAILED:
+            run, why = STOP, "FAILED: the unit delivers nothing until it is restored"
+        elif item.address in chosen:
+            run, why = RUN, f"{site.reason}; in the running set for {requested} kW requested"
+        elif item.value == STARTING:
+            run, why = RUN, "keep starting: the start request stands through the start delay"
+        elif item.value == RUNNING and held is not None and held < minimum:
+            run, why = RUN, f"keep running: RUNNING {held} min, below the minimum runtime {minimum} min"
+        else:
+            run, why = STOP, (
+                site.reason if site.requested == STOP else f"not needed: the units before it carry {requested} kW"
+            )
+        requests.append(ControlRequest(item.address, "generator-run", run, DISCRETE_UNIT, why))
+    return replace(intent, requests=(intent.requests[0],) + tuple(requests))
+
+
+def _unit_events(context: StepContext) -> tuple[TransitionRequest, ...]:
+    """The unit events the step holds, applied at its start (`point-applied-once`), in address order."""
+    generators, inverters = _units_named(context)
+    requests = []
+    for exposure in sorted(context.exposures, key=lambda e: (e.from_offset, e.address, e.event_id)):
+        key, component = exposure.address.split("@", 1)[0], daytime._component(exposure.address)
+        if key not in (UNIT_FAIL, UNIT_RESTORE):
+            continue
+        if component in generators:
+            address, back = f"{GENERATOR_STATE}@{component}", STOPPED
+        elif component in inverters:
+            address, back = f"{INVERTER_STATE}@{component}", AVAILABLE
+        else:
+            raise CouplingRefused(
+                "TOPOLOGY_INCONSISTENT", exposure.address,
+                f"{exposure.event_id} names {component}, which is not a generator or inverter unit of this run",
+            )
+        current = _unit_state(context, address).value
+        if (key == UNIT_FAIL) == (current == FAILED):
+            raise CouplingRefused(
+                "PHYSICAL_RESOLUTION_FAILURE", address,
+                f"{exposure.event_id}: {key} of a unit that is {current}",
+            )
+        requests.append(
+            TransitionRequest(address, FAILED if key == UNIT_FAIL else back, f"{key} event {exposure.event_id}")
+        )
+    return tuple(requests)
+
+
+def commit_v9(context: StepContext, intent: ControlIntent) -> tuple[TransitionRequest, ...]:
+    """Phase F: the step's unit events first; then v8's lifecycle for each generator unit no event moved."""
+    events = _unit_events(context)
+    moved = {request.address for request in events}
+    if _one_of_each(context):
+        return events + tuple(r for r in commit(context, intent) if r.address not in moved)
+    lifecycle = []
+    for request in intent.requests[1:]:
+        if request.address in moved:
+            continue
+        current = _unit_state(context, request.address).value
+        ref = f"control-intent@{intent.from_offset}:generator-run"
+        if current == STOPPED and request.requested == RUN:
+            lifecycle.append(TransitionRequest(request.address, STARTING, request.reason, ref))
+        elif current == RUNNING and request.requested == STOP:
+            lifecycle.append(TransitionRequest(request.address, STOPPED, request.reason, ref))
+    return events + tuple(lifecycle)
+
+
+def resolve_v9(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v8's resolution on the one-unit path; otherwise the units' (`_resolve_units`)."""
+    if _fast(context):
+        return resolve_v8(context, intent)
+    return _resolve_units(context, intent)
+
+
+def _priority_allocation(order, demand, supply, charge_cap):
+    """v7's allocation while no unit runs (`_resolve_cycle`'s first branch, the same lines over a supply map)."""
+    served_total = min(demand, sum(supply.values(), Fraction(0)))
+    remaining = served_total
+    to_load = {"pv": Fraction(0), "battery": Fraction(0), "generator": Fraction(0)}
+    for source in order:
+        take = min(supply[source], remaining)
+        to_load[source] = take
+        remaining -= take
+    to_battery = {"pv": Fraction(0), "generator": Fraction(0)}
+    if to_load["battery"] == 0:
+        room = charge_cap
+        for source in order:
+            if source == "battery":
+                continue
+            take = min(supply[source] - to_load[source], room)
+            to_battery[source] = take
+            room -= take
+    return to_load, to_battery, supply["pv"] - to_load["pv"] - to_battery["pv"], served_total
+
+
+def _resolve_units(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v8's resolution over units (spec §4.3), segment by segment.
+
+    The RUNNING units act as one set in v8's cycle-charge split: the set's usable rating is the largest output at
+    which no unit exceeds its own (fuel-capped) rating, and its minimum the smallest at which every unit is at or
+    above its own minimum load, when each carries the set's output times its rating over the set's summed rating.
+    Each unit burns on its own curve (a STARTING unit its no-load rate); the tank is the Site's one. Solar is split
+    by share and clipped per inverter; a FAILED inverter's share is clipped whole.
+    """
+    plant, gen, units, inverters = _unit_plant(context)
+    _, _, taper = _cycle_plant(_lead_context(context), gen)
+    battery_request = intent.requests[0]
+    run_requests = {r.address: r for r in intent.requests[1:]}
+    requested = battery_request.requested
+    states = {u.state_address: _unit_state(context, u.state_address).value for u in units}
+    states.update({i.state_address: _unit_state(context, i.state_address).value for i in inverters})
+    running = [u for u in units if states[u.state_address] == RUNNING]
+    summed = sum((u.rated for u in running), Fraction(0))
+    eta, capacity = plant.efficiency, plant.capacity
+    stored = context.stock(plant.soc_address) * capacity / HUNDRED
+    stored_at_start = stored
+    fuel = context.stock(gen.fuel_address)
+    fuel_at_start = fuel
+
+    totals: dict[str, Fraction] = {}
+    per_load = {load: [Fraction(0), Fraction(0)] for load in plant.loads}
+    limited: list[str] = []
+    unit_limited: dict[str, list[str]] = {u.state_address: [] for u in units}
+    effective: list[EffectiveControl] = []
+    segments = daytime._segments(context)
+
+    def add(flow_id: str, energy: Fraction) -> None:
+        totals[flow_id] = totals.get(flow_id, Fraction(0)) + energy
+
+    def note(into: list[str], reason: str) -> None:
+        if reason not in into:
+            into.append(reason)
+
+    for unit in units:
+        state = states[unit.state_address]
+        if state == STARTING:
+            note(unit_limited[unit.state_address], f"STARTING: no output during the {gen.start_delay} min start delay")
+        elif state == FAILED:
+            note(unit_limited[unit.state_address], "FAILED: no output until a unit-restore event")
+        elif state == STOPPED:
+            note(unit_limited[unit.state_address], "STOPPED: no output")
+
+    for start, end in segments:
+        hours = Fraction(end - start, 60)
+        minutes = Fraction(end - start)
+        irradiance = daytime._required_level(context, daytime.IRRADIANCE_ADDRESS, start)
+        potential, parts = _pv_parts(plant, inverters, states, irradiance)
+        available = sum(parts.values(), Fraction(0))
+        reserve, origin, provenance = daytime._reserve_at(context, plant, start)
+        effective.append(EffectiveControl(plant.reserve_address, start, end, reserve, "%", origin, provenance))
+        demands = {load: daytime._required_level(context, plant.load_address(load), start) for load in plant.loads}
+        demand = sum(demands.values(), Fraction(0))
+
+        usable = Fraction(0)
+        set_minimum = Fraction(0)
+        for unit in running:
+            by_fuel = _fuel_cap_kw(unit.curve, fuel * unit.rated / summed, minutes, gen.fuel_address)
+            cap = unit.rated if by_fuel is None else min(unit.rated, by_fuel)
+            if cap < unit.rated:
+                note(unit_limited[unit.state_address], f"fuel in tank ({fuel} L at the segment start)")
+            bound = cap * summed / unit.rated
+            usable = bound if unit is running[0] else min(usable, bound)
+            set_minimum = max(set_minimum, unit.minimum_kw * summed / unit.rated)
+
+        discharge_cap = Fraction(0)
+        if requested > 0:
+            above_reserve = stored - reserve * capacity / HUNDRED
+            by_energy = max(above_reserve, Fraction(0)) * eta / hours
+            discharge_cap = min(requested, plant.discharge_limit, by_energy)
+            if discharge_cap == plant.discharge_limit and requested > plant.discharge_limit:
+                note(limited, f"pcs-discharge-limit {plant.discharge_limit} kW")
+            if by_energy < min(requested, plant.discharge_limit):
+                note(limited, f"energy above the reserve in effect ({reserve} %)")
+        charge_cap = Fraction(0)
+        if requested < 0:
+            by_energy = (capacity - stored) / (eta * hours)
+            acceptance = generator_curve.charge_acceptance_kw(stored * HUNDRED / capacity, plant.charge_limit, taper)
+            charge_cap = min(-requested, acceptance, by_energy)
+            if acceptance < plant.charge_limit and charge_cap == acceptance:
+                note(limited, f"charge taper above {taper} %")
+            if charge_cap == plant.charge_limit and -requested > plant.charge_limit:
+                note(limited, f"pcs-charge-limit {plant.charge_limit} kW")
+            if by_energy < min(-requested, plant.charge_limit):
+                note(limited, "headroom below full")
+
+        def allocate(cap: Fraction, rerun: bool = False):
+            if not running:
+                supply = {"pv": available, "battery": discharge_cap, "generator": Fraction(0)}
+                return _priority_allocation(gen.order, demand, supply, charge_cap)
+            split = cycle_charge_split(
+                demand, available, cap, charge_cap if requested < 0 else Fraction(0), set_minimum,
+                discharge_cap if requested > 0 else Fraction(0),
+            )
+            if split.below_minimum:
+                for unit in running:
+                    note(unit_limited[unit.state_address], "below minimum load: nothing more to absorb")
+            if not rerun and (requested > 0) != (demand > available + cap):
+                note(limited, DIFFERED_FROM_THE_VIEW)
+            return (
+                {"pv": split.pv_to_load, "battery": split.battery_to_load, "generator": split.generator_to_load},
+                {"pv": split.pv_to_battery, "generator": split.generator_to_battery},
+                split.curtailed_pv,
+                demand - split.unserved,
+            )
+
+        def burn(to_load, to_battery) -> tuple[dict[str, Fraction], dict[str, Fraction]]:
+            kw = to_load["generator"] + to_battery["generator"]
+            output = {u.generator: (kw * u.rated / summed if u in running else Fraction(0)) * hours for u in units}
+            litres = {
+                u.generator: generator_curve.fuel_litres(u.curve, states[u.state_address], minutes, output[u.generator])
+                for u in units
+            }
+            return output, litres
+
+        to_load, to_battery, curtailed, served_total = allocate(usable)
+        output, litres = burn(to_load, to_battery)
+        if sum(litres.values(), Fraction(0)) > fuel:
+            for unit in units:
+                if states[unit.state_address] in generator_curve.ON_STATES:
+                    note(unit_limited[unit.state_address], f"fuel in tank ({fuel} L) below the no-load burn")
+            if any(output.values()):
+                to_load, to_battery, curtailed, served_total = allocate(Fraction(0), rerun=True)
+                output, litres = burn(to_load, to_battery)
+            burned_all = sum(litres.values(), Fraction(0))
+            litres = {g: (value * fuel / burned_all if burned_all else Fraction(0)) for g, value in litres.items()}
+        burned = sum(litres.values(), Fraction(0))
+
+        left = served_total
+        for load in plant.loads:
+            served = min(demands[load], left)
+            left -= served
+            per_load[load][0] += demands[load] * hours
+            per_load[load][1] += served * hours
+
+        generator_energy = (to_load["generator"] + to_battery["generator"]) * hours
+        fuel -= burned
+        charged_ac = (to_battery["pv"] + to_battery["generator"]) * hours
+        stored_in = charged_ac * eta
+        delivered = to_load["battery"] * hours
+        taken_out = delivered / eta
+        stored = stored + stored_in - taken_out
+        pv_ac = (to_load["pv"] + to_battery["pv"]) * hours
+
+        add("pv_potential", potential * hours)
+        add("inverter_clipping", (potential - available) * hours)
+        add("pv_to_load", to_load["pv"] * hours)
+        add("pv_to_battery", to_battery["pv"] * hours)
+        add("curtailed_pv", curtailed * hours)
+        add("generator_output", generator_energy)
+        add("generator_to_load", to_load["generator"] * hours)
+        add("generator_to_battery", to_battery["generator"] * hours)
+        add("fuel_energy", burned * generator_curve.DIESEL_ENERGY_KWH_PER_L)
+        add("generator_conversion_loss", burned * generator_curve.DIESEL_ENERGY_KWH_PER_L - generator_energy)
+        add("battery_charge_stored", stored_in)
+        add("charge_loss", charged_ac - stored_in)
+        add("battery_discharge_taken", taken_out)
+        add("battery_to_load", delivered)
+        add("discharge_loss", taken_out - delivered)
+        add("load_demand", demand * hours)
+        add("unserved_load", (demand - served_total) * hours)
+        for unit in units:
+            add(f"generator_output:{unit.generator}", output[unit.generator])
+        for inverter in inverters:
+            add(f"pv_available:{inverter.inverter}", parts[inverter.inverter] * hours)
+            add(f"pv_ac:{inverter.inverter}", pv_ac * parts[inverter.inverter] / available if available else Fraction(0))
+
+    step_hours = Fraction(context.to_offset - context.from_offset, 60)
+    pv, bat, pcs = plant.pv, plant.battery, plant.pcs
+
+    def flow(flow_id: str, source: str, sink: str) -> AcceptedFlow:
+        energy = totals[flow_id]
+        return AcceptedFlow(flow_id, source, sink, energy, energy / step_hours)
+
+    flows = [
+        flow("pv_potential", pv, "inverters"),
+        flow("inverter_clipping", "inverters", "clipped"),
+        flow("pv_to_load", "inverters", "loads"),
+        flow("pv_to_battery", "inverters", pcs),
+        flow("curtailed_pv", "inverters", "curtailed"),
+        flow("generator_output", "generators", "generator-output"),
+        flow("generator_to_load", "generators", "loads"),
+        flow("generator_to_battery", "generators", pcs),
+        flow("fuel_energy", gen.tank, "generators"),
+        flow("generator_conversion_loss", "generators", "losses"),
+        flow("battery_charge_stored", pcs, bat),
+        flow("charge_loss", pcs, "losses"),
+        flow("battery_discharge_taken", bat, pcs),
+        flow("battery_to_load", pcs, "loads"),
+        flow("discharge_loss", pcs, "losses"),
+        flow("load_demand", "loads", "demand"),
+        flow("unserved_load", "demand", "unserved"),
+        *(flow(f"generator_output:{u.generator}", u.generator, "generators") for u in units),
+        *(flow(f"pv_ac:{i.inverter}", i.inverter, "inverters") for i in inverters),
+    ]
+    loads: list[LoadService] = []
+    for rank, load in enumerate(plant.loads, start=1):
+        demand_energy, served_energy = per_load[load]
+        unserved_energy = demand_energy - served_energy
+        flows.append(AcceptedFlow(f"demand:{load}", load, "demand", demand_energy, demand_energy / step_hours))
+        flows.append(AcceptedFlow(f"served:{load}", "loads", load, served_energy, served_energy / step_hours))
+        flows.append(AcceptedFlow(f"unserved:{load}", load, "unserved", unserved_energy, unserved_energy / step_hours))
+        loads.append(
+            LoadService(
+                address=plant.load_address(load), priority_rank=rank, demand_energy=demand_energy,
+                served_energy=served_energy, unserved_energy=unserved_energy, demand_power=demand_energy / step_hours,
+                served_power=served_energy / step_hours, unserved_power=unserved_energy / step_hours,
+            )
+        )
+
+    served_ids = tuple(f"served:{load}" for load in plant.loads)
+    to_load_ids = ("pv_to_load", "battery_to_load", "generator_to_load")
+    balances = [
+        BalanceIdentity("pv-potential", ("pv_potential",),
+                        ("pv_to_load", "pv_to_battery", "curtailed_pv", "inverter_clipping")),
+        BalanceIdentity("generator-output", ("generator_output",), ("generator_to_load", "generator_to_battery")),
+        BalanceIdentity("generator-fuel", ("fuel_energy",), ("generator_output", "generator_conversion_loss")),
+        BalanceIdentity("battery-charge", ("pv_to_battery", "generator_to_battery"),
+                        ("battery_charge_stored", "charge_loss")),
+        BalanceIdentity("battery-discharge", ("battery_discharge_taken",), ("battery_to_load", "discharge_loss")),
+        BalanceIdentity("load-service", ("load_demand",), to_load_ids + ("unserved_load",)),
+        BalanceIdentity("served-by-load", to_load_ids, served_ids),
+        BalanceIdentity(
+            "site-sources-and-sinks", ("pv_potential", "battery_discharge_taken", "generator_output"),
+            served_ids + ("curtailed_pv", "inverter_clipping", "battery_charge_stored", "charge_loss", "discharge_loss"),
+        ),
+        BalanceIdentity("generator-units", tuple(f"generator_output:{u.generator}" for u in units),
+                        ("generator_output",)),
+        BalanceIdentity("inverter-units", tuple(f"pv_ac:{i.inverter}" for i in inverters),
+                        ("pv_to_load", "pv_to_battery")),
+    ]
+    for load in plant.loads:
+        balances.append(BalanceIdentity(f"load:{load}", (f"demand:{load}",), (f"served:{load}", f"unserved:{load}")))
+
+    battery_net_ac = totals["battery_to_load"] - totals["pv_to_battery"] - totals["generator_to_battery"]
+    accepted_power = battery_net_ac / step_hours
+    if accepted_power != requested and not limited:
+        limited.append(DIFFERED_FROM_THE_VIEW)
+    for unit in running:
+        if totals[f"generator_output:{unit.generator}"] == 0:
+            note(unit_limited[unit.state_address], "RUNNING with nothing to absorb its output")
+
+    stop_value, stop_origin, stop_provenance = _stop_threshold_at(context, gen)
+    deliverable = max(stored_at_start, Fraction(0)) * eta / step_hours
+    capability = min(plant.discharge_limit, deliverable)
+    charge = max(-requested, Fraction(0))
+    interval_energies = (
+        [(f"{daytime.PV_AC_POWER}@{i.inverter}", totals[f"pv_ac:{i.inverter}"]) for i in inverters]
+        + [(f"{PV_AVAILABLE_POWER}@{i.inverter}", totals[f"pv_available:{i.inverter}"]) for i in inverters]
+        + [(f"{GENERATOR_OUTPUT_POWER}@{u.generator}", totals[f"generator_output:{u.generator}"]) for u in units]
+        + [(f"{daytime.BATTERY_AC_POWER}@{pcs}", battery_net_ac),
+           (f"{BATTERY_DISCHARGE_CAPABILITY}@{pcs}", capability * step_hours),
+           (f"{BATTERY_CHARGE_REQUESTED_POWER}@{bat}", charge * step_hours)]
+        + [(f"{daytime.LOAD_SERVED_POWER}@{load}", per_load[load][1]) for load in plant.loads]
+        + [(f"{LOAD_REQUESTED_POWER}@{load}", per_load[load][0]) for load in plant.loads]
+    )
+    return AcceptedFlowSet(
+        from_offset=context.from_offset,
+        to_offset=context.to_offset,
+        segments=segments,
+        flows=tuple(flows),
+        controls=(
+            AcceptedControl(
+                address=battery_request.address, quantity=battery_request.quantity, requested=requested,
+                accepted=accepted_power, unit="kW", limited_by=tuple(limited),
+            ),
+            *(
+                AcceptedControl(
+                    address=u.state_address, quantity="generator-run", requested=run_requests[u.state_address].requested,
+                    accepted=states[u.state_address], unit=DISCRETE_UNIT,
+                    limited_by=tuple(unit_limited[u.state_address]),
+                )
+                for u in units
+            ),
+        ),
+        loads=tuple(loads),
+        effective_controls=tuple(effective) + (
+            EffectiveControl(f"{STOP_THRESHOLD}@{gen.generator}", context.from_offset, context.to_offset, stop_value,
+                             "%", stop_origin, stop_provenance),
+        ),
+        balances=tuple(balances),
+        stock_accounts=(
+            StockAccount(
+                address=plant.soc_address, delta=(stored - stored_at_start) * HUNDRED / capacity,
+                energy_per_unit=capacity / HUNDRED, inflows=("battery_charge_stored",),
+                outflows=("battery_discharge_taken",),
+            ),
+            StockAccount(
+                address=gen.fuel_address, delta=fuel - fuel_at_start,
+                energy_per_unit=generator_curve.DIESEL_ENERGY_KWH_PER_L, inflows=(), outflows=("fuel_energy",),
+            ),
+        ),
+        interval_energies=tuple(sorted(interval_energies)),
+        notes=(CURVE_FUEL_NOTE,),
+    )
+
+
+# --- `mini-grid` v9, the version ---------------------------------------------------------------------------------
+
+V9_SENTENCE = (
+    " Version nine runs units: the Site's generators in declared order, the fewest that cover the requested power, "
+    "each carrying its share by rating on its own lifecycle and fuel curve from the one tank, and its PV inverters "
+    "each converting its share of the array; a unit fails and is restored by an event at an instant."
+)
+
+MINI_GRID_V9_COUPLING = replace(
+    MINI_GRID_V8_COUPLING,
+    prepare=prepare_v9,
+    view=view_v9,
+    decide=decide_v9,
+    resolve=resolve_v9,
+    due=due_v9,
+    commit=commit_v9,
+)
+
+
+def _v9_relation(relation: ComponentRelation) -> ComponentRelation:
+    """The generator and the PV inverter are units: several machines of each relation are the point."""
+    if daytime.INVERTER_LIMIT in relation.state_keys:
+        return replace(relation, state_keys=relation.state_keys | {PV_ARRAY_SHARE}, many=True)
+    if relation.relation_id == "generator":
+        return replace(relation, many=True)
+    return relation
+
+
+#: v8 with generator and inverter units (D-DD.127). A new version so v1-v8 trajectories and digests are unchanged.
+MINI_GRID_V9_MODEL = replace(
+    MINI_GRID_V8_MODEL,
+    model_profile_version=9,
+    statement=MINI_GRID_V8_MODEL.statement + V9_SENTENCE,
+    handlers=MINI_GRID_V8_MODEL.handlers + UNIT_EVENT_HANDLERS + (PV_ARRAY_SHARE_HANDLER,),
+    component_relations=tuple(_v9_relation(relation) for relation in MINI_GRID_V8_MODEL.component_relations)
+    + (
+        ComponentRelation(
+            relation_id="unit-event",
+            display_name="unit event",
+            state_keys=frozenset({UNIT_FAIL, UNIT_RESTORE}),
+            statement="A unit's failure and its restoration are events at one generator or inverter unit.",
+            many=True,
+        ),
+    ),
+    discrete_states=(GENERATOR_LIFECYCLE_V9, INVERTER_LIFECYCLE),
+    coupling=MINI_GRID_V9_COUPLING,
 )

@@ -45,11 +45,16 @@ def _kobo(sites_file: dict) -> dict:
     return kobo
 
 
+#: `demand` family day weights by day class (`history.families.demand.day` of the manifest); this test's own
+#: (D-DD.129 moved it out of the writer).
+DAY_WEIGHTS = {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"}
+
+
 def _books(first_note_l: int = 100, delivered_kwh: int = 8592, unexplained_l: int = 12) -> dict:
     return {"KOBO-001": {
         "months": {"2026-07": {"delivered_kwh": delivered_kwh, "unexplained_l": unexplained_l}},
         "fuel_notes": [{"at": "2026-07-01T10:00:00+03:00", "litres": first_note_l}],
-        "day_weights": tel.DEFAULT_DAY_WEIGHTS}}
+        "day_weights": DAY_WEIGHTS, "sun_weights": tel.DEFAULT_SUN_WEIGHTS}}
 
 
 def test_site_inputs_joins_the_foundation_with_its_bindings(sites_file: dict) -> None:
@@ -241,37 +246,30 @@ def test_books_carry_the_views_solar_surplus_weights() -> None:
                      "solar_surplus": {"season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}}},
         "tenants": [{"tenant": "t", "vertical": "MINI_GRID",
                      "sites": [{"site": "s", "code": "X-001", "period": {"actual": {"delivered_kwh": 1}}}]}]}
-    sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {})["X-001"]["sun_weights"]
+    sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {"t": ""})["X-001"]["sun_weights"]
     assert sun == {"seasons": {"2026-07": "cool_dry"}, "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
                    "season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}
 
 
 #: D-DD.76's storage sizes, in order; the rule rounds two months of the largest month up to the next one.
 STANDARD_TANKS_L = (500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 10000)
+#: D-DD.76, books of 22 Nov; not re-run on restated books, D-DD.92.
+SIZED_ON = {"KOBO-001": 1180, "KISIWA-001": 2400, "MTO-001": 320}
 
 
-def test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month() -> None:
-    """D-DD.76: necessary + candidate + unexplained litres of `history.json` July-September and October's
-    `period.actual.diesel_l`; twice the largest, rounded up to a standard size; source SITE, version 1."""
-    import yaml
-
-    layer4 = REPOSITORY_ROOT / "Docs/demo-sprint/product-direction-layer4"
-    history = json.loads((layer4 / "history.json").read_text(encoding="utf-8"))["tenants"]["lakeside-power"]
-    manifest = yaml.safe_load((layer4 / "demo-site-scenario-manifest.yaml").read_text(encoding="utf-8"))
-    tenant = next(t for t in manifest["tenants"] if t["tenant"] == "lakeside-power")
+def test_each_lakeside_tank_is_declared_at_its_d_dd_76_size() -> None:
+    """D-DD.155 (D-DD.76, D-DD.92): the tanks are the owner-approved sizes, source SITE, version 1, and D-DD.76's rule
+    on its own inputs (`SIZED_ON`) gives them. The rule is not re-run on later fuel figures: no `history.json` or `M`
+    figure is read here."""
     onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
     declared = {}
     for site in onboarding["sites"]:
         tank = next(c for c in site["components"] if c["type"] == "FUEL_TANK")
         declared[site["code"]] = [(p["value"], p["source"], p["source_version"]) for p in tank["properties"]
                                   if p["property_key"] == "tank-capacity"]
-    expected = {}
-    for site in tenant["sites"]:
-        months = [sum(b["actual"].get(k, 0) for k in ("necessary_l", "candidate_l", "unexplained_l"))
-                  for b in history[site["site"]].values()] + [site["period"]["actual"]["diesel_l"]]
-        expected[site["code"]] = [(next(s for s in STANDARD_TANKS_L if s >= 2 * max(months)), "SITE", 1)]
-    assert expected == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
-    assert declared == expected
+    assert declared == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
+    sized = {code: [(next(s for s in STANDARD_TANKS_L if s >= 2 * litres), "SITE", 1)] for code, litres in SIZED_ON.items()}
+    assert sized == declared
 
 
 def test_kobos_readings_do_not_depend_on_the_role_set_label() -> None:

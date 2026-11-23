@@ -1,0 +1,80 @@
+{
+  "schema": "assetops.world-fuel-notes/1",
+  "sites": [
+    {
+      "site_code": "KISIWA-001",
+      "rule": "D-DD.92",
+      "tank_l": "5000",
+      "notes": [
+        {
+          "at": "2026-08-01T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-08-01T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-08-21T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-08-21T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-09-16T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-09-16T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-10-16T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-10-16T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        }
+      ]
+    },
+    {
+      "site_code": "KOBO-001",
+      "rule": "D-DD.92",
+      "tank_l": "2500",
+      "notes": [
+        {
+          "at": "2026-09-25T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-09-25T10:00:00+03:00",
+          "litres": "400",
+          "basis": "REORDER"
+        },
+        {
+          "at": "2026-10-26T10:00:00+03:00",
+          "litres": "400",
+          "basis": "STORY:OOO-1"
+        }
+      ]
+    },
+    {
+      "site_code": "MTO-001",
+      "rule": "D-DD.92",
+      "tank_l": "1000",
+      "notes": []
+    }
+  ]
+}

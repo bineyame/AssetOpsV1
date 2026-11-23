@@ -1,0 +1,57 @@
+{
+  "schema": "assetops.world-fuel-leaves/1",
+  "rule": "D-DD.131",
+  "sites": [
+    {
+      "site_code": "KISIWA-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "672672537/400000",
+        "tank_close": "631443517/400000",
+        "modelled_l": "17661451/20000",
+        "standin_candidate_l": "138873/2000"
+      },
+      "candidate_days": 9,
+      "peak_evening_generator_kw": "41867/1000",
+      "inputs_sha256": "6085b87d4e48b700cbcaf832432696257a1e505bd6c094a579cd0c49293593fb"
+    },
+    {
+      "site_code": "KOBO-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "268023086471/216000000",
+        "tank_close": "135894218429/135000000",
+        "modelled_l": "185120561641/360000000",
+        "standin_candidate_l": "13261940101/540000000"
+      },
+      "candidate_days": 5,
+      "peak_evening_generator_kw": "0",
+      "inputs_sha256": "3db6f15f862256c977e5a674ed88e7cd578e72f220cf630f33ed9ee33625a84b"
+    },
+    {
+      "site_code": "MTO-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "500",
+        "tank_close": "3741/8",
+        "modelled_l": "259/8",
+        "standin_candidate_l": "1287/40"
+      },
+      "candidate_days": 1,
+      "peak_evening_generator_kw": "0",
+      "inputs_sha256": "3c7d2433005c8e5ffd079b142edafb6b65acb6dd766f8ccb0124954cf4ccdbe9"
+    }
+  ]
+}

@@ -49,7 +49,7 @@ def _kobo() -> dict:
 def books() -> dict:
     view = load_fixture()
     history = json.loads((LAYER4 / "history.json").read_text(encoding="utf-8"))
-    return tel.books_for(view, history, {})["KOBO-001"]
+    return tel.books_for(view, history, {"lakeside-power": ""})["KOBO-001"]
 
 
 def _weight(day: date) -> Fraction:

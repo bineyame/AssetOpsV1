@@ -4,7 +4,9 @@ room's pack rows are bound, rounded and written by the one frame, and mini-grid 
 The mini-grid golden (`golden/telemetry_join_kobo_main.json`) was written from main at DD3a's merge (759759598),
 before D-DD.90, D-DD.103 and the join: Kobo's 7 days from 2026-07-01 on D-DD.75 W1's inputs. The readings bytes are
 compared whole. The readings manifest is compared whole except the two keys rulings add: D-DD.103's `span.to` and
-D-DD.90's `2026-11` in the default sun table (both asserted here).
+D-DD.90's `2026-11` in the default sun table (both asserted here). DD3b2 regenerated it from the writer (D-DD.104's warm-up
+start, D-DD.97's shape and D-DD.129's conditions move W1's inputs; the kernel and pack v8 are main's, D-DD.93): its
+`source` names the revision.
 """
 
 from __future__ import annotations
@@ -29,6 +31,7 @@ W1_BOOKS = {
     "fuel_notes": [{"at": "2026-07-01T10:00:00+03:00", "litres": 400},
                    {"at": "2026-07-05T10:00:00+03:00", "litres": 400}],
     "day_weights": {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"},
+    "sun_weights": tel.DEFAULT_SUN_WEIGHTS,  # D-DD.129: a required key (W1 ran on the default)
 }
 W1_ROWS = {
     "FUEL_TANK": [("tank-capacity", "2500", "L")],

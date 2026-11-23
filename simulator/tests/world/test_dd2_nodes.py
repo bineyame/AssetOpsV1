@@ -1,7 +1,7 @@
 """DD2.1 (spec `specs/DD-demo-data/spec.md` §5.1; D-DD.48, D-DD.51-54): mini-grid books from the structure's own nodes.
 
-Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8318 kWh, revenue 3327.20 and
-collected 3059.74 (`history.json`: delivered 8755, technical loss 394, adjustments 43, outstanding 267.46 at 0.40).
+Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8190 kWh, revenue 3276.00 and
+collected 3012.62 (`history.json`: delivered 8621, technical loss 388, adjustments 43, outstanding 263.38 at 0.40).
 The parity tests read the manifest; the exporter does not.
 """
 
@@ -17,7 +17,7 @@ import pytest
 import yaml
 
 from assetops_simulator.world import exports
-from assetops_simulator.world.exports import ZERO_LEAVES, build_exports, evaluate_mini_grid
+from assetops_simulator.world.exports import ZERO_LEAVES, build_exports, evaluate_mini_grid, read_fuel_notes
 from assetops_simulator.world.nodes import NODES
 from assetops_simulator.world.history import generate_history
 from assetops_simulator.world.records import PASS_THROUGH, build_records
@@ -87,12 +87,13 @@ def test_the_leaf_alternatives_are_the_manifests(manifest) -> None:
 def test_october_evaluated_equals_recorded_on_both_sides_at_every_site() -> None:
     view = load_fixture()
     tenant = tenant_of(view, TENANT)
-    expected = {  # by hand: the period's own nodes
-        "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 1180,
-                  "fuel_cost": "1475"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
-        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 2400, "fuel_cost": "3120"},
+    expected = {  # by hand: the period's own nodes (October litres: the notes run's, D-DD.131/150, M rev 16.20)
+        "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 634,
+                  "fuel_cost": "792.5"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
+        # D-DD.164 (2026-11-23): Kisiwa's October litres restated from the run, 904 -> 903 L (M rev 16.23)
+        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 903, "fuel_cost": "1173.9"},
                    {"billed_kwh": 7500, "revenue": "4125", "fuel_cost": "2990"}),
-        "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 320, "fuel_cost": "400"},
+        "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 32, "fuel_cost": "40"},
                 {"billed_kwh": 5600, "revenue": "2240", "fuel_cost": "375"}),
     }
     for name, (actual, plan) in expected.items():
@@ -126,19 +127,23 @@ def test_a_changed_october_plan_leaf_stops_it_too() -> None:
 
 def test_july_at_kobo_is_derived_from_the_pinned_leaves(full) -> None:
     july = [r for r in rows(full, "billing") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert sum(int(r["quantity"]["value"]) for r in july) == 8318
-    assert total(july) == Decimal("3327.20")
+    # D-DD.164 (2026-11-23): Lakeside July-September re-seeded once (RUN_WRITTEN left the digest): 8190 -> 8200 kWh
+    assert sum(int(r["quantity"]["value"]) for r in july) == 8200
+    assert total(july) == Decimal("3280.00")
     receipts = [r for r in rows(full, "collections") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3059.74")
-    assert total(receipts) == Decimal("3059.74")  # no in transit in July
+    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3016.30")
+    assert total(receipts) == Decimal("3016.30")  # no in transit in July
 
 
 def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
     for month in MONTHS:
         for site in SITES:
             assert any(month_of(r) == month and r["site_code"] == site for r in rows(full, "billing")), (month, site)
-            assert any(month_of(r) == month and r["site_code"] == site and r["body"]["category"] == "FUEL"
-                       for r in rows(full, "expenses")), (month, site)
+            # D-DD.130: fuel rows are the notes file's purchases, so a month without a note has none
+            noted = any(n["at"][:7] == month for s in read_fuel_notes()["sites"] if s["site_code"] == site
+                        for n in s["notes"])
+            assert noted == any(month_of(r) == month and r["site_code"] == site and r["body"]["category"] == "FUEL"
+                                for r in rows(full, "expenses")), (month, site)
             assert any(month_of(r) == month and r["site_code"] == site and r["body"]["factor_id"] == "revenue"
                        for r in rows(full, "budget")), (month, site)
 
@@ -209,11 +214,13 @@ def test_the_dated_note_table_is_the_manifests_disorder_test(manifest) -> None:
 def test_kobo_october_notes(full) -> None:
     notes = [(r["clocks"]["occurred_at"], r["quantity"]["value"]) for r in rows(full, "expenses")
              if r["site_code"] == "KOBO-001" and month_of(r) == "2026-10" and r["body"]["category"] == "FUEL"]
-    assert sorted(notes) == [("2026-10-01T10:00:00+03:00", "400"), ("2026-10-08T10:00:00+03:00", "380"),
-                             ("2026-10-26T10:00:00+03:00", "400")]
+    assert sorted(notes) == [("2026-10-26T10:00:00+03:00", "400")]  # D-DD.92: OOO-1 only; the tank needs no reorder
 
 
-def test_other_months_cut_400_l_notes_on_the_fixed_days(full) -> None:
+def test_other_months_cut_400_l_notes_on_the_fixed_days() -> None:
+    """D-DD.53's cycle, kept for a Site not in the notes file (D-DD.130): here a file listing no Site."""
+    view = load_fixture()
+    full = build_exports(view, generate_history(view), fuel_notes={"schema": "assetops.world-fuel-notes/1", "sites": []})
     for month in MONTHS[:3]:
         for site in SITES:
             fuel = [r for r in rows(full, "expenses") if r["site_code"] == site and month_of(r) == month
@@ -224,7 +231,7 @@ def test_other_months_cut_400_l_notes_on_the_fixed_days(full) -> None:
             assert [r["quantity"]["value"] for r in fuel[:-1]] == ["400"] * (len(fuel) - 1)
     kobo_july = [r for r in rows(full, "expenses") if r["site_code"] == "KOBO-001" and month_of(r) == "2026-07"
                  and r["body"]["category"] == "FUEL"]
-    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 703 + 257 + 12  # necessary + candidate + unexplained
+    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 482 + 19 + 12  # necessary + candidate + unexplained (D-DD.164 re-seed)
     assert "remainder" in kobo_july[-1]["body"]["document_ref"]
 
 
@@ -302,6 +309,49 @@ def test_lakesides_statements_are_the_sums_of_its_history_month_rows(full) -> No
     assert set(july) == {"period", "currency", "revenue", "fuel_cost", "source_ref"}
 
 
+def test_lakesides_july_bought_no_fuel_and_states_fuel_0_00(full) -> None:
+    """D-DD.175 (d): the restated notes put no Lakeside delivery in July; its statement states fuel bought 0.00, which
+    is the sum of July's FUEL rows (an empty sum)."""
+    july = json.loads(full.statements[0][1])["statements"][0]
+    assert july["period"] == "2026-07"
+    fuel = [r for r in rows(full, "expenses") if month_of(r) == "2026-07" and r["body"]["category"] == "FUEL"]
+    assert fuel == [] and july["fuel_cost"] == "0.00" and Decimal(july["fuel_cost"]) == total(fuel)
+    billing = [r for r in rows(full, "billing") if month_of(r) == "2026-07"]
+    assert billing and Decimal(july["revenue"]) == total(billing)
+
+
+_JULY_REVENUE = [{"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "868.00"}},
+                 {"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "12.50"}}]
+_JULY_COST = [{"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "250.50"}}]
+
+
+def test_a_fuel_month_with_revenue_and_no_purchase_states_fuel_0_00() -> None:
+    """D-DD.175 (a): fuel is a stocked good; a month burning tank fuel with no delivery bought nothing."""
+    from assetops_simulator.world.statements import figures_from_rows, statements_document
+    figures = figures_from_rows(_JULY_REVENUE, [], ["2026-07"], "fuel_cost")
+    assert figures == {"2026-07": (Decimal("880.50"), Decimal("0.00"))}
+    statement, = statements_document("lakeside-power", "USD", "fuel_cost", figures)["statements"]
+    assert statement["fuel_cost"] == "0.00" and statement["revenue"] == "880.50"
+    assert statement["source_ref"] == "Emulated management accounts, July 2026, final"
+
+
+def test_an_energy_month_with_revenue_and_no_bill_is_still_refused() -> None:
+    """D-DD.175 (b): an energy bill's absence is not zero."""
+    from assetops_simulator.world.statements import figures_from_rows
+    with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-07"):
+        figures_from_rows(_JULY_REVENUE, [], ["2026-07"], "energy_cost")
+
+
+@pytest.mark.parametrize("cost_key", ["fuel_cost", "energy_cost"])
+def test_a_month_with_cost_and_no_revenue_is_refused_for_either_key(cost_key: str) -> None:
+    """D-DD.175 (c): no trading month without billing; an unknown key is refused."""
+    from assetops_simulator.world.statements import figures_from_rows
+    with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-07"):
+        figures_from_rows([], _JULY_COST, ["2026-07"], cost_key)
+    with pytest.raises(ValueError, match="STATEMENT_COST_KEY water_cost"):
+        figures_from_rows(_JULY_REVENUE, _JULY_COST, ["2026-07"], "water_cost")
+
+
 def test_the_statements_writer_takes_cold_and_ev_rows_with_energy_cost() -> None:
     """DD2.5: the cold and EV writer, on a fixture of measured bill rows (the real rows come with DD4.4)."""
     from assetops_simulator.world.statements import figures_from_rows, statements_document
@@ -309,10 +359,10 @@ def test_the_statements_writer_takes_cold_and_ev_rows_with_energy_cost() -> None
                 {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "1736.00"}}]
     bills = [{"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "250.50"}},
              {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "300.25"}}]
-    figures = figures_from_rows(invoices, bills, ["2026-07", "2026-10"])
+    figures = figures_from_rows(invoices, bills, ["2026-07", "2026-10"], "energy_cost")
     doc = statements_document("harvest-cold", "USD", "energy_cost", figures)
     assert doc["statements"] == [{"period": "2026-10", "currency": "USD", "revenue": "2604.00",
                                   "energy_cost": "550.75",
                                   "source_ref": "Emulated management accounts, October 2026, final"}]
     with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-10"):
-        figures_from_rows(invoices, [], ["2026-10"])
+        figures_from_rows(invoices, [], ["2026-10"], "energy_cost")

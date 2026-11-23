@@ -92,7 +92,8 @@ def test_c_dd4_fails_when_a_history_node_is_not_the_manifests_evaluation(inputs,
     assert dd_check.judge_identities(inputs, bent, LAKESIDE).passed
     result = dd_check.judge_leaves_and_nodes(inputs, bent, LAKESIDE)
     assert not result.passed
-    assert any("KOBO-001 2026-07: billed_kwh stored 8319 != evaluated 8318" in line for line in result.detail)
+    # D-DD.164 (2026-11-23): Kobo July re-seeded once, 8190 -> 8200 kWh
+    assert any("KOBO-001 2026-07: billed_kwh stored 8201 != evaluated 8200" in line for line in result.detail)
 
 
 def test_c_dd4_fails_on_a_leaf_and_on_octobers_recorded_node(inputs, mini_rows) -> None:
@@ -101,11 +102,16 @@ def test_c_dd4_fails_on_a_leaf_and_on_octobers_recorded_node(inputs, mini_rows) 
          and r["body"].get("category") == "STAFF")["amount"] += Decimal("0.01")
     assert any("KOBO-001 2026-08: STAFF" in line
                for line in dd_check.judge_leaves_and_nodes(inputs, bent, LAKESIDE).detail)
-    october = copy.deepcopy(mini_rows)
-    next(r for r in october if r["site"] == "KOBO-001" and r["month"] == "2026-10" and r["kind"] == "EXPENSE"
-         and r["body"].get("category") == "FUEL")["amount"] += Decimal("0.01")
-    assert any("KOBO-001 2026-10: fuel_cost" in line
+    october = copy.deepcopy(mini_rows)  # D-DD.130: fuel rows are purchases, so October's recorded node is revenue's
+    next(r for r in october if r["site"] == "KOBO-001" and r["month"] == "2026-10" and r["kind"] == "CHARGE")[
+        "amount"] += Decimal("0.01")
+    assert any("KOBO-001 2026-10: revenue" in line
                for line in dd_check.judge_leaves_and_nodes(inputs, october, LAKESIDE).detail)
+    fuel = copy.deepcopy(mini_rows)
+    next(r for r in fuel if r["site"] == "KOBO-001" and r["month"] == "2026-10" and r["kind"] == "EXPENSE"
+         and r["body"].get("category") == "FUEL")["amount"] += Decimal("0.01")
+    assert not any("fuel_cost" in line or "diesel_l" in line
+                   for line in dd_check.judge_leaves_and_nodes(inputs, fuel, LAKESIDE).detail)
 
 
 

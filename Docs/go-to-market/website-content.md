@@ -170,7 +170,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > <!--tag:coming--> See where the money went, choose where it goes next, and know whether it followed. Every figure shows how it's known.
 
-> <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres, as October's records classify them, went on running the generator while its solar and battery could have carried the load.
+> <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 903<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres, as October's records classify them, went on running the generator while its solar and battery could have carried the load.
 
 <!--fold-->
 
@@ -192,7 +192,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Which sites lost money last month, and why: fuel, billing, collections or losses?
 
-> <!--tag:coming--><!--tag:demo-emulated--> Kobo sold more power than its target in October and still came in 562<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, as October's records classify it, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
+> <!--tag:coming--><!--tag:demo-emulated--> Kobo sold more power than its target in October and still came in −120.50<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, as October's records classify it, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
 
 > <!--tag:coming--><!--tag:demo--> A setting is judged by the checks the site lives by, and the rest is shown beside it. A lower battery reserve at Kobo passes the operating checks in a replay: energy served, reserve kept, starts within the maker's limit, a regular full charge. Its dawn battery charge falls below the site's margin on 11<!--fig:options.KOB-RESERVE.information.dawn_days_below--> of 61<!--rec:replay_studies.K8.days--> replayed days, and that is stated beside it, never hidden.
 

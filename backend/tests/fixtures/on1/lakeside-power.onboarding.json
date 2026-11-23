@@ -49,6 +49,20 @@
               "unit": "kW",
               "source": "TEMPLATE",
               "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share",
+              "value": 100,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -73,6 +87,20 @@
               "value": 30,
               "unit": "%",
               "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start",
+              "value": 95,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -159,6 +187,34 @@
               "unit": "kW",
               "source": "TEMPLATE",
               "source_version": 2
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate",
+              "value": 4.8,
+              "unit": "L/h",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load",
+              "value": 30,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -184,6 +240,34 @@
               "unit": "kW",
               "source": "TEMPLATE",
               "source_version": 2
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate",
+              "value": 4.8,
+              "unit": "L/h",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load",
+              "value": 30,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -192,7 +276,7 @@
           "type": "FUEL_TANK",
           "name": "Generator fuel tank",
           "rating": {
-            "value": 400,
+            "value": 5000,
             "unit": "L"
           },
           "properties": [
@@ -737,7 +821,7 @@
           "type": "FUEL_TANK",
           "name": "Generator fuel tank",
           "rating": {
-            "value": 400,
+            "value": 2500,
             "unit": "L"
           },
           "properties": [
@@ -1066,6 +1150,20 @@
               "unit": "kW",
               "source": "TEMPLATE",
               "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share",
+              "value": 50,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -1083,6 +1181,20 @@
               "value": 25,
               "unit": "kW",
               "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share",
+              "value": 50,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pv-array-share-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -1108,6 +1220,20 @@
               "value": 30,
               "unit": "%",
               "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start",
+              "value": 95,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -1194,6 +1320,34 @@
               "unit": "kW",
               "source": "TEMPLATE",
               "source_version": 2
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate",
+              "value": 2.4,
+              "unit": "L/h",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load",
+              "value": 30,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -1202,7 +1356,7 @@
           "type": "FUEL_TANK",
           "name": "Generator fuel tank",
           "rating": {
-            "value": 400,
+            "value": 1000,
             "unit": "L"
           },
           "properties": [
