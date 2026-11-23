@@ -136,6 +136,18 @@ def test_c_dd17_fails_without_a_declared_accuracy_or_a_site(pure) -> None:
     assert not missing.passed and "FAIL MTO-001: no readings" in missing.detail
 
 
+@pytest.mark.parametrize("code", ["KOBO-001", "KISIWA-001"])
+def test_c_dd17_fails_when_a_site_with_a_draw_declares_no_tolerance(pure, monkeypatch, code) -> None:
+    """Review L2: never judged on the floor alone; Mto has no draw and declares none."""
+    declared = dd_check.fuel_tolerances()
+    assert set(declared) == {"KOBO-001", "KISIWA-001"}
+    monkeypatch.setattr(dd_check, "fuel_tolerances", lambda: {c: v for c, v in declared.items() if c != code})
+    result = dd_check.judge_pure_c_dd17(pure, ONBOARDING)
+    assert not result.passed
+    assert [d for d in result.detail if d.startswith("FAIL")] == [f"FAIL {code}: a declared draw and no tolerance_pct"]
+    assert not [d for d in result.detail if d.startswith(f"{code} ")]
+
+
 def test_c_dd17_fails_on_mto_unexplained_fuel(pure) -> None:
     bent = {**pure, "sites": {**pure["sites"], "MTO-001": {**pure["sites"]["MTO-001"], "steps": _steps(
         Decimal(1000), _months("0", "1", "0", "0"), WORLD["MTO-001"][1], WORLD["MTO-001"][2])}}}

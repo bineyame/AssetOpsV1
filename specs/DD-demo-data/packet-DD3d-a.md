@@ -56,8 +56,8 @@ equality removed (`plant-c8.log` 2 failed).
 ## Reach set and guards
 
 - Backend reach set, 54 files (`reach-files.txt`), one `--db-lane` call at this branch's code: 1104 passed, 4 failed, 638.66 s
-  (`reach-db.log`). The four are main's own, `main-4files.log` at main 7c47ec357 (three files: 4 failed, 212 passed, the same
-  ids): `test_3b1_structure_registry::test_t1_leaf_sources_absence_and_words_equal_the_manifest`,
+  (`reach-db.log`). The four are main's own, `main-4files.log` at main 7c47ec357 (three files, 3b1, 3b3 and 4d; the
+  log's name is wrong, its one 5b line is a helper's traceback: 4 failed, 212 passed, the same ids): `test_3b1_structure_registry::test_t1_leaf_sources_absence_and_words_equal_the_manifest`,
   `test_3b3_structure_evaluate::test_t6_each_state_yields_its_leaf_value_on_its_own_record`,
   `test_4d_litre_split::test_6_kobo_fuel_cost_splits_into_the_three_litre_leaves` and `::test_6_the_portfolio` (dispatch-3.3
   against the M string dispatch-3.2; the 120.50 fuel line). The newest `.agent/main-baseline` file is a partial at
@@ -82,7 +82,8 @@ equality removed (`plant-c8.log` 2 failed).
 3. The loader sets the clock on the one store it builds (no module swap); the Foundation floor is read for the revision in
    force over the whole month, so DD6.1 must confirm the world's `valid_from` covers July.
 4. Other documents still say "above 2 % tolerance" (`economic-metric-and-effect-contracts.md` 227 and 400, the
-   traceability CSV, `integration-source-to-canonical-design.md` 463). D-DD.156 names the two `M` strings; these go to the
+   traceability CSV, `integration-source-to-canonical-design.md` 463; review L4 adds `demo-build-cost-plan.md` 33 and
+   `derivation-register.md` 1695, the old `PLAIN` key, both in `Docs/demo-sprint/product-direction-layer4/`). D-DD.156 names the two `M` strings; these go to the
    design-doc alignment pass. The month-end dip is an ordinary-practice assumption (Assumed); D-DD.168's fixed schema has no
    `conditions` field for it.
 

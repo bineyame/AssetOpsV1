@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Sequence
 from uuid import UUID
 
-from assetops_backend.config import ConfigurationError, database_url, served_tenant_slug
+from assetops_backend.config import TENANT_SLUG_ENV, ConfigurationError, database_url, served_tenant_slug
 from assetops_backend.financials.composition import (
     AssumptionStoreUnavailable,
     PostgresAssumptionStore,
@@ -104,8 +104,8 @@ def fixture_publications(path: Path, steps: Sequence[str], resolve_prior) -> lis
 def main(argv: Sequence[str] | None = None, *, store: PostgresAssumptionStore | None = None) -> int:
     try:
         served = served_tenant_slug()
-    except ConfigurationError as error:  # as `provision_gateway`: before any store is built
-        print(str(error), file=sys.stderr)
+    except ConfigurationError:  # as `provision_gateway`: before any store is built
+        print("CONFIGURATION", TENANT_SLUG_ENV, file=sys.stderr)
         return 2
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.publish_assumption")
     sub = parser.add_subparsers(dest="command", required=True)

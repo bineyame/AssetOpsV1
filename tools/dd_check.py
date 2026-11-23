@@ -1168,6 +1168,10 @@ def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
         balances = month_balances(site["steps"], site["manifest"].get("conditions", {}).get("fuel_notes", []),
                                   generator_kit(onboarding, code))
         draws = declared_draws(code)
+        if code not in tolerances and any(draws[m] for m in PURE_MONTHS):
+            detail.append(f"FAIL {code}: a declared draw and no tolerance_pct")
+            ok = False
+            continue
         for month in PURE_MONTHS:
             good, line = False, f"FAIL {code} {month}: no readings"
             if month in balances:

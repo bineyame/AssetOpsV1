@@ -26,8 +26,9 @@ from typing import Any
 from uuid import UUID
 
 from assetops_backend import config
+from assetops_backend.evidence.ledger import LedgerUnavailable
 from assetops_backend.prepare_clock import PrepareClockRefused, require_prepare_database
-from assetops_backend.work.model import WorkRefused
+from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.operational_entry import (ENTRY_PRINCIPAL, compose_entry, entry_site_context,
                                                      validate_entry)
 
@@ -59,6 +60,8 @@ def read_file(directory: Path, tenant: str) -> dict[str, Any]:
         document = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as error:
         raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail=type(error).__name__) from None
+    if not isinstance(document, dict):
+        raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail="shape")
     if document.get("schema") != SCHEMA:
         raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail=f"schema {document.get('schema')}")
     if document.get("tenant") != tenant:
@@ -72,23 +75,50 @@ def entry_body(record: dict[str, Any]) -> dict[str, Any]:
             "ticket_reference": record["ticket_reference"], "idempotency_key": f"oprec-entry-{key}"}
 
 
-def _load(document: dict[str, Any], scopes: dict[str, tuple[UUID, UUID]], service: Any, clock: RecordClock,
-          site_context: Callable[[UUID, UUID], tuple[str, str | None]]) -> tuple[dict[int, int], dict[str, int]]:
-    statuses, kinds = {200: 0, 201: 0}, {}
-    for site in document["sites"]:
-        tenant_id, site_id = scopes[site["site_code"]]
+def read_records(document: dict[str, Any]) -> list[tuple[str, str, datetime, dict[str, Any]]]:
+    """Every record as (Site code, record id, its `recorded_at` in UTC, its entry body), read before any is written. A
+    missing key or an instant that is not one (a naive one included: no host zone is ever assumed) refuses with its id."""
+    out = []
+    sites = document.get("sites")
+    if not isinstance(sites, list):
+        raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail="sites")
+    for site in sites:
+        if not (isinstance(site, dict) and isinstance(site.get("site_code"), str)
+                and isinstance(site.get("records"), list)):
+            raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail="site")
         for record in site["records"]:
-            clock.now = datetime.fromisoformat(record["recorded_at"]).astimezone(timezone.utc)
-            body = entry_body(record)
+            rid = record.get("source_record_id") if isinstance(record, dict) else None
+            if not isinstance(rid, str):
+                raise FuelRecordsRefused("FUEL_RECORDS_FILE", detail="record")
             try:
-                validate_entry(body)
-                zone, tank_id = site_context(tenant_id, site_id)
-                command = compose_entry(body, zone, tank_id, with_actor=True)
-                status, _ = service.post_operational_record(tenant_id, site_id, command, ENTRY_PRINCIPAL)
-            except WorkRefused as refused:
-                raise FuelRecordsRefused(refused.code, record["source_record_id"]) from refused
-            statuses[status] += 1
-            kinds[record["kind"]] = kinds.get(record["kind"], 0) + 1
+                at = datetime.fromisoformat(record["recorded_at"])
+                body = entry_body(record)
+            except (KeyError, TypeError, ValueError):
+                raise FuelRecordsRefused("FUEL_RECORDS_FILE", rid, "record") from None
+            if at.tzinfo is None:
+                raise FuelRecordsRefused("FUEL_RECORDS_FILE", rid, "record")
+            out.append((site["site_code"], rid, at.astimezone(timezone.utc), body))
+    return out
+
+
+def _load(records: list[tuple[str, str, datetime, dict[str, Any]]], scopes: dict[str, tuple[UUID, UUID]], service: Any,
+          clock: RecordClock, site_context: Callable[[UUID, UUID], tuple[str, str | None]]
+          ) -> tuple[dict[int, int], dict[str, int]]:
+    statuses, kinds = {200: 0, 201: 0}, {}
+    for site_code, rid, at, body in records:
+        tenant_id, site_id = scopes[site_code]
+        clock.now = at
+        try:
+            validate_entry(body)
+            zone, tank_id = site_context(tenant_id, site_id)
+            command = compose_entry(body, zone, tank_id, with_actor=True)
+            status, _ = service.post_operational_record(tenant_id, site_id, command, ENTRY_PRINCIPAL)
+        except WorkRefused as refused:
+            raise FuelRecordsRefused(refused.code, rid) from refused
+        except WorkStoreUnavailable as error:
+            raise FuelRecordsRefused("FUEL_RECORDS_STORE", rid) from error
+        statuses[status] += 1
+        kinds[body["entry"]] = kinds.get(body["entry"], 0) + 1
     return statuses, dict(sorted(kinds.items()))
 
 
@@ -97,6 +127,7 @@ def load_fuel_records(directory: Path, tenant: str) -> dict[str, Any]:
     url = config.database_url()
     require_prepare_database(url)
     document = read_file(directory, tenant)
+    records = read_records(document)
     from assetops_backend.evidence.composition import build_evidence_ledger
     from assetops_backend.fuel_balance.composition import build_fuel_balance_store
     from assetops_backend.work.composition import build_work_store
@@ -108,11 +139,14 @@ def load_fuel_records(directory: Path, tenant: str) -> dict[str, Any]:
     try:
         scopes = {}
         for site in document["sites"]:
-            scope = ledger.site_scope(tenant, site["site_code"])
+            try:
+                scope = ledger.site_scope(tenant, site["site_code"])
+            except LedgerUnavailable as error:
+                raise FuelRecordsRefused("FUEL_RECORDS_STORE") from error
             if scope is None:
                 raise FuelRecordsRefused("FUEL_RECORDS_SITE", detail=site["site_code"])
             scopes[site["site_code"]] = scope
-        statuses, kinds = _load(document, scopes, WorkService(store), clock, entry_site_context(fuel.night_context))
+        statuses, kinds = _load(records, scopes, WorkService(store), clock, entry_site_context(fuel.night_context))
     finally:
         fuel.dispose()
         store.dispose()

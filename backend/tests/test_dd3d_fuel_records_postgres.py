@@ -153,6 +153,53 @@ def test_a_refused_record_exits_2_with_its_code_and_id(onboarded, tmp_path, caps
     assert _count(onboarded) == 0
 
 
+@pytest.mark.parametrize(("change", "where"), [
+    ({"litres": ...}, "bad-1"), ({"kind": ...}, "bad-1"), ({"source_record_id": ...}, "-"), ({"recorded_at": ...}, "bad-1"),
+    ({"recorded_at": "yesterday"}, "bad-1"), ({"recorded_at": 3}, "bad-1"), ({"source_record_id": 7}, "-"),
+    ({"recorded_at": "2026-09-25T10:00:00"}, "bad-1")])  # a naive instant is never read in the host's zone
+def test_a_malformed_record_refuses_with_its_id_and_writes_nothing(onboarded, tmp_path, capsys, change, where) -> None:
+    """Review L3: every record is read before the first is written, so the good one before it is not stored."""
+    bad = {k: v for k, v in {**_delivery("bad-1", "2026-09-25", 1), **change}.items() if v is not ...}
+    code, out, err = _run(capsys, "--dir", str(_write(tmp_path, [RECORDS[0], bad])), "--tenant", SLUG)
+    assert (code, out, err) == (2, "", f"FUEL_RECORDS_FILE {where} record")
+    assert _count(onboarded) == 0
+
+
+@pytest.mark.parametrize("sites", [None, {}, [7], [{"records": []}], [{"site_code": CODE}], [{"site_code": CODE, "records": 7}],
+                                   [{"site_code": CODE, "records": [7]}]])
+def test_a_file_of_another_shape_refuses_with_nothing_written(onboarded, tmp_path, capsys, sites) -> None:
+    path = _write(tmp_path) / SLUG / "fuel-records.json"
+    path.write_text(json.dumps({"schema": "assetops.world-fuel-records/1", "tenant": SLUG, "sites": sites}), encoding="utf-8")
+    code, out, err = _run(capsys, "--dir", str(tmp_path), "--tenant", SLUG)
+    assert (code, out) == (2, "") and err.startswith("FUEL_RECORDS_FILE - ")
+    path.write_text("[]", encoding="utf-8")
+    assert _run(capsys, "--dir", str(tmp_path), "--tenant", SLUG) == (2, "", "FUEL_RECORDS_FILE - shape")
+    assert _count(onboarded) == 0
+
+
+@pytest.mark.parametrize("fails", ["scope", "context", "post"])
+def test_an_unavailable_store_exits_2_with_the_record_it_was_at(onboarded, tmp_path, monkeypatch, capsys, fails) -> None:
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger import LedgerUnavailable
+    from assetops_backend.work.model import WorkStoreUnavailable
+    from assetops_backend.work.service import WorkService
+
+    def down(error):
+        def raises(*_a, **_k):
+            raise error("down")
+        return raises
+
+    if fails == "scope":
+        monkeypatch.setattr(PostgresEvidenceLedger, "site_scope", down(LedgerUnavailable))
+    elif fails == "context":
+        monkeypatch.setattr(command, "entry_site_context", lambda read: down(WorkStoreUnavailable))
+    else:
+        monkeypatch.setattr(WorkService, "post_operational_record", down(WorkStoreUnavailable))
+    code, out, err = _run(capsys, "--dir", str(_write(tmp_path)), "--tenant", SLUG)
+    assert (code, out, err) == (2, "", f"FUEL_RECORDS_STORE {'-' if fails == 'scope' else RECORDS[0]['source_record_id']}")
+    assert _count(onboarded) == 0
+
+
 def test_one_sites_file_loads_each_record_at_its_own_time(onboarded, tmp_path, capsys) -> None:
     from assetops_backend.work import composition
 
@@ -249,20 +296,21 @@ def test_the_same_id_with_other_litres_refuses(onboarded, tmp_path, capsys) -> N
     assert _count(onboarded) == 8
 
 
-def test_the_declared_accuracy_is_the_floor_on_the_published_foundation(onboarded) -> None:
-    """D-DD.153 through the real Foundation read: from the publication on, Kobo's tank declares 25 L."""
+@pytest.mark.parametrize(("site_code", "litres"), [("KOBO-001", 50), ("KISIWA-001", 100), ("MTO-001", 20)])
+def test_the_declared_accuracy_is_the_floor_from_july(onboarded, site_code, litres) -> None:
+    """D-DD.153 through the real Foundation read (review L1): the published Foundation covers July, so the floor is 2a in
+    every month July to October, and there is none in June."""
+    from assetops_backend.commercial.months import month_bounds
     from assetops_backend.structure.observe.floor import StoreFloorRead
 
-    tenant_id, site_id = _store_site(onboarded)
-    [rev] = _query(onboarded, "SELECT valid_from, valid_to, id FROM foundation_revision WHERE site_id = :s", s=site_id)
+    [site] = _query(onboarded, "SELECT tenant_id, id FROM site WHERE site_code = :c", c=site_code)
     store = build_fuel_balance_store(onboarded)
     now = datetime.now(timezone.utc) + timedelta(hours=1)
-    start = rev["valid_from"]
     try:
-        read = StoreFloorRead(store)
-        floor = read.read(tenant_id, site_id, (start, start + timedelta(days=30)), now)
-        early = read.read(tenant_id, site_id, (start - timedelta(days=1), start + timedelta(days=30)), now)
+        floors = {m: StoreFloorRead(store).read(site["tenant_id"], site["id"], month_bounds(m, "Africa/Nairobi"), now)
+                  for m in ("2026-06", "2026-07", "2026-08", "2026-09", "2026-10")}
     finally:
         store.dispose()
-    assert (floor.litres, floor.accuracy_l, floor.basis) == (Decimal(50), Decimal(25), "GENERIC_DEFAULT")
-    assert early is None
+    assert floors.pop("2026-06") is None
+    assert {m: (f.litres, f.accuracy_l, f.basis) for m, f in floors.items()} == {
+        m: (Decimal(litres), Decimal(litres) / 2, "GENERIC_DEFAULT") for m in floors}
