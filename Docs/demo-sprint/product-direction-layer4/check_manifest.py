@@ -1283,7 +1283,8 @@ def empty_states(root, doc):
 H8_DERIVED_SHA = "74fe3acec6ca1b575bb92f67c32ef38f704dae8ca155297d7ba1423d1845ebb8"   # derived-values.json at the DD3b fix round (M rev 16.23)
 H8_MISSING_SHA = "5f36e886dde61cf9efbb352956540fe0a2cfd54c9bddc7bd9f3b07353c46b66c"   # missing-records.json at the DD3b3 base (was the 0K4m base)
 # Re-based (23 Nov) for DD4b DD4.6 (D-DD.144, M rev 16.21): the cold-room energy model moves Mwea, Thika and Kirinyaga October energy and bill (derived-values.json, manifest before `history:`, history.json). The previous value was b4b8f7d1304cd7025d9a73b66c63779a6426fa8234690183d20526715b17663a.
-H10_MANIFEST_SHA = "28b61ec5645395c533e23bf30d99455b367f2bbb1b149cccdf60adab4e068d1a"  # the manifest at the DS1p base, plus
+# Re-based (23 Nov) for DD3d-a (D-DD.156, M rev 16.24): two tolerance wordings and the rev line; no figure, derived value or history moves. The previous value was 28b61ec5645395c533e23bf30d99455b367f2bbb1b149cccdf60adab4e068d1a.
+H10_MANIFEST_SHA = "4493ce316502a13c085b8b57432b0b8c32213d56329b47a9bedba93805bf1760"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
@@ -1342,6 +1343,18 @@ def entry_key13(e):
     subj = entry_subject(e)
     return (json.dumps({"leaves": None} if "leaves" in subj else subj, sort_keys=True, ensure_ascii=False),
             e.get("record_kind"), e.get("cause"), e.get("carried_as"))
+
+
+TANK_FLOOR_FACTOR = 2   # D-DD.153: two level readings a month, each within the tank's declared accuracy a (W2: typed here, never imported from the product)
+LAKESIDE_FILE = pathlib.Path(__file__).resolve().parents[3] / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
+
+
+def level_accuracy(code):
+    """H5 (D-DD.156): the Site's one tank's declared `fuel-level-sensor-accuracy` (L) in Lakeside's `/2` file, else None."""
+    tanks = [c for s in json.loads(LAKESIDE_FILE.read_text(encoding="utf-8"))["sites"] if s["code"] == code
+             for c in s["components"] if c["type"] == "FUEL_TANK"]
+    values = [p["value"] for t in tanks for p in t.get("properties", []) if p["property_key"] == "fuel-level-sensor-accuracy"]
+    return D(str(values[0])) if len(tanks) == len(values) == 1 else None
 
 
 def view_digest(doc):
@@ -1521,8 +1534,14 @@ def history_checks(doc, dv, root, path, im):
                             check(f"H13 {scope}: {e.get('carried_as')} leaves are a subset of October's list (stray {stray})", not stray)
                     # H5: what history may not show
                     if V == "MINI_GRID" and side == "actual" and "diesel_l" in nodes:
-                        check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= 2% of diesel_l {nodes['diesel_l']}",
-                              D(rec.get("unexplained_l", 0)) <= D("0.02") * D(str(nodes["diesel_l"])))
+                        # D-DD.156: the finding's own tolerance (D-DD.153), the larger of 2 % and 2a; no declared a is a FAIL, never 2 % alone
+                        a_l = level_accuracy(s_["code"])
+                        two_pct = D("0.02") * D(str(nodes["diesel_l"]))
+                        if a_l is None:
+                            check(f"H5 {scope}: {s_['code']} no declared level accuracy", False)
+                        else:
+                            check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= max(2% of diesel_l {nodes['diesel_l']} = {two_pct:.2f}, "
+                                  f"2a = {TANK_FLOOR_FACTOR * a_l})", D(rec.get("unexplained_l", 0)) <= max(two_pct, TANK_FLOOR_FACTOR * a_l))
                     if V == "COLD_CHAIN":
                         cap = D(str(t["capacity_crates_per_room"])) * blk["period_days"]
                         check(f"H5 {scope}: crate_days {rec.get('crate_days')} <= capacity {cap}", D(rec.get("crate_days", 0)) <= cap)
