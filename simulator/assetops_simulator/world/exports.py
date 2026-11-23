@@ -529,7 +529,8 @@ def build_exports(view: dict, history: dict, *, months: list[str] | tuple[str, .
         # accounting period stays in the walk definition (Kisiwa's disagreement).
         history_months = [m for m in months if m != accounting]
         figures = figures_from_rows(
-            out["billing"], [r for r in out["expenses"] if r["body"]["category"] == "FUEL"], history_months)
+            out["billing"], [r for r in out["expenses"] if r["body"]["category"] == "FUEL"], history_months,
+            "fuel_cost")
         if figures:
             statements.append((f"{name}.statements.json", statements_bytes(name, currency, "fuel_cost", figures)))
     return ExportsResult(files=tuple(files), unwritten=tuple(sorted(unwritten)), staged=tuple(sorted(staged)),

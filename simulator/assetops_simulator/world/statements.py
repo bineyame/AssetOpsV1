@@ -15,6 +15,10 @@ from .months import parse_month
 
 SCHEMA = "assetops.world-statements/1"
 COST_KEYS = ("fuel_cost", "energy_cost")
+# D-DD.175: a month with revenue and no cost row states 0.00 only for a stocked good. Fuel is bought on delivery and
+# burned from the tank (D-DD.92/D-DD.163), so a month with no delivery bought no fuel; an energy bill's absence is a
+# missing figure and is refused.
+ZERO_WHEN_NONE = {"fuel_cost": True, "energy_cost": False}
 
 
 def source_ref(month: str) -> str:
@@ -48,14 +52,29 @@ def sum_by_month(rows: list[dict]) -> dict[str, Decimal]:
     return out
 
 
-def figures_from_rows(revenue_rows: list[dict], cost_rows: list[dict], months: list[str]) -> dict[str, tuple[Decimal, Decimal]]:
-    """Revenue and cost per month from emitted rows. A month with neither is absent; a month with one is refused."""
+def figures_from_rows(revenue_rows: list[dict], cost_rows: list[dict], months: list[str],
+                      cost_key: str) -> dict[str, tuple[Decimal, Decimal]]:
+    """Revenue and cost per month from emitted rows (D-DD.175).
+
+    A month with neither is absent. A month with revenue and no cost row is `(revenue, 0.00)` when
+    `ZERO_WHEN_NONE[cost_key]` (fuel: the statement states fuel bought, and a month with no delivery bought none),
+    otherwise `STATEMENT_INCOMPLETE {month}` (an energy bill's absence is never zero). A month with cost rows and no
+    revenue is `STATEMENT_INCOMPLETE {month}` (no trading month without billing). An unknown key is
+    `STATEMENT_COST_KEY`.
+    """
+    if cost_key not in COST_KEYS:
+        raise ValueError(f"STATEMENT_COST_KEY {cost_key}")
     revenue, cost = sum_by_month(revenue_rows), sum_by_month(cost_rows)
     out = {}
     for month in months:
         if month not in revenue and month not in cost:
             continue
-        if month not in revenue or month not in cost:
+        if month not in revenue:
             raise ValueError(f"STATEMENT_INCOMPLETE {month}")
+        if month not in cost:
+            if not ZERO_WHEN_NONE[cost_key]:
+                raise ValueError(f"STATEMENT_INCOMPLETE {month}")
+            out[month] = (revenue[month], Decimal("0.00"))
+            continue
         out[month] = (revenue[month], cost[month])
     return out

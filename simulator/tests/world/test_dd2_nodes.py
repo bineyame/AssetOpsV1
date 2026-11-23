@@ -307,6 +307,49 @@ def test_lakesides_statements_are_the_sums_of_its_history_month_rows(full) -> No
     assert set(july) == {"period", "currency", "revenue", "fuel_cost", "source_ref"}
 
 
+def test_lakesides_july_bought_no_fuel_and_states_fuel_0_00(full) -> None:
+    """D-DD.175 (d): the restated notes put no Lakeside delivery in July; its statement states fuel bought 0.00, which
+    is the sum of July's FUEL rows (an empty sum)."""
+    july = json.loads(full.statements[0][1])["statements"][0]
+    assert july["period"] == "2026-07"
+    fuel = [r for r in rows(full, "expenses") if month_of(r) == "2026-07" and r["body"]["category"] == "FUEL"]
+    assert fuel == [] and july["fuel_cost"] == "0.00" and Decimal(july["fuel_cost"]) == total(fuel)
+    billing = [r for r in rows(full, "billing") if month_of(r) == "2026-07"]
+    assert billing and Decimal(july["revenue"]) == total(billing)
+
+
+_JULY_REVENUE = [{"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "868.00"}},
+                 {"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "12.50"}}]
+_JULY_COST = [{"clocks": {"recognition_period": "2026-07"}, "amount": {"value": "250.50"}}]
+
+
+def test_a_fuel_month_with_revenue_and_no_purchase_states_fuel_0_00() -> None:
+    """D-DD.175 (a): fuel is a stocked good; a month burning tank fuel with no delivery bought nothing."""
+    from assetops_simulator.world.statements import figures_from_rows, statements_document
+    figures = figures_from_rows(_JULY_REVENUE, [], ["2026-07"], "fuel_cost")
+    assert figures == {"2026-07": (Decimal("880.50"), Decimal("0.00"))}
+    statement, = statements_document("lakeside-power", "USD", "fuel_cost", figures)["statements"]
+    assert statement["fuel_cost"] == "0.00" and statement["revenue"] == "880.50"
+    assert statement["source_ref"] == "Emulated management accounts, July 2026, final"
+
+
+def test_an_energy_month_with_revenue_and_no_bill_is_still_refused() -> None:
+    """D-DD.175 (b): an energy bill's absence is not zero."""
+    from assetops_simulator.world.statements import figures_from_rows
+    with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-07"):
+        figures_from_rows(_JULY_REVENUE, [], ["2026-07"], "energy_cost")
+
+
+@pytest.mark.parametrize("cost_key", ["fuel_cost", "energy_cost"])
+def test_a_month_with_cost_and_no_revenue_is_refused_for_either_key(cost_key: str) -> None:
+    """D-DD.175 (c): no trading month without billing; an unknown key is refused."""
+    from assetops_simulator.world.statements import figures_from_rows
+    with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-07"):
+        figures_from_rows([], _JULY_COST, ["2026-07"], cost_key)
+    with pytest.raises(ValueError, match="STATEMENT_COST_KEY water_cost"):
+        figures_from_rows(_JULY_REVENUE, _JULY_COST, ["2026-07"], "water_cost")
+
+
 def test_the_statements_writer_takes_cold_and_ev_rows_with_energy_cost() -> None:
     """DD2.5: the cold and EV writer, on a fixture of measured bill rows (the real rows come with DD4.4)."""
     from assetops_simulator.world.statements import figures_from_rows, statements_document
@@ -314,10 +357,10 @@ def test_the_statements_writer_takes_cold_and_ev_rows_with_energy_cost() -> None
                 {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "1736.00"}}]
     bills = [{"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "250.50"}},
              {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "300.25"}}]
-    figures = figures_from_rows(invoices, bills, ["2026-07", "2026-10"])
+    figures = figures_from_rows(invoices, bills, ["2026-07", "2026-10"], "energy_cost")
     doc = statements_document("harvest-cold", "USD", "energy_cost", figures)
     assert doc["statements"] == [{"period": "2026-10", "currency": "USD", "revenue": "2604.00",
                                   "energy_cost": "550.75",
                                   "source_ref": "Emulated management accounts, October 2026, final"}]
     with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-10"):
-        figures_from_rows(invoices, [], ["2026-10"])
+        figures_from_rows(invoices, [], ["2026-10"], "energy_cost")
