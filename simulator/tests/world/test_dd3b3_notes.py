@@ -306,7 +306,9 @@ def test_kisiwa_evening_load_and_or_mg_2_read_from_the_run() -> None:
     _, site = _site("KISIWA-001")
     assert share == 70
     assert f"{share}% load" in site["decision"]["thread"] and "95%" not in site["decision"]["thread"]
-    assert f"({share}%" in site["factor_sources"]["standby_kw"]
+    standby = next(line for line in dd_check.MANIFEST.read_text(encoding="utf-8").splitlines()
+                   if "standby_kw:" in line and "GEN-KS-02" in line)  # the record is the line's YAML comment
+    assert f"({share}%" in standby and "95%" not in standby
     assert "negative control" not in site["role_in_story"]
     expect = next(o["expect"] for o in _manifest()["oracle"] if o["id"] == "OR-MG-2")
     assert expect == "Kisiwa: candidate time printed per month; no fuel-saving option is in M"

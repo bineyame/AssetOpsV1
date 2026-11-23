@@ -85,6 +85,7 @@
      "technical_loss_kwh",
      "adjustments_kwh",
      "necessary_l",
+     "candidate_l",
      "unexplained_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",
@@ -160,7 +161,8 @@
      "unexplained_loss_kwh",
      "adjustments_kwh",
      "unmapped_kwh",
-     "necessary_l"
+     "necessary_l",
+     "candidate_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",
     "source_family": "COMMERCIAL_RECORD",
