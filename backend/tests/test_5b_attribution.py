@@ -38,12 +38,15 @@ from assetops_backend.structure.targets.read import SiteTargets, TargetCheck, Ta
 from assetops_backend.structure.targets.rules import solve_main
 from assetops_contracts.canonical.units import KWH, MONEY
 from test_3a4_commercial_months import READ_AT, new_world
-from test_4b_money_leaves import MTO_MISSING, fallback
+from pack_litres import with_litres
+from test_4b_money_leaves import MTO_MISSING
 from test_4b_money_leaves import fixture_steps as money_steps
 from test_4b_money_leaves import ingest as money_ingest
 from test_5a_targets import _toy
 
 D = Decimal
+#: Mto without billing, its litres supplied (`pack_litres`): what 4b names missing less the three litre leaves.
+MTO_NO_LITRES_MISSING = tuple(f for f in MTO_MISSING if not f.endswith("_l"))
 MG = REGISTRIES["MINI_GRID"]
 E = "source-emulated"
 USD, KES = "USD", "KES"
@@ -459,7 +462,7 @@ def _world(with_mto: bool = True) -> dict:
 
 def reads(w: dict) -> tuple[StructureRead, TargetRead]:
     """4b's test reader and 5a's `TargetRead` over it (spec §5.2)."""
-    src = CommercialLeafSource(w["months"], w["store"], fallback())
+    src = CommercialLeafSource(w["months"], w["store"], with_litres())
     actual = StructureRead(src, stated=src)
     return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual)
 
@@ -486,7 +489,9 @@ def lakeside_portfolio(w: dict) -> PortfolioBridge:
 
 
 def money(v: Decimal | None, literal: str) -> None:
-    assert v == D(literal) and format(v, "f") == literal, (v, literal)
+    # D-DD.177: fuel cost is litres (to the millilitre) times a price, so a figure may carry a third decimal; the value
+    # is still exact to the cent, and the text is the cent's.
+    assert v == D(literal) and format(v.quantize(D("0.01")), "f") == literal, (v, literal)
 
 
 # --- test 5: carrying (pure; Kisiwa's real inputs and targets, then one field replaced) -------------------------------
@@ -576,9 +581,9 @@ def test_5f_a_leaf_outside_the_list_is_untouched() -> None:
 #: D-DD.164 (2026-11-23): M rev 16.23, Kisiwa 903 L (1,173.90); Kisiwa and portfolio figures +1.30.
 #: Spec §5.2's table: root (actual, target, gap), evidence, revenue TERM effect, cost to serve TERM (fuel, om, staff).
 SITE_TABLE = {
-    KOBO: (("1565.50", "1445.00", "120.50"), "DECLARED", "38.00", "82.50", ("82.50", "0.00", "0.00")),
-    KISIWA: (("1696.10", "-65.00", "1761.10"), "ESTIMATED", "-55.00", "1816.10", ("1816.10", "0.00", "0.00")),
-    MTO: (("1170.00", "915.00", "255.00"), "DECLARED", "-80.00", "335.00", ("335.00", "0.00", "0.00")),
+    KOBO: (("1565.50", "1445.00", "120.50"), "MODELLED", "38.00", "82.50", ("82.50", "0.00", "0.00")),
+    KISIWA: (("1696.10", "-65.00", "1761.10"), "MODELLED", "-55.00", "1816.10", ("1816.10", "0.00", "0.00")),
+    MTO: (("1170.00", "915.00", "255.00"), "MODELLED", "-80.00", "335.00", ("335.00", "0.00", "0.00")),
 }
 SITE_HOMES = {KOBO: ("38.00", "82.50"), KISIWA: ("-55.00", "1816.10"), MTO: ("-80.00", "335.00")}
 #: Cash roots (actual, target, gap; in_transit effect, outstanding effect).
@@ -604,15 +609,17 @@ def check_site(sb: SiteBridge, code: str, w: dict) -> None:
     assert cost.split == "SPLIT" and [r.factor_id for r in cost.rows] == ["fuel_cost", "om", "staff"], code
     f, o, s = cost.rows
     money(f.effect, fuel), money(o.effect, om), money(s.effect, staff)
-    assert (f.split, f.reason, f.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ()), code
-    assert (f.unobserved_actual, f.unobserved_target) == FUEL_UNOBSERVED, code
+    # DD3d.4 (D-DD.163): fuel cost is litres times a price, so it splits (was NOT_SPLIT: its figure was stated)
+    assert (f.split, f.reason) == ("SPLIT", None), code
+    assert [r.factor_id for r in f.rows] == ["diesel_l", "diesel_price"], code
+    assert f.evidence == "MODELLED", code
     assert (o.split, s.split) == ("LEAF", "LEAF")
     assert o.carried is (code == KISIWA) and s.carried is False
     if code == KISIWA:
         assert o.evidence == "ESTIMATED"
     grow, cut = SITE_HOMES[code]
     assert dict(sb.by_home) == {"GROW_REVENUE": D(grow), "OPTIMIZE_COST": D(cut)}
-    assert [format(v, "f") for v in sb.by_home.values()] == [grow, cut]
+    assert [format(v.quantize(D("0.01")), "f") for v in sb.by_home.values()] == [grow, cut]  # litres: 3 places
     # the cash root
     ca, ct, cg, transit, outstanding = SITE_CASH[code]
     cash = sb.roots["collected"]
@@ -650,7 +657,7 @@ def test_6_the_three_site_bridges(code: str) -> None:  # plants V7, V8, V11
 
 def test_6_kobo_root_origins() -> None:
     root = unit2_site(_world(), KOBO).roots["contribution"]
-    assert root.origins == (OF, E)
+    assert root.origins == (OF, E, "unknown")  # DD3d.4: the modelled litres carry origin unknown
 
 
 def test_6_inputs_and_targets_must_share_key_version_and_month() -> None:
@@ -674,10 +681,10 @@ def test_4_invariants_on_the_site_bridges(code: str, root: str) -> None:  # test
 
 #: key: (actual, target, gap, effect, evidence, carried)
 PORTFOLIO_TABLE = {
-    "contribution": ("4431.60", "2295.00", "2136.60", "2136.60", "ESTIMATED", (KISIWA,)),
+    "contribution": ("4431.60", "2295.00", "2136.60", "2136.60", "MODELLED", (KISIWA,)),
     "revenue": ("9688.00", "9785.00", "-97.00", "-97.00", "DECLARED", ()),
-    "cost_to_serve": ("5256.40", "7490.00", "-2233.60", "2233.60", "ESTIMATED", (KISIWA,)),
-    "fuel_cost": ("2006.40", "4240.00", "-2233.60", "2233.60", "DECLARED", ()),
+    "cost_to_serve": ("5256.40", "7490.00", "-2233.60", "2233.60", "MODELLED", (KISIWA,)),
+    "fuel_cost": ("2006.40", "4240.00", "-2233.60", "2233.60", "MODELLED", ()),
     "om": ("1800.00", "1800.00", "0.00", "0.00", "ESTIMATED", (KISIWA,)),
     "staff": ("1450.00", "1450.00", "0.00", "0.00", "DECLARED", ()),
 }
@@ -723,11 +730,11 @@ def test_8a_without_mto_billing_the_gap_is_747_over_2_of_3() -> None:  # plants 
     mto = unit2_site(w, MTO).roots["contribution"]
     assert (mto.split, mto.reason, mto.effect, mto.evidence) == ("NOT_SPLIT", "GAP_NOT_AVAILABLE", None,
                                                                  "NOT_AVAILABLE")
-    assert (mto.unobserved_actual, mto.unobserved_target) == (MTO_MISSING, ())
+    assert (mto.unobserved_actual, mto.unobserved_target) == (MTO_NO_LITRES_MISSING, ())
     row = lakeside_portfolio(w).rows["contribution"]["contribution"]
     money(row.actual, "3261.60"), money(row.target, "1380.00"), money(row.gap, "1881.60"), money(row.effect, "1881.60")
     assert (row.k, row.n) == (2, 3)
-    assert row.out == ((MTO, tuple(f"actual:{leaf}" for leaf in MTO_MISSING)),)
+    assert row.out == ((MTO, tuple(f"actual:{leaf}" for leaf in MTO_NO_LITRES_MISSING)),)
 
 
 def _hand_site(code: str, currency: str = USD, **actual_values: str) -> SiteBridge:
@@ -835,7 +842,7 @@ class _Recorder:
 def test_9b_one_instant_per_read() -> None:  # plant V19 (D-5B.13)
     w = _world()
     seen: list = []
-    src = CommercialLeafSource(w["months"], w["store"], fallback())
+    src = CommercialLeafSource(w["months"], w["store"], with_litres())
     actual = _Recorder(StructureRead(src, stated=src), seen)
     targets = _Recorder(TargetRead(BudgetLineReader(w["months"], w["store"]), actual), seen)
     calls: list[datetime] = []

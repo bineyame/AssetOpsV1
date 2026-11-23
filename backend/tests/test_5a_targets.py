@@ -572,7 +572,9 @@ def test_4_the_rule_table() -> None:
     assert set(RULE_TABLE["CALENDAR"]) == {r.factor_id for r in REG.rows if r.absent == "NEVER_EMPTY"}
     for leaf, headings in target_rules.MAIN_OF[MG].items():
         for heading in headings:
-            assert REG.row(heading).stated_by is not None and heading in blocks_of(REG, (leaf,))
+            # D-DD.178: a budget line states its heading's target whether or not a record states the actual
+            assert heading in target_rules.BUDGET_STATED[MG] and heading in blocks_of(REG, (leaf,))
+            assert not REG.row(heading).is_leaf
     assert target_rules.RULES == ("LEAK_ZERO", "AT_ACTUAL", "MAIN", "OPTION", "CALENDAR")
     assert (target_rules.TARGET_KIND, target_rules.TARGET_FAMILY, target_rules.TARGET_WORDS) == \
         ("BUDGET_LINE", "COMMERCIAL_RECORD", WORDS)

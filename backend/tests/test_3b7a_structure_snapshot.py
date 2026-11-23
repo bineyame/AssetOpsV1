@@ -18,7 +18,8 @@ from uuid import UUID
 import pytest
 import test_5a_targets as t5a
 from test_3a4_commercial_months import READ_AT, new_world
-from test_4b_money_leaves import PRICE_ID, fallback, ingest, ingest_fixture
+from pack_litres import with_litres
+from test_4b_money_leaves import PRICE_ID, ingest, ingest_fixture
 
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.commercial.months import PORTFOLIO_ZONE
@@ -80,7 +81,7 @@ def priced(value: str) -> ProductLeafSource:
 
 
 def fresh(w, fb=None) -> SimpleNamespace:
-    src = CommercialLeafSource(w["months"], w["store"], fb or fallback())
+    src = CommercialLeafSource(w["months"], w["store"], fb or with_litres())
     actual = StructureRead(src, stated=src)
     lines = BudgetLineReader(w["months"], w["store"])
     return SimpleNamespace(actual=actual, lines=lines, targets=TargetRead(lines, actual))
@@ -221,9 +222,9 @@ def test_2_a_changed_payload_is_never_decoded() -> None:
     actual, targets = evaluate_inputs(inputs), r.targets.site(s, OCT, AS_OF)
     payload = codec.encode_site(w["tid"], s, OCT, AS_OF, inputs, actual, targets)
     row = _site_row(w, s, inputs, actual, targets, payload)
-    assert '"883.00"' in payload
+    assert '"1565.500"' in payload
     with pytest.raises(RuntimeError, match="snapshot payload does not match its digest"):
-        codec.decode_site(replace(row, payload=payload.replace('"883.00"', '"883.01"', 1)), s)
+        codec.decode_site(replace(row, payload=payload.replace('"1565.500"', '"1565.501"', 1)), s)
 
 
 def test_2_portfolio_round_trip() -> None:
@@ -262,7 +263,7 @@ def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
         assert sv.snapshot.closed_at_build is True and sv.snapshot.built_by == BY
     kobo, kisiwa, mto = (served[c].snapshot for c in CODES)
     a = kobo.actual.values
-    assert (a["contribution"].value, a["contribution"].evidence) == (D("883.00"), "RECORDED")
+    assert (a["contribution"].value, a["contribution"].evidence) == (D("1565.50"), "MODELLED")  # DD3d.4: fuel cost from the pack litres (MODELLED), 4d fix figure
     assert (a["revenue"].value, a["revenue"].stated) == (D("3458.00"), True)
     assert (a["diesel_price"].value, a["diesel_price"].evidence) == (D("1.25"), "DERIVED")
     t = kobo.targets.structure.values["contribution"]
@@ -274,12 +275,15 @@ def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
     assert kisiwa.targets.checks == (TargetCheck("contribution", D("-60.00"), D("-65.00"), "USD", False),)
     assert mto.actual.values["contribution"].value is None
     assert mto.targets.structure.values["contribution"].value == D("915.00")
-    assert served["MTO-001"].freshness.untracked == ("diesel_price",)
-    assert served["KOBO-001"].freshness.untracked == () and served["KISIWA-001"].freshness.untracked == ()
+    # DD3d.4: the litre leaves are not commercial records (the world supplies them, `pack_litres`), so they are untracked
+    litres = ("candidate_l", "necessary_l", "unexplained_l")
+    assert served["MTO-001"].freshness.untracked == tuple(sorted(litres + ("diesel_price",)))
+    assert served["KOBO-001"].freshness.untracked == litres and served["KISIWA-001"].freshness.untracked == litres
 
     pf = read.portfolio(w["tid"], OCT)
     assert pf.state == "SERVED" and pf.as_of == AS_OF and pf.freshness.current and pf.freshness.reasons == ()
-    assert pf.freshness.untracked == ("MTO-001:diesel_price",)
+    assert pf.freshness.untracked == tuple(f"{c}:{f}" for c in CODES for f in sorted(
+        litres + (("diesel_price",) if c == "MTO-001" else ())))
     p = pf.snapshot
     assert p.snapshot_id == result.portfolio_snapshot_id and p.asked == tuple(c.site_code for c in sites)
     assert p.sites_excluded == {"THIKA-001": ("STRUCTURE_OTHER_KEY",)} and list(p.sites) == list(CODES)
@@ -288,7 +292,7 @@ def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
     act, tgt = p.actual(), p.targets()
     assert act == s.r.actual.portfolio(w["tid"], sites, OCT, AS_OF)
     assert tgt == s.r.targets.portfolio(w["tid"], sites, OCT, AS_OF)
-    assert act.composition.values["contribution"].value.value == D("883.00")
+    assert act.composition.values["contribution"].value.value == D("1565.50")
     ca = site_count(act, "contribution")
     assert (ca.k, ca.n) == (1, 4) and {c for c, _ in ca.out} == set(CODES) - {"KOBO-001"} | {"THIKA-001"}
     assert act.composition.values["contribution"].included == ("KOBO-001",)
@@ -339,7 +343,7 @@ def check_4b_rebuild(w, store=None) -> None:
     assert sv.state == "SERVED" and sv.freshness.current and sv.as_of == REBUILD_AT
     om, contribution = sv.snapshot.actual.values["om"], sv.snapshot.actual.values["contribution"]
     assert (om.value, om.evidence) == (D("700.00"), "RECORDED")
-    assert (contribution.value, contribution.evidence) == (D("-250.00"), "RECORDED")
+    assert (contribution.value, contribution.evidence) == (D("1696.10"), "MODELLED")  # DD3d.4: the 4d fix figure, litres modelled
     for c in CODES:
         assert read.site(w["tid"], by_code(w)[c], OCT).freshness.current, c
     assert read.portfolio(w["tid"], OCT).freshness.current
@@ -510,7 +514,7 @@ def check_9_verify(w, store=None) -> None:
     assert (v.snapshot_id, v.matches, v.differences, v.rules_changed) == (result.portfolio_snapshot_id, True, (), False)
     ingest_late(w)
     assert s.builder.verify(w["tid"], result.portfolio_snapshot_id).matches
-    dear = setup(w, s.store, fb=priced("1.40"), start=500)
+    dear = setup(w, s.store, fb=with_litres(priced("1.40")), start=500)
     v = dear.builder.verify(w["tid"], result.portfolio_snapshot_id)
     assert not v.matches and v.differences == tuple(sorted(v.differences))
     assert "MTO-001:inputs.leaves.diesel_price" in v.differences and "MTO-001:actual.diesel_price" in v.differences
@@ -650,7 +654,7 @@ def test_command_build_verify_and_refusals(capsys, monkeypatch) -> None:
     assert main(["verify", "--tenant", "lakeside-power", "--snapshot", pid], service=svc) == 0
     v = json.loads(capsys.readouterr().out)
     assert v == {"snapshot_id": pid, "matches": True, "differences": [], "rules_changed": False}
-    dear = setup(w, svc.store, fb=priced("1.40"), start=500)
+    dear = setup(w, svc.store, fb=with_litres(priced("1.40")), start=500)
     assert main(["verify", "--tenant", "lakeside-power", "--snapshot", pid],
                 service=SimpleNamespace(builder=dear.builder, store=svc.store)) == 4
     assert "MTO-001:actual.diesel_price" in json.loads(capsys.readouterr().out)["differences"]

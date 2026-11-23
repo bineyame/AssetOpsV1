@@ -27,6 +27,7 @@ UTC = timezone.utc
 EAT = timezone(timedelta(hours=3))
 MG = REGISTRIES["MINI_GRID"]
 FB = {f: MG.row(f).filled_by for f in ("necessary_l", "candidate_l", "unexplained_l")}
+LEAVES_SORTED = ("candidate_l", "necessary_l", "unexplained_l")
 LEAVES = ("necessary_l", "candidate_l", "unexplained_l")
 SLOT = timedelta(minutes=5)
 EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
@@ -644,9 +645,12 @@ def test_6_other_sites_say_what_is_missing(code: str) -> None:
     import test_5b_attribution as t5b
 
     sb = _site_bridge(code)
-    fuel = t5b.find(sb.roots["contribution"], "fuel_cost")
-    assert (fuel.split, fuel.reason, fuel.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ())
-    assert fuel.unobserved_actual == ("candidate_l", "necessary_l", "unexplained_l")
+    # D-DD.177: these Sites state fuel by invoices and hold no litres, so they serve no fuel cost and no contribution;
+    # the root is not available (never the invoice total) and names the litre leaves (was: fuel NOT_SPLIT).
+    root = sb.roots["contribution"]
+    assert (root.split, root.reason, root.rows) == ("NOT_SPLIT", "GAP_NOT_AVAILABLE", ())
+    assert root.actual is None and root.evidence == "NOT_AVAILABLE"
+    assert root.unobserved_actual == ("candidate_l", "necessary_l", "unexplained_l")
     for leaf in LEAVES:
         lv = sb.actual.values[leaf]
         assert lv.value is None and lv.missing.note == "GENERATOR_OR_TANK_NOT_DECLARED", (code, leaf)
@@ -662,13 +666,14 @@ def test_6_the_portfolio() -> None:
     pb = BridgeRead(actual, targets, clock=lambda: at).portfolio(w["tid"], [r[c] for c in t5b.CODES], t5b.OCT)
     rows = pb.rows["contribution"]
     fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
-    t5b.money(fuel.effect, "2233.60")
-    assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())
+    t5b.money(fuel.effect, "82.50")  # D-DD.177: Kobo's alone; the other two Sites hold no litres (was 2,233.60 of 3)
+    missing = tuple((c, tuple(f"actual:{leaf}" for leaf in LEAVES_SORTED)) for c in ("KISIWA-001", "MTO-001"))
+    assert (fuel.k, fuel.n, fuel.out) == (1, 3, missing)
     assert format(diesel.actual, "f") == "634.000" and diesel.target == D("700")
     assert format(diesel.gap, "f") == "-66.000"
     assert diesel.effect == D("82.50")  # 82.50000: mid-build question 1
     assert (diesel.k, diesel.n) == (1, 3)
-    assert diesel.out == (("KISIWA-001", ("NOT_SPLIT",)), ("MTO-001", ("NOT_SPLIT",)))
+    assert diesel.out == missing
 
 
 # =====================================================================================================================
