@@ -81,7 +81,7 @@ def test_j3_refusals_are_the_frames_and_the_span_ends_at_a_local_instant() -> No
     last = r.day_records(r.days[-1])
     assert r.days[-1].isoformat() == "2026-11-06"
     assert max(row[3] for row in last) == datetime.fromisoformat("2026-11-06T06:00:00+03:00")
-    assert all(len(row) == 7 for row in last)
+    assert all(len(row) == 8 for row in last)  # D-DD.91's seven elements plus the session pair (D-DD.161)
     assert {d["service_day"] for d in r.departures()} == {"2026-11-05"}
 
 
@@ -110,3 +110,34 @@ def test_j5_ev_books_from_the_exported_roster() -> None:
     assert out["EV-EMB"]["clock"] == list(telemetry_ev.EV_CLOCK["EV-EMB"])
     assert all(r["site_code"] == "EV-RUI" for r in out["EV-RUI"]["roster"])
     assert {t["kind"] for t in out["EV-EMB"]["tariffs"]} == {"TARIFF_SCHEDULE"}
+
+
+def test_j6_in_session_connector_rows_carry_the_sessions_pair() -> None:
+    """D-DD.161 (DD4b follow-up): a connector measurement row inside a session carries `"session": {"session_id",
+    "connector_id"}`, the same pair as that session's events; the depot import and rows outside a session carry none.
+    Kasarani 1-2 Nov (CH-K2's fault aborts sessions mid-slot)."""
+    result = tel.build_telemetry({}, _sites(), {"EV-KAS": _decided("EV-KAS")}, start="2026-11-01", end="2026-11-02",
+                                 only=("EV-KAS",))
+    rows = [r for name, data in result.files if name.startswith("metro-bus/telemetry/EV-KAS.")
+            and name.endswith(".readings.json") for r in json.loads(data)["readings"]]
+    pairs = {(r["event"]["session_id"], r["event"]["connector_id"]) for r in rows
+             if "event" in r and r["event"].get("session_id")}
+    spans: dict[tuple[str, str], list[str]] = {}
+    for r in rows:
+        if "event" in r and r["event"]["record_kind"].startswith("EV_SESSION"):
+            spans.setdefault((r["event"]["session_id"], r["event"]["connector_id"]), []).append(r["start"])
+    measured = [r for r in rows if "event" not in r]
+    carried = [r for r in measured if "session" in r]
+    assert carried and pairs
+    assert all("session" not in r for r in rows if "event" in r)
+    assert all(set(r["session"]) == {"session_id", "connector_id"} for r in carried)
+    assert {(r["session"]["session_id"], r["session"]["connector_id"]) for r in carried} == pairs
+    assert all("session" in r for r in measured if r["signal_id"] == "energy")  # energy is written per session
+    assert not any("session" in r for r in measured if r["source_id"] == "site-meter")
+    states = [r for r in measured if r["signal_id"] == "state" and r["source_id"] != "site-meter"]
+    idle = [r for r in states if r["value"] in ("UNPLUGGED", "FAULTED")]  # the pack holds no session then
+    assert idle and not any("session" in r for r in idle)
+    assert all("session" in r for r in states if r["value"] not in ("UNPLUGGED", "FAULTED"))
+    for r in (r for r in carried if r["signal_id"] == "energy"):  # energy: from START, not past END or ABORT
+        first, *rest = sorted(spans[(r["session"]["session_id"], r["session"]["connector_id"])])
+        assert first <= r["start"] and (not rest or r["end"] <= max(rest))

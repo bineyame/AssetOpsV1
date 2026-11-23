@@ -50,7 +50,8 @@ def ev_doc() -> dict:
         for m in MONTHS + ("2026-11",):
             b = _bands(s["code"], m)
             months[m] = {"bands": b, "demand_kw": "480.333",
-                         "import_kwh": f"{sum(Decimal(v) for v in b.values()):.3f}"}
+                         "import_kwh": f"{sum(Decimal(v) for v in b.values()):.3f}",
+                         "windows": {"0000_0500": "9000.250", "2200_2400": "11000.125"}}
         months["2026-11"]["partial_to"] = "2026-11-06T06:00:00+03:00"
         sites[s["code"]] = months
     departures = [
@@ -129,6 +130,27 @@ def test_e5_a_month_outside_the_fixed_key_set_refuses_at_read() -> None:
             doc["departures"] = []
         with pytest.raises(em.MeasuredRefused, match=r"^TEL_FOUNDATION"):
             em.build_measured_exports(view, history, books.files, {COLD: doc})
+
+
+def test_e12_ev_windows_key_set_is_fixed_and_meter_billed_writes_them() -> None:
+    """D-DD.158: the EV month's `windows` holds exactly `2200_2400` and `0000_0500` (an absent or extra key refuses
+    `TEL_FOUNDATION`); `meter_billed` writes them as `metered` beside the manifest's `kwh_2200_2400`, `kwh_0000_0500`."""
+    view, history, _, books = built()
+    for planted in ("absent", "extra", "no-windows"):
+        doc = ev_doc()
+        month = doc["sites"]["EV-EMB"]["2026-08"]
+        if planted == "absent":
+            del month["windows"]["0000_0500"]
+        elif planted == "extra":
+            month["windows"]["1800_2200"] = "1.000"
+        else:
+            del month["windows"]
+        with pytest.raises(em.MeasuredRefused, match=r"^TEL_FOUNDATION"):
+            em.build_measured_exports(view, history, books.files, {EV: doc})
+    out = em.build_measured_exports(view, history, books.files, {EV: ev_doc()})
+    rows = json.loads(dict(out.extras)[f"{EV}.meter-billed.json"])["rows"]
+    got = {(r["site_code"], r["month"], r["leaf"]): r["metered"] for r in rows if r["leaf"] in ("kwh_2200_2400", "kwh_0000_0500")}
+    assert got and all(v == ("11000.125" if leaf == "kwh_2200_2400" else "9000.250") for (_c, _m, leaf), v in got.items())
 
 
 def test_e6_statements_cold_revenue_from_invoicing_and_ev_without_revenue(result) -> None:

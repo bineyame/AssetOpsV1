@@ -32,8 +32,10 @@ day at a time (D-DD.69). It does not map `source_id`, round, write bytes or buil
 - CLOCK-1 (pre-flight Q12): on its local day, every row of the charger's connectors whose start minute holds a
   session carries `start` and `end` the declared minutes later; the true minute drives the physics.
 - Refusals are the frame's `TelemetryRefused` (D-DD.81's join): `TEL_FOUNDATION`, `TEL_EVENT_UNPLACED`, `TEL_PACK`.
-- Rows are D-DD.91's seven elements; an event's object adds `session_id` and `connector_id` where the pack gives a
-  session (D-DD.123). `last` may be a local end instant (D-DD.103).
+- Rows are D-DD.91's seven elements plus `session`; an event's object adds `session_id` and `connector_id` where the
+  pack gives a session (D-DD.123), and a connector measurement row inside a session carries the same pair as its
+  `session` (D-DD.161; the depot import and rows outside a session carry None). `last` may be a local end instant
+  (D-DD.103).
 
 Standard library and the simulator's EV pack only.
 """
@@ -58,6 +60,9 @@ SHARE_STEP_KW = Fraction(1)  # the load manager's share step (the pack's grant s
 LATE_PLUG = time(22, 0)  # spec §4.5: the rest plug in at 22:00
 #: D-DD.98: a full bus is unplugged for a waiting one, which plugs in on that connector this many minutes later.
 ROTATION_MINUTES = 5
+#: D-DD.158: the EV month's hour windows, local-clock minutes [from, to) of each day (D-DD.20's `kwh_2200_2400`,
+#: `kwh_0000_0500`).
+HOUR_WINDOWS = (("2200_2400", 22 * 60, 24 * 60), ("0000_0500", 0, 5 * 60))
 ROTATION_MINUTES_DELTA = timedelta(minutes=ROTATION_MINUTES)
 #: Spec §4.5 plug-in practice at Embakasi, July to October; November keeps October's (pre-flight Q14, parity test).
 PRACTICE = {"2026-07": "0.36", "2026-08": "0.43", "2026-09": "0.49", "2026-10": "0.55", "2026-11": "0.55"}
@@ -500,7 +505,9 @@ class EvSiteRun:
             device, signal, a, b, value, unit, event, session = row
             if shift is not None and session is not None and device.startswith(f"{self.chargers[shift[0]]['id']}-"):
                 a, b = a + shift[1], b + shift[1]
-            out.append((device, signal, a, b, value, unit, event))
+            # D-DD.161: a connector measurement row inside a session carries the session's pair, as its events do
+            carried = None if event is not None or session is None else {"session_id": session, "connector_id": device}
+            out.append((device, signal, a, b, value, unit, event, carried))
         return out
 
     def _event(self, device: str, signal: str, kind: str, session: str | None, correlation: list | None) -> dict:
@@ -544,7 +551,9 @@ class EvSiteRun:
         return day
 
     def day_records(self, day: date) -> list[tuple]:
-        """The day's pack rows `(device_id, signal_id, start, end, value, unit)`, UTC instants, exact values."""
+        """The day's pack rows `(device_id, signal_id, start, end, value, unit, event, session)`, UTC instants, exact
+        values; `session` is `{"session_id", "connector_id"}` on a connector measurement row inside a session, else
+        None (D-DD.161)."""
         if day not in self._records:
             raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} {day.isoformat()} is not advanced")
         return sorted(self._records[day], key=lambda r: (r[2], r[3], r[0], r[1], r[6]["ordinal"] if r[6] else 0))
@@ -599,14 +608,16 @@ class EvSiteRun:
         return [(b["band"].split("-")[0], minute(b["from"]), minute(b["to"])) for b in found[0]["body"]["bands"]]
 
     def measured_months(self) -> dict[str, dict]:
-        """D-DD.99 EV `<month>`: `{"bands": {class: kWh}, "demand_kw", "import_kwh"}` from the depot import by minute,
-        exact (the frame rounds once). Every class of the schedules in force that month is present; `demand_kw` is
-        the largest mean of the 30 minutes from each :00 and :30."""
+        """D-DD.99 EV `<month>`: `{"bands": {class: kWh}, "demand_kw", "import_kwh", "windows"}` from the depot import
+        by minute, exact (the frame rounds once). Every class of the schedules in force that month is present;
+        `demand_kw` is the largest mean of the 30 minutes from each :00 and :30; `windows` (D-DD.158) sums the import
+        over local minutes [22:00, 24:00) and [00:00, 05:00) of each day."""
         months: dict[str, dict] = {}
         windows: dict[datetime, Fraction] = {}
         for day in self.days:
             month = day.strftime("%Y-%m")
-            entry = months.setdefault(month, {"bands": {}, "demand_kw": Fraction(0)})
+            entry = months.setdefault(month, {"bands": {}, "demand_kw": Fraction(0),
+                                              "windows": {name: Fraction(0) for name, _, _ in HOUR_WINDOWS}})
             for name, _, _ in self._bands_on(day):
                 entry["bands"].setdefault(name, Fraction(0))
         tables: dict[date, list[tuple[str, int, int]]] = {}
@@ -621,6 +632,10 @@ class EvSiteRun:
                 raise _refuse("TEL_BOOKS", f"{self.code} {lt.isoformat()} is in no band of its TARIFF_SCHEDULE")
             bands = months[lt.strftime("%Y-%m")]["bands"]
             bands[name] += kw / MINUTES_PER_HOUR
+            hour_windows = months[lt.strftime("%Y-%m")]["windows"]
+            for window_name, a, b in HOUR_WINDOWS:
+                if a <= at < b:
+                    hour_windows[window_name] += kw / MINUTES_PER_HOUR
             window = lt.replace(minute=lt.minute - lt.minute % 30)
             windows[window] = windows.get(window, Fraction(0)) + kw
         for window, total in windows.items():

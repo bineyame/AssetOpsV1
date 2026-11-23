@@ -752,3 +752,12 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   other type stays `BULK_SITE_TYPE_UNPROVEN`.
 - Left open: DD4b's writer must put `session` on in-session connector rows before real EV days seal; the EV fault
   event's `connector_id` source (Architect); `world.env`, C6 glob and C-DD8 wiring are DD5b's.
+
+## DD4b follow-up: EV windows and the session pair (D-DD.158, D-DD.161; in_review; `specs/DD-demo-data/packet-DD4b-followup.md`)
+- `measured.json` EV months carry `windows` {`2200_2400`, `0000_0500`} (local-minute depot import sums, fixed key set,
+  `TEL_FOUNDATION` otherwise); `meter_billed` writes them as `kwh_2200_2400`/`kwh_0000_0500` metered; C-DD7's EV window
+  clause judged exactly in `judge_meter_books(..., measured=)`. EV rows are eight elements: in-session connector
+  measurement rows carry `session` {`session_id`, `connector_id`} (DD5a deviation 6 closed on the writer side).
+  Full EV plant parity with main except the new fields; fixture `metro-bus.measured.json` regenerated.
+- Open: the live C-DD7 run gets the loaded world's `measured.json` only with DD5b's fetch (D-DD.160); until then the EV
+  window line stays pending there.

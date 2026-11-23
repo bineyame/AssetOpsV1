@@ -39,7 +39,10 @@ COLD_GRID_TARIFF = "T-GRID-COLD"
 COLD_GRID_PRICE = Decimal("0.20")
 #: D-DD.99: the fixed key set of a month, by vertical (`partial_to` is the frame's, on the span's last month).
 MONTH_KEYS = {"MINI_GRID": frozenset({"demand_kwh", "served_kwh", "unserved_kwh", "generator_kwh"}),
-              "COLD_CHAIN": frozenset({"room_kwh"}), "EV_DEPOT_CAPTIVE": frozenset({"bands", "demand_kw", "import_kwh"})}
+              "COLD_CHAIN": frozenset({"room_kwh"}),
+              "EV_DEPOT_CAPTIVE": frozenset({"bands", "demand_kw", "import_kwh", "windows"})}  # windows: D-DD.158
+#: D-DD.158: the EV month's `windows` key set, fixed.
+EV_WINDOW_KEYS = frozenset({"2200_2400", "0000_0500"})
 DEPARTURE_KEYS = frozenset({"site_code", "vehicle_ref", "block_ref", "service_day", "departure_at", "required_kwh",
                             "kwh_at_departure"})
 PROFILES = {"bill": "cold-electricity-bill-illustrative", "invoice": "ev-utility-invoice-illustrative",
@@ -84,6 +87,8 @@ def read_measured(document: dict, tenant: dict) -> dict:
         for month, block in months.items():
             if set(block) - {"partial_to"} != keys:
                 raise MeasuredRefused(f"TEL_FOUNDATION {code} {month} keys {sorted(block)}")
+            if "windows" in keys and set(block["windows"]) != EV_WINDOW_KEYS:
+                raise MeasuredRefused(f"TEL_FOUNDATION {code} {month} windows {sorted(block['windows'])}")
     for d in document.get("departures", []):
         if set(d) != DEPARTURE_KEYS:
             raise MeasuredRefused(f"TEL_FOUNDATION departure keys {sorted(d)}")
@@ -192,8 +197,7 @@ def _ev_metered(block: dict, invoice: dict[str, dict]) -> dict[str, str | None]:
     usage = [r for r in invoice.values() if r["body"]["line_type"] == "USAGE"]
     return {"kwh": block["import_kwh"], "peak_kwh": block["bands"].get("PEAK"),
             "offpeak_kwh": block["bands"].get("OFFPEAK"), "max_kw": block["demand_kw"],
-            # not in D-DD.99's fixed EV key set: printed as not measured, never derived here
-            "kwh_2200_2400": None, "kwh_0000_0500": None,
+            "kwh_2200_2400": block["windows"]["2200_2400"], "kwh_0000_0500": block["windows"]["0000_0500"],  # D-DD.158
             "peak_cost": amount("PEAK"), "offpeak_cost": amount("OFFPEAK"), "demand_cost": amount("DEMAND"),
             "energy_cost": f"{sum((Decimal(r['amount']['value']) for r in usage), Decimal(0)):.2f}" if usage else None}
 
