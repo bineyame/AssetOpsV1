@@ -501,9 +501,9 @@ class Run:
             served = self.s.served(self.tid, self.month)
             reasons = () if served.freshness is None else served.freshness.reasons
             raise Fail("NOT_CURRENT", reason=reasons[0] if reasons else served.state)
-        if fresh.get("untracked_text") is not None:
-            raise Fail("UNTRACKED")
         want = self.x["screen"]
+        if fresh.get("untracked_text") != want["fresh"]["untracked_text"]:  # D-DD.181: both ways, None included
+            raise Fail("UNTRACKED")
         for key in SCREEN_KEYS:
             found = body.get(key)
             if key == "status_line" and isinstance(found, str):

@@ -285,6 +285,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
         for code in v.snap.asked:
             every.setdefault(code, v.name(code))
     disagreeing = {c for v in vs for c in v.disagreeing()}
+    not_checked = V.untracked_line([e for r in M for e in r.served.freshness.untracked], list(every), every, latest.reg)
     stale = [r.month for r in M if not r.served.freshness.current]
 
     # D-IAP.34: the Sites left out, named with why, and the count from the same set (`n - k == len(out)`). A code is out
@@ -355,7 +356,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
                          "drawer": {"title": W.text("ASSURE_TITLE"), "lines": [
                              render(message("portfolio_period.assure_entry", month=W.month_of(r.month),
                                             standing=Name(r.standing.text, "reconciliation.standing")))
-                             for r in M]}})
+                             for r in M] + ([not_checked] if not_checked is not None else [])}})
         cards.append(card)
 
     return {"as_of_text": W.as_of(as_of),

@@ -32,7 +32,8 @@ from deep_dive_worlds import _x
 from statement_cases import portfolio_period as period_cases
 from statement_cases import portfolio_sites as sites_cases
 from test_5c_deep_dive_api import LAKESIDE, PERSON_REQUIRED, UNAVAILABLE, Accounts, Registry
-from test_5c_deep_dive_view import NAMES, NOT_MATCHED, OFF, world
+from test_5c_deep_dive_view import NAMES, NOT_MATCHED, OFF, UNTRACKED, world
+from test_5c_deep_dive_view import view as world_view
 
 NOW = datetime(2026, 11, 22, tzinfo=timezone.utc)
 ROUTE = "/api/portfolio/period"
@@ -188,7 +189,7 @@ def test_2_world_p_two_months() -> None:
         "September 2026: Not yet reconciled: September 2026 (the organisation) does not match the management accounts "
         "within 1%.",
         "October 2026: Not yet reconciled: October 2026 (the organisation) does not match the management accounts "
-        "within 1%."]}
+        "within 1%.", UNTRACKED]}
     assert b["actions"] == {"title": "Actions in hand", "connected": False,
                             "text": b["actions"]["text"], "rows": [], "more": 0}
 
@@ -204,6 +205,41 @@ def test_2c_money_text_is_whole_cents() -> None:
                                                                   {"actual": "8599.74", "target": "4590.00"})
     assert [r["contribution"] for r in got["months"]["rows"]] == ["$4,299.87 against a target of $2,295.00"] * 2
     assert [x for x in strings(got) if LONG_MONEY.search(x)] == []
+
+
+def _untracked(served, entries):
+    return replace(served, freshness=replace(served.freshness, untracked=tuple(entries)))
+
+
+def test_2d_the_drawer_says_what_is_not_checked_over_every_served_month() -> None:  # D-DD.181, plant (e)
+    """One sentence, last, over the union: factors in registry order, Sites in the Overview's order, each once."""
+    months = _world_p()
+    months["2026-09"] = _untracked(months["2026-09"], ("KISIWA-001:necessary_l", "KOBO-001:diesel_price"))
+    months["2026-10"] = _untracked(months["2026-10"], ("KOBO-001:necessary_l", "KOBO-001:diesel_price"))
+    lines = period(months, "2026-09-01", "2026-10-31")["body"]["outcomes"][-1]["drawer"]["lines"]
+    assert len(lines) == 3 and lines[-1] == ("Not checked for later changes: Diesel not shown to be avoidable "
+                                             "(Kobo and Kisiwa) and Diesel price (Kobo).")
+    months["2026-09"] = _untracked(months["2026-09"], ())  # a month with litres and one without
+    lines = period(months, "2026-09-01", "2026-10-31")["body"]["outcomes"][-1]["drawer"]["lines"]
+    assert lines[-1] == ("Not checked for later changes: Diesel not shown to be avoidable (Kobo) and Diesel price "
+                         "(Kobo).")
+    months["2026-10"] = _untracked(months["2026-10"], ())  # no litres and invoiced prices
+    assert len(period(months, "2026-09-01", "2026-10-31")["body"]["outcomes"][-1]["drawer"]["lines"]) == 2
+
+
+def test_2e_the_worlds_own_line_is_the_months() -> None:  # D-DD.181, plant (e): through the product's `untracked()`
+    body = period(_world_p(), "2026-09-01", "2026-10-31")["body"]
+    month = world_view("A")
+    assert month["fresh"]["untracked_text"].startswith("Not checked for later changes: ")
+    assert body["outcomes"][-1]["drawer"]["lines"][-1] == month["fresh"]["untracked_text"]
+
+
+def test_2f_a_leaf_of_another_site_type_is_never_dropped() -> None:  # D-DD.181: Q11 meets a failure, not a gap
+    bad = _untracked(world("A")[0], ("MTO-001:crate_days",))
+    with pytest.raises(ValueError, match="MTO-001:crate_days"):
+        world_view("A", served=bad)
+    with pytest.raises(ValueError, match="MTO-001:crate_days"):
+        period({**_world_p(), "2026-10": bad}, "2026-09-01", "2026-10-31")
 
 
 def test_3_one_figure() -> None:  # plant `onefig`

@@ -246,6 +246,49 @@ def test_8c_g9_ignores_the_clock_and_fails_on_a_figure(env, capsys) -> None:  # 
                                                                      "−$562.00"]
 
 
+def _derived_untracked() -> str:
+    """D-DD.181's rule on the expect file's facts, not on the product's reader: the litre leaves of every asked Site, and
+    the diesel price where no fuel was bought; registry order, the vocabulary's labels, the screen's Site names."""
+    from decimal import Decimal
+
+    from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
+    from assetops_backend.structure.registry import REGISTRIES
+
+    names = dict(zip(EXPECT["asked"], (r[0] for r in EXPECT["screen"]["bridge"]["by_site"]["rows"])))
+    held = {f: list(EXPECT["asked"]) for f in ("necessary_l", "candidate_l", "unexplained_l")}
+    held["diesel_price"] = [c for c in EXPECT["asked"] if Decimal(EXPECT["fuel_bought"][c]) == 0]
+    parts = []
+    for row in REGISTRIES["MINI_GRID"].rows:
+        sites = [names[c] for c in held.get(row.factor_id, ())]
+        if sites:
+            words = ", ".join(sites[:-1]) + " and " + sites[-1] if len(sites) > 1 else sites[0]
+            parts.append(f"{VOCABULARY["factor"]["entries"][row.factor_id]["label"]} ({words})")
+    return "Not checked for later changes: " + (", ".join(parts[:-1]) + " and " + parts[-1]) + "."
+
+
+def test_8h_the_untracked_literal_follows_from_the_rule(env) -> None:  # D-DD.181
+    text = EXPECT["screen"]["fresh"]["untracked_text"]
+    assert text == _derived_untracked()
+    assert text.endswith(" and Diesel price (Mto mini-grid).")
+    assert EXPECT["screen"]["outcomes"][-1]["drawer"]["lines"][-1] == text
+
+
+@pytest.mark.parametrize("found", [
+    None,
+    EXPECT["screen"]["fresh"]["untracked_text"] and EXPECT["screen"]["fresh"]["untracked_text"].replace(
+        "Diesel price (Mto mini-grid)", "Diesel price (Kisiwa mini-grid and Mto mini-grid)"),
+    EXPECT["screen"]["fresh"]["untracked_text"] and EXPECT["screen"]["fresh"]["untracked_text"].replace(
+        " and Diesel price (Mto mini-grid)", ""),
+])
+def test_8i_g9_fails_on_another_untracked_text(env, capsys, found) -> None:  # plant (e)
+    reads = Reads()
+    assert found != reads.x["screen"]["fresh"]["untracked_text"]
+    reads.body["fresh"]["untracked_text"] = found
+    reads.body["bridge"]["by_site"]["rows"][1][3] = "−$563.00"  # checked before SCREEN
+    _, lines, err = run(reads, capsys)
+    assert failed(lines) == {"G9": ("UNTRACKED", {})} and err == ["DDR_GATE_FAILED G9 UNTRACKED"]
+
+
 def test_8d_g4_fails_on_kobo_collected(env, capsys) -> None:  # plant P13
     reads = Reads()
     reads.collected["KOBO-001"] = "3000.00"

@@ -265,7 +265,7 @@ def judge_month(body: Any, expect: Mapping[str, Any], as_of: str | None) -> list
     fresh = body.get("fresh") if isinstance(body.get("fresh"), dict) else {}
     if fresh.get("current") is not True:
         bad.append(f"fresh.current {fresh.get('current')}")
-    if fresh.get("untracked_text") is not None:
+    if fresh.get("untracked_text") != expect.get("untracked_text"):  # D-DD.181: both ways; an absent key is None
         bad.append("fresh.untracked_text")
     standing = body.get("standing") if isinstance(body.get("standing"), dict) else {}
     if standing.get("reconciled") is not expect["reconciled"]:

@@ -6,7 +6,7 @@ figure's word carries the organisation's standing, read by the caller at `served
 """
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
@@ -118,6 +118,23 @@ def _find(root: BridgeRow, factor_id: str) -> BridgeRow | None:
         if r.factor_id == factor_id and r.kind != "RESIDUAL":
             return r
     return None
+
+
+def untracked_line(entries: Iterable[str], codes: Sequence[str], names: Mapping[str, str], reg) -> str | None:
+    """D-DD.181: what is not rechecked, from `Freshness.untracked`'s "code:leaf" entries: factors in the registry's
+    order, Sites in `codes` order, None when there is none. A leaf outside `reg` raises, so a Site type this registry
+    does not hold is never left out in silence."""
+    per: dict[str, set[str]] = {}
+    for entry in entries:
+        code, leaf = entry.split(T.UNTRACKED_SEP, 1)
+        per.setdefault(leaf, set()).add(code)
+    order = [r.factor_id for r in reg.rows]
+    for leaf, held in per.items():
+        if leaf not in order or not held <= set(codes):
+            raise ValueError(f"UNTRACKED_OUTSIDE {sorted(f'{c}{T.UNTRACKED_SEP}{leaf}' for c in held)}")
+    if not per:
+        return None
+    return W.untracked([(f, [c for c in codes if c in per[f]]) for f in order if f in per], names)
 
 
 class _View:
@@ -617,17 +634,7 @@ class _View:
         record_sites |= {by_id[s.site_id] for s in freshness.stale_stamps if s.site_id in by_id}
         ordered = [c for c in self.snap.asked if c in record_sites]
         text = None if freshness.current else W.fresh(freshness.reasons, ordered, self.names, as_of)
-        untracked = None
-        if freshness.untracked:
-            per: dict[str, list[str]] = {}
-            for entry in freshness.untracked:
-                code, leaf = entry.split(T.UNTRACKED_SEP, 1)
-                per.setdefault(leaf, [])
-                if code not in per[leaf]:
-                    per[leaf].append(code)
-            order = [r.factor_id for r in self.reg.rows]
-            entries = [(f, [c for c in self.snap.asked if c in per[f]]) for f in order if f in per]
-            untracked = W.untracked(entries, self.names)
+        untracked = untracked_line(freshness.untracked, self.snap.asked, self.names, self.reg)
         return {"current": freshness.current, "text": text, "untracked_text": untracked}
 
 

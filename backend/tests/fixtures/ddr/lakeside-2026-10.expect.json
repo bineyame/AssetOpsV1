@@ -74,6 +74,11 @@
       "in_transit": "150.00"
     }
   },
+  "fuel_bought": {
+    "KISIWA-001": "1040.00",
+    "KOBO-001": "500.00",
+    "MTO-001": "0.00"
+  },
   "absent_causes": {
     "KISIWA-001": {
       "om": "NOT_RECEIVED"
@@ -515,7 +520,8 @@
         "drawer": {
           "title": "Reconciliation with the management accounts",
           "lines": [
-            "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared)."
+            "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared).",
+            "Not checked for later changes: Diesel not shown to be avoidable (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Diesel run while solar and battery could carry the load (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Unexplained fuel (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid) and Diesel price (Mto mini-grid)."
           ]
         }
       }
@@ -597,7 +603,7 @@
     "fresh": {
       "current": true,
       "text": null,
-      "untracked_text": null
+      "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Diesel run while solar and battery could carry the load (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid), Unexplained fuel (Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid) and Diesel price (Mto mini-grid)."
     }
   }
 }
