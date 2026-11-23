@@ -50,7 +50,8 @@ file. The coordinator refreshes it after every merge and every owner decision. L
 Main: merged are IA-P (all), 6a, 6c, 6h, DD1, DD2a, DD2b, DD3a, DD3b, DD3c, DD3d-a, DD4a, DD4b and follow-up, DD5a,
 T1b (second DB lane). DD: 48 of 61.75 units merged; 13.75 left, plus WK-SC 3.0.
 
-Open branches. Each was asked to land clean with its own handoff; START FROM THE BRANCH'S HANDOFF:
+No agent or test job of the coordinator is running; all three open branches are clean. A gateway process left by a
+morning pytest (pid 3947063, `pytest-2590`) is not attributed; leave it unless it is confirmed stray. START FROM THE BRANCH'S HANDOFF:
 
 | Lane | Branch, worktree | Handoff to read | Next |
 |---|---|---|---|
@@ -60,14 +61,17 @@ Open branches. Each was asked to land clean with its own handoff; START FROM THE
 
 HEADS: `task/DD3d-b-fuel-cost` e20ffeac4 (clean); `task/6f1-decisions` bf90f6f3b (clean); `fix/main-shell-tests` 7c0403b80 (clean).
 
-- DD3d-b run 5 = merge `task/DD3d-b-rulings-29` (ae818b36c, D-DD rulings round 29) then main, then: untracked text
-  compared both ways (G9, `judge_month`) and the range line; the cost line "taken at its budget line" and four
-  "reconciled" strings; 5c standing and Postgres test_9; G4, DDR fixture, `test_7`, S5/S8, runbook; L5; plants. Run 6 =
-  DD3d.5 (run-rate budget, the owner-approved rule; `M` commit writes dispatch-3.3 and deletes the 3b1 t1 / 3b3 t6
-  `.replace`; generate 2 and 3 byte-identical; iap sites 6 and 8 must pass; MTO plan classes), all plants, the reach
-  set once, packet, state entry, in_review. Then an independent review. State at b4ab57601: pure 2373 passed, 2
-  failed (iap sites 6 and 8, held); Postgres 186 passed, 1 failed (5c test_9). Report served figures before and
-  after; the headline is projected about -195.30, never measured.
+- DD3d-b (e20ffeac4, landed clean, RED BY DESIGN): round 29 and main are merged. Run 5 item 1 (D-DD rulings round 29,
+  untracked text) is done. Item 2 (cost line "taken at its budget line", four "reconciled" strings): tests and expected
+  words committed, product code NOT. The finished, never-run edit is `/opt/assetecon/evidence/DD3d/b/r5-words-code.py`;
+  rerun the failing-first command in the handoff's "Run 5" BEFORE applying it (no failing-id list exists). Not started:
+  5c standing; G4, `words.cents`, DDR fixture, `test_7`, S5/S8, runbook; publisher confirmation and L5; plants; the
+  `--db-lane` run, vitest, guards. The seven DDR rehearsal tests have never been run on this branch. Last green state
+  before run 5 (b4ab57601): pure 2373 passed, 2 failed (iap sites 6 and 8, held); Postgres 186 passed, 1 failed (5c
+  test_9). Then run 6 = DD3d.5 (the owner-approved run-rate budget; its first `M` commit writes dispatch-3.3 and deletes
+  the 3b1 t1 / 3b3 t6 `.replace`; generates 2 and 3 byte-identical; iap sites 6 and 8 pass; MTO plan classes; DDR board
+  budget), all plants, the reach set once, packet, state entry, in_review; then an independent review. Report served
+  figures before and after; the headline is projected about -195.30, never measured.
 - `fix/main-4d-litre` is inside the DD3d-b branch; it does not merge on its own.
 - 6f1 U1 (bf90f6f3b, landed clean, nothing known red, NOT ready for re-review): rulings D-P6.94-99 on main; all of fix
   round 2's code, words, whole Pages and fixtures are done. NOT done, commands in the handoff's "Ninth session": 52 of
