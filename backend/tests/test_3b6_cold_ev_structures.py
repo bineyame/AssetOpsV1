@@ -288,9 +288,9 @@ SIDES = (
 #: Skipped with its reason: a stated total with no factor behind it (manifest `home_categories.residuals`).
 SKIPPED = {("metro-bus/Ruiru", "plan"): "a stated total with no factor behind it; no nodes in derived-values.json"}
 HAND = {
-    ("harvest-cold/Room A · Mwea", "actual"): {"contribution": "-12.00", "kwh_model": "2635.00",
+    ("harvest-cold/Room A · Mwea", "actual"): {"contribution": "202.74", "kwh_model": "1544.44",
                                                "chamber_minutes": "44640"},
-    ("harvest-cold/Room B · Thika", "actual"): {"contribution": "454.00", "crate_days_without_excursion": "8560"},
+    ("harvest-cold/Room B · Thika", "actual"): {"contribution": "843.73", "crate_days_without_excursion": "8560"},
     ("metro-bus/Embakasi", "actual"): {"cost_to_serve": "22744.80", "cost_per_departure_met": "36.69",
                                        "contribution": "-22744.80"},
     ("metro-bus/Ruiru", "actual"): {"charger_days_out_of_service": "26"},
@@ -309,6 +309,8 @@ def cold_ev_leaves(site: str, side: str, key: str) -> dict[str, LeafValue]:
     out = {}
     for leaf in MANIFEST["factor_map"][key]:
         value = Decimal(str(nodes[leaf]))
+        if leaf == "k_kwh_per_crate_day":  # DD4.6 (D-DD.144): derived-values.json holds nodes at 2 decimals (0.06); the slope is M's own
+            value = Decimal(str(next(t for t in MANIFEST["tenants"] if t["tenant"] == "harvest-cold")["energy_model"][leaf]))
         if sources[leaf]["absent"] == "OPTION_ONLY":
             out[leaf] = LeafValue(value, "NEUTRAL", ("pack",), None, None, None)
         else:
@@ -346,7 +348,7 @@ def test_4_every_factor_equals_the_pack_to_the_cent(site, side, key):
 
 PORTFOLIOS = {
     "harvest-cold": (COLD, ("Room A · Mwea", "Room B · Thika", "Room C · Kirinyaga"),
-                     {"contribution": "946.00", "revenue": "4588.00", "excursion_crates": "120"}),
+                     {"contribution": "2127.75", "revenue": "4588.00", "excursion_crates": "120"}),
     "metro-bus": (EV, ("Embakasi", "Kasarani", "Ruiru"),
                   {"cost_to_serve": "41705.12", "departures_met": "1302", "charger_out_days": "26"}),
 }
