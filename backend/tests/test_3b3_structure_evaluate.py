@@ -47,7 +47,9 @@ MG = REGISTRIES["MINI_GRID"]
 SITES = ("Kobo", "Kisiwa", "Mto")
 CENT = Decimal("0.01")
 USD = "USD"
-LEAF_SOURCES = MANIFEST["empty_states"]["leaf_sources"]["MINI_GRID"]
+#: D-0K4.10 (dispatch-3.3, 0K4e): the three litre leaves read dispatch-3.3; the manifest pack still names dispatch-3.2.
+LEAF_SOURCES = {f: {**src, "kind": src["kind"].replace("dispatch-3.2", "dispatch-3.3")}
+                for f, src in MANIFEST["empty_states"]["leaf_sources"]["MINI_GRID"].items()}
 LEAVES = tuple(MANIFEST["factor_map"]["MINI_GRID"])
 OPTION_ONLY = tuple(f for f in LEAVES if LEAF_SOURCES[f]["absent"] == "OPTION_ONLY")
 #: The test's own list of leaves whose unit carries money (W2).

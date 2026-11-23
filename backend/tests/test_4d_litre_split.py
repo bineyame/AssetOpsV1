@@ -119,6 +119,20 @@ def kobo(extra_spans: list[RunSpan] | None = None, running_extra: list[RunSpan] 
     return World(spans, slots_of(spans) | slots_of(list(running_extra or [])), tank=kobo_tank())
 
 
+def kobo_record_world() -> World:
+    """The bridge tests' Kobo (D-DD.150-152, M rev 16.20, 2026-11-23): 5b's commercial record states Kobo October fuel
+    as 634 L (400 + 234 delivered, 792.50), no longer 1,180 L, so the bridge's litre inputs add up to the record:
+    necessary 390 + 10 L, candidate 120 L, unexplained 114 L (tank balance 634 L). KOBO-OCT above stays 4d's own spec
+    §5 world for tests 1-5, 7-10."""
+    spans = ([span(2026, 10, d, 18, 0, 24, 0, NEC) for d in range(1, 14)] + [span(2026, 10, 25, 18, 0, 20, 0, IND)]
+             + [span(2026, 10, d, 7, 0, 13, 0, CAND) for d in range(1, 5)])
+    tank = [TankRecord("TANK_DIP", local(2026, 10, 1).astimezone(UTC), D("500"), "dip-open"),
+            TankRecord("FUEL_DELIVERY", local(2026, 10, 1, 9).astimezone(UTC), D("400"), "del-1"),
+            TankRecord("FUEL_DELIVERY", local(2026, 10, 11, 9).astimezone(UTC), D("234"), "del-2"),
+            TankRecord("TANK_DIP", local(2026, 11, 1).astimezone(UTC), D("500"), "dip-close")]
+    return World(spans, slots_of(spans), tank=tank)
+
+
 def runs(*days: str) -> tuple[str, ...]:
     return tuple(f"dispatch-run:run-{d}" for d in days)
 
@@ -562,7 +576,7 @@ class LakesideInputs:
 
     def read(self, site: SiteRef, month: str, known_at: datetime) -> LitreInputs:
         if site.site_code == "KOBO-001":
-            return kobo().inputs()
+            return kobo_record_world().inputs()
         w = v10(kobo())
         w.assets = "NOT_ONE_EACH"
         return w.inputs()
@@ -610,19 +624,19 @@ def test_6_kobo_fuel_cost_splits_into_the_three_litre_leaves() -> None:
 
     sb = _site_bridge("KOBO-001")
     root = sb.roots["contribution"]
-    t5b.money(root.gap, "-562.00"), t5b.money(root.effect, "-562.00")
+    t5b.money(root.gap, "120.50"), t5b.money(root.effect, "120.50")
     fuel = t5b.find(root, "fuel_cost")
-    t5b.money(fuel.effect, "-600.00")
-    shape(fuel, ("fuel_cost", "TERM", "AR1", "-1", "600.00", "-600.00", "SPLIT", None, (
-        ("diesel_l", "VOLUME", "AR2", "-1.25", "480", "-600.00", "SPLIT", None, (
-            t5b.leaf("necessary_l", "TERM", "-1.25", "30", "-37.50"),
-            t5b.leaf("candidate_l", "TERM", "-1.25", "330", "-412.50"),
-            t5b.leaf("unexplained_l", "TERM", "-1.25", "120", "-150.00"))),
-        t5b.leaf("diesel_price", "PRICE", "-1180", "0", "0.00"))))
+    t5b.money(fuel.effect, "82.50")
+    shape(fuel, ("fuel_cost", "TERM", "AR1", "-1", "-82.50", "82.50", "SPLIT", None, (
+        ("diesel_l", "VOLUME", "AR2", "-1.25", "-66", "82.50", "SPLIT", None, (
+            t5b.leaf("necessary_l", "TERM", "-1.25", "-300", "375.00"),
+            t5b.leaf("candidate_l", "TERM", "-1.25", "120", "-150.00"),
+            t5b.leaf("unexplained_l", "TERM", "-1.25", "114", "-142.50"))),
+        t5b.leaf("diesel_price", "PRICE", "-634", "0", "0.00"))))
     diesel = t5b.find(root, "diesel_l")
     assert diesel.evidence == "MODELLED"
     assert [r.evidence for r in diesel.rows] == ["MODELLED"] * 3
-    assert [format(sb.actual.values[f].value, "f") for f in LEAVES] == ["730.000", "330.000", "120.000"]
+    assert [format(sb.actual.values[f].value, "f") for f in LEAVES] == ["400.000", "120.000", "114.000"]
 
 
 @pytest.mark.parametrize("code", ["KISIWA-001", "MTO-001"])
@@ -648,11 +662,11 @@ def test_6_the_portfolio() -> None:
     pb = BridgeRead(actual, targets, clock=lambda: at).portfolio(w["tid"], [r[c] for c in t5b.CODES], t5b.OCT)
     rows = pb.rows["contribution"]
     fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
-    t5b.money(fuel.effect, "-755.00")
+    t5b.money(fuel.effect, "2233.60")
     assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())
-    assert format(diesel.actual, "f") == "1180.000" and diesel.target == D("700")
-    assert format(diesel.gap, "f") == "480.000"
-    assert diesel.effect == D("-600.00")  # -600.00000: mid-build question 1
+    assert format(diesel.actual, "f") == "634.000" and diesel.target == D("700")
+    assert format(diesel.gap, "f") == "-66.000"
+    assert diesel.effect == D("82.50")  # 82.50000: mid-build question 1
     assert (diesel.k, diesel.n) == (1, 3)
     assert diesel.out == (("KISIWA-001", ("NOT_SPLIT",)), ("MTO-001", ("NOT_SPLIT",)))
 

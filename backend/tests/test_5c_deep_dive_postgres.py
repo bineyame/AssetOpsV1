@@ -106,7 +106,7 @@ def read(x, when: datetime) -> dict:
 
 def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # plant P3
     x = lakeside
-    record(x, at(10), revenue="9700.00", fuel="5100.00")  # S1, the finance lead
+    record(x, at(10), revenue="9700.00", fuel="2100.00")  # S1, the finance lead (re-pinned 2026-11-23: records fuel is 2,006.40 on M rev 16.23; was 5100 on 4,995.00)
     build(x, at(11))
     raw = FIXTURE.read_text(encoding="utf-8")
     assert raw.count(A_FIXTURE_TEXT) == 2  # the standing and the Assure drawer's first line
@@ -122,13 +122,13 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert a["standing"] == {
         "reconciled": False, "reason": "THIS_MONTH_NOT_MATCHED",
         "text": A_TEXT,
-        "details": [A_DETAIL + "the accounts say $5,100.00 and the records say $4,995.00, "
-                    "$105.00 less (2.06%), beyond the $51.00 allowed (1%)."]}
+        "details": [A_DETAIL + "the accounts say $2,100.00 and the records say $2,006.40, "
+                    "$93.60 less (4.46%), beyond the $21.00 allowed (1%)."]}
     assert money_words(a) == A_WORDS
     assert {k: v for k, v in a.items() if k not in TIMED} == {k: v for k, v in fixture.items() if k not in TIMED}
 
-    # (b) S2 (fuel 5,000.00) recorded at 12:00, after `as_of`; read at 12:30: still A's words (D-3A7.9).
-    record(x, at(12), revenue="9700.00", fuel="5000.00")
+    # (b) S2 (fuel 2,010.00) recorded at 12:00, after `as_of`; read at 12:30: still A's words (D-3A7.9).
+    record(x, at(12), revenue="9700.00", fuel="2010.00")
     b = read(x, at(12, 30))
     assert b == a
 
