@@ -35,29 +35,44 @@ file. The coordinator refreshes it after every merge and every owner decision. L
 
 ## 3. State on 23 Nov
 
-Merged: IA-P (all), 6a, 6c, 6h, DD1, DD2a, DD2b, DD3a, DD3c, DD4a, DD4b, DD4b follow-up, DD5a, DD3b, T1b (second DB lane),
-main simulator fix (world tests 386/386).
+Merged: IA-P (all), 6a, 6c, 6h, DD1, DD2a, DD2b, DD3a, DD3c, DD4a, DD4b, DD4b follow-up, DD5a, DD3b, DD3d-a, T1b (second DB lane),
+main simulator fix (world tests 526/526 on 23 Nov after DD3d-a).
 
 In flight (branch, what is left):
-- DD3b `task/DD3b-mini-plant`: fix round for D-DD.164/165 (fixed point: generate twice
-  byte-identical), then merge. Known failures it may carry: 7 DDR rehearsal + ds4 t12 (closed by
-  DD3d.4), six H5 (closed by DD3d.3).
-- DD5a: merged 23 Nov.
-- DD4b follow-up: merged 23 Nov.
-- 6f1 `task/6f1-decisions`: U1 built (needs review); U2 (list, after IA-P3 and 6h, both merged) and
-  U3 (decision page) remain; spec `specs/6f-decisions-screen/spec.md` rev 2, rulings D-P6.42-81.
+- DD3d-b `task/DD3d-b-fuel-cost`: see section 4 item 4.
+- 6f1 `task/6f1-decisions` (0c7f11e40): U1 re-review closed the first round's High and Medium; one new Medium (N1).
+  Fix round 2 running from rulings D-P6.94-98 (spec section 16, on main); then a verification re-review, with
+  discovery on `records.py`, the Postgres read and `stated_changes`; then merge. A third fix round triggers W7.
+- `fix/main-4d-litre` (e009a72a8): NOT merged on its own (it makes `sitesList.test.tsx` "World A, October" fail).
+  DD3d-b takes it in; 3 points to judge there: iap tests 6/8 need a Site below target; a 5c accounts input moved
+  5,100 to 2,100; 3b1 t1 / 3b3 t6 replace the manifest's dispatch version before comparing.
+- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix, 0da64f3a5): fixes 5 of main's 12 frontend failures, but its
+  `settledScreen` change breaks 6 tests in `src/sites` and `src/work`; fix round 2 running; not merged. Acceptance is the
+  WHOLE frontend suite (`npx --no-install vitest run`), not shell and estate only. 7 other main failures are in the baseline.
+- `test_0k4b_properties` p6 fails on main (run 23 Nov): DD3b2's `pv-array-share` property is a catalogue message that
+  the test's `NAMES` does not list. Goes into the next DD3d-b run.
+- Main's known failing ids: `.agent/main-baseline/b27f7c32c.md` (partial; on disk only).
 
 ## 4. Remaining work, in order (units)
 
 1. DD3b: merged 23 Nov (owner accepted Kisiwa share 20.7/16.1/0/10.6 %).
 2. DD5a: merged 23 Nov.
-3. DD3d-a (2.75 u, card `specs/DD-demo-data/cards/DD3d.md`): floor, fuel records, H5. After DD3b.
-4. DD3d-b (3.75 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
-   run-rate budget (D-DD.166). After DD3d-a.
+3. DD3d-a: merged 23 Nov (its six Lows go into DD3d-b, `specs/DD-demo-data/review-DD3d-a.md`).
+4. DD3d-b (4.25 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
+   run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress, about 0.75 u built, RED by design:
+   116 pure failures at f563f9c6c), worktree AssetOpsV1-dd3db. Start from `DD3d-b-handoff.md` on the branch and
+   rulings round 28 at the end of `rulings.md` (four rulings, on the branch only, coordinator confirmed). Runs 2 and 3
+   (39c9fd2de) finished the existing tests: pure 2 failed (iap sites 6 and 8, held for DD3d.5), 2365 passed; no Postgres
+   run yet. Run 4
+   (b4ab57601) did the publisher tests, C4, C-DD4, five of six Lows and t12: pure 2373 passed, 2 failed (held), Postgres
+   186 passed, 1 failed (5c test_9, held). Run 5 in progress: rulings round 29 (branch `task/DD3d-b-rulings-29`,
+   merged first), G4, DDR, L5. Run 6:
+   DD3d.5 (budget), plants, reach set, review. DD3d-b is now 4.25 u; DD 61.75 u.
+   Headline is now projected about -195.30, not -196.60 (Kisiwa October litres 903, not 904); not yet measured.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
 7. WK-SC story clock (3.0 u, `specs/DD-demo-data/spec-WK-SC.md`, card `cards/WK-SC.md`) after DD6.
-8. 6f1 (5.25 u, spec rev 3): U1 review running, then fix round (D-P6.82/83), U1 merges first; U2 and U3
+8. 6f1 (6.0 u, at its cap): U1 fix round 2 running (D-P6.94-98), re-review, U1 merges first; U2 and U3
    then build in parallel from `specs/6f-decisions-screen/cards/6f1-U2.md` and `6f1-U3.md`; U3 merges
    before U2. Then 6f2 (choice on screen).
 9. IA-PD demo routes (0.5 u, D-IAP.36) before the next demo build; IA-P: rebuild the world rung
@@ -69,12 +84,17 @@ In flight (branch, what is left):
     Not blocked; may be done any time and must be done before the alignment pass starts.
 Backlog after the demo: `.agent/backlog-post-demo.md`.
 
+Warning: no walkthrough can be prepared from main between DD3d-b's merge and DD6 (the walk check cannot pass
+without readings).
+
 Warning: after 6f1 U2 the Decisions list, inbox and waiting columns are empty until WK-SC prepares the
 ten decisions; do not rebuild a demo app from main in that gap without telling the owner.
 
 ## 5. Open owner questions
 
-- none (D-DD.166 approved 23 Nov: budget run-rate rule built as DD3d.5)
+- D-P6.98 (not blocking, before the first pilot Site): should an option's projected value on a Site with real records
+  read "Estimated" instead of "Recorded"? Recommended: Estimated. Default until answered: Recorded.
+- D-DD.166 approved 23 Nov: budget run-rate rule built as DD3d.5.
 
 ## 6. Design and document alignment pass (specified for whoever picks it up)
 

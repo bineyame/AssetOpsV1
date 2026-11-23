@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51, D-P6.82 to D-P6.93)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51, D-P6.82 to D-P6.99)
 
 - `D-IAP.35` IA-P3 P4b answers Q1-Q10: directory-only Site rows (Group from site_type, E0 waiting), singular More line · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.36` demo prebuilt routes ask E2/month/E1 (answer check, live-composed) + whole-month Portfolio and Sites links; part IA-PD 0.5 u · live · specs/IA-P-product-shape/rulings.md
@@ -29,3 +29,9 @@
 - `D-P6.91` every page figure is {text, evidence}; U3 draws the words; MD-6F-12 · live · specs/6f-decisions-screen/rulings-2.md
 - `D-P6.92` buses_full_by_charger reads "Buses the chargers can fully charge a night" · live · specs/6f-decisions-screen/rulings-2.md
 - `D-P6.93` U1 point 4 reopened ({factor}), Lows and singular-safe words, both unavailable tuples, fix-round list; U1 2.75 u, 6f1 5.5 u · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.94` the cost shown is the one the run read; a newer cost or document is said as not in the figures; choosing stays open (`can_choose` also while newer) · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.95` change_answer OPTION/OPTIONS; effects option in display order; a named lever's limits columns and words; why_answer INCOMPLETE · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.96` a figure's evidence is never stronger than a part of it; stated_changes folds the month's level; cross-currency change is missing; Q8 stands with one Known Deviation · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.97` N4 now, N7 at merge, stillchoose corrected, U1 fix round 2; U1 3.25 u, 6f1 6.0 u · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.98` OWNER: the word on an expected value at a Site with real records (recommended "Estimated") · open · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.99` only OPTION_RECORD and CURRENCY_MISMATCH entries are answered by a newer document; STATED_SINCE reads "what was asked for was stated ..." · live · specs/6f-decisions-screen/rulings-2.md

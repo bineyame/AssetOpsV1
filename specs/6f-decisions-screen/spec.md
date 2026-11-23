@@ -1,13 +1,13 @@
 # 6f: the Decisions screen (implementer spec, with its reviewer guide)
 
-**Status: rev 4 (D-P6.88 to D-P6.93: §15, `rulings-2.md`; 6f1 5.5 u). Rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
+**Status: rev 5 (D-P6.94 to D-P6.98: §16; 6f1 6.0 u). Rev 4 (D-P6.88 to D-P6.93: §15, `rulings-2.md`; 6f1 5.5 u). Rev 3 (D-P6.82 to D-P6.87: §14, binding over §2a to §9; build from `cards/`). Rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
 Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
-**Rulings:** `rulings.md`, `rulings-2.md` (this folder), D-P6.42 to D-P6.93 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
+**Rulings:** `rulings.md`, `rulings-2.md` (this folder), D-P6.42 to D-P6.99 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
 **Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **3.75 units** in
-three units (5.5 u from rev 4, D-P6.93). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
+three units (6.0 u from rev 5, D-P6.97). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
 6d specs, so their bounds and Action carrier fold in (D-P6.42). Each part is under the 6-unit cap.
 
 **Read first (by section):** this spec; `rulings.md`; 6a `spec.md` §2, §3.5; 6c `spec.md` §3.4, §3.5, §12; IA-P
@@ -681,3 +681,24 @@ Appended here so the line numbers above hold. The rulings carry the reasons; thi
 - **§6.3 plants gain** `pricecur`, `nocur`, `boundsnone`, `stillchoose`, `nearopt`, `noev` (test 1; `noev` also test 6).
 - **§9 gains** MD-6F-12 (D2, U3): each figure keeps its evidence word when all valued options share it.
 - **Size:** U1 2.75 + U2 1.25 + U3 1.5 = **5.5 u**.
+
+## 16. Rev 5 amendments: the U1 re-review answered (D-P6.94 to D-P6.98, `rulings-2.md`; binding over §2a to §15)
+
+- **§3.1 (D-P6.94).** `DecisionBundle.run_one_offs`; `OptionView.run_one_off`, `newer_one_off`, `newer_records` (replaces `records`);
+  `one_off` stays the latest. Both stores.
+- **§3.3 cost (D-P6.94).** With a run, every cost shown is the run's one-off (`run_one_off`); `newer` and the missing rule as ruled (D-P6.99); `rec.notes`
+  gains `newer_inputs` before `can_choose`; the evidence lines gain it after `valued_by`. `can_choose`: a run, no choice, and no
+  recommendation or `newer`. `source` `*_STATED` by the run's effect rows.
+- **§3.3 tables (D-P6.95).** A named lever: `limits` columns [OPTION, LIMITS], one cell a row; `all` columns five (LIMITS, no DAWN);
+  `checks` `LIMITS`. Effects: the first standing option in display order.
+- **§3.4 words.** D-P6.94's table; `change_answer` `OPTION`, `OPTIONS`; `limits_answer` `NO_CHECKS`; `limits_columns` and
+  `all_columns` `LIMITS`; `checks` `LIMITS`; `why_answer` `INCOMPLETE`.
+- **Outside 6f1's own files:** `decisions/models.py` `stated_changes` (D-P6.96 (c) and N2).
+- **§6.1 expected texts.** F6-B `why_answer` `INCOMPLETE`. **§6.3 plants gain** `latestcost`, `nonewer`, `docnow`, `levelev`;
+  `stillchoose` fails the kept `NO_ACTION_BEST` test.
+- **§9 gains** MD-6F-13 (D2, U3): a newer cost or document is said on the recommendation, its figure and its cost (the mock has no
+  restated cost). MD-6F-14 (D2, U3): a ranking not complete reads "Not every option has a value yet" (the mock states the count of rejected or
+  deferred). MD-6F-6 also covers a named option's "Limits not checked yet".
+- **§10 gains** Done 11: with a cost stated after the run, does every place show the cost its result took off, and say a newer one is not in it?
+- **§11 (6f2) gains:** the choose dialog repeats `newer_inputs`; choosing stays open (D-P6.94).
+- **Size:** U1 3.25 + U2 1.25 + U3 1.5 = **6.0 u** (the cap).
