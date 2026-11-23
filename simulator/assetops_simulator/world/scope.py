@@ -19,6 +19,22 @@ SIDES = ("plan", "actual")
 #: correction (a data sheet, an import limit) re-seeds no scope whose rules do not read it.
 PHYSICAL_READS: dict[str, tuple[str, ...]] = {"fleet_kwh": ("buses", "kwh_per_bus_night"), "fleet_nights": ("buses",)}
 
+#: D-DD.164: per vertical and side, the `period` keys whose value `M` writes from a run. They leave the scope digest
+#: (a seed never covers a value written back from the run it seeds) and stay readable as values. Side `"period"`
+#: names a key of `period` itself. A key not listed stays in the digest.
+RUN_WRITTEN: dict[str, dict[str, tuple[str, ...]]] = {
+    "MINI_GRID": {
+        # D-DD.131's restated October fuel leaves and the identities computed from them
+        "actual": ("diesel_l", "necessary_l", "candidate_l", "diesel_cost", "contribution", "variance"),
+        # the blocks D-DD.131 restates
+        "period": ("fuel_balance", "bridge", "findings_expected"),
+    },
+    # the meter's October kWh (D-DD.144)
+    "COLD_CHAIN": {"actual": ("kwh",)},
+    # D-DD.20's metered EV leaves, with D-DD.158's two hour windows
+    "EV_DEPOT": {"actual": ("peak_kwh", "offpeak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw")},
+}
+
 
 def history_global(history: dict) -> dict:
     """The history's global inputs a scope reads. `seasons` is restricted to the history's months plus the anchor
@@ -62,13 +78,26 @@ def physical_read(site_doc: dict, rules: dict) -> dict:
     return {k: physical[k] for k in sorted(keys) if k in physical}
 
 
+def period_input(site_doc: dict, vertical: str) -> dict:
+    """`period` with exactly the vertical's `RUN_WRITTEN` keys removed (D-DD.164); a missing key is skipped."""
+    table = RUN_WRITTEN.get(vertical, {})
+    out = {}
+    for name, value in site_doc["period"].items():
+        if name in table.get("period", ()):
+            continue
+        if isinstance(value, dict) and name in table:
+            value = {k: v for k, v in value.items() if k not in table[name]}
+        out[name] = value
+    return out
+
+
 def scope_input(view: dict, tenant_doc: dict, site_doc: dict, month: str, rules: dict) -> dict:
     history = view["history"]
     tenant = {"tenant": tenant_doc["tenant"], "vertical": tenant_doc["vertical"]}
     for optional in ("energy_model", "capacity_crates_per_room"):
         if optional in tenant_doc:
             tenant[optional] = tenant_doc[optional]
-    site = {"site": site_doc["site"], "code": site_doc["code"], "period": site_doc["period"]}
+    site = {"site": site_doc["site"], "code": site_doc["code"], "period": period_input(site_doc, tenant_doc["vertical"])}
     physical = physical_read(site_doc, rules)
     if physical:
         site["physical"] = physical

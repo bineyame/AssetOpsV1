@@ -34,7 +34,7 @@
     "2026-07": {
      "actual": {
       "crate_days": 6944,
-      "kwh": 1684,
+      "kwh": 1671,
       "maint": 5000,
       "outstanding": 7680,
       "staff": 30000
@@ -53,12 +53,12 @@
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "6d95bfc3c82290736a3b56d7ab6ef807a5093ea95373414f12fecb79cbd8a89d"
+     "scope_digest": "d868527c49e619bc90dcb09320927a7d834f6a9b2dd76ca6dee668e9ddaabe57"
     },
     "2026-08": {
      "actual": {
       "crate_days": 6076,
-      "kwh": 1622,
+      "kwh": 1635,
       "maint": 5000,
       "outstanding": 6720,
       "staff": 30000
@@ -77,12 +77,12 @@
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "bb555cf6e4de5b66ab7ae876afd4eef1f11e7bc50bb568748031042bbf656db2"
+     "scope_digest": "b473dcb0a36487d2a07e5155ee4968dade16607b36152046392179285d05b856"
     },
     "2026-09": {
      "actual": {
       "crate_days": 5040,
-      "kwh": 1641,
+      "kwh": 1632,
       "maint": 5000,
       "outstanding": 5574,
       "staff": 30000
@@ -101,14 +101,14 @@
       "maint": 5000,
       "staff": 30000
      },
-     "scope_digest": "efaf9e012d57e6cd04fb823efcc7de495bf03e386c47594c5eff3633e15fe16d"
+     "scope_digest": "c0e06f2cbe4efa3ba3021922db83a1194c5c391ba9f2edf92c40077ee1586a70"
     }
    },
    "Room B · Thika": {
     "2026-07": {
      "actual": {
       "crate_days": 8432,
-      "kwh": 1690,
+      "kwh": 1700,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8354,
@@ -130,12 +130,12 @@
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "960488054ff1df79e0c07c3f4af34af4c72e4755b65ca77e87eb769e2b5c5fd2"
+     "scope_digest": "69bfc5d5d3267fd32de9cd37c002618f557c12f7308a12c92b2dc45ae0120f5d"
     },
     "2026-08": {
      "actual": {
       "crate_days": 8804,
-      "kwh": 1737,
+      "kwh": 1731,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8723,
@@ -157,12 +157,12 @@
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "99ad69f33eff9ce767aab7546f599b3eb4c20951d32b9ac1cdb1abb05f1f04d6"
+     "scope_digest": "f64ea2eb7239315354095cb9dd31bca80c90fca500b98eb8bfc2eea677d975f8"
     },
     "2026-09": {
      "actual": {
       "crate_days": 8400,
-      "kwh": 1784,
+      "kwh": 1809,
       "liability": 0,
       "maint": 8000,
       "outstanding": 8323,
@@ -184,7 +184,7 @@
       "maint": 8000,
       "staff": 35000
      },
-     "scope_digest": "8e0bc6c2e722aaa1b1849509fec20ffb206ab1e8853cfe5f6b86f2d2c1c37d0d"
+     "scope_digest": "5a57fc27f94a71df20496614c43b20d5f43cf653e52e61ee36871ed96f487877"
     }
    },
    "Room C · Kirinyaga": {
@@ -210,7 +210,7 @@
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "04a661539fcf13090b9ba30b28ae38c099147b6e086020c1c4ad5285f28dc089"
+     "scope_digest": "c4aeca23ae3ebc6d9bd41ae30dcfd8a78f2bd9783c6096f7fb8a72608098fda1"
     },
     "2026-08": {
      "actual": {
@@ -234,7 +234,7 @@
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "47b379a3acd2f4610576d105fea37bb6cc061fd91f47e522308673a36ed81358"
+     "scope_digest": "f4ac026ef2e2f470b64cd6f624c9ba15e25236319d2038f448c2685501c88139"
     },
     "2026-09": {
      "actual": {
@@ -258,7 +258,7 @@
       "maint": 8000,
       "staff": 40000
      },
-     "scope_digest": "898de63a9da544ae0761c311eb862f280e86ef5e393ce8462e6d266a3ffa3a75"
+     "scope_digest": "d749aa3c3fb0d0bc10933a77bbcf1fecec7debe4e4a4cc8fe1d695bfe681a82f"
     }
    }
   },
@@ -267,14 +267,14 @@
     "2026-07": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 56,
-      "delivered_kwh": 7626,
+      "candidate_l": 54,
+      "delivered_kwh": 7589,
       "in_transit": 0,
-      "necessary_l": 809,
+      "necessary_l": 805,
       "om": 70000,
-      "outstanding": 25899,
+      "outstanding": 25775,
       "staff": 50000,
-      "technical_loss_kwh": 499,
+      "technical_loss_kwh": 496,
       "unexplained_l": 20
      },
      "coverage": {
@@ -291,19 +291,19 @@
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "e83553ec7282db86da826099b06c7b272976e619f337471be6f2a14474c605da"
+     "scope_digest": "643ff8ca3b505ed18d587e6d27b75c0b60f251da33067c6d5dd101a7aec32fce"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 54,
-      "delivered_kwh": 7599,
+      "candidate_l": 51,
+      "delivered_kwh": 7622,
       "in_transit": 0,
-      "necessary_l": 794,
+      "necessary_l": 796,
       "om": 70000,
-      "outstanding": 25809,
+      "outstanding": 25887,
       "staff": 50000,
-      "technical_loss_kwh": 497,
+      "technical_loss_kwh": 499,
       "unexplained_l": 19
      },
      "coverage": {
@@ -320,19 +320,19 @@
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "f385777db1222c43808b71ab791e9830c1efac4756fa8485dd74f0541eaa8205"
+     "scope_digest": "4263dd0a59ddd742fbffe29bb208d7e832602ebf3a683f0a1f03a423fefb8450"
     },
     "2026-09": {
      "actual": {
       "adjustments_kwh": 29,
       "candidate_l": 71,
-      "delivered_kwh": 7672,
+      "delivered_kwh": 7773,
       "in_transit": 0,
-      "necessary_l": 746,
+      "necessary_l": 739,
       "om": 70000,
-      "outstanding": 26056,
+      "outstanding": 26398,
       "staff": 50000,
-      "technical_loss_kwh": 502,
+      "technical_loss_kwh": 508,
       "unexplained_l": 18
      },
      "coverage": {
@@ -349,21 +349,21 @@
       "om": 70000,
       "staff": 50000
      },
-     "scope_digest": "a19ca8d1e2d276b3e6d61ec23b1fc5d549720f7870b48f8588e6984b7eb1905e"
+     "scope_digest": "220d20718cdaf160eeacca62ec0d53e20df0cfb83825fc4fb5498ff6eb7910d8"
     }
    },
    "Kobo": {
     "2026-07": {
      "actual": {
       "adjustments_kwh": 43,
-      "candidate_l": 20,
-      "delivered_kwh": 8621,
+      "candidate_l": 19,
+      "delivered_kwh": 8632,
       "in_transit": 0,
-      "necessary_l": 476,
+      "necessary_l": 482,
       "om": 60000,
-      "outstanding": 26338,
+      "outstanding": 26370,
       "staff": 50000,
-      "technical_loss_kwh": 388,
+      "technical_loss_kwh": 389,
       "unexplained_l": 12
      },
      "coverage": {
@@ -380,19 +380,19 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "c91328caa6fc90b96a52f514b039a5b2b3e4859dd00daa2d9ab2189c777ee286"
+     "scope_digest": "b7eb58ee61a5ad2443294f728f60cf8b790fc27bd2ca81372aeb84f3e66fc5e1"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 43,
       "candidate_l": 20,
-      "delivered_kwh": 8738,
+      "delivered_kwh": 8711,
       "in_transit": 0,
-      "necessary_l": 478,
+      "necessary_l": 472,
       "om": 60000,
-      "outstanding": 26695,
+      "outstanding": 26613,
       "staff": 50000,
-      "technical_loss_kwh": 394,
+      "technical_loss_kwh": 392,
       "unexplained_l": 12
      },
      "coverage": {
@@ -409,19 +409,19 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "e599b4688d49a276f2429a929f60715dda8961bc952b276a1ca1c3fe39788d18"
+     "scope_digest": "8e6cd109c56d50e44e1d10193ae2f0a1656cf31ab123f7ab5d067cb93a3ae4db"
     },
     "2026-09": {
      "actual": {
       "adjustments_kwh": 43,
       "candidate_l": 26,
-      "delivered_kwh": 8656,
+      "delivered_kwh": 8791,
       "in_transit": 0,
-      "necessary_l": 446,
+      "necessary_l": 447,
       "om": 60000,
-      "outstanding": 26442,
+      "outstanding": 26857,
       "staff": 50000,
-      "technical_loss_kwh": 390,
+      "technical_loss_kwh": 396,
       "unexplained_l": 11
      },
      "coverage": {
@@ -438,23 +438,23 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "2060b31cc5b526bd23719880eea186323ce02b21031a2102d564313b36cf6be8"
+     "scope_digest": "42b6d0d6b0aa11ca2dee93e62f6c7f089e62aece3f41b7be3217eab26bd776ae"
     }
    },
    "Mto": {
     "2026-07": {
      "actual": {
-      "adjustments_kwh": 38,
-      "candidate_l": 27,
-      "delivered_kwh": 5665,
-      "expected_technical_loss_kwh": 283,
+      "adjustments_kwh": 39,
+      "candidate_l": 25,
+      "delivered_kwh": 5858,
+      "expected_technical_loss_kwh": 293,
       "in_transit": 0,
       "necessary_l": 0,
       "om": 50000,
-      "outstanding": 11329,
+      "outstanding": 11716,
       "staff": 45000,
       "unbilled_mapping_kwh": 0,
-      "unexplained_kwh": 113,
+      "unexplained_kwh": 117,
       "unexplained_l": 0
      },
      "coverage": {
@@ -471,21 +471,21 @@
       "om": 50000,
       "staff": 45000
      },
-     "scope_digest": "b73ee75400bcc0825674e085b2f3d5a682140a456f2281fd71c205981d628363"
+     "scope_digest": "bbcd5d3e6167543bb9d7490ae83133641cec3fb01a6b0c4b42a9937ee664c37b"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 38,
-      "candidate_l": 26,
-      "delivered_kwh": 5704,
-      "expected_technical_loss_kwh": 285,
+      "candidate_l": 25,
+      "delivered_kwh": 5665,
+      "expected_technical_loss_kwh": 283,
       "in_transit": 0,
       "necessary_l": 0,
       "om": 50000,
-      "outstanding": 11408,
+      "outstanding": 11331,
       "staff": 45000,
       "unbilled_mapping_kwh": 0,
-      "unexplained_kwh": 114,
+      "unexplained_kwh": 113,
       "unexplained_l": 0
      },
      "coverage": {
@@ -502,21 +502,21 @@
       "om": 50000,
       "staff": 45000
      },
-     "scope_digest": "ac893b5e69123d1999e76f19d18817599c3043787022d81ca1ce25f4aac1cc94"
+     "scope_digest": "5aca29ff89a1b8b9532884817ae2e4212210af84cd499462f100e2ac15a49e41"
     },
     "2026-09": {
      "actual": {
       "adjustments_kwh": 39,
-      "candidate_l": 35,
-      "delivered_kwh": 5872,
+      "candidate_l": 32,
+      "delivered_kwh": 5878,
       "expected_technical_loss_kwh": 294,
       "in_transit": 0,
       "necessary_l": 0,
       "om": 50000,
-      "outstanding": 11744,
+      "outstanding": 11755,
       "staff": 45000,
       "unbilled_mapping_kwh": 0,
-      "unexplained_kwh": 117,
+      "unexplained_kwh": 118,
       "unexplained_l": 0
      },
      "coverage": {
@@ -533,7 +533,7 @@
       "om": 50000,
       "staff": 45000
      },
-     "scope_digest": "42531aed14c5a225f308e79974d52fd416480750177c83c1b3b78aa68773085f"
+     "scope_digest": "bd56504b0920fd1c8aba0b92c5a30f7a09ff29706cf26f80df0e965c76937964"
     }
    }
   },
@@ -563,7 +563,7 @@
       "offpeak_kwh": 60760,
       "peak_kwh": 26040
      },
-     "scope_digest": "f73b64161d519b00ceae09a4dc3502c92b8f6626dcc6827c69d302fe9e09b0f7"
+     "scope_digest": "53731971ac3d29fd37a67b632184b94bea49bfb2c8006e06f3b640e106187c90"
     },
     "2026-08": {
      "actual": {
@@ -589,7 +589,7 @@
       "offpeak_kwh": 60760,
       "peak_kwh": 26040
      },
-     "scope_digest": "e95d53eeafb6596eb18d1af754553faeef79c6c52b02a606484b075cfad7abd1"
+     "scope_digest": "30d6ea6cf428d625a97c460cc2cee957674a654de42226043a85bbed4a29ff29"
     },
     "2026-09": {
      "actual": {
@@ -615,7 +615,7 @@
       "offpeak_kwh": 58800,
       "peak_kwh": 25200
      },
-     "scope_digest": "55c18c893a6a9c340337a107302892e1d8d336e04a119db2d7bd6c120a1b9e2a"
+     "scope_digest": "89af87cfc88d04d968ef663dd5716133ab0b2bbef2301b39f94d81533881410b"
     }
    },
    "Kasarani": {
@@ -693,7 +693,7 @@
       "maintenance": 50000,
       "total": 1310000
      },
-     "scope_digest": "78fcb917a35a833db99ebfb943aba574151c78486f7dc50ae24f29c71b436293"
+     "scope_digest": "68db50f969c5bfbde6978ff3f21af245d7df4aa7dc1684591b31ec98dc6155bd"
     },
     "2026-08": {
      "actual": {
@@ -716,7 +716,7 @@
       "maintenance": 50000,
       "total": 1310000
      },
-     "scope_digest": "22a1aa5c7104ce5ab97ef5da2c5f9028789a0f85beb98585ed834d57eb970532"
+     "scope_digest": "6d0b29d477a9f592aa712d006f9e422de5b0949564e13823eca385b6f207cc6a"
     },
     "2026-09": {
      "actual": {
@@ -739,7 +739,7 @@
       "maintenance": 50000,
       "total": 1269355
      },
-     "scope_digest": "cc8308cb49665cafa2225e1fd72098f494e82ac7f4d78622552d2d5e22758003"
+     "scope_digest": "90981d935c700b59daf77a7bf679d91709458d081be4103291c73f80c8c86335"
     }
    }
   }
