@@ -50,6 +50,10 @@ OBSERVED: Mapping[str, Mapping[str, str]] = MappingProxyType({
     }),
 })
 
+#: D-DD.153: the leaves with an absolute tolerance floor. A month's unexplained litres are a balance between two tank
+#: levels, so they carry the level sensor's own uncertainty whatever the consumption.
+FLOORED: Mapping[str, tuple[str, ...]] = MappingProxyType({"MINI_GRID": ("unexplained_l",)})
+
 #: D-3B4.3: every other leaf of the structure -> why it is not observed. OBSERVED and NOT_OBSERVED cover every leaf once.
 NOT_OBSERVED: Mapping[str, Mapping[str, str]] = MappingProxyType({
     "MINI_GRID": MappingProxyType({

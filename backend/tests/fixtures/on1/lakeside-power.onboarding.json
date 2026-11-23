@@ -286,6 +286,20 @@
               "unit": "L",
               "source": "SITE",
               "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy",
+              "value": 50,
+              "unit": "L",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -831,6 +845,20 @@
               "unit": "L",
               "source": "SITE",
               "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy",
+              "value": 25,
+              "unit": "L",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },
@@ -1364,6 +1392,20 @@
               "property_key": "tank-capacity",
               "value": 1000,
               "unit": "L",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy",
+              "value": 10,
+              "unit": "L",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "fuel-level-sensor-accuracy-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
               "source": "SITE",
               "source_version": 1
             }

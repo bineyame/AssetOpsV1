@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from types import MappingProxyType
-from typing import Any
+from typing import Any, Protocol
 from uuid import UUID
 
 from assetops_backend.analytics.assessment_inputs import sha256_json
@@ -33,6 +33,13 @@ class ObserveRefused(Exception):
     def __init__(self, code: str) -> None:
         super().__init__(code)
         self.code = code
+
+
+class FloorReadPort(Protocol):
+    """D-DD.153: the tank's floor in force over the whole `window`, as known at `known_at`; None when there is none."""
+
+    def read(self, tenant_id: UUID, site_id: UUID, window: tuple[datetime, datetime],
+             known_at: datetime) -> _observe.Floor | None: ...
 
 
 @dataclass(frozen=True)
@@ -77,9 +84,9 @@ def run_basis(bases: Mapping[str, str]) -> str:
 
 class StructureObserver:
     def __init__(self, snapshots: Any, store: Any, findings: Any, assessments: Any,
-                 clock: Callable[[], datetime]) -> None:
+                 clock: Callable[[], datetime], floors: FloorReadPort | None = None) -> None:
         self._snapshots, self._store, self._findings, self._assessments = snapshots, store, findings, assessments
-        self._clock = clock
+        self._clock, self._floors = clock, floors
 
     def run(self, tenant_id: UUID, month: str) -> RunResult:
         served = self._snapshots.portfolio(tenant_id, month)
@@ -108,15 +115,22 @@ class StructureObserver:
         return RunResult(month, snapshot.snapshot_id, snapshot.as_of, MappingProxyType(sites),
                          MappingProxyType(excluded))
 
+    def _floors_in_force(self, tenant_id: UUID, site_id: UUID, window: tuple[datetime, datetime],
+                         known_at: datetime) -> dict[str, _observe.Floor]:
+        """D-DD.153: the tank's floor on the unexplained litres; no port or no floor is today's relative band."""
+        floor = None if self._floors is None else self._floors.read(tenant_id, site_id, window, known_at)
+        return {} if floor is None else {"unexplained_l": floor}
+
     def _site(self, tenant_id: UUID, month: str, site: SiteMonthSnapshot, known_at: datetime) -> SiteResult:
         key, site_id = site.actual.structure_key, site.site.site_id
         declarations = tolerance_in_force(self._findings.tolerances(tenant_id, site_id), key, month, known_at)
-        observations = _observe.observe_site(site, declarations)
+        window = month_bounds(month, site.site.timezone)
+        observations = _observe.observe_site(site, declarations, self._floors_in_force(tenant_id, site_id, window,
+                                                                                       known_at))
         rows = self._store.get(tenant_id, [site.snapshot_id])
         if len(rows) != 1:
             raise StructureError("STRUCTURE_COMPOSE", key, site.site.site_code)
         input_sha = rows[0].payload_sha256   # D-3B4.21: the Site row's digest, never the portfolio's
-        window = month_bounds(month, site.site.timezone)
         bases = {o.factor_id: _observe.basis(o, key, month) for o in observations}
         site_basis = run_basis(bases)
         written: list[Written] = []
