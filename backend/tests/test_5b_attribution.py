@@ -573,13 +573,14 @@ def test_5f_a_leaf_outside_the_list_is_untouched() -> None:
 
 # --- test 6: the three Site bridges (spec §5.2) -----------------------------------------------------------------------
 
+#: D-DD.164 (2026-11-23): M rev 16.23, Kisiwa 903 L (1,173.90); Kisiwa and portfolio figures +1.30.
 #: Spec §5.2's table: root (actual, target, gap), evidence, revenue TERM effect, cost to serve TERM (fuel, om, staff).
 SITE_TABLE = {
     KOBO: (("1565.50", "1445.00", "120.50"), "DECLARED", "38.00", "82.50", ("82.50", "0.00", "0.00")),
-    KISIWA: (("1694.80", "-65.00", "1759.80"), "ESTIMATED", "-55.00", "1814.80", ("1814.80", "0.00", "0.00")),
+    KISIWA: (("1696.10", "-65.00", "1761.10"), "ESTIMATED", "-55.00", "1816.10", ("1816.10", "0.00", "0.00")),
     MTO: (("1170.00", "915.00", "255.00"), "DECLARED", "-80.00", "335.00", ("335.00", "0.00", "0.00")),
 }
-SITE_HOMES = {KOBO: ("38.00", "82.50"), KISIWA: ("-55.00", "1814.80"), MTO: ("-80.00", "335.00")}
+SITE_HOMES = {KOBO: ("38.00", "82.50"), KISIWA: ("-55.00", "1816.10"), MTO: ("-80.00", "335.00")}
 #: Cash roots (actual, target, gap; in_transit effect, outstanding effect).
 SITE_CASH = {KOBO: ("3180.00", "3420.00", "-240.00", "0", "-278.00"),
              KISIWA: ("3800.00", "4125.00", "-325.00", "0", "-270.00"),
@@ -673,10 +674,10 @@ def test_4_invariants_on_the_site_bridges(code: str, root: str) -> None:  # test
 
 #: key: (actual, target, gap, effect, evidence, carried)
 PORTFOLIO_TABLE = {
-    "contribution": ("4430.30", "2295.00", "2135.30", "2135.30", "ESTIMATED", (KISIWA,)),
+    "contribution": ("4431.60", "2295.00", "2136.60", "2136.60", "ESTIMATED", (KISIWA,)),
     "revenue": ("9688.00", "9785.00", "-97.00", "-97.00", "DECLARED", ()),
-    "cost_to_serve": ("5257.70", "7490.00", "-2232.30", "2232.30", "ESTIMATED", (KISIWA,)),
-    "fuel_cost": ("2007.70", "4240.00", "-2232.30", "2232.30", "DECLARED", ()),
+    "cost_to_serve": ("5256.40", "7490.00", "-2233.60", "2233.60", "ESTIMATED", (KISIWA,)),
+    "fuel_cost": ("2006.40", "4240.00", "-2233.60", "2233.60", "DECLARED", ()),
     "om": ("1800.00", "1800.00", "0.00", "0.00", "ESTIMATED", (KISIWA,)),
     "staff": ("1450.00", "1450.00", "0.00", "0.00", "DECLARED", ()),
 }
@@ -691,7 +692,7 @@ def check_portfolio(pb: PortfolioBridge, w: dict) -> None:
         money(row.actual, actual), money(row.target, target), money(row.gap, gap), money(row.effect, effect)
         assert (row.evidence, row.carried, row.k, row.n, row.out) == (evidence, carried, 3, 3, ()), key
         assert (row.currency, row.note) == (USD, None), key
-    assert dict(pb.by_home) == {"GROW_REVENUE": D("-97.00"), "OPTIMIZE_COST": D("2232.30")}
+    assert dict(pb.by_home) == {"GROW_REVENUE": D("-97.00"), "OPTIMIZE_COST": D("2233.60")}
     assert pb.disagreements == ((KISIWA, CHECK_KISIWA),)
     assert [(line.factor_id, line.value) for line in pb.portfolio_lines.lines] == [("staff", D("1200.00"))]
     cash = pb.rows["collected"]
@@ -724,7 +725,7 @@ def test_8a_without_mto_billing_the_gap_is_747_over_2_of_3() -> None:  # plants 
                                                                  "NOT_AVAILABLE")
     assert (mto.unobserved_actual, mto.unobserved_target) == (MTO_MISSING, ())
     row = lakeside_portfolio(w).rows["contribution"]["contribution"]
-    money(row.actual, "3260.30"), money(row.target, "1380.00"), money(row.gap, "1880.30"), money(row.effect, "1880.30")
+    money(row.actual, "3261.60"), money(row.target, "1380.00"), money(row.gap, "1881.60"), money(row.effect, "1881.60")
     assert (row.k, row.n) == (2, 3)
     assert row.out == ((MTO, tuple(f"actual:{leaf}" for leaf in MTO_MISSING)),)
 

@@ -86,9 +86,9 @@ F1 = {
              "necessary_l": ("FAVOURABLE", "-211", "BOTTOM_LINE"), "candidate_l": ("RAISED", "25", "BOTTOM_LINE"),
              "unexplained_l": ("RAISED", "120", "BOTTOM_LINE"), "delivered_kwh": ("FAVOURABLE", "550", "BOTTOM_LINE")},
     "Kisiwa": {"adjustments_kwh": ("RAISED", "30", "BOTTOM_LINE"), "outstanding": ("RAISED", "270", "CASH"),
-               "necessary_l": ("FAVOURABLE", "-1483", "BOTTOM_LINE"), "reduced_days": ("RAISED", "2", "PROTECT"),
+               "necessary_l": ("FAVOURABLE", "-1486", "BOTTOM_LINE"), "reduced_days": ("RAISED", "2", "PROTECT"),
                "delivered_kwh": ("FAVOURABLE", "450", "BOTTOM_LINE"),
-               "candidate_l": ("RAISED", "67", "BOTTOM_LINE"),
+               "candidate_l": ("RAISED", "69", "BOTTOM_LINE"),  # D-DD.164 (2026-11-23): M rev 16.23, -1483/67 -> -1486/69
                "unexplained_l": ("RAISED", "20", "BOTTOM_LINE")},
     "Mto": {"unexplained_loss_kwh": ("RAISED", "120", "BOTTOM_LINE"), "adjustments_kwh": ("RAISED", "40", "BOTTOM_LINE"),
             "unmapped_kwh": ("RAISED", "140", "BOTTOM_LINE"), "necessary_l": ("FAVOURABLE", "-300", "BOTTOM_LINE"),
@@ -252,7 +252,7 @@ def test_4_pack_sides(name: str) -> None:
 def test_4_bands_are_two_percent_of_the_actual_diesel() -> None:
     kobo, kisiwa = _observe("Kobo")["unexplained_l"], _observe("Kisiwa")["unexplained_l"]
     assert kobo.band == D("12.68") and kobo.tolerance.source == "STRUCTURE"
-    assert kisiwa.band == D("18.08") and kisiwa.state == "RAISED"
+    assert kisiwa.band == D("18.06") and kisiwa.state == "RAISED"  # 2 % of 903 L (D-DD.164, M rev 16.23)
     assert _observe("Kobo")["outstanding"].band == D(0)
     assert _observe("Kobo")["outstanding"].currency == "USD" and _observe("Kobo")["necessary_l"].currency is None
 

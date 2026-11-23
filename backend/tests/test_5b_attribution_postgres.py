@@ -42,4 +42,4 @@ def test_pg_2_build_bridge_read(pgworld):  # noqa: F811 - the real wiring
     finally:
         service.dispose()
     effect = pb.rows["contribution"]["contribution"].effect
-    assert (effect, format(effect, "f")) == (Decimal("2135.30"), "2135.30")
+    assert (effect, format(effect, "f")) == (Decimal("2136.60"), "2136.60")  # D-DD.164: M rev 16.23

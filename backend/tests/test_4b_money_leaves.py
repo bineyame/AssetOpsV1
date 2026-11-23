@@ -238,7 +238,7 @@ def check_kisiwa_october(w) -> Recording:
     v = read.site(site(w, "KISIWA-001"), "2026-10").values
     expect = {
         "revenue": ("4070.00", "USD", "RECORDED", (KB,), (E,)),
-        "fuel_cost": ("1175.20", "USD", "RECORDED", (LA,), (E,)),
+        "fuel_cost": ("1173.90", "USD", "RECORDED", (LA,), (E,)),
         "staff": ("500.00", "USD", "RECORDED", (GEN,), (E,)),
         "outstanding": ("270.00", "USD", "DERIVED", (KB,), (E,)),
         "collected": ("3800.00", "USD", "DERIVED", (KB,), (E,)),
@@ -336,7 +336,8 @@ def check_portfolio(w) -> None:
     p = read.portfolio(w["tid"], sites, "2026-10")
     expect = {
         "revenue": ("7528.00", 2, (("MTO-001", REVENUE_NINE),)),
-        "fuel_cost": ("1967.70", 2, (("MTO-001", ("candidate_l", "fuel_cost", "necessary_l", "unexplained_l")),)),
+        # D-DD.164 (2026-11-23): M rev 16.23, Kisiwa 1,173.90
+        "fuel_cost": ("1966.40", 2, (("MTO-001", ("candidate_l", "fuel_cost", "necessary_l", "unexplained_l")),)),
         "om": ("1100.00", 2, (("KISIWA-001", ("om",)),)),
         "staff": ("1450.00", 3, ()),
         "outstanding": ("548.00", 2, (("MTO-001", ("outstanding",)),)),
