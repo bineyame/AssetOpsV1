@@ -46,6 +46,10 @@ THIKA_EVENTS = [{"kind": "GRID_LOSS", "at": "2026-10-06T19:11:00+03:00", "source
 
 def _sites(operator: str, codes: tuple[str, ...]) -> dict:
     onboarding = json.loads((ON1 / f"{operator}.onboarding.json").read_text(encoding="utf-8"))
+    # D-DD.153: the tanks' declared level accuracy is new in `/2` after this golden; it moves the foundation digest only.
+    for component in (c for site in onboarding["sites"] for c in site["components"] if c["type"] == "FUEL_TANK"):
+        component["properties"] = [p for p in component.get("properties", ())
+                                   if not p["property_key"].startswith("fuel-level-sensor-accuracy")]
     bindings = {c: json.loads((BINDINGS / f"{c}-bindings.json").read_text(encoding="utf-8")) for c in codes}
     if "KOBO-001" in bindings:
         # D-DD.114: Kobo's conversion moved to roles-5 after this golden was written from main (roles-4); the role-set
@@ -59,9 +63,6 @@ def _w1_kobo() -> dict:
     sites = _sites("lakeside-power", ("KISIWA-001", "KOBO-001", "MTO-001"))
     kobo = copy.deepcopy(next(s for s in sites["sites"] if s["code"] == "KOBO-001"))
     for component in kobo["foundation"]["components"]:
-        # D-DD.153: the tank's declared level accuracy is new in `/2` after this golden; it moves the foundation digest only.
-        component["properties"] = [p for p in component["properties"]
-                                   if not p["property_key"].startswith("fuel-level-sensor-accuracy")]
         for key, value, unit in W1_ROWS.get(component["type"], ()):
             component["properties"] = [p for p in component["properties"] if p["property_key"] != key]
             component["properties"].append({"property_key": key, "value": value, "unit": unit})
