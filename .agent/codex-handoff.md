@@ -43,8 +43,11 @@ In flight (branch, what is left):
 - 6f1 `task/6f1-decisions`: U1 reviewed REJECT (`review-6f1-U1.md`, 4 High); fix round under way (Sixth session
   in `6f1-handoff.md`), then re-review (named findings, plus discovery on `evaluate.py` and named options), then
   merge. Spec rev 4, rulings D-P6.42-93. Open point 8: a stated one-off shows "Declared" (builder default).
-- `fix/main-4d-litre` (worktree AssetOpsV1-4dfix): tests failing on main, `test_4d_litre_split` x2 and
-  `test_5c_deep_dive_api/_view` x7.
+- `fix/main-4d-litre` (e009a72a8): NOT merged on its own (it makes `sitesList.test.tsx` "World A, October" fail).
+  DD3d-b takes it in; 3 points to judge there: iap tests 6/8 need a Site below target; a 5c accounts input moved
+  5,100 to 2,100; 3b1 t1 / 3b3 t6 replace the manifest's dispatch version before comparing.
+- `fix/main-shell-tests` (worktree AssetOpsV1-shellfix): shell frontend tests failing on main, some flaky.
+- Main's known failing ids: `.agent/main-baseline/b27f7c32c.md` (partial; on disk only).
 
 ## 4. Remaining work, in order (units)
 
