@@ -26,4 +26,4 @@ Branch `task/DD3b-mini-plant`, worktree `/opt/assetecon/AssetOpsV1-dd3b`, main m
 ## Risks
 
 - Every `--leaves` / `--restate-notes --check` is a full span run (70-220 s per Site).
-- Notes after 31 Oct are not placed; a run to 6 Nov could cross at Kisiwa (about 1,240 L at end of October).
+- Notes after 31 Oct are not placed. On 1 Nov Kisiwa holds 1,559 L and Kobo 1,019 L (thresholds 1,250 and 625), so a run to 6 Nov may cross at Kisiwa near its end; not run.

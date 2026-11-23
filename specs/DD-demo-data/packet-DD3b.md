@@ -237,6 +237,13 @@ present exactly where the file has a note, the cycle test on a file listing no S
 Pure tables on the exports of the new file: **bound hit no** at all three; balance equals the drawn litres every
 month. Kobo tank 572-1373 L Sep, Kisiwa 1238-2500 L, Mto 468-500 L.
 
+### Reach set (once, `tools/heavy-slot.sh --db-lane`, revision `7f394ba37`; code unchanged since)
+
+Backend 8 files (DD3b2's list) **464 passed** 33 s; host 8 files **172 passed** 90 s; simulator 31 files (DD3b2's
+list + `test_dd3b3_notes`) **229 passed** 147 s. No failure. Main: `.agent/main-baseline/23d2cd9f6.md` (unchanged
+citation; host and simulator files are outside it). Guards: `tools/check-architecture.ps1` passed,
+`tools/check-agent-workflow.ps1` passed, `tools/checks/statement_catalogue.py` exit 0.
+
 ### Moved figures against D-DD.147 (`--leaves`; nothing fitted)
 
 | Leaf | Kobo old -> new | Kisiwa old -> new (projection) | Mto old -> new (projection) |
