@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51, D-P6.82 to D-P6.93)
 
 - `D-IAP.35` IA-P3 P4b answers Q1-Q10: directory-only Site rows (Group from site_type, E0 waiting), singular More line · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.36` demo prebuilt routes ask E2/month/E1 (answer check, live-composed) + whole-month Portfolio and Sites links; part IA-PD 0.5 u · live · specs/IA-P-product-shape/rulings.md
@@ -17,3 +17,15 @@
 - `D-IAP.49` /results reads through the shared estate cache · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.50` every-Site chip on every non-list, non-Site operator page (class rule; R798/MD-IAP-5 widened); plant chiplist · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.51` Outcomes L2 includes directory-only Sites as /sites does; builder test flipped · live · specs/IA-P-product-shape/rulings.md
+- `D-P6.82` 6f1 U1 open points 1-7 ruled (1, 4, 7 accepted; 2, 3, 5, 6 amended) and four false words: baseline not counted, rec_heading PART, change_caption twins, sticky title · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.83` F6-J, F6-N/T/S and --write-fixtures finish in U1's fix round; decisions_list.json seven rows; U1 2.5 u · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.84` one waiting set: GET /api/decisions for the whole range; E0 waiting_count/by_site retire, no DecisionWaiting port; cache keyed by whole days; amends D-P6.44, D-P6.52, D-P6.78 Q13/Q17/Q18 · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.85` Decisions list on main: State and Heading facets (lens gone), newest first, waiting kept, join by finding_id only, no client Finding-type table · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.86` decision page vs main: who pays MD-6F-11, Finding line five states, Show {n} more options (amends D-P6.48), shared parts · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.87` 6f1 5.25 u (U1 2.5, U2 1.25, U3 1.5); U2 and U3 parallel after U1, U3 merges before U2 · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.88` price effect row stores its record's currency at the run (evaluate.py `_effect_currency`); view reads the row; N1 contract_rate USD · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.89` zero money change with no currency reads `effect` NONE "No change" · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.90` "Valued" never with no value (BOUNDS_PART, BOUNDS_NONE, NO_VALUE); why_rule/why_answer follow 6c's tie; can_choose only with a run and no choice · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.91` every page figure is {text, evidence}; U3 draws the words; MD-6F-12 · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.92` buses_full_by_charger reads "Buses the chargers can fully charge a night" · live · specs/6f-decisions-screen/rulings-2.md
+- `D-P6.93` U1 point 4 reopened ({factor}), Lows and singular-safe words, both unavailable tuples, fix-round list; U1 2.75 u, 6f1 5.5 u · live · specs/6f-decisions-screen/rulings-2.md

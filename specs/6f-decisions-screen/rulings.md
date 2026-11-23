@@ -1,4 +1,4 @@
-# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.80): the Decisions screen, and 6h
+# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.87; D-P6.88 on: `rulings-2.md`): the Decisions screen, and 6h
 
 Architect (Claude), 2026-11-22, with `spec.md` rev 0. Code read on `main` at `591458c38` (6a and 6c merged) and IA-P1
 on `task/IA-P1-frame-portfolio` (`1a19442e2`). Each ruling is a default applied now (W3); the owner answers in the
@@ -491,3 +491,148 @@ D-P6.50's "Not started" line and D-SC1.32's scan. Mock: vNEXT `loop-site.js` col
 - **Owner.** Told: "one-off" keeps the mock's word through a narrow guard exemption; the near-best rule now prints
   its 10 %. These are defaults the owner may reword at the walkthrough.
 - **Reverse:** drop `NUMBER_WORD_IDIOMS` and use "upfront cost" (a MOCK DEVIATION of the wording category).
+
+# D-P6.82 to D-P6.87: the 6f1 U1 open points, and U2 and U3 against main after IA-P3
+
+Architect (Claude), 2026-11-23. Read: `6f1-handoff.md` at `59087a0c5` (`task/6f1-decisions`), `main` at `558b32f32`
+(IA-P3, 6h, DD3b merged), the vNEXT mock's `decisions` def (`ia-shapes.js:346-355`) and `uxDecisionSlots`
+(`loop-ux.js:699-774`). Spec rev 3 is `spec.md` §14; build cards `cards/6f1-U2.md`, `cards/6f1-U3.md`.
+
+## D-P6.82 U1's seven open points, and four words the sweep found false
+
+- **1 Accepted, as one helper.** `first_missing()` returns the text or raises a named `ValueError`; `at_stake` and the
+  rec card both call it (the card no longer skips the sentence). `result()` raises the same way for a
+  `VALUE_NOT_AVAILABLE` option with no entry (same class). 6c R2 writes the entry with the code
+  (`evaluate.py:216-218`), so its absence is a code defect.
+- **2 Not accepted.** `decision_lever.option_label`'s four percent slots become `optional: True` (as
+  `decision_page.why_answer`'s `margin`), and a named option passes none. Why: the view hands the renderer a 0% no
+  record holds, and a missing value is never 0. Reach: only the decision page reads the statement; no text moves.
+  If a catalogue guard refuses an optional slot there, keep the default and say so.
+- **3 Not accepted.** `rec.chip_title` is the `source` line's text (§3.4 `source`, already built) when `chip` is set,
+  else null. Why: §5.2 makes it the chip's accessible description; the words exist and have one home.
+- **4 Accepted** (`factor_label`). **7 Accepted:** `decision_page_codes.py` stays outside `ADOPTED` (the 5c
+  precedent); it holds no English.
+- **5 Not accepted.** `MARGIN` carries `Evidence("DECLARED")`, as the settings do (`_SETTING`); the four cases assert
+  `["Declared"]`. Why: 10% is the rule's stated constant; "Estimated" is false, whether shown or not.
+- **6 Not accepted.** `horizon_basis` gains `MONTH` (exactly one month averaged): "Over {horizon}: {horizon_count}
+  times the change worked out for {month_list}" ("Over 12 months: 12 times the change worked out for October 2026").
+  `MONTHS` stays for two or more. Why: "the average of 1 month" is not plain, and one month is the usual case.
+- **Found in the sweep (same fix round; each word is false in a state the demo has):**
+  - a. `why_answer` NONE and `all_answer` count the options without the baseline (mock `optsShown`,
+    `loop-ux.js:744-763`): F6-B "13 of 13 options are rejected or deferred", "13 options against doing nothing; ...".
+  - b. `rec_heading` reads `NOT_VALUED` when no option but the baseline has a value (run or not), `VALUED` when every
+    option but the baseline and the `REJECTED` has one, else new `PART` "Some options are valued against doing
+    nothing". F6-B, F6-S: "The options, not valued yet". Today it says "Each option valued" with none valued.
+  - c. `change_caption` gains `FIRST_OPTION` (a named lever) "{option} (the option highest on the list): change a month
+    against doing nothing", and `NOT_VALUED` (no run) "The options have not been valued yet, so no change is shown".
+    `NONE` stays for a run whose every setting is `REJECTED`.
+  - d. `sticky.title` is the H1's text (`question` in `NOT_VALUED`/`WAITING`, else `title`), as the mock's `d.q`.
+- **Check.** Each variant has its hand case; every literal that moves is listed in the packet. Plants: `base` (count
+  the baseline) fails F6-B; `heading` (`VALUED` for F6-B) fails F6-B.
+- **Reverse:** the handoff's defaults.
+
+## D-P6.83 U1's unbuilt fixtures finish in U1's fix round
+
+- **Ruling.** F6-J, F6-N, F6-T, F6-S and `--write-fixtures` are U1's, built in its fix round with D-P6.82, on
+  `task/6f1-decisions` after main is merged in (one conflict, `.ai/state/index-3.md`). U1 merges to main on ACCEPT.
+- **Worlds.** N, T, S add Sites `MWEA-001` "Mwea", `THIKA-001` "Thika" (COLDCHAIN) and `EMBAKASI-001` "Embakasi"
+  (EV) to `decision_page_world.py`, and store the rows 6h's own evaluator returns for `n1`, `t1` and `s1` bases
+  (`option_fixtures.py`); S at period 2026-10, horizon 12 (6h spec §7). The page literals are written by hand. N's and
+  T's `source` line is `RECORDED_STATED` (6h's records are `observed-financial`). S's is by its `source_class`.
+  `SIMULATED_RECORDS*` is asserted by its statement cases. F6-T's caption is `FIRST_OPTION`.
+- **`decisions_list.json`** (`{"rows", "total_count"}` from `list_rows`): seven decisions prepared one minute apart,
+  listed newest first. Mini-grid ones are in one Kobo world, each with the `finding_id` named (an
+  `add_finding(..., "GENERATOR_SUPPORT_CANDIDATE")`), so each is its own record:
+  1. F6-C, `f1f1f1f1-0000-4000-8000-000000000001`; 2. F6-A at period 2026-09, no Finding; 3. F6-G, `...0008`;
+  4. F6-N, no Finding; 5. F6-S, no Finding (`charging_schedule` is on no pin); 6. F6-H, `...0002`; 7. F6-F, `...0007`.
+  Waiting: 4 (1, 2, 4, 5); by Site `KOBO-001` 2, `MWEA-001` 1, `EMBAKASI-001` 1. The ids of the Findings are the
+  portfolio fixture's (`iap/portfolio.json`).
+- **`decision_page_*.json`:** A, B, C, D1, E, G, H, N, S, T.
+- **Why.** They are the only pages of named-option levers (seven of nine demo Sites); U1's discovery review cannot
+  accept the view without them, and U2 and U3 test on the files. Units: U1 2.25 -> **2.5** (D-P6.82; D-P6.83 was already
+  U1's).
+- **Reverse:** to U2 (a frontend unit that would own backend page literals).
+
+## D-P6.84 One waiting set: the decisions read, for the whole range; E0 retires (amends D-P6.44, D-P6.52, D-P6.78 Q13, Q17, Q18; spec §4.1, §4.2)
+
+- **Ruling.** Every "waiting for a choice" figure is the count of rows in `NOT_VALUED` or `WAITING` of
+  `GET /api/decisions` for the **whole** shared range: the Decisions tile, the inbox badge, the Sites list column and
+  the Outcomes rows. `waitingForAChoice(items)` (IA-P3's one function, taken over) and `waitingBySite(items)` are the
+  two readers of that one set. The `DecisionWaiting` port is not built. E0's `waiting_count` and `waiting_by_site` are
+  removed from the estate portfolio body, with `waiting_count()`, `waiting_by_site()`, `_waiting`, `WATCHED_GROUP` and
+  `test_iap_waiting_counts.py`; so there is no second `DecisionService` in `main.py` and Q18 falls away.
+- **Why.** Read on main: (1) `/api/estate/portfolio` is a stored route, and no decision table is one of its watermark
+  inputs (the `chain_input_change` triggers, migrations 0047 and 0058), so a count inside it would stay stale after a
+  choice, and tile and column would differ; (2) that read is capped at 31 days (P0) while `/api/decisions` is not, so
+  a three-month range would list three months and count one; (3) an unread placed-Finding count left in the body is a
+  second figure for one quantity. Records need no cap, so the range rule holds whole.
+- **Client (amends D-P6.78 Q13).** `EstateClient` gains optional `decisions?(range: DayRange)` (as
+  `getOutcomeSummary?`: an absent method reads as unavailable, so existing fakes stay valid). The cache keeps its form
+  (no reader function per kind); `EstateReadKind` gains `"decisions"`. Cache keys (`rangeKey` in
+  `createEstateReadCache` and `useEstateRead`'s `key`) add the **whole** range's days: two ranges that share their last
+  31 days must not share decisions, and the two range forms must not clear each other's reads. `queryFromParams`
+  gains `days: DayRange` (the valid shared range; else the request bounds' first ten characters, the server judges).
+- **`known_at`.** The records read takes no cutoff. With `known_at` in the address, each surface that draws decision
+  rows or counts says "Decisions are shown as they stand now, not at the earlier cutoff." (list and Overview panel
+  `role="note"`; Sites column note). The Decisions page drops `EstateCutoffLine` (it states the Findings read's
+  cutoff); `RangePartNote` goes from the Decisions panel, and `/decisions` joins `WHOLE_RANGE_PAGES`.
+- **Reach (parity).** Pages: Decisions, Findings, Overview, Sites, Outcomes, and the shell of every operator page; all
+  three Site types; every role (read only). Meant to change: the named cells. Meant to stay: the estate portfolio body
+  minus two keys (`test_w303_portfolio_api.py` changes that line only), the Findings and Actions rows, Results.
+- **Reverse:** D-P6.44's E0 port, plus decision tables as watermark inputs (a migration) and a capped list.
+
+## D-P6.85 The list on main: facets, order, the join, and Finding types
+
+- **Facets.** State (four words) and **Heading** (`Grow revenue`, `Optimize cost and efficiency`, `Protect asset and
+  capital`, `Assure performance and returns`; the row's `heading.word`, "All headings"). "Finding type" (`lens`) goes: a record has no lens, and a
+  decision without a Finding would vanish under it. The mock's second facet, Due, has no source (MD-6F-3); Heading is
+  the mock's own Findings facet. MD-6F-10. The alias `/portfolio/act-first?lens=` becomes `heading=`: cost →
+  `optimize`, risks → `protect`, opportunities → `grow` (mock `ia-routes.js:63`; `LENS_OF_CATEGORY`); gate L3 checks
+  the chip "Optimize cost and efficiency · All headings".
+- **Order and cap.** Sorts: "Newest first" (the read's order) and "Site". Waiting rows are kept inside the cap (mock
+  `keep: iaWaiting`, missing on main).
+- **At stake** shows `at_stake.text` and, when `at_stake.evidence` is not empty, its words as `<small>` (the Sites
+  headline's form), so a simulated or modelled figure never stands bare.
+- **The 6h gate and Finding types.** G-6h is met (6h merged; `PENDING_LEVERS` empty). A record can cover a placed
+  Finding only when its mechanism is in `PINS` and the pinned row lists the lever (6a P4): `GENERATOR_SUPPORT_CANDIDATE`,
+  `UNEXPLAINED_FUEL`, `COLD_START_FAILURE`, `COLD_EXCURSION`, `EV_INTERRUPTION`. The client holds **no** table of Finding
+  types: the only join is `finding_id`. "Its decision" reads the newest `period`'s record (a tie: the read's order);
+  with none, "Not available yet" for every type (D-P6.78 Q16; main's "No decision open" goes: the product cannot say a
+  decision is not needed, only that none is recorded). A Finding covered by no record leaves the Decisions list for
+  the Findings list; its recommendation view stays one link away there.
+- **Merge and the demo.** Until WK-SC prepares the ten decisions (D-DD.173), the Decisions list, inbox and waiting
+  column are empty, said as "No decisions in this range." U2 merges on ACCEPT; the coordinator does not rebuild a demo
+  app from main between U2 and WK-SC without saying so.
+- **Reverse:** keep `lens` by a client join on the placed row (drops decisions with no Finding).
+
+## D-P6.86 The decision page against main: five amendments to spec §5
+
+- **Who pays.** The mock's cards and cost section say who pays; a one-off record has no payer (6a: amount, currency,
+  crew visits, basis, who stated it). The cost section's body adds the chrome line "Who pays for each change: not
+  available yet." MD-6F-11, D1. Spec §9 had no row: an unlabelled departure.
+- **The Finding line** (§5.5) reads the shell's cached portfolio read, which is capped at 31 days. Its words: found →
+  "The Finding behind it: {title}" linked by `findingLinkLive` and `linkFor(link_refs.finding)`, plain text when not
+  live; loaded and not found → "The Finding behind it is outside the days shown."; loading → "Loading the Finding…";
+  refused → "The Finding behind it cannot be read right now."; `finding_id` null → "Opened with no Finding behind
+  it." ("from the setting itself" is false for a named-option lever).
+- **Show all.** The button reads "Show {n} more options" with n the hidden cards, never the baseline (it is first);
+  "Show all 14 options" beside "13 options against doing nothing" would be two counts of one quantity. Amends D-P6.48.
+- **Shared parts.** `ui/Drawer` and `useDrawers` (IA-P3 P6), `ui/Breadcrumbs` (three parts, D-IAP.38), `ui/Disclosure`
+  inside `.panel.dp-sec`, `StatusPill`, the range-carrying `RangeLink`; the month link is `monthDays(period)`. The scope
+  chip (`EverySiteChip`) is not drawn: the page is one object (as Site and record pages, D-IAP.50).
+- **Kept as it is** marks no card `is_chosen` (as U1 serves it): the choice line and the pill say it.
+- **Reverse:** per item, spec §5 as written.
+
+## D-P6.87 Units, branches and merge order
+
+- **Ruling.** U1 2.5, U2 0.5 -> **1.25** (one cache key, six consumers, E0's removal, the shell test migration), U3
+  1.5: 6f1 is **5.25 u** (cap 6). U1 merges first. U2 (`task/6f1-u2-list`) and U3 (`task/6f1-u3-page`) then build from
+  main in parallel, one discovery review each; **U3 merges before U2**, because U2's rows link to U3's route. They share
+  four files, one block each: `estateClient.ts` (one optional method each), `App.tsx`, `shell/iaRoutes.ts`,
+  `.agent/mock-departure-register.md`. Each has its own client module (`estate/decisionsListClient.ts` U2,
+  `estate/decisionPageClient.ts` U3).
+- **Why.** IA-P3 landed second surfaces (inbox, search, Sites and Outcomes columns, whole-range pages) that rev 2's U2
+  did not hold. Stacking would hold U3 behind a list it does not read.
+- **Owner.** Told, no decision asked: the Decisions filter "Finding type" becomes "Heading"; the list and inbox are
+  empty until WK-SC; who pays is not recorded.
+- **Reverse:** one branch, U1 to U3 in order.
