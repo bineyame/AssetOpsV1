@@ -188,3 +188,32 @@ def seal_readings(context: SealContext, days: Iterable[tuple[date, list[Mapping[
                 out.append(SealedBatch(name=f"{context.site_code}.{source_id}.{day.isoformat()}.{n}.batch.json",
                                        source_id=source_id, day=day.isoformat(), count=len(chunk), text=text))
     return out
+
+
+#: The role sets whose Sites seal as `SourceEnvelopeV4` (D-DD.139); every other (mini-grid) set seals as v3.
+V4_ROLE_SETS = frozenset({"cold-roles-1", "ev-roles-1"})
+
+
+def context_from_snapshot(site_code: str, site_id: str, document: Mapping[str, Any], snapshot_sha256: str,
+                          foundation_digest: str) -> SealContext:
+    """A `SealContext` from the Site's pinned acquisition snapshot (`assetops.acquisition-snapshot/1`, the download at
+    `binding_service.acquisition_snapshot`). Refuses `WORLD_TELEMETRY_UNRESOLVED` when the snapshot is another
+    Site's, its gateway is not `edge-<code lower>`, or a binding names a source the snapshot does not list."""
+    if document["site"]["site_id"] != str(site_id):
+        raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"site {site_code}")
+    gateway = document["gateway"]
+    if gateway["gateway_external_id"] != f"edge-{site_code.lower()}":
+        raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"gateway {gateway['gateway_external_id']}")
+    sources = {s["source_id"] for s in document["sources"]}
+    bindings: dict[tuple[str, str], Mapping[str, Any]] = {}
+    for row in document["bindings"]:
+        if row["source_id"] not in sources or row["gateway_id"] != gateway["gateway_id"]:
+            raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"source {row['device_id']}/{row['signal_id']}")
+        bindings[(row["device_id"], row["signal_id"])] = row
+    foundation, mapping = document["foundation"], document["mapping"]
+    return SealContext(
+        site_code=site_code, site_id=str(site_id), gateway_id=gateway["gateway_id"], source_mode=gateway["mode"],
+        foundation_version=foundation["version"], foundation_valid_from=foundation["valid_from"],
+        binding_set_id=mapping["binding_set_id"], binding_version=mapping["version"],
+        snapshot_sha256=snapshot_sha256, foundation_digest=foundation_digest,
+        v4=mapping["role_set"] in V4_ROLE_SETS, bindings=bindings)

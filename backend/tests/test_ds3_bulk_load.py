@@ -145,10 +145,14 @@ def test_success_passes_the_commercial_folder_and_prints_one_line_per_tenant(wor
     assert stub.calls == [["--dir", str(path / "alpha" / "commercial"), "--tenant", "alpha", "--submit-as", "s@x",
                            "--accept-as", "a@x"]]
     lines = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
-    assert [set(line) for line in lines] == [{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes"}] * 2
+    # DD5a (spec §4.6): the line adds `readings_files` and `sealed_batches` (none here: `/1` batch files only).
+    assert [set(line) for line in lines] == [{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes",
+                                              "readings_files", "sealed_batches"}] * 2
     assert lines == [
-        {"tenant": "alpha", "commercial_exit": 0, "batches": 2, "already_loaded": 0, "envelopes": 20},
-        {"tenant": "beta", "commercial_exit": None, "batches": 1, "already_loaded": 0, "envelopes": 10},
+        {"tenant": "alpha", "commercial_exit": 0, "batches": 2, "already_loaded": 0, "envelopes": 20,
+         "readings_files": 0, "sealed_batches": 0},
+        {"tenant": "beta", "commercial_exit": None, "batches": 1, "already_loaded": 0, "envelopes": 10,
+         "readings_files": 0, "sealed_batches": 0},
     ]
     assert FakeLoad.loads == [2, 1] and len(built) == 1
 
