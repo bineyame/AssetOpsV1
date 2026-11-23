@@ -58,13 +58,14 @@ In flight (branch, what is left):
 1. DD3b: merged 23 Nov (owner accepted Kisiwa share 20.7/16.1/0/10.6 %).
 2. DD5a: merged 23 Nov.
 3. DD3d-a: merged 23 Nov (its six Lows go into DD3d-b, `specs/DD-demo-data/review-DD3d-a.md`).
-4. DD3d-b (3.75 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
+4. DD3d-b (4.25 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
    run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress, about 0.75 u built, RED by design:
    116 pure failures at f563f9c6c), worktree AssetOpsV1-dd3db. Start from `DD3d-b-handoff.md` on the branch and
    rulings round 28 at the end of `rulings.md` (four rulings, on the branch only, coordinator confirmed). Runs 2 and 3
    (39c9fd2de) finished the existing tests: pure 2 failed (iap sites 6 and 8, held for DD3d.5), 2365 passed; no Postgres
-   run yet. Run 4 in progress: publisher tests, C4, C-DD4, DD3d-a Lows, t12. An Architect round (branch
-   `task/DD3d-b-rulings-29`) rules run 3's Q1-Q4; after it: G4, DDR, DD3d.5 (budget), plants, reach set, review.
+   run yet. Run 4 in progress: publisher tests, C4, C-DD4, DD3d-a Lows, t12. Rulings round 29 (branch
+   `task/DD3d-b-rulings-29`, ae818b36c) is done and merges into the DD3d-b branch at the start of run 5; then G4, DDR,
+   DD3d.5 (budget), plants, reach set, review. DD3d-b is now 4.25 u; DD 61.75 u.
    Headline is now projected about -195.30, not -196.60 (Kisiwa October litres 903, not 904); not yet measured.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
@@ -80,6 +81,9 @@ In flight (branch, what is left):
 12. Refresh `.ai/NOW.md` and `owner/SUMMARY.md` to the 23 Nov state (both lag; SUMMARY since 22 Nov).
     Not blocked; may be done any time and must be done before the alignment pass starts.
 Backlog after the demo: `.agent/backlog-post-demo.md`.
+
+Warning: no walkthrough can be prepared from main between DD3d-b's merge and DD6 (the walk check cannot pass
+without readings).
 
 Warning: after 6f1 U2 the Decisions list, inbox and waiting columns are empty until WK-SC prepares the
 ten decisions; do not rebuild a demo app from main in that gap without telling the owner.
