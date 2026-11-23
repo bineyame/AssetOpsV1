@@ -244,6 +244,20 @@ def test_2_portfolio_round_trip() -> None:
 
 # --- unit 2: tests 3 to 10, 11(a) -------------------------------------------------------------------------------------
 
+def test_3_a_site_on_commercial_records_alone_is_tracked() -> None:
+    """Without litres (DD3d.4's `pack_litres` left out) every valued leaf of Kobo and Kisiwa is a commercial record, so
+    nothing is untracked; Mto's price is the declared one."""
+    from test_4b_money_leaves import fallback
+
+    w = lakeside()
+    s = setup(w, fb=fallback())
+    s.builder.build(w["tid"], refs(w), OCT, built_by=BY)
+    read = reader(s)
+    got = {c: read.site(w["tid"], by_code(w)[c], OCT).freshness.untracked for c in CODES}
+    assert got == {"KOBO-001": (), "KISIWA-001": (), "MTO-001": ("diesel_price",)}
+    assert read.portfolio(w["tid"], OCT).freshness.untracked == ("MTO-001:diesel_price",)
+
+
 def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
     s = setup(w, store)
     sites = refs(w)

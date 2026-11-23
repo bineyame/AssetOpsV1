@@ -437,7 +437,6 @@ PACK_NODES = ("revenue", "collected", "in_transit", "outstanding", "fuel_cost", 
 #: Spec §5.2 (handshake R9): the leaves that would split revenue and fuel cost, the same on every Site.
 REVENUE_UNOBSERVED = (("adjustments_kwh", "delivered_kwh", "productive_tariff", "tariff", "technical_loss_kwh",
                        "unexplained_loss_kwh", "unmapped_kwh"), ("delivered_kwh", "productive_tariff", "tariff"))
-FUEL_UNOBSERVED = (("candidate_l", "necessary_l", "unexplained_l"), ())
 CHECK_KISIWA = TargetCheck("contribution", D("-60.00"), D("-65.00"), USD, False)
 
 
@@ -461,9 +460,9 @@ def _world(with_mto: bool = True) -> dict:
     return load_lakeside(new_world(), with_mto)
 
 
-def reads(w: dict) -> tuple[StructureRead, TargetRead]:
+def reads(w: dict, fb=None) -> tuple[StructureRead, TargetRead]:
     """4b's test reader and 5a's `TargetRead` over it (spec §5.2)."""
-    src = CommercialLeafSource(w["months"], w["store"], with_litres())
+    src = CommercialLeafSource(w["months"], w["store"], fb or with_litres())
     actual = StructureRead(src, stated=src)
     return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual)
 

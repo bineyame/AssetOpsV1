@@ -153,6 +153,11 @@ def bought(rec: Recording, code: str, month: str = "2026-10", known_at=None):
     return rec.inner._judge(ReadContext(site(rec.w, code), month, known_at), "fuel_bought")
 
 
+def invoice_facts(rec: Recording, code: str) -> tuple:
+    got = bought(rec, code)
+    return text(got.value), got.currency, got.evidence, got.sources, got.origins
+
+
 def assert_fuel_not_available(v: dict, rec: Recording, code: str, month: str = "2026-10", also: tuple = ()) -> None:
     """D-DD.177: a world that states fuel by invoices and holds no litres serves no fuel cost, cost to serve or
     contribution, names the litre leaves, and never serves the invoice total in their place."""
@@ -244,7 +249,7 @@ def check_kobo_october(w) -> Recording:
     assert v["revenue"].detail_missing == REVENUE_DETAIL
     assert v["fuel_cost"].stated is False and v["fuel_cost"].detail_missing == LITRES
     assert_fuel_not_available(v, rec, "KOBO-001")
-    assert (text(bought(rec, "KOBO-001").value), bought(rec, "KOBO-001").evidence) == ("792.50", "RECORDED")
+    assert invoice_facts(rec, "KOBO-001") == ("792.50", "USD", "RECORDED", (LF,), (OF,))
     assert v["contribution"].detail_missing == tuple(sorted(v["revenue"].detail_missing + LITRES))
     assert v["contribution"].missing_leaves == LITRES
     assert weakest_origin(v["revenue"].origins) == E
@@ -277,7 +282,7 @@ def check_kisiwa_october(w) -> Recording:
         "EXPENSE (OM)", CR, "NOT_RECEIVED", None, ("cost_to_serve", "contribution"), "Service contractor invoice",
         None, None)
     assert_fuel_not_available(v, rec, "KISIWA-001", also=("om",))
-    assert text(bought(rec, "KISIWA-001").value) == "1173.90"
+    assert invoice_facts(rec, "KISIWA-001") == ("1173.90", "USD", "RECORDED", (LA,), (E,))
     for node in ("cost_to_serve", "contribution"):
         assert v[node].value is None and v[node].missing_leaves == ("candidate_l", "necessary_l", "om",
                                                                     "unexplained_l"), node
