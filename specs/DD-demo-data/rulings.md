@@ -3085,3 +3085,158 @@ D-DD.157 moves Kirinyaga's History series onto the meter (the drift story reads 
     half-even to whole kWh (1659.750 → 1660), the History series' precision. The bill keeps the exact meter kWh.
     The two are one figure at two precisions, and `meter_billed` prints the pair.
   - *Units (D-DD.161, D-DD.162).* DD 55.0 → **55.5 u in twelve parts**: DD4b 5.25, DD5a 3.75.
+
+# DD rulings, round 24 (D-DD.163): a month's fuel cost is the fuel burned, not the fuel bought
+
+Architect (Claude, DD lane), 2026-11-23. Read: `DD3b-handoff.md` "Run 3 state" and `packet-DD3b.md` reach table on
+`task/DD3b-mini-plant` (22cf40ec3); D-DD.18, D-DD.92, D-DD.130, D-DD.131; `structure/rows_mini_grid.py` (`fuel_cost`
+= `diesel_l * diesel_price`, `stated_by` EXPENSE (FUEL)), `structure/evaluate.py` `_stated_node` (a stated record
+governs the node), `structure/sources.py` `STATED_STATE` and `ASSUMPTION_WORDS`, `structure/money.py`
+(`_ROWS["fuel_cost"]`, `_diesel_price`), `structure/reconciliation.py` (`used_lines`, `HEADING_WORDS`),
+`deep_dive/tables.py`, `rehearsal_check.py` G4/G5, `backend/tests/test_ddr_rehearsal_postgres.py` and
+`fixtures/ddr/lakeside-2026-10.expect.json`. No run was made; no database touched. The owner is informed; the
+headline the owner was told (about +2,135) is what the screen will show.
+
+- **D-DD.163 The product's month fuel cost is consumption × price, the node's own expression. The fuel invoices
+  state purchases, a different quantity, and stop stating `fuel_cost`. A month with no invoice prices its fuel at
+  the Site's declared diesel price, labelled Assumed. The statements and screen literals follow** (model, W6 class;
+  completes D-DD.92 and D-DD.130 in the product; amends D-DD.130's C-DD4 clause; adds DD3d.4).
+  - *What is wrong.* D-DD.92 made purchases and consumption two quantities, and D-DD.130 put the purchases in the
+    books. The product's `fuel_cost` node, though, is `diesel_l × diesel_price` (consumption) with a `stated_by`
+    record: the month's fuel invoices. In `_stated_node` the record governs, so the served fuel cost is whatever
+    was bought that month: Kisiwa 1,040, Kobo 500, Mto nothing. `M` and the model say 1,175.20 / 792.50 / 40.00.
+    `stated_by` assumed purchases equal consumption, which is only true for a Site without storage. With a tank,
+    cost to serve and contribution would swing with delivery dates: Mto would show $0 of fuel while burning 32 L.
+    The model's figure is the loyal one. The cause is two figures for one quantity, so the fix is in the model.
+  - *Rule (product).*
+    - `fuel_cost` is no longer a stated node. `rows_mini_grid.py` drops its `stated_by` (structure version 5;
+      revenue, `metered_kwh` and `billed_kwh` keep theirs), and `STATED_STATE["MINI_GRID"]` drops `fuel_cost`.
+      The node folds from `diesel_l × diesel_price`, with `diesel_l` the readings' litres split (D-DD.18). No
+      `diesel_l`, no fuel cost ("not available yet"; never the invoices instead).
+    - The invoices keep two jobs, under their own name:
+      - `diesel_price`, unchanged (D-4B.6): invoice spend ÷ invoice litres in a month with invoices.
+      - Fuel bought. `money._ROWS["fuel_cost"]` and `READ_AS["fuel_cost"]` are renamed `fuel_bought`, with the
+        literal FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"). It is not a
+        structure row.
+    - Reconciliation (`structure/reconciliation.py`) still compares the management accounts' fuel figure with
+      the recorded invoices, a completeness check on the books. Its heading key becomes `FUEL_BOUGHT`, label
+      "Fuel bought (invoices)"; the statement CLI's `--fuel-cost` flag and the stored field keep their names (a
+      data contract; the label carries the meaning).
+    - Deep dive (`deep_dive/tables.py`): the `fuel_cost` step's value is the node's. Its evidence stays
+      `FUEL_INVOICES`, now as the price's evidence, beside the litres.
+  - *Mto's price.* No invoice in the month gives the product's existing fallback: the Site's declared
+    `diesel_price_per_litre`, ASSUMED, worded "Declared diesel price per litre, not a fuel invoice". The fuel in
+    Mto's tank was bought before the span, so that is the honest price. The world declares it: DD3d.4 records
+    Lakeside's per-Site declared price from `M`'s `prices.diesel_usd_per_l` (Kobo 1.25, Kisiwa 1.30, Mto 1.25)
+    through the product's existing price-assumption path (the one PR1/PR2a write; the builder names the function
+    in pre-flight; if no loader-callable path exists, stop for the Architect). G4 (`rehearsal_check.py`) changes:
+    a Site-month with a fuel invoice needs `commercial:` sources as today; one without needs the declared price,
+    evidence ASSUMED, and prints "declared, no fuel invoice this month". A missing price is still a FAIL.
+  - *Statements (DDR S5/S8).* The management accounts state fuel bought, compared with the recorded invoices. The
+    rehearsal's designed beats stay as offsets from the recorded total: S8 final = invoices + 5.00 (MATCHED within
+    the 1 % tolerance); S5 draft = invoices + 105.00 (NOT_MATCHED). On today's books, invoices are 1,540.00, so
+    S8 is **1,545.00** and S5 is **1,645.00** (were 5,000 / 5,100 against 4,995). The test computes them from the
+    expect file's invoice total, never types them. Revenue 9,700.00 keeps its offset from the served revenue the
+    same way.
+  - *Screen literals (expect file).* Each literal is re-pinned to the served value (D-DD.93), and the packet maps
+    each to its `M` figure. Projected from `M` rev 16.20:
+    - Portfolio fuel: Actual **$2,007.70** · Target $4,240.00 · Difference **−$2,232.30**; effect on contribution
+      **+$2,232.30**.
+    - Headline: contribution **+$2,135.30** against target (actual 4,430.30, target 2,295.00); Grow −$97.00,
+      Optimize +$2,232.30.
+    - The sentences are the product's own copy for a favourable gap, not hand-written. A served figure that
+      differs from `M` by more than money rounding stops for the Architect.
+  - *Checks.* C-DD4 judges mini-grid `diesel_l` and `fuel_cost` again (served = `M`), reversing D-DD.130's drop.
+    `EMU_FUEL` stays Σ invoices = fuel bought. `test_ds4_world_postgres` t12 then compares like with like.
+  - *Owner, plainly.* A month's fuel cost is now what the generators burned, priced per litre. Fuel deliveries
+    are shown separately as "fuel bought". The Portfolio headline stays at about **+2,135 above target**, as you
+    were told. Without this ruling the screen would have shown about +2,603, because it was counting October's
+    deliveries (1,540) instead of the fuel burned (2,007.70). Mto's fuel is priced at its declared 1.25 per litre,
+    marked Assumed, since it bought no fuel in these months.
+  - *Where and size.* DD3d.4 (product reader, discovery review with DD3d): +1.75 u (structure v5 and money rename
+    0.5; reconciliation and deep-dive label 0.25; declared prices recorded and G4 0.5; re-pins, DDR expect file,
+    C-DD4 restored 0.5). DD3d 2.5 → **4.25 u**; DD 55.5 → **57.25 u**. DD3b3 merges with exactly the seven DDR
+    rehearsal failures and `test_ds4_world_postgres` t12 listed as known, closed by DD3d.4. DD3d follows DD3b3
+    directly. Any other failure still blocks.
+
+# DD rulings, round 25 (D-DD.164 to D-DD.165): the history seed loop, and Kisiwa's candidate share
+
+Architect (Claude, DD lane), 2026-11-23. Read: `review-DD3b.md` (8ebad03df) H1, M1, Q1, Q2; D-DD.30, D-DD.102 (the
+`physical` read set), D-DD.92, D-DD.130, D-DD.131, D-DD.144, D-DD.151; `simulator/assetops_simulator/world/scope.py`
+(`scope_input`: the whole `site_doc["period"]` in the digest), `world/history.py` (`_Scope`, `october`, `_side`, the
+family seeds `seed(digest, key, name)`), `telemetry.books_for` (what the mini writer reads from history:
+`delivered_kwh`, `unexplained_l`), `telemetry_cold.cold_books_for` (the cold ledger reads history); the Lakeside rules
+in `M`'s `history.rules`. No run was made; no database touched. The owner is told the final Kisiwa share (D-DD.165).
+
+- **D-DD.164 Q1 (BLOCKER), H1: a history seed never covers a value written back from the run it seeds. The
+  run-written October keys leave the scope digest; they stay readable as values. Acceptance is a fixed point
+  proved by a second pass** (model, W6 class of D-DD.102; amends `scope.py`'s digest input and D-DD.131's test).
+  - *The loop.* The October fuel leaves are written into `M` from the pure run (D-DD.131). `scope_input` hashes the
+    whole `period`, and that digest seeds every July-September jitter draw. So writing the leaves re-seeds the
+    history, which moves `delivered_kwh`, which is the writer's load. That moves the run, and so the leaves. With a
+    seed that depends on its own output there is no fixed point; re-running cannot close it.
+  - *Which break, and why.*
+    - Taken: the run-written keys leave the digest. A seed decides the scope's jitter. A figure the run computes
+      is a value, not part of the scope's identity. This is D-DD.102's rule (the digest covers only what is the
+      scope's own input), applied to `period`.
+    - Rejected: freezing July-September. It turns generated history into typed data, so a correction elsewhere
+      would never reach it. And it breaks `scale`'s stated link to October.
+    - Rejected: removing all of `period` from the digest. That re-seeds the cold and EV histories that the
+      merged DD4 writers read (the cold ledger reads history), so it would move worlds with no loop.
+    - Not a loop: history's `necessary_l` / `candidate_l` = October × family weight × jitter (`scale`). They move
+      with October as values. No writer reads them (D-DD.18, D-DD.92: the writer reads `delivered_kwh` and the
+      declared `unexplained_l`), so nothing feeds back.
+  - *Change (`world/scope.py`).*
+    - `RUN_WRITTEN: dict[str, dict[str, tuple[str, ...]]]`, by vertical and side, declared beside `PHYSICAL_READS`.
+      Each entry is a period key whose value is written from a run:
+      - `MINI_GRID`, `actual`: `diesel_l`, `necessary_l`, `candidate_l`, `diesel_cost`, `contribution`, `variance`
+        (D-DD.131's restated leaves and the identities computed from them).
+      - `MINI_GRID`, site-level: `fuel_balance`, `bridge`, `findings_expected` (the blocks D-DD.131 restates).
+      - `COLD_CHAIN`, `actual`: `kwh` (the meter's, D-DD.144). `EV_DEPOT`, `actual`: the metered leaves of D-DD.20
+        that `M` takes from `measured.json`; the builder lists them from D-DD.20 and D-DD.158 in pre-flight.
+      - A key not in the table stays in the digest.
+    - `period_input(site_doc, vertical) -> dict` is `period` with exactly those keys removed (a missing key is
+      skipped, never an error). `scope_input` writes `"period": period_input(...)`. `_Scope.october` still reads
+      the full `site_doc["period"]`, so values are unchanged as inputs.
+  - *Moves (once).* The mini-grid digests change once (their run-written keys leave), so Lakeside's July-September
+    jitter is re-drawn once more. After that, writing the leaves cannot re-seed. Cold and EV digests change only if
+    their `RUN_WRITTEN` keys are in `M`'s period today; any moved cold or EV leaf that a cold or EV writer reads
+    (crate days, ledger movements, roster) **stops for the Architect** before anything is written. The packet lists
+    every moved leaf, grouped by Site.
+  - *Acceptance (one pass, proved by a second).*
+    1. `world_history.py generate` with the new digest.
+    2. `dd3_pure_run.py --restate-notes --write` at all three Sites.
+    3. The notes run and `--leaves --write`.
+    4. `M` written from the tool (rev bump).
+    5. `world_history.py generate` again: **`history.json` byte-identical to step 1** (the fixed point).
+    6. `--restate-notes --check` and `--leaves --check` exit 0 at Kobo, Kisiwa and Mto.
+    7. The D-DD.30 chain (view, goldens, fixtures, derived values) and re-pins (D-DD.93).
+    If step 5 differs, stop: the table missed a key. The `--check` logs and the two `history.json` hashes go in
+    the evidence.
+  - *Guard (cheap, in the default suite).* `simulator/tests/world/test_scope_run_written.py`: on a copy of the view,
+    changing each `RUN_WRITTEN` key of Kobo, Kisiwa and Mto leaves every scope digest and every July-September jitter
+    factor equal. Changing a non-listed key (Kobo `delivered_kwh`) changes the digest (plant). D-DD.131's `M` test
+    keeps comparing with `fuel-leaves.json`. The record is then valid because step 6 is in the packet, and a merge
+    that touches `M`'s fuel leaves reruns step 6 (coordinator merge check for DD parts).
+  - *Where and size.* The DD3b3 fix round (Opus: model change): +0.75 u (scope table and guard 0.25; the pass,
+    regeneration and re-pins 0.5). DD3b 6.5 → 7.25 u over three parts; DD 57.25 → **58.0 u**. The coordinator may run
+    it as its own commit series in DD3b3.
+
+- **D-DD.165 M1, Q2: Kisiwa's candidate share is reported from the final pass, old → new with the cause. The owner
+  is told in plain words, and the story sentence is restated from the printed figures** (story; amends D-DD.151's
+  "about a tenth" sentence; no bound, nothing tuned; 0 u).
+  - *Why it moved.* The measure (generator on while PV ≥ 1.1 × load) is a threshold. Many of Kisiwa's minutes are
+    cycle-charge tails at 10:00-10:40, with PV about 21.6 kW against load 18.4-19.0 kW: just at 1.1 ×. A 1 % change in
+    the load draw tips them over. H1's re-seeding moved the load about 1 %, and July went from 0.36 % to 18.80 %. That
+    is the measure's real sensitivity, not a plant change. Bounding it, or choosing a seed, would be fitting.
+  - *Rule.* After D-DD.164's pass, the packet prints July-October shares as D-DD.151's figures (0.36 / 11.27 / 0 /
+    10.17 %), then run 2's (18.80 / 17.77 / 0 / 10.67 %), then the final ones. The cause is stated as above. The
+    figures stay the final run's, rounded to whole percent in prose. The OR-MG-2 wording and `M`'s Kisiwa
+    sentences quote the final figures, and D-DD.151's "about a tenth in August and October" is replaced by them.
+  - *Owner, plainly (the coordinator relays this with the final numbers).* "Kisiwa's generator sometimes runs to
+    finish charging the battery in mid-morning, when the sun is only just enough to carry the load. Whether those
+    minutes count as avoidable depends on a margin of about 10 %. So a 1 % change in the month's demand can move
+    the share a lot: it was about 0 % / 11 % / 0 % / 10 % (July to October) when you accepted the story, and is now
+    [final]. Nothing was adjusted to get either figure. The product shows the share it measures." If the final
+    August and October are no longer near 10 %, or July is well above 0 %, the owner is asked whether the story
+    sentence should change. The default is that the sentence states the measured share, whatever it is.
