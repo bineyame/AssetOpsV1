@@ -1,5 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
-# rev 16.20 (DD4.5, 23 Nov): the EV capacity stage bounds buses by charger as well as by energy (D-DD.125): node buses_full_by_charger; buses_short_per_night takes the larger bound. Kasarani November restated from the departure log in the regeneration that follows (DD4b handoff).
+# rev 16.20 (DD4.5, 23 Nov): the EV capacity stage bounds buses by charger as well as by energy (D-DD.125): node buses_full_by_charger; buses_short_per_night takes the larger bound. Kasarani November restated (regeneration, 23 Nov): 2 buses short a night (was 1), departures_missed 7 (was 2), departures_met 33, penalties 840.00 (was 240.00), cost_to_serve 1627.50; KAS-OEM-STOPGAP 5 bus-nights at Ruiru 225.00 (was 2, 90.00); KAS-OEM-WAIT 5 missed, 600.00 penalties (was 2, 240.00); KAS-LOCAL 2 missed (was 1); metro-bus plan spend 1725.00, value 95859.00, downside 375.00.
 # rev 16.19 (DD4a, 22 Nov): Thika's hand start moves to 20:22 (D-DD.89, owner "Change the event"): cooling running 20:23, chamber above 4 C 75-85 min, peak 5.4 C at 20:25, back in band by 20:55, cooling unavailable 72 min, cooling availability 99.946 %; the room is unchanged.
 # rev 16.18 (DD3a, 22 Nov): Kobo physical from its data sheets (spec DD §6, D-DD.30): genset_kw 36 (FG Wilson P50-3 prime), sfc_l_per_kwh 0.2917 (10.5 L/h / 36 kW), battery_kwh 191.5 (42 x Pylontech US5000 4.56 kWh usable).
 # rev 16.17 (0K4m, 21 Nov): one figure per quantity (D-0K4.31 to D-0K4.36): replay inputs from 0K4d's v8 studies (replay-studies.json); the dawn is information; admission per runs/admission.py; Kobo's candidate split, KIS-BATT60 and Embakasi's per-bus timing Not available yet.
@@ -667,8 +667,8 @@ tenants:
       claim_state: ACKNOWLEDGED
       sla_clock: {responded_within_hours: 31, status: RUNNING, note: "5 business days from the 2 Nov notice"}
       options:
-        - {id: KAS-OEM-STOPGAP, kind: SUPPLIER_REMEDY, residual_cost: 90.00, detail: "evaluated: one bus short a night for the {fig:options.KAS-OEM-STOPGAP.params.days_to_restore} nights to the {fig:options.KAS-OEM-STOPGAP.restore_date} restore; the spare bus covers {fig:options.KAS-OEM-STOPGAP.params.spare_cover}; the others are charged at Ruiru at {fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night} each (driver overtime 35 + energy 10)", nights: 2, crew_visits: 0, must_do: true, must_do_reason: "no action fails the hard bound on departures (departures missed > 0)", disposition: RECOMMENDED}
-        - {id: KAS-OEM-WAIT, kind: SUPPLIER_REMEDY, residual_cost: 0.00, restore_by: "2026-11-09", expected_penalties: 240.00, disposition: REJECTED, reason: "likely {fig:options.KAS-OEM-WAIT.protect.departures_missed} missed departures in the {fig:options.KAS-OEM-WAIT.params.days_to_restore} nights to {fig:options.KAS-OEM-WAIT.restore_date} (spare bus free on {fig:options.KAS-OEM-WAIT.params.spare_cover} night): {fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change} in penalties and {fig:options.KAS-OEM-WAIT.protect.departures_missed} broken service obligations, against {fig:options.KAS-OEM-STOPGAP.net_one_off} for the stopgap"}
+        - {id: KAS-OEM-STOPGAP, kind: SUPPLIER_REMEDY, residual_cost: 225.00, detail: "evaluated: two buses short a night for the {fig:options.KAS-OEM-STOPGAP.params.days_to_restore} nights to the {fig:options.KAS-OEM-STOPGAP.restore_date} restore; the spare bus covers {fig:options.KAS-OEM-STOPGAP.params.spare_cover}; the others are charged at Ruiru at {fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night} each (driver overtime 35 + energy 10)", nights: 5, crew_visits: 0, must_do: true, must_do_reason: "no action fails the hard bound on departures (departures missed > 0)", disposition: RECOMMENDED}
+        - {id: KAS-OEM-WAIT, kind: SUPPLIER_REMEDY, residual_cost: 0.00, restore_by: "2026-11-09", expected_penalties: 600.00, disposition: REJECTED, reason: "likely {fig:options.KAS-OEM-WAIT.protect.departures_missed} missed departures in the {fig:options.KAS-OEM-WAIT.params.days_to_restore} nights to {fig:options.KAS-OEM-WAIT.restore_date} (spare bus free on {fig:options.KAS-OEM-WAIT.params.spare_cover} night): {fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change} in penalties and {fig:options.KAS-OEM-WAIT.protect.departures_missed} broken service obligations, against {fig:options.KAS-OEM-STOPGAP.net_one_off} for the stopgap"}
         - {id: KAS-LOCAL, kind: REPAIR, cost: 380.00, disposition: REJECTED, reason: "fails the cover bound: a local repair voids the power-stage cover ({fig:options.KAS-LOCAL.rights.cover_lost} lost; evaluated); it would restore on {fig:options.KAS-LOCAL.restore_date}"}
         - {id: KAS-SCHEDULE, kind: SCHEDULE, disposition: REJECTED, reason: "flat tariff: no schedule saving exists (EV-L1 immaterial here)"}
   - site: Ruiru
@@ -706,7 +706,7 @@ tenants:
       - decision: "Kasarani charger CH-K2"
         horizon: "{fig:options.KAS-OEM-WAIT.params.days_to_restore} nights from the decision ({rec:as_of}), until the {fig:options.KAS-OEM-WAIT.restore_date} restore"
         measure: departures_missed
-        options: {KAS-OEM-WAIT: 2, KAS-OEM-STOPGAP: 0, KAS-LOCAL: 1}
+        options: {KAS-OEM-WAIT: 5, KAS-OEM-STOPGAP: 0, KAS-LOCAL: 2}
         side_effect: {KAS-LOCAL: "power-stage warranty lost"}
         basis: "evaluated by evaluate_structure.py: the option's factor changes (restore date derived from its drivers, cover dates, chargers in service) run through the Protect nodes of the structure"
         class: DERIVED
@@ -743,12 +743,12 @@ tenants:
                           # is a cost-to-serve factor whose home is Optimize (O1), never a Protect measure. Protect shows the failure in its
                           # own unit (protect_measure) and never its money. Moved from protect.measures; stated values still checked against the nodes.
       - {id: service_penalties, node: penalties, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, target: 0.00, sites: {Embakasi: 0.00, Kasarani: 0.00, Ruiru: 0.00}, portfolio: 0.00,
-         november_to_date: {Kasarani: 240.00}, shared_factor: "penalties factor of cost to serve (same factor ID; never added twice)", protect_measure: departures_missed}
+         november_to_date: {Kasarani: 840.00}, shared_factor: "penalties factor of cost to serve (same factor ID; never added twice)", protect_measure: departures_missed}
     protect:
       period: "2026-10 (and November to 6 Nov, shown separately)"
       measures:
         - {id: departures_missed, node: departures_missed, unit: departures, objective: P1, target: 0, class: DERIVED, basis: "roster required departures vs departures with required charge",
-           sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 2, portfolio: 2}}
+           sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 7, portfolio: 7}}
         - {id: nights_deliverable_below_required, node: nights_below_required, unit: nights, objective: P1, target: 0, class: DERIVED, basis: "chargers in service x power x window vs roster required kWh, per night",
            sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 5, portfolio: 5, detail: "nights 1/2 to 5/6 Nov; spare bus lent on {fig:sites[metro-bus/Kasarani].november_to_date.nodes.spare_bus_nights}, departure missed on {fig:sites[metro-bus/Kasarani].november_to_date.nodes.departures_missed}"}}
         - {id: charger_days_out_of_service, node: charger_days_out_of_service, unit: charger-days, objective: P2, target: 0, class: RECORDED,
@@ -767,12 +767,12 @@ tenants:
     cost_per_departure_actual: 32.03
     allocation:
       recommended: [KAS-OEM-STOPGAP, EMB-DEADLINE, RUI-ABSORB6]
-      spend: 1590.00
-      spend_breakdown: {KAS-OEM-STOPGAP: 90.00, EMB-DEADLINE: 1500.00, RUI-ABSORB6: 0.00}
-      valued_option_costs: 1590.00     # EMB-DEADLINE 1,500 + KAS-OEM-STOPGAP 90
+      spend: 1725.00
+      spend_breakdown: {KAS-OEM-STOPGAP: 225.00, EMB-DEADLINE: 1500.00, RUI-ABSORB6: 0.00}
+      valued_option_costs: 1725.00     # EMB-DEADLINE 1,500 + KAS-OEM-STOPGAP 225
       unvalued_spend: 0.00             # rev 10: the Kasarani stopgap changes a money factor (penalties avoided), so it is valued
-      modelled_12m_change: {EMB-DEADLINE: 95484.00, KAS-OEM-STOPGAP: 150.00, total: 95634.00, class: MODELLED}
-      downside: {value: 150.00, sensitivity: "Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff)", class: MODELLED}
+      modelled_12m_change: {EMB-DEADLINE: 95484.00, KAS-OEM-STOPGAP: 375.00, total: 95859.00, class: MODELLED}
+      downside: {value: 375.00, sensitivity: "Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff)", class: MODELLED}
       listed_not_summed: {RUI-4CHARGERS_capex_not_needed: 60000.00}
       technician_visits_used: 0
       priority_order: ["KAS-OEM-STOPGAP (departures at risk now)", "EMB-DEADLINE (largest money)", "RUI-ABSORB6 (contract decision)", "CH-R7 claim (no consequence)"]
@@ -2098,8 +2098,8 @@ operations:   # design rev 16.16 §2.10 (owner OD-26, 20 Nov: "they should be se
            summary: "charger 2: contactor weld detected; contactor replaced by the supplier under warranty; the spare bus covered the roster", consequences: [{node: charger_days_out_of_service, quantity: 2, unit: charger-days}]}
         - {key: kas-chk2-2026-11-01, asset: CH-K2, at: "2026-11-01T23:40+03:00", mode: CONTACTOR_WELD, out_from: "2026-11-02", restored: null, repeat_of: kas-chk2-2026-08-22,
            summary: "charger 2: contactor weld again; deliverable energy below what the roster needs",
-           consequences: [{node: charger_days_out_of_service, quantity: 5, unit: charger-days, period: november_to_date}, {node: departures_missed, quantity: 2, unit: departures, period: november_to_date},
-                          {node: penalties, amount: 240.00, period: november_to_date, note: "counted once in the penalties cost leaf (Optimize)"}],
+           consequences: [{node: charger_days_out_of_service, quantity: 5, unit: charger-days, period: november_to_date}, {node: departures_missed, quantity: 7, unit: departures, period: november_to_date},
+                          {node: penalties, amount: 840.00, period: november_to_date, note: "counted once in the penalties cost leaf (Optimize)"}],
            decision: kasarani-charger}
       maintenance:
         - {key: kas-chk2-contactor, incident: kas-chk2-2026-08-22, kind: RESPONSIVE, at: "2026-08-24", asset: CH-K2, visit: true, cost_basis: UNDER_COVER, right: kas-chk2-warranty,

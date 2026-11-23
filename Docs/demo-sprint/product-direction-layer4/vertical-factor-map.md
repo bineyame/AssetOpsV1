@@ -313,7 +313,7 @@ flowchart BT
 ```
 
 - October was on target: cost to serve 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, energy 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> and maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance-->, an estimate; 1,400<!--fig:sites.metro-bus/Kasarani.actual.nodes.deliverable_kwh_night--> kWh deliverable a night.
-- From 1 Nov, 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.chargers_in_service--> chargers in service deliver 1,050<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.deliverable_kwh_night--> of the 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh needed, so 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures were missed (Protect) and 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties fell into cost to serve (Optimize), read before any invoice.
+- From 1 Nov, 3<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.chargers_in_service--> chargers in service deliver 1,050<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.deliverable_kwh_night--> of the 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh needed, so 7<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures were missed (Protect) and 840.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties fell into cost to serve (Optimize), read before any invoice.
 
 ## 6. The check, and the traceability file
 <!--derives: §2.1; §2.9; Decisions-->

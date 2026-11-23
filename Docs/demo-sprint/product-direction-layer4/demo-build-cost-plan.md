@@ -47,7 +47,7 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 | Thika exposure / damage / liability | 2,160.00 at stake / 108.00 / 108.00; B-1034 not exposed; B-1029 absent | chamber readings 6 Oct 19:00–20:00; grid and backup events; ledger; QA note 7 Oct; CN-0412; contract clause | evidence window + ledger + documents |
 | Rights | EPC claim accepted 17 Oct; insurer notified, no claim (108 < 500) | documents; claim events; test log 3 of 3 | documents + events |
 
-**Metro Bus (EV depots, captive).** *Choice:* Kasarani stopgap now (departures at risk), Embakasi deadline-aware schedule (largest money), absorb six more buses at Ruiru; spend 1,590.00<!--fig:plans.metro-bus.default.spend--> of 5,000.
+**Metro Bus (EV depots, captive).** *Choice:* Kasarani stopgap now (departures at risk), Embakasi deadline-aware schedule (largest money), absorb six more buses at Ruiru; spend 1,725.00<!--fig:plans.metro-bus.default.spend--> of 5,000.
 
 | Factor state | Intended value | Facts | Time scale |
 |---|---|---|---|

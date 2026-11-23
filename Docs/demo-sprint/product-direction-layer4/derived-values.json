@@ -580,6 +580,7 @@
      "scheduled_kwh_night": 2800.0,
      "supplied_kwh_night": 2800.0,
      "required_kwh_night": 2800.0,
+     "buses_full_by_charger": 50.0,
      "buses_short_per_night": 0.0,
      "departures_required": 620.0,
      "departures_missed": 0.0,
@@ -627,6 +628,7 @@
      "scheduled_kwh_night": 2800.0,
      "supplied_kwh_night": 2800.0,
      "required_kwh_night": 2800.0,
+     "buses_full_by_charger": 50.0,
      "buses_short_per_night": 0.0,
      "departures_required": 620.0,
      "departures_missed": 0.0,
@@ -676,6 +678,7 @@
      "scheduled_kwh_night": 1200.0,
      "supplied_kwh_night": 1200.0,
      "required_kwh_night": 1200.0,
+     "buses_full_by_charger": 8.0,
      "buses_short_per_night": 0.0,
      "departures_required": 248.0,
      "departures_missed": 0.0,
@@ -723,6 +726,7 @@
      "scheduled_kwh_night": 1200.0,
      "supplied_kwh_night": 1200.0,
      "required_kwh_night": 1200.0,
+     "buses_full_by_charger": 8.0,
      "buses_short_per_night": 0.0,
      "departures_required": 248.0,
      "departures_missed": 0.0,
@@ -770,21 +774,22 @@
      "scheduled_kwh_night": 1050.0,
      "supplied_kwh_night": 1050.0,
      "required_kwh_night": 1200.0,
-     "buses_short_per_night": 1.0,
+     "buses_full_by_charger": 6.0,
+     "buses_short_per_night": 2.0,
      "departures_required": 40.0,
-     "departures_missed": 2.0,
+     "departures_missed": 7.0,
      "nights_below_required": 5.0,
      "charger_days_out_of_service": 5.0,
-     "departures_met": 38.0,
+     "departures_met": 33.0,
      "peak_cost": 0.0,
      "offpeak_cost": 787.5,
      "night_cost": 0.0,
      "demand_cost": 0.0,
      "energy_cost": 787.5,
-     "penalties": 240.0,
-     "cost_to_serve": 1027.5,
-     "cost_per_departure_met": 27.04,
-     "contribution": -1027.5,
+     "penalties": 840.0,
+     "cost_to_serve": 1627.5,
+     "cost_per_departure_met": 49.32,
+     "contribution": -1627.5,
      "chargers_in_service": 3.0,
      "chargers_installed": 4.0,
      "charger_kw": 50.0,
@@ -823,6 +828,7 @@
      "scheduled_kwh_night": 1960.0,
      "supplied_kwh_night": 1960.0,
      "required_kwh_night": 1960.0,
+     "buses_full_by_charger": 36.0,
      "buses_short_per_night": 0.0,
      "departures_required": 434.0,
      "departures_missed": 0.0,
@@ -870,6 +876,7 @@
      "scheduled_kwh_night": 1960.0,
      "supplied_kwh_night": 1960.0,
      "required_kwh_night": 1960.0,
+     "buses_full_by_charger": 36.0,
      "buses_short_per_night": 0.0,
      "departures_required": 84.0,
      "departures_missed": 0.0,
@@ -2365,7 +2372,7 @@
   },
   "KAS-OEM-WAIT": {
    "site": "Kasarani",
-   "monthly_or_horizon_change": -240.0,
+   "monthly_or_horizon_change": -600.0,
    "months": 1.0,
    "operator_one_off": 0.0,
    "reference_one_off": 0.0,
@@ -2381,9 +2388,9 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option -6120.0 - under reference -5880.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "formula": "(contribution under option -6480.0 - under reference -5880.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
-    "departures_missed": 2.0,
+    "departures_missed": 5.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
@@ -2400,7 +2407,7 @@
     }
    },
    "violations": {
-    "departures": 2.0,
+    "departures": 5.0,
     "import_limit": 0.0,
     "claimable_cover": 0.0
    },
@@ -2420,30 +2427,30 @@
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
     "deliverable_kwh_night": 1050.0,
-    "buses_short_per_night": 1.0,
+    "buses_short_per_night": 2.0,
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
-   "cost_per_departure_met": 24.88,
+   "cost_per_departure_met": 26.67,
    "energy_bill_option": 5580.0,
    "energy_bill_reference": 5580.0,
    "admissible": false,
    "value": null,
    "valued_in_money": false,
    "decision": "kasarani_charger",
-   "bound_failure": "hard bound: departures exceeded by 2.0"
+   "bound_failure": "hard bound: departures exceeded by 5.0"
   },
   "KAS-OEM-STOPGAP": {
    "site": "Kasarani",
-   "monthly_or_horizon_change": 240.0,
+   "monthly_or_horizon_change": 600.0,
    "months": 1.0,
-   "operator_one_off": 90.0,
+   "operator_one_off": 225.0,
    "reference_one_off": 0.0,
-   "net_one_off": 90.0,
+   "net_one_off": 225.0,
    "crew_visits": 0,
    "cost_lines": {
     "buses_charged_at_ruiru": {
-     "amount": 90.0,
+     "amount": 225.0,
      "covered_by": null,
      "right_eligibility": null,
      "claim_state": null,
@@ -2458,13 +2465,13 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - (operator-borne one-off 90.0 - reference path's 0.0)",
+   "formula": "(contribution under option -5880.0 - under reference -6480.0) x 1 - (operator-borne one-off 225.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "departures_missed": 2.0,
+    "departures_missed": 5.0,
     "cover_not_claimable": 0.0
    },
    "rights": {
@@ -2493,12 +2500,12 @@
    },
    "replay_sources": [],
    "assumptions": [],
-   "value_if_admissible": 150.0,
+   "value_if_admissible": 375.0,
    "bound": {
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
     "deliverable_kwh_night": 1050.0,
-    "buses_short_per_night": 1.0,
+    "buses_short_per_night": 2.0,
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
@@ -2506,13 +2513,13 @@
    "energy_bill_option": 5580.0,
    "energy_bill_reference": 5580.0,
    "admissible": true,
-   "value": 150.0,
+   "value": 375.0,
    "valued_in_money": true,
    "decision": "kasarani_charger"
   },
   "KAS-LOCAL": {
    "site": "Kasarani",
-   "monthly_or_horizon_change": 120.0,
+   "monthly_or_horizon_change": 360.0,
    "months": 1.0,
    "operator_one_off": 380.0,
    "reference_one_off": 0.0,
@@ -2528,13 +2535,13 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -6000.0 - under reference -6120.0) x 1 - (operator-borne one-off 380.0 - reference path's 0.0)",
+   "formula": "(contribution under option -6120.0 - under reference -6480.0) x 1 - (operator-borne one-off 380.0 - reference path's 0.0)",
    "protect": {
-    "departures_missed": 1.0,
+    "departures_missed": 2.0,
     "cover_not_claimable": 380.0
    },
    "reference_protect": {
-    "departures_missed": 2.0,
+    "departures_missed": 5.0,
     "cover_not_claimable": 0.0
    },
    "rights": {
@@ -2547,7 +2554,7 @@
     }
    },
    "violations": {
-    "departures": 1.0,
+    "departures": 2.0,
     "import_limit": 0.0,
     "claimable_cover": 380.0
    },
@@ -2562,23 +2569,23 @@
    },
    "replay_sources": [],
    "assumptions": [],
-   "value_if_admissible": -260.0,
+   "value_if_admissible": -20.0,
    "bound": {
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
     "deliverable_kwh_night": 1050.0,
-    "buses_short_per_night": 1.0,
+    "buses_short_per_night": 2.0,
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
-   "cost_per_departure_met": 24.29,
+   "cost_per_departure_met": 24.88,
    "energy_bill_option": 5580.0,
    "energy_bill_reference": 5580.0,
    "admissible": false,
    "value": null,
    "valued_in_money": false,
    "decision": "kasarani_charger",
-   "bound_failure": "hard bound: departures exceeded by 1.0, claimable_cover exceeded by 380.0"
+   "bound_failure": "hard bound: departures exceeded by 2.0, claimable_cover exceeded by 380.0"
   },
   "RUI-ABSORB6": {
    "site": "Ruiru",
@@ -3100,8 +3107,8 @@
     }
    },
    "default": {
-    "value": 95634.0,
-    "spend": 1590.0,
+    "value": 95859.0,
+    "spend": 1725.0,
     "items": [
      "KAS-OEM-STOPGAP",
      "EMB-DEADLINE"
@@ -3110,7 +3117,7 @@
      "KAS-OEM-STOPGAP",
      "EMB-DEADLINE"
     ],
-    "valued_option_costs": 1590.0,
+    "valued_option_costs": 1725.0,
     "not_valued_in_money": 0.0,
     "crew_visits_used": 0,
     "crew_visits_limit": 2,
@@ -3128,8 +3135,8 @@
    },
    "switch_cases": {
     "True": {
-     "value": 95634.0,
-     "spend": 1590.0,
+     "value": 95859.0,
+     "spend": 1725.0,
      "items": [
       "KAS-OEM-STOPGAP",
       "EMB-DEADLINE"
@@ -3138,7 +3145,7 @@
       "KAS-OEM-STOPGAP",
       "EMB-DEADLINE"
      ],
-     "valued_option_costs": 1590.0,
+     "valued_option_costs": 1725.0,
      "not_valued_in_money": 0.0,
      "crew_visits_used": 0,
      "crew_visits_limit": 2,
@@ -3155,15 +3162,15 @@
      "not_connectable": {}
     },
     "False": {
-     "value": 150.0,
-     "spend": 90.0,
+     "value": 375.0,
+     "spend": 225.0,
      "items": [
       "KAS-OEM-STOPGAP"
      ],
      "valued_options": [
       "KAS-OEM-STOPGAP"
      ],
-     "valued_option_costs": 90.0,
+     "valued_option_costs": 225.0,
      "not_valued_in_money": 0.0,
      "crew_visits_used": 0,
      "crew_visits_limit": 2,
@@ -3182,13 +3189,13 @@
    },
    "sensitivity_values": {
     "flat_tariff": {
-     "value": 150.0,
+     "value": 375.0,
      "valued_options": [
       "KAS-OEM-STOPGAP"
      ]
     }
    },
-   "downside": 150.0
+   "downside": 375.0
   }
  },
  "operations": {
@@ -3509,6 +3516,7 @@
    "actual": {
     "sums": {
      "buses": 42.0,
+     "buses_full_by_charger": 94.0,
      "buses_short_per_night": 0.0,
      "charger_days_out_of_service": 26.0,
      "charger_kw": 170.0,
@@ -3556,21 +3564,22 @@
    "november_to_date": {
     "sums": {
      "buses": 22.0,
-     "buses_short_per_night": 1.0,
+     "buses_full_by_charger": 42.0,
+     "buses_short_per_night": 2.0,
      "charger_days_out_of_service": 11.0,
      "charger_kw": 110.0,
      "charger_out_days": 11.0,
      "chargers_in_service": 15.0,
      "chargers_installed": 16.0,
-     "contribution": -2438.7,
-     "cost_per_departure_met": 19.99,
-     "cost_to_serve": 2438.7,
+     "contribution": -3038.7,
+     "cost_per_departure_met": 25.97,
+     "cost_to_serve": 3038.7,
      "covered_bus_nights": 0.0,
      "deliverable_kwh_night": 4250.0,
      "demand_cost": 0.0,
      "demand_rate": 12.0,
-     "departures_met": 122.0,
-     "departures_missed": 2.0,
+     "departures_met": 117.0,
+     "departures_missed": 7.0,
      "departures_required": 124.0,
      "energy_cost": 2198.7,
      "extra_missed_departures": 0.0,
@@ -3589,7 +3598,7 @@
      "peak_cost": 0.0,
      "peak_kwh": 0.0,
      "peak_price": 0.39,
-     "penalties": 240.0,
+     "penalties": 840.0,
      "penalty_rate": 120.0,
      "required_kwh_night": 3160.0,
      "scheduled_kwh_night": 3010.0,
@@ -3726,8 +3735,8 @@
     "metro-bus": {
      "cases": {
       "True": {
-       "value": 95634.0,
-       "spend": 1590.0,
+       "value": 95859.0,
+       "spend": 1725.0,
        "items": [
         "KAS-OEM-STOPGAP",
         "EMB-DEADLINE"
@@ -3737,8 +3746,8 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 150.0,
-       "spend": 90.0,
+       "value": 375.0,
+       "spend": 225.0,
        "items": [
         "KAS-OEM-STOPGAP"
        ],
@@ -3835,8 +3844,8 @@
     "metro-bus": {
      "cases": {
       "True": {
-       "value": 95634.0,
-       "spend": 1590.0,
+       "value": 95859.0,
+       "spend": 1725.0,
        "items": [
         "KAS-OEM-STOPGAP",
         "EMB-DEADLINE"
@@ -3846,8 +3855,8 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 150.0,
-       "spend": 90.0,
+       "value": 375.0,
+       "spend": 225.0,
        "items": [
         "KAS-OEM-STOPGAP"
        ],
@@ -3945,8 +3954,8 @@
     "metro-bus": {
      "cases": {
       "True": {
-       "value": 95634.0,
-       "spend": 1590.0,
+       "value": 95859.0,
+       "spend": 1725.0,
        "items": [
         "KAS-OEM-STOPGAP",
         "EMB-DEADLINE"
@@ -3956,8 +3965,8 @@
        "spend_change_vs_applied": 0.0
       },
       "False": {
-       "value": 150.0,
-       "spend": 90.0,
+       "value": 375.0,
+       "spend": 225.0,
        "items": [
         "KAS-OEM-STOPGAP"
        ],
@@ -8622,6 +8631,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 620.0,
          "departures_missed": 0.0,
@@ -8701,6 +8711,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 620.0,
          "departures_missed": 0.0,
@@ -8768,6 +8779,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 620.0,
          "departures_missed": 0.0,
@@ -8847,6 +8859,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 620.0,
          "departures_missed": 0.0,
@@ -8914,6 +8927,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 600.0,
          "departures_missed": 0.0,
@@ -8993,6 +9007,7 @@
          "scheduled_kwh_night": 2800.0,
          "supplied_kwh_night": 2800.0,
          "required_kwh_night": 2800.0,
+         "buses_full_by_charger": 50.0,
          "buses_short_per_night": 0.0,
          "departures_required": 600.0,
          "departures_missed": 0.0,
@@ -9108,6 +9123,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 248.0,
          "departures_missed": 0.0,
@@ -9157,6 +9173,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 248.0,
          "departures_missed": 0.0,
@@ -9208,6 +9225,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 248.0,
          "departures_missed": 0.0,
@@ -9257,6 +9275,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 248.0,
          "departures_missed": 0.0,
@@ -9308,6 +9327,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 240.0,
          "departures_missed": 0.0,
@@ -9357,6 +9377,7 @@
          "scheduled_kwh_night": 1200.0,
          "supplied_kwh_night": 1200.0,
          "required_kwh_night": 1200.0,
+         "buses_full_by_charger": 8.0,
          "buses_short_per_night": 0.0,
          "departures_required": 240.0,
          "departures_missed": 0.0,
@@ -9504,6 +9525,7 @@
          "scheduled_kwh_night": 1960.0,
          "supplied_kwh_night": 1960.0,
          "required_kwh_night": 1960.0,
+         "buses_full_by_charger": 36.0,
          "buses_short_per_night": 0.0,
          "departures_required": 434.0,
          "departures_missed": 0.0,
@@ -9616,6 +9638,7 @@
          "scheduled_kwh_night": 1960.0,
          "supplied_kwh_night": 1960.0,
          "required_kwh_night": 1960.0,
+         "buses_full_by_charger": 36.0,
          "buses_short_per_night": 0.0,
          "departures_required": 434.0,
          "departures_missed": 0.0,
@@ -9728,6 +9751,7 @@
          "scheduled_kwh_night": 1960.0,
          "supplied_kwh_night": 1960.0,
          "required_kwh_night": 1960.0,
+         "buses_full_by_charger": 36.0,
          "buses_short_per_night": 0.0,
          "departures_required": 420.0,
          "departures_missed": 0.0,
