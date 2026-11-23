@@ -125,7 +125,7 @@ def main(argv: Sequence[str] | None = None, *, store: PostgresAssumptionStore | 
         p.add_argument("--tenant", default=served_tenant_slug())
     args = parser.parse_args(argv)
     if args.tenant != served_tenant_slug():
-        print(f"Tenant {args.tenant!r} is not the served tenant.", file=sys.stderr)
+        print("TENANT_NOT_SERVED", args.tenant, file=sys.stderr)
         return 2
     store = build_assumption_store(database_url()) if store is None else store
     try:

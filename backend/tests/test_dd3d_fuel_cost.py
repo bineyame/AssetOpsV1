@@ -124,8 +124,10 @@ def target_worlds() -> dict:
             out[f"{name}/{code}"] = {
                 "values": {f: [None if v.value is None else format(v.value, "f"), v.evidence,
                                sorted(lines.get(x, x) for x in v.sources), v.currency, list(v.origins), v.stated,
-                               None if v.computed is None else format(v.computed, "f"), list(v.missing_leaves), list(v.assumed_leaves), list(v.detail_missing),
-                               None if v.missing is None else [v.missing.cause, v.missing.carried_as, v.missing.note]] for f, v in got.structure.values.items()},
+                               None if v.computed is None else format(v.computed, "f"), list(v.missing_leaves),
+                               list(v.assumed_leaves), list(v.detail_missing),
+                               None if v.missing is None else [v.missing.cause, v.missing.carried_as, v.missing.note]]
+                           for f, v in got.structure.values.items()},
                 "checks": [repr(c) for c in got.checks], "currency": got.currency}
     return out
 

@@ -5,19 +5,19 @@ evidence word (section 2.4, through 3A7's `money_word`) are decided here; every 
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from decimal import Decimal, localcontext
+from decimal import ROUND_HALF_EVEN, Context, Decimal
 from typing import Any, Protocol
 
 from assetops_backend.i18n import (Absent, Count, Day, Evidence, Flag, Instant, Items, KOfN, Money, Month, Name, Percent,
                                    Price, Quantity, State, Word, message, render)
 from assetops_backend.i18n import served as served_words
-from assetops_backend.i18n.formats import DISPLAY
 from assetops_backend.structure.evaluate import weakest, weakest_origin
 from assetops_backend.structure.reconciliation import money_word
 
 from assetops_backend.deep_dive import tables as T
 
 CENT = Decimal("0.01")
+EXACT = Context(prec=34, rounding=ROUND_HALF_EVEN)  # the caller's context never reaches a figure
 
 
 class Standing(Protocol):
@@ -73,8 +73,8 @@ def amount(value: Decimal | None, currency: str | None, form: str = "PLAIN", ev:
 def plain(value: Decimal) -> str:
     """A money figure as a bare decimal (tile 1's bar): `deep_dive.money`'s cents, half-even, so the bar and the figure
     beside it are one figure; the value it is served from stays exact (D-DD.163: litres times a price)."""
-    with localcontext(DISPLAY):
-        return format(value.quantize(CENT) + 0, "f")  # `+ 0`: never "-0.00"
+    cents = value.quantize(CENT, rounding=ROUND_HALF_EVEN, context=EXACT)
+    return str(EXACT.plus(cents))  # `plus`: never "-0.00"
 
 
 def not_compared() -> str:
