@@ -20,7 +20,8 @@ BINDINGS = REPOSITORY_ROOT / "backend/conversions/world"
 # the role-set name and the foundation digest over it are the only changes in the file)
 # DD3b merge: the branch's /2 file adds Kisiwa and Mto kit (DD3b2 part 1) on top of main's roles-5
 # (742a75d1edbf80a9f6daf8684817a3ad6984c1d4dcf5badb9a4c73167124e0bd on main)
-LAKESIDE_ALONE_SHA256 = "7d582e06819c3c9117e9e818b144a92e22dcef7aeb475b5c9e299ec7ee3131ba"
+# DD3d-a (D-DD.153): the three tanks declare their level accuracy (7d582e06819c3c9117e9e818b144a92e22dcef7aeb475b5c9e299ec7ee3131ba before)
+LAKESIDE_ALONE_SHA256 = "c3260726b0fa8318f3c7de3f2a25ec53e9b794f050bb8542b197acaab2bda8ea"
 
 
 def _run(onboarding: Path, out: Path) -> subprocess.CompletedProcess:
