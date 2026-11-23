@@ -125,19 +125,20 @@ describe("IA-P P4b: the Sites list on E1", () => {
     await settledScreen();
     expect(e1.calls).toEqual([["2026-10-01", "2026-10-31"]]);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Sites");
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub"]);
     expect(tile("Sites").value).toBe("5");
-    expect(tile("Below target").value).toBe("3");
-    expect(tile("Gap to target")).toEqual({ value: "−$852.00", note: "2 Sites without a target are not in this figure" });
+    expect(tile("Below target").value).toBe("0");
+    expect(tile("Gap to target")).toEqual({ value: "+$2,136.60", note: "2 Sites without a target are not in this figure" });
     // One figure: the Overview's tile 2 for October (5c's World A month), string for string.
     expect(tile("Gap to target").value).toBe(parse<{ tiles: { value: string }[] }>(WORLD_A_MONTH).tiles[1].value);
     expect(cells("Kobo")).toEqual({
       Group: "Mini-grid",
-      Contribution: "$883.00 against a target of $1,445.00",
-      "Gap to target": "−$562.00Emulated, not yet reconciled",
-      "Largest driver against target": "Fuel cost −$600.00Optimize cost and efficiency",
+      Contribution: "$1,565.50 against a target of $1,445.00",
+      "Gap to target": "+$120.50Modelled, not yet reconciled",
+      "Largest driver against target": "No driver widens the gap",
       "Waiting for a choice": "3",
     });
+    expect(cells("Mto")["Largest driver against target"]).toBe("Revenue −$80.00Grow revenue");
     expect(cells("Kisiwa")["Waiting for a choice"]).toBe("0");
     expect(cells("Cold Room")).toEqual({
       Group: "Cold-chain",
@@ -158,7 +159,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
     const swapped = { ...body, rows: [body.rows[2], body.rows[0], body.rows[1], ...body.rows.slice(3)] };
     renderAt(`/sites?${OCT}`, sitesClient({ "2026-10-01|2026-10-31": swapped }));
     await settledScreen();
-    expect(titles()).toEqual(["Mto", "Kobo", "Kisiwa", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kisiwa", "Kobo", "Mto", "Cold Room", "Charge Hub"]);
     cleanup();
     renderAt(`/sites?${OCT}&sort=name`);
     await settledScreen();
@@ -166,14 +167,23 @@ describe("IA-P P4b: the Sites list on E1", () => {
   });
 
   it("the target facet: Below target keeps the compared rows below; the gap tile is the server's only unfiltered (R6)", async () => {
-    renderAt(`/sites?${OCT}&target=below`);
+    // World A's Sites are all on or above target; Kobo and Mto are put below here, as the server's `below` states it.
+    const body = parse<PortfolioSites>(SITES_OCT);
+    const below = { ...body, rows: body.rows.map((r) => ({ ...r, below: r.site === "Kobo" || r.site === "Mto" })) };
+    const some = () => sitesClient({ "2026-10-01|2026-10-31": below });
+    renderAt(`/sites?${OCT}&target=below`, some());
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto"]);
-    expect(tile("Sites").value).toBe("3");
+    expect(titles()).toEqual(["Kobo", "Mto"]);
+    expect(tile("Sites").value).toBe("2");
+    expect(tile("Below target").value).toBe("2");
     expect(tile("Gap to target")).toEqual({ value: "Not available yet", note: "For every Site only" });
     expect(within(list()).getByLabelText("In this view").textContent).toContain("Below target · Above and below target");
     cleanup();
-    renderAt(`/sites?${OCT}&target=on`);
+    renderAt(`/sites?${OCT}&target=on`, some());
+    await settledScreen();
+    expect(titles()).toEqual(["Kisiwa"]);
+    cleanup();
+    renderAt(`/sites?${OCT}&target=below`); // World A as served: none is below
     await settledScreen();
     expect(screen.getByText("Nothing matches these filters.")).toBeTruthy();
   });
@@ -195,9 +205,9 @@ describe("IA-P P4b: the Sites list on E1", () => {
     renderAt(`/sites?${SEP_OCT}`, e1);
     await settledScreen();
     expect(e1.calls).toEqual([["2026-09-01", "2026-10-31"]]);
-    expect(tile("Gap to target").value).toBe("−$1,704.00");
+    expect(tile("Gap to target").value).toBe("+$4,273.20");
     expect(tile("Gap to target").value).toBe(parse<{ body: { tiles: { value: string }[] } }>(PERIOD_PERIOD).body.tiles[1].value);
-    expect(cells("Kobo").Contribution).toBe("$1,766.00 against a target of $2,890.00");
+    expect(cells("Kobo").Contribution).toBe("$3,131.00 against a target of $2,890.00");
   });
 
   it("mode none: the notes under the header, two tiles Not available yet, and no target facet", async () => {
@@ -229,7 +239,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
       directory([labSite("kobo-001", "Kobo"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN"), labSite("LAB-SITE-10", "Lab Ten", "EV_CHARGING"), labSite("LAB-X", "Lab Odd", "SOLAR_PUMP")]),
     );
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub", "Lab Site", "Lab Ten", "Lab Odd"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub", "Lab Site", "Lab Ten", "Lab Odd"]);
     expect(cells("Lab Site")).toEqual({
       Group: "Cold-chain",
       Contribution: "Not available yet",
@@ -265,7 +275,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
     const refused: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "refused", httpStatus: 503 } as never) };
     renderAt(`/sites?${OCT}`, sitesClient(BY_RANGE), estateClient(), refused);
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub"]);
     expect(list().querySelector("th small[data-lifecycle]")).toBeNull();
   });
 
@@ -284,7 +294,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
     expect(screen.getByText("The figures cannot be read right now.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub"]);
   });
 
   it("the client refuses a body of another schema", async () => {
@@ -309,9 +319,9 @@ describe("IA-P P4b: the Outcomes tab", () => {
     renderAt(`/portfolio/outcomes?${OCT}`);
     await settledScreen();
     const l1 = document.querySelector<HTMLElement>('[data-portfolio-tab-panel="outcomes"] [data-level="L1"]')!;
-    expect(l1.querySelector("[data-sites-headline]")!.textContent).toContain("3 of 3 Sites are below target in October");
+    expect(l1.querySelector("[data-sites-headline]")!.textContent).toContain("Every Site is on or above target in October");
     expect(l1.textContent).toContain("2 Sites without a target are not in this figure");
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub"]);
     expect(list().querySelector(".hl-tiles")).toBeNull();
     expect(list().querySelector("form")).toBeNull();
     const l3 = document.querySelector<HTMLElement>('[data-portfolio-tab-panel="outcomes"] [data-level="L3"]')!;
@@ -325,7 +335,7 @@ describe("IA-P P4b: the Outcomes tab", () => {
   it("an Outcomes L2 row whose Site is not Active carries its lifecycle word; L2 lists a directory-only Site after E1's rows, as /sites does (D-IAP.44, D-IAP.51)", async () => {
     renderAt(`/portfolio/outcomes?${OCT}`, sitesClient(BY_RANGE), estateClient(), directory([labSite("KOBO-001", "Kobo", "MINIGRID", "DECOMMISSIONED"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN", "PLANNED")]));
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub", "Lab Site"]);
+    expect(titles()).toEqual(["Kobo", "Mto", "Kisiwa", "Cold Room", "Charge Hub", "Lab Site"]);
     const kobo = [...list().querySelectorAll("tbody tr")].find((r) => r.querySelector("th a, th span")!.textContent === "Kobo")!;
     expect(kobo.querySelector("th small[data-lifecycle]")!.textContent).toBe("Decommissioned");
   });
