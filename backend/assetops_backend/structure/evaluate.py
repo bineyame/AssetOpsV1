@@ -213,11 +213,14 @@ def _check_stated(registry: Registry, stated: Mapping[str, LeafValue], also: fro
     """4b1 (spec §2.3): every key a node with `stated_by`, or one the caller names in `also` (the target side's
     budget headings); every value checked as a leaf against that node's row."""
     key = registry.structure_key
+    rows = {row.factor_id: row for row in registry.rows}
+    for factor_id in sorted(also):  # D-DD.178: never a leaf, never an unknown row
+        if factor_id not in rows or rows[factor_id].is_leaf:
+            raise StructureError("STRUCTURE_STATED", key, str(factor_id))
     for factor_id, value in stated.items():
-        try:
-            row = registry.row(factor_id)
-        except KeyError:
-            raise StructureError("STRUCTURE_STATED", key, str(factor_id)) from None
+        row = rows.get(factor_id)
+        if row is None:
+            raise StructureError("STRUCTURE_STATED", key, str(factor_id))
         if row.is_leaf or (row.stated_by is None and factor_id not in also):
             raise StructureError("STRUCTURE_STATED", key, factor_id)
         _check_leaf(registry, factor_id, value)
