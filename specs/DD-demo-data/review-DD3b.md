@@ -150,3 +150,27 @@ merged; main's later commits `3c24871dd`/`43e161bf7` are rulings and spec text o
 - **Q2 (owner-level).** Kisiwa's candidate share now prints 18.8 / 17.8 / 0 / 10.7 % (July-October), not the
   0.4 / 11.3 / 0 / 10.2 % the owner accepted in D-DD.151. After Q1 the figure moves again. Is the owner told the final
   share, and is "about a tenth" restated from the final run?
+
+## Re-review (fix rounds), head cfbb7dd77
+
+Summary:
+- **Verdict: ACCEPT.** H1, M1, L1, L2 closed; no new finding.
+- Generates 2 and 3 byte-identical: I generated twice from HEAD (`/opt/assetecon/evidence/DD3b/rereview/gen.log`); both
+  `d92fc9f1...`, equal to the committed `history.json`.
+- Kisiwa October recomputed from the pure DIR's readings: 827 unit-steps on = 4,135 unit-min, 2,401.2 kWh (3-dp rounding);
+  burn 4,135 x 0.08 L/min + (0.31 - 0.08) x kWh = 883.1 L; plus declared 20 L = 903 (M). Tank: 1,681.7 + 800 - 20 - 883
+  = 1,578.6, the closing reading (1,578.6) and M's 1,682 / 1,579.
+- Candidate share recomputed (generator output > 0, PV >= 1.1 x load): July 1,170 of 5,660 = 20.67 %; October 415 of 3,935
+  = 10.55 %; both equal the dd_check line.
+- Deviation (b) is right. History `cold_kwh` with the `anchor` entry reads October `kwh` (history.py `_value`), and M's cold
+  kwh follows the meter (DD4.6, EFFICIENCY_CONDITION comment); EV `peak_kwh`/`offpeak_kwh`/windows are `share`/`rest` of
+  October's, `max_kw` is `fixed`. The writers read none: WRITER_READS cold = crate days, outstanding, revenue, received; EV
+  reads history `kwh` only (`fleet_kwh`, a physical read, not in RUN_DERIVED). The import-time check passes and a test bumps
+  every RUN_DERIVED value and shows mini and cold books unchanged. Cold `kwh` is a superset for Kirinyaga (numeric entries,
+  no October read); harmless. EV books are covered by code reading, not by that bump test (Low, residual).
+- L1 (SIZED_ON, rule asserted, renamed) and L2 (95 % gone from the design doc) fixed; "about a tenth" no longer stated
+  anywhere (D-DD.165). Guard test file: 27 passed (`guard.log`).
+- Reshuffle risk: none from this slice. Residual: DD3d-b makes plan leaves run-written (D-DD.170) and must re-prove the
+  fixed point; the owner has still to be told the final shares (July 20.67 %, August 16.05 %, no longer about a tenth),
+  as D-DD.165 requires; that is the coordinator's step.
+- Not rerun: world suite, reach set, check_manifest (cited from the builder's same-revision logs).
