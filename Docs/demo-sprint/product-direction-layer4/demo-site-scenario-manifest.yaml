@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.20 (DD4.5, 23 Nov): the EV capacity stage bounds buses by charger as well as by energy (D-DD.125): node buses_full_by_charger; buses_short_per_night takes the larger bound. Kasarani November restated from the departure log in the regeneration that follows (DD4b handoff).
 # rev 16.19 (DD4a, 22 Nov): Thika's hand start moves to 20:22 (D-DD.89, owner "Change the event"): cooling running 20:23, chamber above 4 C 75-85 min, peak 5.4 C at 20:25, back in band by 20:55, cooling unavailable 72 min, cooling availability 99.946 %; the room is unchanged.
 # rev 16.18 (DD3a, 22 Nov): Kobo physical from its data sheets (spec DD §6, D-DD.30): genset_kw 36 (FG Wilson P50-3 prime), sfc_l_per_kwh 0.2917 (10.5 L/h / 36 kW), battery_kwh 191.5 (42 x Pylontech US5000 4.56 kWh usable).
 # rev 16.17 (0K4m, 21 Nov): one figure per quantity (D-0K4.31 to D-0K4.36): replay inputs from 0K4d's v8 studies (replay-studies.json); the dawn is information; admission per runs/admission.py; Kobo's candidate split, KIS-BATT60 and Embakasi's per-bus timing Not available yet.
@@ -848,7 +849,8 @@ structures:   # rev 10 (owner, ninth to eleventh messages): the declared outcome
     scheduled_kwh_night: "(peak_kwh + kwh_2200_2400 + kwh_0000_0500) / nights_in_period"
     supplied_kwh_night: "min(deliverable_kwh_night, scheduled_kwh_night)"
     required_kwh_night: "buses * kwh_per_bus_night"
-    buses_short_per_night: "ceil(max(required_kwh_night - supplied_kwh_night, 0) / kwh_per_bus_night)"
+    buses_full_by_charger: "chargers_in_service * floor(charger_kw * window_h / kwh_per_bus_night)"   # rev 16.20 (D-DD.125): a charger fills whole buses in the window
+    buses_short_per_night: "max(ceil(max(required_kwh_night - supplied_kwh_night, 0) / kwh_per_bus_night), max(buses - buses_full_by_charger, 0))"
     departures_required: "buses * nights_in_period"
     departures_missed: "max(buses_short_per_night * short_nights - spare_bus_nights - covered_bus_nights, 0) + extra_missed_departures"   # Protect (P1)
     nights_below_required: "min(buses_short_per_night, 1) * short_nights"                # Protect (P1)
@@ -1474,6 +1476,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       kwh_per_bus_night: [protect, P1]
       required_kwh_night: [protect, P1]
       supplied_kwh_night: [protect, P1]
+      buses_full_by_charger: [protect, P1]    # rev 16.20 (D-DD.125)
       buses_short_per_night: [protect, P1]
       short_nights: [protect, P1]
       spare_bus_nights: [protect, P1]

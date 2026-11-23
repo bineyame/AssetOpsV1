@@ -53,7 +53,7 @@ def test_b1_the_node_and_the_short_bus_expression() -> None:
     assert order.index("required_kwh_night") < order.index("buses_full_by_charger") < order.index(
         "buses_short_per_night")
     row = EV.row("buses_full_by_charger")
-    assert (row.home.category, row.home.objective, row.composes) == ("protect", "P1", "NONE")
+    assert (row.home.category, row.home.objective, row.composes) == ("PROTECT_ASSET", "P1", "NONE")
 
 
 def _log_missed(site: str, first: str) -> tuple[int, int, int]:
