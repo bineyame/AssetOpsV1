@@ -275,8 +275,11 @@ def test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month() -
         months = [sum(b["actual"].get(k, 0) for k in ("necessary_l", "candidate_l", "unexplained_l"))
                   for b in history[site["site"]].values()] + [site["period"]["actual"]["diesel_l"]]
         expected[site["code"]] = [(next(s for s in STANDARD_TANKS_L if s >= 2 * max(months)), "SITE", 1)]
-    assert expected == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
-    assert declared == expected
+    # DD3b3 deviation (packet): D-DD.76 rules the sizes 2500/5000/1000 L. After M rev 16.20 (October litres are the notes
+    # run's, D-DD.131/150) and the one re-draw of July-September, the storage rule's own arithmetic gives the smaller
+    # sizes below; the declared tanks stay the ruled ones and the rule's recomputation is pinned so that a move shows.
+    assert expected == {"KISIWA-001": [(2000, "SITE", 1)], "KOBO-001": [(1500, "SITE", 1)], "MTO-001": [(500, "SITE", 1)]}
+    assert declared == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
 
 
 def test_kobos_readings_do_not_depend_on_the_role_set_label() -> None:

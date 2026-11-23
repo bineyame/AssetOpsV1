@@ -1,7 +1,7 @@
 """DD2.1 (spec `specs/DD-demo-data/spec.md` §5.1; D-DD.48, D-DD.51-54): mini-grid books from the structure's own nodes.
 
-Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8318 kWh, revenue 3327.20 and
-collected 3059.74 (`history.json`: delivered 8755, technical loss 394, adjustments 43, outstanding 267.46 at 0.40).
+Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8190 kWh, revenue 3276.00 and
+collected 3012.62 (`history.json`: delivered 8621, technical loss 388, adjustments 43, outstanding 263.38 at 0.40).
 The parity tests read the manifest; the exporter does not.
 """
 
@@ -87,12 +87,12 @@ def test_the_leaf_alternatives_are_the_manifests(manifest) -> None:
 def test_october_evaluated_equals_recorded_on_both_sides_at_every_site() -> None:
     view = load_fixture()
     tenant = tenant_of(view, TENANT)
-    expected = {  # by hand: the period's own nodes
-        "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 1180,
-                  "fuel_cost": "1475"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
-        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 2400, "fuel_cost": "3120"},
+    expected = {  # by hand: the period's own nodes (October litres: the notes run's, D-DD.131/150, M rev 16.20)
+        "Kobo": ({"metered_kwh": 8690, "billed_kwh": 8645, "revenue": "3458", "collected": "3180", "diesel_l": 634,
+                  "fuel_cost": "792.5"}, {"billed_kwh": 8550, "revenue": "3420", "diesel_l": 700, "fuel_cost": "875"}),
+        "Kisiwa": ({"billed_kwh": 7400, "revenue": "4070", "collected": "3800", "diesel_l": 904, "fuel_cost": "1175.2"},
                    {"billed_kwh": 7500, "revenue": "4125", "fuel_cost": "2990"}),
-        "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 320, "fuel_cost": "400"},
+        "Mto": ({"billed_kwh": 5400, "revenue": "2160", "collected": "1890", "diesel_l": 32, "fuel_cost": "40"},
                 {"billed_kwh": 5600, "revenue": "2240", "fuel_cost": "375"}),
     }
     for name, (actual, plan) in expected.items():
@@ -126,11 +126,11 @@ def test_a_changed_october_plan_leaf_stops_it_too() -> None:
 
 def test_july_at_kobo_is_derived_from_the_pinned_leaves(full) -> None:
     july = [r for r in rows(full, "billing") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert sum(int(r["quantity"]["value"]) for r in july) == 8318
-    assert total(july) == Decimal("3327.20")
+    assert sum(int(r["quantity"]["value"]) for r in july) == 8190
+    assert total(july) == Decimal("3276.00")
     receipts = [r for r in rows(full, "collections") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3059.74")
-    assert total(receipts) == Decimal("3059.74")  # no in transit in July
+    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3012.62")
+    assert total(receipts) == Decimal("3012.62")  # no in transit in July
 
 
 def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
@@ -229,7 +229,7 @@ def test_other_months_cut_400_l_notes_on_the_fixed_days() -> None:
             assert [r["quantity"]["value"] for r in fuel[:-1]] == ["400"] * (len(fuel) - 1)
     kobo_july = [r for r in rows(full, "expenses") if r["site_code"] == "KOBO-001" and month_of(r) == "2026-07"
                  and r["body"]["category"] == "FUEL"]
-    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 703 + 257 + 12  # necessary + candidate + unexplained
+    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 476 + 20 + 12  # necessary + candidate + unexplained
     assert "remainder" in kobo_july[-1]["body"]["document_ref"]
 
 

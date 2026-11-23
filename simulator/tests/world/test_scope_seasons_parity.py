@@ -5,6 +5,10 @@ The golden (`golden/scope_seasons_main.json`) was written from main at DD3a's me
 scope digest of the fixture view and the sha256 of history.json's scope blocks. `meta.view_digest` covers the whole
 view by design (DS1), so it moves with the new key; the packet records it (D-DD.90: "the packet lists any pin that
 moves").
+
+Re-pinned at DD3b3 (D-DD.131/150/151, M rev 16.20): October's Lakeside litres moved in `period.actual`, which every scope
+digest of a Lakeside Site reads, so the Lakeside scope digests were re-drawn once and the golden holds the regenerated
+values (D-DD.30 chain, D-DD.93 rule); the depots' and cold rooms' digests are main's still.
 """
 
 from __future__ import annotations

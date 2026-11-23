@@ -37,8 +37,8 @@ PINNED = {
 #: DD3a fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's July-September once; the same three moved.
 #: DD3b3 (D-DD.130): the fuel rows are `config/world/fuel-notes.json`'s notes; expenses moved (here and in PINNED).
 PINNED_ALL_MONTHS = {
-    "lakeside-power.billing.csv": "96fc678b53ea46ab840c9a5d50d67241fc742d47955a73b4db21061d6d2fbeeb",
-    "lakeside-power.collections.csv": "6f45cdb5c0aafac4d77414008c2be17678828bb3070c659d75c4dfa5164c20f5",
+    "lakeside-power.billing.csv": "a61c37b8b3fbd1b6c8595b1b769cd6531fc49d79eae6574721c97db6c6297234",
+    "lakeside-power.collections.csv": "fe1ca6a47b459af1019dcccb3e40c39470dee7a3f7971b1288711f65df124525",
     "lakeside-power.expenses.csv": "ab112234af0e87a2af3ad12bfb09ee7a8d40a3866425dd9bdc1538b179e37dd9",
     "lakeside-power.budget.csv": "e12bcd1f78886ff4c5e13291c7fd3c6636a067f95e6537ca7dd104ce9ea34adc",
 }

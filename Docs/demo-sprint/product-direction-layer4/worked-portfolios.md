@@ -70,49 +70,50 @@ The productive-use tariff and battery wear are not used in October (no productiv
 
 | Step | Figure | How it is known |
 |---|---|---|
-| Fuel balance: opening dip + deliveries − closing dip = litres consumed | 220<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.opening_dip_l--> + 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> − 240<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.closing_dip_l--> = **1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L** | Record (dips and delivery notes) |
-| What the generator should have used: metered generator energy × 0.2917<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | 1,060<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data, so it cannot be shown |
-| Classifying each generator interval splits the modelled litres | necessary 730<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> L + candidate 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L = 1,060 L | Declared input, *stands in for a calculation*: the product classifies each generator interval; the demo types the result; as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f |
-| Unexplained = consumed − modelled | 1,180 − 1,060 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, *stands in for a calculation*. Tolerance 2% (Declared input): about 24 L of 1,180 L, so 120 L is far above it: investigate |
+| Fuel balance: opening dip + deliveries − closing dip = litres consumed | 1,253<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.opening_dip_l--> + 400<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> − 1,019<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.closing_dip_l--> = **634<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L** | Record (dips and delivery notes) |
+| What the generator should have used: metered generator energy × 0.2917<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | 514<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data, so it cannot be shown |
+| Classifying each generator interval splits the modelled litres | necessary 489<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> L + candidate 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L = 514 L | Declared input, *stands in for a calculation*: the product classifies each generator interval; the demo types the result; as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f |
+| Unexplained = consumed − modelled | 634 − 514 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, *stands in for a calculation*. Tolerance 2% (Declared input): about 13 L of 634 L, so 120 L is far above it: investigate |
 
 **Target against actual, per factor.**
 
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
-| Necessary running (L) | 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.necessary_l--> | 730<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> | +30 | 1.25 | −37.50<!--rec--> | Declared input, *stands in for a calculation* |
-| Candidate running (L) | 0<!--fig:sites.lakeside-power/Kobo.plan.nodes.candidate_l--> | 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> | +330 | 1.25 | −412.50<!--rec--> | Declared input, *stands in for a calculation* |
+| Necessary running (L) | 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.necessary_l--> | 489<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> | −211 | 1.25 | +263.75<!--rec--> | Declared input, *stands in for a calculation* |
+| Candidate running (L) | 0<!--fig:sites.lakeside-power/Kobo.plan.nodes.candidate_l--> | 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> | +25 | 1.25 | −31.25<!--rec--> | Declared input, *stands in for a calculation* |
 | Unexplained litres (L) | 0 | 120 | +120 | 1.25 | −150.00<!--rec--> | Declared input, *stands in for a calculation* |
-| *Diesel, all litres* | *700* | *1,180* | *+480* | | *fuel 875.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.fuel_cost--> → 1,475.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.fuel_cost-->* | Calculated |
+| *Diesel, all litres* | *700* | *634* | *−66* | | *fuel 875.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.fuel_cost--> → 792.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.fuel_cost-->* | Calculated |
 | Billed kWh | 8,550<!--fig:sites.lakeside-power/Kobo.plan.nodes.billed_kwh--> | 8,645<!--fig:sites.lakeside-power/Kobo.actual.nodes.billed_kwh--> | +95 | 0.40 | +38.00<!--rec--> | Record |
 | O&M | 600.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.om--> | 600.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.om--> | 0 | | 0.00 | Record |
 | Staff | 500.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.staff--> | 500.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.staff--> | 0 | | 0.00 | Record |
-| **Contribution** | **1,445.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution-->** | **883.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution-->** | | | **−562.00** | Calculated |
+| **Contribution** | **1,445.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution-->** | **1,565.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution-->** | | | **+120.50** | Calculated |
 
-Sum of the effects: −412.50 − 37.50 − 150.00<!--rec--> + 38.00 = **−562.00**, which is 883.00 − 1,445.00. Revenue is 3,420.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.revenue--> → 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue-->; cost to serve 1,975.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.cost_to_serve--> → 2,575.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.cost_to_serve-->.
+Sum of the effects: −31.25 + 263.75 − 150.00<!--rec--> + 38.00 = **+120.50**, which is 1,565.50 − 1,445.00. Revenue is 3,420.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.revenue--> → 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue-->; cost to serve 1,975.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.cost_to_serve--> → 1,892.50<!--fig:sites.lakeside-power/Kobo.actual.nodes.cost_to_serve-->.
 
 **Energy to cash (Record, then Calculated).** Delivered 9,100<!--fig:sites.lakeside-power/Kobo.actual.nodes.delivered_kwh--> kWh − technical losses 410<!--fig:sites.lakeside-power/Kobo.actual.nodes.technical_loss_kwh--> = metered 8,690<!--fig:sites.lakeside-power/Kobo.actual.nodes.metered_kwh--> − authorised adjustments 45<!--fig:sites.lakeside-power/Kobo.actual.nodes.adjustments_kwh--> = billed 8,645 kWh → revenue 3,458.00 − outstanding 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> = collected 3,180.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.collected-->.
 
 ##### Kisiwa
 
-**How the October litres are obtained.** The fuel balance holds litres consumed 2,400<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.consumed_l--> L (Record; the dips and deliveries behind it are not itemised in the demo data) and modelled litres 2,380<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.model_implied_l--> L (Declared input; as at Kobo, the generator-energy reading behind it is not in the demo data). Every generator interval is classified necessary, because evening load exceeds what the solar and battery can carry: necessary 2,380<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.necessary_l--> L, candidate 0 L (Declared input, *stands in for a calculation*). Unexplained 2,400 − 2,380 = 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L, inside the 2% tolerance (about 48 L): reported, not investigated.
+**How the October litres are obtained.** The fuel balance holds litres consumed 904<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.consumed_l--> L (Record; the dips and deliveries behind it are not itemised in the demo data) and modelled litres 884<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.model_implied_l--> L (Declared input; as at Kobo, the generator-energy reading behind it is not in the demo data). Every generator interval is classified necessary, because evening load exceeds what the solar and battery can carry: necessary 817<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.necessary_l--> L, candidate 67 L (Declared input, *stands in for a calculation*). Unexplained 904 − 884 = 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L, just above the 2% tolerance (about 18 L; 2.2%): reported, not investigated.
 
 | Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
-| Necessary running (L), a rainy month | 2,300<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.necessary_l--> | 2,380 | +80 | 1.30 | −104.00<!--rec--> | Declared input, *stands in for a calculation* |
+| Necessary running (L), a rainy month | 2,300<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.necessary_l--> | 817 | −1,483<!--figx:{sites.lakeside-power/Kisiwa.actual.nodes.necessary_l}-{sites.lakeside-power/Kisiwa.plan.nodes.necessary_l}--> | 1.30 | +1,927.90<!--rec--> | Declared input, *stands in for a calculation* |
+| Candidate running (L) | 0 | 67 | +67 | 1.30 | −87.10<!--rec--> | Declared input, *stands in for a calculation* |
 | Unexplained litres (L) | 0 | 20 | +20 | 1.30 | −26.00<!--rec--> | Declared input, *stands in for a calculation* |
-| *Diesel, all litres* | *2,300* | *2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l-->* | *+100* | | *fuel 2,990.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.fuel_cost--> → 3,120.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.fuel_cost-->* | Calculated |
+| *Diesel, all litres* | *2,300* | *904<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l-->* | *−1,396<!--figx:{sites.lakeside-power/Kisiwa.actual.nodes.diesel_l}-{sites.lakeside-power/Kisiwa.plan.nodes.diesel_l}-->* | | *fuel 2,990.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.fuel_cost--> → 1,175.20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.fuel_cost-->* | Calculated |
 | Billed kWh | 7,500<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.billed_kwh--> | 7,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.billed_kwh--> | −100 | 0.55 | −55.00<!--rec--> | Record |
 | O&M | 700.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.om--> | 700.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.om--> | 0 | | 0.00 | Estimate (the October invoice has not arrived) |
 | Staff | 500.00 | 500.00 | 0 | | 0.00 | Record |
-| **Contribution** | **−65.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.contribution-->** | **−250.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.contribution-->** | | | **−185.00** | Calculated |
+| **Contribution** | **−65.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.contribution-->** | **1,694.80<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.contribution-->** | | | **+1,759.80** | Calculated |
 
-Sum: −104.00 − 26.00 − 55.00 = **−185.00**, which is −250.00 − (−65.00). Energy to cash: delivered 7,950<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.delivered_kwh--> − losses 520<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.technical_loss_kwh--> = metered 7,430<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.metered_kwh--> − adjustments 30 = billed 7,400 → revenue 4,070.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.revenue--> (target 4,125.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.revenue-->) → collected 3,800.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.collected-->.
+Sum: +1,927.90 − 87.10 − 26.00 − 55.00 = **+1,759.80**, which is 1,694.80 − (−65.00). Energy to cash: delivered 7,950<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.delivered_kwh--> − losses 520<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.technical_loss_kwh--> = metered 7,430<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.metered_kwh--> − adjustments 30 = billed 7,400 → revenue 4,070.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.revenue--> (target 4,125.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.revenue-->) → collected 3,800.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.collected-->.
 
 Protect, observed: generator GEN-KS-01 failed on 30 Oct, so the evening supply (18:00–23:00, Record: service obligation) ran on GEN-KS-02 alone on 30 and 31 Oct: 2 days × 5 hours = 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours with no backup (Calculated from the fault log).
 
 ##### Mto
 
-**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 320<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (the split is a Declared input, *stands in for a calculation*), against a target of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
+**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 32<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (the split is a Declared input, *stands in for a calculation*), against a target of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
 
 **Energy to cash, where Mto's revenue leaks (Record, then Calculated).**
 
@@ -134,12 +135,13 @@ The target states only billed kWh, so the comparison starts at the meter: target
 | Unmapped meters (kWh) | 0 | 140 | +140 not billed | 0.40 | −56.00<!--rec--> | Record |
 | Authorised adjustment (kWh) | 0 | 40 | +40 not billed | 0.40 | −16.00<!--rec--> | Record |
 | *Billed kWh* | *5,600* | *5,400* | *−200* | | *revenue 2,240.00<!--fig:sites.lakeside-power/Mto.plan.nodes.revenue--> → 2,160.00<!--fig:sites.lakeside-power/Mto.actual.nodes.revenue-->* | Calculated |
-| Necessary running (L) | 300 | 320 | +20 | 1.25 | −25.00<!--rec--> | Declared input, *stands in for a calculation* |
+| Necessary running (L) | 300 | 0 | −300 | 1.25 | +375.00<!--rec--> | Declared input, *stands in for a calculation* |
+| Candidate running (L) | 0 | 32 | +32 | 1.25 | −40.00<!--rec--> | Declared input, *stands in for a calculation* |
 | O&M | 500.00<!--fig:sites.lakeside-power/Mto.plan.nodes.om--> | 500.00 | 0 | | 0.00 | Record |
 | Staff | 450.00<!--fig:sites.lakeside-power/Mto.plan.nodes.staff--> | 450.00<!--fig:sites.lakeside-power/Mto.actual.nodes.staff--> | 0 | | 0.00 | Record |
-| **Contribution** | **915.00<!--fig:sites.lakeside-power/Mto.plan.nodes.contribution-->** | **810.00<!--fig:sites.lakeside-power/Mto.actual.nodes.contribution-->** | | | **−105.00** | Calculated |
+| **Contribution** | **915.00<!--fig:sites.lakeside-power/Mto.plan.nodes.contribution-->** | **1,170.00<!--fig:sites.lakeside-power/Mto.actual.nodes.contribution-->** | | | **+255.00** | Calculated |
 
-Sum: −8.00 − 56.00 − 16.00 − 25.00 = **−105.00**, which is 810.00 − 915.00. Revenue of 2,160.00 splits into collected 1,890.00<!--fig:sites.lakeside-power/Mto.actual.nodes.collected-->, in transit 150.00<!--fig:sites.lakeside-power/Mto.actual.nodes.in_transit--> and outstanding 120.00<!--fig:sites.lakeside-power/Mto.actual.nodes.outstanding-->.
+Sum: −8.00 − 56.00 − 16.00 + 375.00 − 40.00 = **+255.00**, which is 1,170.00 − 915.00. Revenue of 2,160.00 splits into collected 1,890.00<!--fig:sites.lakeside-power/Mto.actual.nodes.collected-->, in transit 150.00<!--fig:sites.lakeside-power/Mto.actual.nodes.in_transit--> and outstanding 120.00<!--fig:sites.lakeside-power/Mto.actual.nodes.outstanding-->.
 
 Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (10:00–15:00, Record: service obligation) had 4 days × 5 hours = 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy--> daytime hours at half inverter capacity (Calculated from the fault log); the idle generator backed the shortfall, so no hour was without backup.
 
@@ -147,20 +149,20 @@ Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (1
 
 | Site | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
-| Kobo | 1,445.00 | 883.00 | −562.00 | +38.00 | −600.00 |
-| Kisiwa | −65.00 | −250.00 | −185.00 | −55.00 | −130.00 |
-| Mto | 915.00 | 810.00 | −105.00 | −80.00 | −25.00 |
-| **Lakeside Power** | **2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->** | **1,443.00<!--fig:portfolio.lakeside-power.actual.sums.contribution-->** | **−852.00** | **−97.00** | **−755.00** |
+| Kobo | 1,445.00 | 1,565.50 | +120.50 | +38.00 | +82.50<!--figx:{sites.lakeside-power/Kobo.plan.nodes.cost_to_serve}-{sites.lakeside-power/Kobo.actual.nodes.cost_to_serve}--> |
+| Kisiwa | −65.00 | 1,694.80 | +1,759.80 | −55.00 | +1,814.80<!--figx:{sites.lakeside-power/Kisiwa.plan.nodes.cost_to_serve}-{sites.lakeside-power/Kisiwa.actual.nodes.cost_to_serve}--> |
+| Mto | 915.00 | 1,170.00 | +255.00 | −80.00 | +335.00<!--figx:{sites.lakeside-power/Mto.plan.nodes.cost_to_serve}-{sites.lakeside-power/Mto.actual.nodes.cost_to_serve}--> |
+| **Lakeside Power** | **2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->** | **4,430.30<!--fig:portfolio.lakeside-power.actual.sums.contribution-->** | **+2,135.30** | **−97.00** | **+2,232.30** |
 
-Each "of which" is the Site's change in revenue or in cost to serve from its table above: Kobo's cost is fuel 875.00 → 1,475.00 (−600.00), Kisiwa's fuel 2,990.00 → 3,120.00 (−130.00), Mto's revenue 2,240.00 → 2,160.00 (−80.00) and its fuel 300 L → 320 L (−25.00). Revenue 9,785.00<!--fig:portfolio.lakeside-power.plan.sums.revenue--> → 9,688.00<!--fig:portfolio.lakeside-power.actual.sums.revenue--> (−97.00); cost to serve 7,490.00<!--fig:portfolio.lakeside-power.plan.sums.cost_to_serve--> → 8,245.00<!--fig:portfolio.lakeside-power.actual.sums.cost_to_serve--> (−755.00). Of the 8,245.00, everything except Kisiwa's O&M (700.00, an Estimate) is recorded: 8,245.00 − 700.00 = 7,545.00<!--rec-->, or 91.5%.
+Each "of which" is the Site's change in revenue or in cost to serve from its table above: Kobo's cost is fuel 875.00 → 792.50 (+82.50<!--figx:{sites.lakeside-power/Kobo.plan.nodes.cost_to_serve}-{sites.lakeside-power/Kobo.actual.nodes.cost_to_serve}-->), Kisiwa's fuel 2,990.00 → 1,175.20 (+1,814.80<!--figx:{sites.lakeside-power/Kisiwa.plan.nodes.cost_to_serve}-{sites.lakeside-power/Kisiwa.actual.nodes.cost_to_serve}-->), Mto's revenue 2,240.00 → 2,160.00 (−80.00) and its fuel 300 L → 32 L (+335.00<!--figx:{sites.lakeside-power/Mto.plan.nodes.cost_to_serve}-{sites.lakeside-power/Mto.actual.nodes.cost_to_serve}-->). Revenue 9,785.00<!--fig:portfolio.lakeside-power.plan.sums.revenue--> → 9,688.00<!--fig:portfolio.lakeside-power.actual.sums.revenue--> (−97.00); cost to serve 7,490.00<!--fig:portfolio.lakeside-power.plan.sums.cost_to_serve--> → 5,257.70<!--fig:portfolio.lakeside-power.actual.sums.cost_to_serve--> (+2,232.30). Of the 5,257.70, everything except Kisiwa's O&M (700.00, an Estimate) is recorded: 5,257.70 − 700.00 = 4,557.70<!--rec-->, or 86.7%.
 
-**The surprise.** Kisiwa burns the most diesel (2,400 L) and has nothing to save: every generator interval is necessary. Kobo, with half the diesel, has 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of candidate running in October, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f; the next step weighs the settings that would cut it.
+**The surprise.** Kisiwa burns the most diesel (2,400 L) and has nothing to save: every generator interval is necessary. Kobo, with half the diesel, has 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of candidate running in October, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f; the next step weighs the settings that would cut it.
 
 #### Evaluate
 
 Each option is a change to factors. The structure re-evaluates the Site with the change and compares it with no action (or with the comparison stated for that decision): value = (change in monthly contribution × months) − the one-off. "One-off" always means the one-off cost the operator bears. An option is valued in money only when it changes a money factor; otherwise its effect is read on the Protect measures.
 
-**Kobo: generator running after dawn** (no action: the 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of candidate running in October, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f, continues, 412.50<!--rec--> a month at the recorded diesel price).
+**Kobo: generator running after dawn** (no action: the 25<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of candidate running in October, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f, continues, 31.25<!--rec--> a month at the recorded diesel price).
 
 | Input | Figure | How it is known |
 |---|---|---|
