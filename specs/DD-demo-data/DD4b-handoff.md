@@ -94,3 +94,6 @@ Packet `packet-DD4b.md`.
   `_import` (one Fraction per non-zero minute) is still held for the span.
 - The vNEXT mock still shows Kasarani's old figures in hand-typed JS text (alignment pass).
 - `_vertical`'s run is dropped after `_measured_view`; a caller wanting the run must keep its own.
+
+## Run 7 end
+Done: re-base (6 FAIL = main's 6), 6h parity, guards, reach set, packet Run 7, state 211, spec in_review. Nothing left for the builder.

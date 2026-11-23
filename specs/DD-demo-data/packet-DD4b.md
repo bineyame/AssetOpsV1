@@ -1,8 +1,8 @@
-# DD4b review packet (PARTIAL: DD4.3, the rejoin, DD4.4 and DD4.5 done; DD4.6 to come)
+# DD4b review packet (complete: DD4.3, the rejoin, DD4.4, DD4.5 and DD4.6; run 7 last)
 
 Branch `task/DD4b-ev-measured`. Spec `spec.md` §4.5 and §5.6; rulings D-DD.81, D-DD.91, D-DD.98, D-DD.100, D-DD.123;
 pre-flight `DD4b-preflight.md`, `preflight-remaining.md` §DD4b. DD4.4 (D-DD.99, D-DD.123, D-DD.124) is complete and
-reviewable; DD4.5 and DD4.6 are later runs. The handoff is `DD4b-handoff.md`.
+reviewable; DD4.5 (run 6) and DD4.6 (run 7, D-DD.144) close the slice. The handoff is `DD4b-handoff.md`.
 
 ## Run 1 (DD4.3, before main held DD3a/DD4a)
 `22275cdaa`, `8a0699b49`, `8d519ef49`: the roster to 6 Nov, `EvSiteRun` on D-DD.81's protocol, ev-charger/1
@@ -184,6 +184,66 @@ the full span), through `tools/heavy-slot.sh`, scratch `/tmp/claude-1001/dd45-pl
 - Plant: `world_history.py exports --manifest M --out --extras` at `2d325b04a` (before) and `bbeaf1c76` (after):
   16 files each, **byte-identical** (the restated fields are model outputs, not export inputs); after 2.6 s,
   40,880 kB peak. The EV telemetry plant is run 5's (code unchanged since `eeeb62920`).
+
+## Run 7 (DD4.6, D-DD.144: the cold energy model restated from the meter; `git merge main` at `9c7d50156`)
+| Commit | What |
+|---|---|
+| `b2c0f98d1` | tests first: `test_dd46_cold_energy_model.py` (4 failed first, `t46-first-fail.log`), golden `efficiency_condition_main.json` |
+| `8acfaab77` | `telemetry_cold.EFFICIENCY_CONDITION` (Kirinyaga's condition frozen at D-DD.143's values); the writer no longer reads M's period kWh |
+| `5ddf77777`, `83e83cbff` | `M` rev 16.21 (1304 + 0.0554 x crate_days, October kWh the meter's, plan kWh whole), regeneration |
+| `2d7fa12a1` | doc sweep (ten design documents, go-to-market docs the checker reads) |
+| `85d6a260a` | `check_manifest.py` re-based: H8, H10, H9, K8, K13 x3, each with a dated note |
+| `9969e6a14`, next commit | fixture view and history golden re-pinned; tests that held old cold figures follow M |
+
+- Moved (all follow D-DD.144): Mwea contribution 202.74 (+2.1 % above model), Thika 843.73, Kirinyaga 1081.28 (+14 %,
+  -52.01 a month); KIRI-REPAIR 41.61 a month, +149.26 net over 12 months; KIRI-REPLACE -3,953.50; MWEA-AGG +2,370.56
+  (its energy 49.86 a month; the derived slope rounds to 0.06 at two decimals, so the figure is `rec`-tagged);
+  harvest-cold plan +2,519.82. Bills 315.26 / 354.27 / 422.72.
+- **check_manifest:** 6 FAIL = main's 6 (walkthroughs "3,184", alignment A1/A2/A3/A5, H9 baseline), from 12 before the
+  re-base; main measured in a temporary worktree at `9c38b69ac` (removed afterwards). H9 still fails on main's account:
+  its 5 walkthrough/alignment failures stand (4574 passes before the history checks, 5 failed; main 4531, 5 failed).
+  Logs `/opt/assetecon/evidence/DD4b/cm47.log`, `cm47-main.log`.
+- **6h parity:** `test_6h_parity` passes with `golden/6h_parity.json` unedited (untouched by this branch); no key moves.
+  Cold keys read the 6c fixtures, not M's October.
+- **Fixes the reach set forced (tests and goldens only, no product code):** `fixtures/view_v1.json` was stale (it still
+  held 1550 + 0.25 and kWh 2650) and was regenerated from M (`world_history.py view`; `generate` equals the committed
+  `history.json` byte for byte); `golden/history_v1.json` re-pinned (D-DD.93 rule: file sha and nine cold scope digests, view
+  digest); `test_history.py` t9 compares a `cold_kwh` leaf at whole kWh (History leaves are whole kWh, M keeps 1576.3);
+  `test_3b6` reads the slope from M (derived-values holds nodes at 2 decimals: 0.06), HAND values and the portfolio
+  contribution follow (202.74, 1544.44, 843.73, 2127.75); `cold-budget` sample, expected and byte pin carry the whole plan
+  kWh; `test_dd4_check` c7 reads "M 1576.3".
+
+### Run 7 deviations (for the reviewer)
+12. **Kirinyaga October kWh is 2113.60 at two decimals**: the meter reads 2113.603; the checker's precision is two
+    decimals (`check_manifest`), so M holds 2113.60 and the bill 422.72 follows (D-DD.144 projected 422.72).
+13. **Plan kWh are whole** (1716, 1785, 1854): the budget export refuses a non-whole quantity (`EMU_QUANTITY` on 1716.18,
+    D-DD.49), so the plan's kWh and everything that follows it (plan energy, contribution, variances) moved with it.
+14. **Thika gains an ENERGY_EFFICIENCY bridge row** (+2.73, RC2) beside the liability: its kWh sits 0.8 % under the
+    model, which the bridge now shows as a row.
+15. **go-to-market docs edited** (`commercial-plan` and `website-content`, `.md` and `.html`): `check_manifest` reads them,
+    so their cold figures were swept with the design documents.
+16. **Derived figures worked in domain-and-decision-models §4.5** (not in the ruling's table; each follows mechanically
+    from the new model): repair break-even at **56 % recovery**, replacement payback in **68 months**, Mwea break-even
+    rate 0.048. Please check them against the model.
+17. Thika's negative control in the sweep moved to occupancy (line 150); both 52.01 (excess vs model) and -51.92 (vs
+    plan) appear in the text, each in its own sense.
+18. Left for the alignment pass: the vNEXT mock's hand-typed JS text, `gen_docs.cjs`, `CHANGE-REGISTER.md`,
+    `fixture-mapping.md`.
+
+### Run 7 evidence
+- Reach set (`preflight-remaining.md` §4 DD4b plus every file this slice changed, 42 files plus `test_history`,
+  `test_records`) in one `--db-lane` call at `9969e6a14`: **740 passed, 5 failed** in 277 s (a first call at `85d6a260a`:
+  627 passed, 11 failed, 17 errors, from the stale fixture view and golden above; log `reach47.log`, rerun `reach47b.log`).
+  The 5: three fixed after the call (cold-budget sample, byte pin r15, c7 literal; the files now pass in plain pytest:
+  `test_dd2b_books`, `test_dd2b_round7` 37 passed, `test_dd4_check` and `test_dd2b_profile_admission` 44 passed); two
+  (`test_3b1` t1 and `test_3b3` t6, MINI_GRID `necessary_l` kind "dispatch-3.2" in M against code "dispatch-3.3")
+  are **main's own**: M's line and `rows_mini_grid.py` are identical on main (`git diff main` touches neither), so they
+  fail the same on main. Main baseline: `.agent/main-baseline/23d2cd9f6.md` (partial, no per-test list, lists none of
+  these files).
+- Plant (run 7, before and after): cold telemetry byte-identical (391 files); only `harvest-cold.profile.cold-budget.csv`
+  and `extras/harvest-cold.meter-billed.json` differ (`before.sha`, `after.sha`).
+- Guards: `tools/check-architecture.ps1` passed; `tools/checks/statement_catalogue.py` OK; `tools/check-agent-workflow.ps1`
+  passed (`guards47.log`).
 
 ## Evidence (runs 1-3)
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
