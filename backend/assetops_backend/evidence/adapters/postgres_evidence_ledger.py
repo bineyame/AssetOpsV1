@@ -69,6 +69,8 @@ from assetops_contracts.source_envelope_v4 import event_identity_sha256
 
 #: W2-03: accepted v4 roles that make a Site's cold assessment stale (the `cold-roles-1` channel roles).
 COLD_ROLE_NAMES = frozenset(r.role for r in COLD_ROLES_1)
+#: Site types the bulk path admits, each with its parity proof (D-DD.9, D-DD.140; `:688` guard below).
+BULK_PROVEN_SITE_TYPES = frozenset({"MINIGRID", "COLDCHAIN", "EV_CHARGING"})
 _COLD_BRIDGE = timedelta(minutes=10)
 
 #: W2-00: the only unique violations a savepoint turns into a reread; any other integrity error propagates.
@@ -685,9 +687,12 @@ class PostgresEvidenceLedger:
                 raise refused("BULK_BATCH_IN_PROGRESS", "this batch is being admitted by the real path")
             decided_at = self._decision_instant(c)
             site_type = _site_type_on(c, tenant_id, site_id)
-            if site_type != "MINIGRID":
+            # D-DD.9, D-DD.140: a type is lifted only with its parity file (MINIGRID `test_ds3_parity_postgres.py`;
+            # COLDCHAIN and EV_CHARGING `test_dd_parity_cold_ev_postgres.py`); any other type stays refused.
+            if site_type not in BULK_PROVEN_SITE_TYPES:
                 raise refused("BULK_SITE_TYPE_UNPROVEN",
-                              f"bulk admission is proved by parity for MINIGRID Sites only, not {site_type}")
+                              f"bulk admission is proved by parity for {', '.join(sorted(BULK_PROVEN_SITE_TYPES))} "
+                              f"Sites only, not {site_type}")
             batch_id = uuid4()
             inserted = c.execute(_BULK_BATCH_SQL, {
                 "id": batch_id, "t": tenant_id, "site": site_id, "g": principal.gateway_id,

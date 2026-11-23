@@ -305,10 +305,16 @@ def case_published(db):
     return lambda: db.load([body.encode()]), "BULK_PUBLISHED_BATCH"
 
 
-def case_coldchain_site(db):
+def case_unknown_site_type(db):
+    """D-DD.140: the guard at `postgres_evidence_ledger.py:688` stays for any type without a parity proof. The clone's
+    CHECK is dropped so the stored Site has a type no parity file proves (COLDCHAIN and EV_CHARGING are proved by
+    `test_dd_parity_cold_ev_postgres.py`)."""
     with db.engine.begin() as c:  # as test_w402_migration_postgres.set_type: before any evidence
+        check = c.execute(text("SELECT conname FROM pg_constraint WHERE conrelid = 'site'::regclass AND contype = 'c' "
+                               "AND pg_get_constraintdef(oid) LIKE '%site_type%'")).scalar_one()
+        c.execute(text(f'ALTER TABLE site DROP CONSTRAINT "{check}"'))
         c.execute(text("SET LOCAL session_replication_role = replica"))
-        c.execute(text("UPDATE site SET site_type = 'COLDCHAIN' WHERE id = :s"), {"s": db.kit.principal.site_id})
+        c.execute(text("UPDATE site SET site_type = 'HYDRO' WHERE id = :s"), {"s": db.kit.principal.site_id})
         c.execute(text("SET LOCAL session_replication_role = origin"))
     body = db.kit.seal(db.kit.pv(2)).encode()
     return lambda: db.load([body]), "BULK_SITE_TYPE_UNPROVEN"
@@ -335,7 +341,7 @@ def case_malformed(db):
 
 
 CASES = [case_live, case_unknown_gateway, case_gateway_disabled, case_source_disabled, case_rejected_ordinal,
-         case_v4_delta, case_batch_id_conflict, case_lost_race, case_published, case_coldchain_site, case_message_collision,
+         case_v4_delta, case_batch_id_conflict, case_lost_race, case_published, case_unknown_site_type, case_message_collision,
          case_foreign_key, case_malformed]
 
 
