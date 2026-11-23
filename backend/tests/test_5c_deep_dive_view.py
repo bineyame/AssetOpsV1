@@ -30,7 +30,7 @@ from assetops_backend.structure.registry import REGISTRIES
 from assetops_backend.structure.targets.read import TargetCheck
 from assetops_backend.structure_snapshot.model import Freshness, Served
 from test_3a4_commercial_months import new_world
-from pack_litres import with_litres
+from pack_litres import KoboSplitsItself, with_litres
 from deep_dive_worlds import gone, in_kes, world_h, world_x
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "5c" / "deep_dive_lakeside_2026-10.json"
@@ -55,11 +55,15 @@ LOSS_BAND = "each feeder's expected technical loss as declared in the Site's set
 REVENUE_STOP = (f"Not split further until {BILLING}, a feeder meter export, a meter register with change dates, the "
                 f"customer meter reads for the month, {LOSS_BAND}, the productive-use tariff and budget lines for "
                 "energy delivered, tariff and productive-use price.")
-FUEL_STOP = (f"Not split further until {EMS}, {CURVE}, tank dips at the start and end of the month and fuel delivery "
-             "notes.")
 THREE_FUEL = ("Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and "
               "Unexplained fuel")
 ALL = "Kobo, Kisiwa and Mto"
+
+
+#: DD3d.4: the litre leaves are no commercial record, so no month stamp covers them (D-3B7A.5).
+UNTRACKED = (f"Not checked for later changes: Diesel not shown to be avoidable ({ALL}), Diesel run while solar and "
+             f"battery could carry the load ({ALL}) and Unexplained fuel ({ALL}).")
+MODELLED = "Modelled, not yet reconciled"
 
 
 # --- worlds -----------------------------------------------------------------------------------------------------
@@ -81,7 +85,9 @@ _CACHE: dict = {}
 
 def world(name: str):
     if name not in _CACHE:
-        if name == "H":
+        if name == "H":  # Kobo's litres from its own readings
+            _CACHE[name] = served_world(fb=KoboSplitsItself(AS_OF))
+        elif name == "HK":  # the same, and the other two Sites hold no litres (no generator and tank declared)
             from test_4b_money_leaves import fallback
             from test_4d_litre_split import LakesideInputs
             from assetops_backend.structure.litres.source import LitreLeafSource
@@ -174,19 +180,19 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert (v["schema"], v["month_words"], v["nav"], v["state"]) == (
         "deep-dive-month-1", "October 2026", {"previous": "2026-09", "next": None}, "SERVED")
     assert v["as_of_text"] == "Figures as of 20 November 2026, 08:00 UTC."
-    assert v["fresh"] == {"current": True, "text": None, "untracked_text": None}
+    assert v["fresh"] == {"current": True, "text": None, "untracked_text": UNTRACKED}
     assert v["headline"] == {"text": "Contribution is $2,136.60 above target in October; cost and efficiency explain "
-                                      "$2,233.60, more than the whole gap.", "evidence": ["Estimated, not yet reconciled"]}  # D-5C.20
+                                      "$2,233.60, more than the whole gap.", "evidence": [MODELLED]}  # D-5C.20
     assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management "
                                 "accounts. Kisiwa's budget disagrees with its own lines.")
     t0, t1, t2, t3_ = v["tiles"]
     assert t0 == {"key": "contribution", "label": "Contribution", "value": "$4,431.60",
-                  "word": "Estimated, not yet reconciled",
+                  "word": MODELLED,
                   "lines": ["Target $2,295.00 · 193% of target", "3 of 3 Sites", "86.7% of cost from figures received"],
                   "bar": {"actual": "4431.60", "target": "2295.00"}}
     assert (t1["label"], t1["value"], t1["word"], t1["lines"]) == (
-        "Gap to target", "+$2,136.60", "Estimated, not yet reconciled",
-        ["Grow −$97.00 · Optimize +$2,233.60", "$2,136.60 of it not split to its drivers yet"])
+        "Gap to target", "+$2,136.60", MODELLED,
+        ["Grow −$97.00 · Optimize +$2,233.60", "$97.00 not split to its drivers yet, offsetting the gap"])
     assert (t2["label"], t2["value"], t2["word"], t2["lines"], t2["bar"]) == (
         "Plan spend", "Not available yet", None, ["No plan has been made yet"], None)
     assert (t3_["label"], t3_["value"], t3_["word"], t3_["lines"]) == (
@@ -202,7 +208,7 @@ def test_3_world_a_key_by_key_and_whole() -> None:
                                                                ("Optimize cost and efficiency", "+$2,233.60")]
     assert [(s["key"], s["value"], s["share"], s["word"], s["sites"]) for g in b["groups"] for s in g["steps"]] == [
         ("revenue", "−$97.00", "Offsets it", "Emulated, not yet reconciled", "3 of 3 Sites"),
-        ("fuel_cost", "+$2,233.60", "100% of what widens the gap", "Emulated, not yet reconciled", "3 of 3 Sites"),
+        ("fuel_cost", "+$2,233.60", "100% of what widens the gap", MODELLED, "3 of 3 Sites"),
         ("om", "$0.00", "No effect", "Estimated, not yet reconciled", "3 of 3 Sites"),
         ("staff", "$0.00", "No effect", "Emulated, not yet reconciled", "3 of 3 Sites")]
     # Rev 4 (D-5C.27): each step's bar on the gap's scale, served as track percentages (97 / 2,233.60 = 4.34 %: the bars share the largest effect's scale).
@@ -221,7 +227,14 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert fuel["lines"] == ["Actual $2,006.40 · Target $4,240.00 · Difference −$2,233.60",
                              "Effect on contribution +$2,233.60", "3 of 3 Sites"]
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
-        ("Kobo", "+$82.50", FUEL_STOP), ("Kisiwa", "+$1,816.10", FUEL_STOP), ("Mto", "+$335.00", FUEL_STOP)]
+        ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", None), ("Mto", "+$335.00", None)]
+    # DD3d.4: a fuel cost is litres times a price, so it splits at every Site that serves one. Kobo 211 x 1.25 +
+    # Kisiwa 1,486 x 1.30 + Mto 300 x 1.25 = 2,570.55; 25 x 1.25 + 69 x 1.30 + 32 x 1.25 = 160.95; 120 x 1.25 + 20 x 1.30
+    # = 176.00.
+    assert fuel["drivers"] == drivers("3 of 3 Sites", ("+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
+                                      ("+$2,570.55", "Actual 1,303 L · Target 3,300 L"),
+                                      ("−$160.95", "Actual 126 L · Target 0 L"),
+                                      ("−$176.00", "Actual 140 L · Target 0 L"))
     om = step(v, "om")["drawer"]
     assert om["lines"] == ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00",
                            "3 of 3 Sites"]
@@ -250,12 +263,12 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     grow, opt, protect, assure = v["outcomes"]
     assert (grow["value"], grow["word"], grow["line"], grow["drawer"]) == (
         "−$97.00", "Emulated, not yet reconciled", "Revenue against target, 3 of 3 Sites", None)
-    assert (opt["value"], opt["word"], opt["drawer"]) == ("+$2,233.60", "Estimated, not yet reconciled", None)
+    assert (opt["value"], opt["word"], opt["drawer"]) == ("+$2,233.60", MODELLED, None)
     assert (protect["value"], protect["word"], protect["drawer"]) == ("Not available yet", None, None)
     assert (assure["value"], assure["word"], assure["line"]) == (
         "Not yet reconciled", None, "1 budget disagreement · 86.7% of cost from figures received")
     assert assure["drawer"] == {"title": "Reconciliation with the management accounts",
-                                "lines": [NOT_MATCHED.text, *NOT_MATCHED.details]}
+                                "lines": [NOT_MATCHED.text, *NOT_MATCHED.details, UNTRACKED]}
     assert v["actions"] == {"title": "Actions in hand", "connected": False, "text": "Not available yet: an agreed "
                             "change is recorded as an Action with its owner and due date.", "rows": [], "more": 0}
     assert [(r["needs"], r["fills"], r["sites"]) for r in v["not_available"]["rows"]] == [
@@ -265,9 +278,6 @@ def test_3_world_a_key_by_key_and_whole() -> None:
         ("the customer meter reads for the month", "Unexplained losses and Energy on unmapped meters", ALL),
         (LOSS_BAND, "Technical losses and Unexplained losses", ALL),
         ("the productive-use tariff", "Productive-use price", ALL),
-        (EMS, THREE_FUEL, ALL), (CURVE, THREE_FUEL, ALL),
-        ("tank dips at the start and end of the month", "Unexplained fuel", ALL),
-        ("fuel delivery notes", "Unexplained fuel", ALL),
         ("the service contractor's invoices", "O&M (taken at its budget line meanwhile)", "Kisiwa"),
         ("budget lines for energy delivered, tariff and productive-use price",
          "Energy delivered, Tariff and Productive-use price", ALL)]
@@ -317,7 +327,7 @@ def test_3_headline_evidence_is_the_figures_words(case, monkeypatch) -> None:  #
             want.add(v["outcomes"][card]["word"])
     assert set(v["headline"]["evidence"]) == want
     if case == "L2":  # Grow named: R's word and Grow's (Emulated) differ, so both are served
-        assert want == {"Estimated, not yet reconciled", "Emulated, not yet reconciled"}
+        assert want == {MODELLED, "Emulated, not yet reconciled"}
 
 
 # --- DD3d.4: served money is whole cents (fuel cost is litres to the millilitre times a price) --------------------------
@@ -381,10 +391,11 @@ def test_4_b_reconciled() -> None:
     assert not [s for s in strings(v) if "not yet reconciled" in s]
     assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
-    assert v["tiles"][0]["word"] == "Estimated" and step(v, "revenue")["word"] == "Emulated"
-    assert v["headline"]["evidence"] == ["Estimated"]  # D-5C.20
+    assert v["tiles"][0]["word"] == "Modelled" and step(v, "revenue")["word"] == "Emulated"
+    assert step(v, "om")["word"] == "Estimated"
+    assert v["headline"]["evidence"] == ["Modelled"]  # D-5C.20
     assure = v["outcomes"][3]
-    assert (assure["value"], assure["drawer"]["lines"]) == ("Reconciled", [RECONCILED.text])
+    assert (assure["value"], assure["drawer"]["lines"]) == ("Reconciled", [RECONCILED.text, UNTRACKED])
 
 
 def _action(i: int, title: str, hour: int, minute: int) -> AgreedAction:
@@ -412,7 +423,8 @@ def test_4_d_mto_records_missing() -> None:
                                      "$1,898.60, more than the whole gap. Compared for 2 of 3 Sites.")
     assert (v["tiles"][0]["value"], v["tiles"][0]["lines"]) == (
         "$3,261.60", ["Target $1,380.00 · 236% of target", "2 of 3 Sites", "83.6% of cost from figures received"])
-    assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize +$1,898.60", "$1,881.60 of it not split to its drivers yet"]
+    assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize +$1,898.60",
+                                      "$17.00 not split to its drivers yet, offsetting the gap"]
     out = step(v, "revenue")["drawer"]["out"]
     assert len(out) == 1 and out[0].startswith(f"Mto: not compared until {BILLING}, ")
     assert out[0].endswith("; its own target is $915.00.")
@@ -422,7 +434,7 @@ def test_4_d_mto_records_missing() -> None:
 
 def test_4_e_out_of_date() -> None:
     v, a = view("E"), view("A")
-    assert v["fresh"] == {"current": False, "untracked_text": None, "text": (
+    assert v["fresh"] == {"current": False, "untracked_text": UNTRACKED, "text": (
         "These figures are out of date: records have arrived since they were prepared for Kisiwa. They are shown as "
         "they were on 20 November 2026, 08:00 UTC.")}
     assert {k: x for k, x in v.items() if k not in ("fresh", "nav")} == {k: x for k, x in a.items()
@@ -453,46 +465,74 @@ def test_4_g_another_type_asked() -> None:
     assert [r[0] for r in v["bridge"]["by_site"]["rows"]] == ["Kobo", "Kisiwa", "Mto"]
 
 
+def drivers(sites: str, litres: tuple, necessary: tuple, candidate: tuple, unexplained: tuple) -> list[dict]:
+    """Fuel cost's drivers as the drawer nests them (plants P13, P24; D-5C.21: a flattened list fails)."""
+    def row(key, label, figures, children=()):
+        return {"key": key, "label": label, "value": figures[0], "sites": sites, "detail": figures[1],
+                "word": MODELLED, "children": list(children)}
+    return [row("diesel_l", "Diesel used", litres, (
+        row("necessary_l", "Diesel not shown to be avoidable", necessary),
+        row("candidate_l", "Diesel run while solar and battery could carry the load", candidate),
+        row("unexplained_l", "Unexplained fuel", unexplained))),
+            # D-5C.24 (was KD1): a price does not sum across Sites (composes NONE), so the portfolio row has no actual or
+            # target and section 3.2's rule gives no detail; its effect is the Modelled litres times the price
+            # difference, so its word is Modelled.
+            row("diesel_price", "Diesel price", ("$0.00", None))]
+
+
 def test_4_h_kobo_litres() -> None:
     v, a = view("H"), view("A")
-    assert v["tiles"][1]["lines"][1] == "$2,054.10 of it not split to its drivers yet"
+    assert v["tiles"][1]["lines"][1] == a["tiles"][1]["lines"][1]
     fuel = step(v, "fuel_cost")["drawer"]
-    stop = (f"Not split further until {EMS}, {CURVE}, tank dips at the start and end of the month, fuel delivery notes "
-            f"and {SETUP}.")
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
-        ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", stop), ("Mto", "+$335.00", stop)]
-    word = "Modelled, not yet reconciled"
-    assert fuel["drivers"] == [  # plants P13, P24 (D-5C.21: nested; a flattened list fails)
-        {"key": "diesel_l", "label": "Diesel used", "value": "+$82.50", "sites": "1 of 3 Sites",
-         "detail": "Actual 634 L · Target 700 L", "word": word, "children": [
-             {"key": "necessary_l", "label": "Diesel not shown to be avoidable", "value": "+$375.00",
-              "sites": "1 of 3 Sites", "detail": "Actual 400 L · Target 700 L", "word": word, "children": []},
-             {"key": "candidate_l", "label": "Diesel run while solar and battery could carry the load",
-              "value": "−$150.00", "sites": "1 of 3 Sites", "detail": "Actual 120 L · Target 0 L", "word": word,
-              "children": []},
-             {"key": "unexplained_l", "label": "Unexplained fuel", "value": "−$142.50", "sites": "1 of 3 Sites",
-              "detail": "Actual 114 L · Target 0 L", "word": word, "children": []}]},
-        # D-5C.24 (was KD1): a price does not sum across Sites (composes NONE), so the portfolio row has no actual or
-        # target and section 3.2's rule gives no detail; its effect is the Modelled litres times the price
-        # difference, so its word is Modelled.
-        {"key": "diesel_price", "label": "Diesel price", "value": "$0.00", "sites": "1 of 3 Sites", "detail": None,
-         "word": word, "children": []}]
-    untracked = ("Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and "
-                 "battery could carry the load (Kobo) and Unexplained fuel (Kobo).")
-    assert v["fresh"]["untracked_text"] == untracked
-    assert v["outcomes"][3]["drawer"]["lines"] == [NOT_MATCHED.text, *NOT_MATCHED.details, untracked]
-    rows = {r["needs"]: (r["fills"], r["sites"]) for r in v["not_available"]["rows"]}
-    for needs in (EMS, CURVE, "tank dips at the start and end of the month", "fuel delivery notes"):
-        assert rows[needs][1] == "Kisiwa and Mto"
-    order = [r["needs"] for r in v["not_available"]["rows"]]
-    assert order[order.index("the service contractor's invoices") + 1] == SETUP
-    assert rows[SETUP] == (THREE_FUEL, "Kisiwa and Mto")
+        ("Kobo", "+$82.50", None), ("Kisiwa", "+$1,816.10", None), ("Mto", "+$335.00", None)]
+    # Kobo's own 400, 120 and 114 L (A: 489, 25 and 120 L) beside Kisiwa's and Mto's: the total is A's, the split is not
+    assert fuel["drivers"] == drivers("3 of 3 Sites", ("+$2,233.60", "Actual 1,569 L · Target 3,300 L"),
+                                      ("+$2,681.80", "Actual 1,214 L · Target 3,300 L"),
+                                      ("−$279.70", "Actual 221 L · Target 0 L"),
+                                      ("−$168.50", "Actual 134 L · Target 0 L"))
+    assert v["fresh"]["untracked_text"] == UNTRACKED
+    assert v["outcomes"][3]["drawer"]["lines"] == [NOT_MATCHED.text, *NOT_MATCHED.details, UNTRACKED]
+    assert v["not_available"] == a["not_available"]
     same = ("headline", "status_line", "notices", "cash", "actions", "decisions", "standing")
     assert {k: v[k] for k in same} == {k: a[k] for k in same}
     # Rev 4 (D-5C.27): H's bars and scale equal A's (the same step effects); `world_h` is this world.
     assert v["bridge"]["scale"] == A_SCALE
     assert {s["key"]: s["bar"] for g in v["bridge"]["groups"] for s in g["steps"]} == A_BARS
     assert world_h() == v
+
+
+def test_4_hk_two_sites_without_litres() -> None:
+    """D-DD.177: Kisiwa and Mto hold no litres, so no fuel cost and no contribution; they are out, by name, with what is
+    missing, and the invoice totals ($1,173.90, $40.00) are not served as fuel cost."""
+    v = view("HK")
+    assert v["headline"]["text"] == ("Contribution is $120.50 above target in October; cost and efficiency explain "
+                                     "$82.50 of it. Compared for 1 of 3 Sites.")
+    assert (v["tiles"][0]["value"], v["tiles"][0]["lines"][1]) == ("$1,565.50", "1 of 3 Sites")
+    assert v["tiles"][1]["lines"] == ["Grow +$38.00 · Optimize +$82.50", "$38.00 of it not split to its drivers yet"]
+    fuel = step(v, "fuel_cost")
+    assert (fuel["value"], fuel["word"], fuel["sites"]) == ("+$82.50", MODELLED, "1 of 3 Sites")
+    assert fuel["drawer"]["lines"][0] == "Actual $792.50 · Target $875.00 · Difference −$82.50"
+    assert fuel["drawer"]["drivers"] == drivers("1 of 3 Sites", ("+$82.50", "Actual 634 L · Target 700 L"),
+                                                ("+$375.00", "Actual 400 L · Target 700 L"),
+                                                ("−$150.00", "Actual 120 L · Target 0 L"),
+                                                ("−$142.50", "Actual 114 L · Target 0 L"))
+    missing = (f"{EMS}, {CURVE}, tank dips at the start and end of the month, fuel delivery notes and {SETUP}")
+    assert fuel["drawer"]["out"] == [f"Kisiwa: not compared until {missing}; its own target is −$65.00.",
+                                     f"Mto: not compared until {missing}; its own target is $915.00."]
+    assert v["bridge"]["by_site"]["rows"][1:] == [["Kisiwa", "Not available yet", "−$65.00", *["Not compared"] * 5],
+                                                  ["Mto", "Not available yet", "$915.00", *["Not compared"] * 5]]
+    assert not [x for x in strings(v) if "1,173.90" in x or "$40.00" in x]
+    untracked = ("Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and "
+                 "battery could carry the load (Kobo) and Unexplained fuel (Kobo).")
+    assert v["fresh"]["untracked_text"] == untracked
+    rows = {r["needs"]: (r["fills"], r["sites"]) for r in v["not_available"]["rows"]}
+    for needs, fills in ((EMS, THREE_FUEL), (CURVE, THREE_FUEL), (SETUP, THREE_FUEL),
+                         ("tank dips at the start and end of the month", "Unexplained fuel"),
+                         ("fuel delivery notes", "Unexplained fuel")):
+        assert rows[needs] == (fills, "Kisiwa and Mto")
+    order = [r["needs"] for r in v["not_available"]["rows"]]
+    assert order[order.index("the service contractor's invoices") + 1] == SETUP
 
 
 # --- test 4 i: nothing compared (review H1; owner rule "missing is Not available yet, never 0") -----------------

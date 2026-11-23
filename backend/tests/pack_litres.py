@@ -48,3 +48,19 @@ def with_litres(inner=None, litres: Mapping[str, Mapping[str, Decimal]] | None =
     from test_4b_money_leaves import fallback
 
     return PackLitres(inner or fallback(), litres or {})
+
+
+class KoboSplitsItself:
+    """Kobo's litres worked out by the product's own reader (4d's KOBO-OCT: 400, 120 and 114 L); Kisiwa's and Mto's from
+    the pack. Every Site holds litres, so every Site serves a fuel cost (D-DD.177)."""
+
+    def __init__(self, at) -> None:
+        from assetops_backend.structure.litres.source import LitreLeafSource
+        from test_4b_money_leaves import fallback
+        from test_4d_litre_split import LakesideInputs
+
+        self._own = LitreLeafSource(LakesideInputs(), fallback(), lambda: at)
+        self._pack = with_litres()
+
+    def leaf(self, ctx: ReadContext, factor_id: str) -> LeafValue:
+        return (self._own if ctx.site.site_code == "KOBO-001" else self._pack).leaf(ctx, factor_id)

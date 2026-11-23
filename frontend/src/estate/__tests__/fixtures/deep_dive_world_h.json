@@ -14,7 +14,7 @@
   "fresh": {
     "current": true,
     "text": null,
-    "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+    "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
   },
   "standing": {
     "reconciled": false,
@@ -27,7 +27,7 @@
   "headline": {
     "text": "Contribution is $2,136.60 above target in October; cost and efficiency explain $2,233.60, more than the whole gap.",
     "evidence": [
-      "Estimated, not yet reconciled"
+      "Modelled, not yet reconciled"
     ]
   },
   "status_line": "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.",
@@ -36,7 +36,7 @@
       "key": "contribution",
       "label": "Contribution",
       "value": "$4,431.60",
-      "word": "Estimated, not yet reconciled",
+      "word": "Modelled, not yet reconciled",
       "lines": [
         "Target $2,295.00 · 193% of target",
         "3 of 3 Sites",
@@ -51,10 +51,10 @@
       "key": "gap",
       "label": "Gap to target",
       "value": "+$2,136.60",
-      "word": "Estimated, not yet reconciled",
+      "word": "Modelled, not yet reconciled",
       "lines": [
         "Grow −$97.00 · Optimize +$2,233.60",
-        "$2,054.10 of it not split to its drivers yet"
+        "$97.00 not split to its drivers yet, offsetting the gap"
       ],
       "bar": null
     },
@@ -154,7 +154,7 @@
             "label": "Fuel cost",
             "value": "+$2,233.60",
             "share": "100% of what widens the gap",
-            "word": "Emulated, not yet reconciled",
+            "word": "Modelled, not yet reconciled",
             "sites": "3 of 3 Sites",
             "bar": {
               "left": "0.00",
@@ -177,12 +177,12 @@
                 {
                   "site": "Kisiwa",
                   "value": "+$1,816.10",
-                  "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                  "text": null
                 },
                 {
                   "site": "Mto",
                   "value": "+$335.00",
-                  "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                  "text": null
                 }
               ],
               "carried": [],
@@ -192,35 +192,35 @@
                 {
                   "key": "diesel_l",
                   "label": "Diesel used",
-                  "value": "+$82.50",
-                  "sites": "1 of 3 Sites",
-                  "detail": "Actual 634 L · Target 700 L",
+                  "value": "+$2,233.60",
+                  "sites": "3 of 3 Sites",
+                  "detail": "Actual 1,569 L · Target 3,300 L",
                   "word": "Modelled, not yet reconciled",
                   "children": [
                     {
                       "key": "necessary_l",
                       "label": "Diesel not shown to be avoidable",
-                      "value": "+$375.00",
-                      "sites": "1 of 3 Sites",
-                      "detail": "Actual 400 L · Target 700 L",
+                      "value": "+$2,681.80",
+                      "sites": "3 of 3 Sites",
+                      "detail": "Actual 1,214 L · Target 3,300 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
                     {
                       "key": "candidate_l",
                       "label": "Diesel run while solar and battery could carry the load",
-                      "value": "−$150.00",
-                      "sites": "1 of 3 Sites",
-                      "detail": "Actual 120 L · Target 0 L",
+                      "value": "−$279.70",
+                      "sites": "3 of 3 Sites",
+                      "detail": "Actual 221 L · Target 0 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     },
                     {
                       "key": "unexplained_l",
                       "label": "Unexplained fuel",
-                      "value": "−$142.50",
-                      "sites": "1 of 3 Sites",
-                      "detail": "Actual 114 L · Target 0 L",
+                      "value": "−$168.50",
+                      "sites": "3 of 3 Sites",
+                      "detail": "Actual 134 L · Target 0 L",
                       "word": "Modelled, not yet reconciled",
                       "children": []
                     }
@@ -230,7 +230,7 @@
                   "key": "diesel_price",
                   "label": "Diesel price",
                   "value": "$0.00",
-                  "sites": "1 of 3 Sites",
+                  "sites": "3 of 3 Sites",
                   "detail": null,
                   "word": "Modelled, not yet reconciled",
                   "children": []
@@ -434,7 +434,7 @@
       "key": "optimize",
       "label": "Optimize cost and efficiency",
       "value": "+$2,233.60",
-      "word": "Estimated, not yet reconciled",
+      "word": "Modelled, not yet reconciled",
       "line": "Fuel, O&M and staff against target; cash collected is shown apart",
       "drawer": null
     },
@@ -457,7 +457,7 @@
         "lines": [
           "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
           "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%).",
-          "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+          "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
         ]
       }
     }
@@ -506,34 +506,9 @@
         "sites": "Kobo, Kisiwa and Mto"
       },
       {
-        "needs": "the EMS interval export (generator running and output, solar available power, battery charge)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-        "sites": "Kisiwa and Mto"
-      },
-      {
-        "needs": "the generator's fuel curve (litres per kWh; litres per hour idle)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-        "sites": "Kisiwa and Mto"
-      },
-      {
-        "needs": "tank dips at the start and end of the month",
-        "fills": "Unexplained fuel",
-        "sites": "Kisiwa and Mto"
-      },
-      {
-        "needs": "fuel delivery notes",
-        "fills": "Unexplained fuel",
-        "sites": "Kisiwa and Mto"
-      },
-      {
         "needs": "the service contractor's invoices",
         "fills": "O&M (taken at its budget line meanwhile)",
         "sites": "Kisiwa"
-      },
-      {
-        "needs": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-        "sites": "Kisiwa and Mto"
       },
       {
         "needs": "budget lines for energy delivered, tariff and productive-use price",

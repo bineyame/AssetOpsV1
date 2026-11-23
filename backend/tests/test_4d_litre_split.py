@@ -667,26 +667,13 @@ def _portfolio_rows(fb=None):
     return pb.rows["contribution"]
 
 
-class KoboSplitsItself:
-    """Kobo's litres worked out by the product from KOBO-OCT (4d); Kisiwa's and Mto's from the pack (`pack_litres`)."""
-
-    def __init__(self) -> None:
-        from pack_litres import with_litres
-        from test_3a4_commercial_months import READ_AT
-        from test_4b_money_leaves import fallback
-
-        self._own = LitreLeafSource(LakesideInputs(), fallback(), lambda: READ_AT)
-        self._pack = with_litres()
-
-    def leaf(self, ctx, factor_id):
-        return (self._own if ctx.site.site_code == "KOBO-001" else self._pack).leaf(ctx, factor_id)
-
-
 def test_6_the_portfolio_over_three_sites() -> None:
     """All three Sites hold litres: the portfolio's fuel effect is the three Sites' (D-DD.164), and it splits."""
     import test_5b_attribution as t5b
+    from pack_litres import KoboSplitsItself
+    from test_3a4_commercial_months import READ_AT
 
-    rows = _portfolio_rows(KoboSplitsItself())
+    rows = _portfolio_rows(KoboSplitsItself(READ_AT))
     fuel, diesel, price = rows["fuel_cost"], rows["diesel_l"], rows["diesel_price"]
     t5b.money(fuel.actual, "2006.40"), t5b.money(fuel.target, "4240.00"), t5b.money(fuel.effect, "2233.60")
     assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())

@@ -14,7 +14,7 @@
   "fresh": {
     "current": true,
     "text": null,
-    "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+    "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
   },
   "standing": {
     "reconciled": false,
@@ -132,7 +132,7 @@
             "label": "Fuel cost",
             "value": "+KES 82.50",
             "share": null,
-            "word": "Emulated, not yet reconciled",
+            "word": "Modelled, not yet reconciled",
             "sites": "1 of 3 Sites",
             "bar": null,
             "drawer": {
@@ -410,7 +410,7 @@
         "lines": [
           "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
           "Fuel cost (Recorded and Emulated): the accounts say $2,100.00 and the records say $2,006.40, $93.60 less (4.46%), beyond the $21.00 allowed (1%).",
-          "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+          "Not checked for later changes: Diesel not shown to be avoidable (Kobo, Kisiwa and Mto), Diesel run while solar and battery could carry the load (Kobo, Kisiwa and Mto) and Unexplained fuel (Kobo, Kisiwa and Mto)."
         ]
       }
     }
@@ -459,33 +459,8 @@
         "sites": "Kobo and Kisiwa"
       },
       {
-        "needs": "the EMS interval export (generator running and output, solar available power, battery charge)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-        "sites": "Kisiwa"
-      },
-      {
-        "needs": "the generator's fuel curve (litres per kWh; litres per hour idle)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
-        "sites": "Kisiwa"
-      },
-      {
-        "needs": "tank dips at the start and end of the month",
-        "fills": "Unexplained fuel",
-        "sites": "Kisiwa"
-      },
-      {
-        "needs": "fuel delivery notes",
-        "fills": "Unexplained fuel",
-        "sites": "Kisiwa"
-      },
-      {
         "needs": "the service contractor's invoices",
         "fills": "O&M (taken at its budget line meanwhile)",
-        "sites": "Kisiwa"
-      },
-      {
-        "needs": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)",
-        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
         "sites": "Kisiwa"
       },
       {
