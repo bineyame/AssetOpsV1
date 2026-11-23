@@ -1,0 +1,54 @@
+{
+  "schema": "assetops.world-fuel-leaves/1",
+  "rule": "D-DD.131",
+  "sites": [
+    {
+      "site_code": "KISIWA-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "332509483/200000",
+        "tank_close": "623593917/400000",
+        "modelled_l": "353425049/400000",
+        "standin_candidate_l": "26770683/400000"
+      },
+      "candidate_days": 9,
+      "peak_evening_generator_kw": "41867/1000"
+    },
+    {
+      "site_code": "KOBO-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "1353024376417/1080000000",
+        "tank_close": "550031345747/540000000",
+        "modelled_l": "185120561641/360000000",
+        "standin_candidate_l": "13261940101/540000000"
+      },
+      "candidate_days": 5,
+      "peak_evening_generator_kw": "0"
+    },
+    {
+      "site_code": "MTO-001",
+      "span": [
+        "2026-07-01",
+        "2026-10-31"
+      ],
+      "month": "2026-10",
+      "ledger": {
+        "tank_open": "500",
+        "tank_close": "3741/8",
+        "modelled_l": "259/8",
+        "standin_candidate_l": "1287/40"
+      },
+      "candidate_days": 1,
+      "peak_evening_generator_kw": "0"
+    }
+  ]
+}
