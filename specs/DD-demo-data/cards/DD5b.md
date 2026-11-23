@@ -1,6 +1,6 @@
 # Build card: DD5b, disorder and the world ladder
 
-Part DD5b = DD5.2 and DD5.3 with D-DD.141 (and the one-line call D-DD.154 adds). **3.75 u**, branch
+Part DD5b = DD5.2 and DD5.3 with D-DD.141 (and the one-line call D-DD.154 adds). **4.0 u** (3.75, +0.25 by D-DD.160), branch
 `task/DD5b-ladder`, one discovery review. Card by the DD lane Architect, 23 Nov, under `.ai/ROLE_CONFIG.md` "Fourth
 audit" (a). Line numbers are `specs/DD-demo-data/spec.md` (S) and `rulings.md` (R) as at `task/DD-rulings-22`. Read
 only the lines named here, then the code. A question the lines do not answer stops only the affected unit and goes to
@@ -45,12 +45,29 @@ the lane Architect; count it in the packet.
    - World check: C5 runs the two parity files as two `harness_run` calls (D-DD.140); C6 globs `*/sealed/*.batch.json`;
      C4 judges October only.
    - `CODE_PATHS` and `CHECK_CODE` gain the paths of S920-924.
+   - (0.25 u added by D-DD.160, R round 23.) `stored_books` also fetches TARIFF_SCHEDULE, FLEET_ROSTER and DEPARTURE.
+     C-DD7's mini-grid clause goes live here, its only owner: load served + unserved = `delivered_kwh`, exactly, with
+     unserved read from the loaded world's `<slug>/telemetry/measured.json` `unserved_kwh` (no readings channel
+     carries it). The pending text "DD3b/DD5" becomes "DD5b". Test: the clause fails on a hand row with 1 kWh
+     moved from served to nowhere.
+
+## Facts the code fixes (D-DD.162)
+
+- Protected: the `/1` definition path (key set, digest, `batches == 0` guard) and the Lab replays' v3 conversions
+  (D-DD.161: only `onboard_operator apply --bindings` passes `world_conversion=True`).
+- Names: device and channel ids come from the Foundation (`/2` files), e.g. the depot import is `site-meter`, never
+  a ruling's typed name.
+- Decimals: C-DD2 to C-DD7 compare `Decimal` values, never strings (readings print "4.000", envelopes "4").
+- Ids: EV `session_id` is the pack's, carried by the writer and copied by the sealer (D-DD.161); disorder steps never
+  re-form an id.
+- Tests: nothing under `backend/` imports `gateway`, `host` or `simulator` (tests included); such a test lives in
+  `host/tests/` or `simulator/tests/`.
 
 ## Rules that apply (by id)
 
 D-DD.25, D-DD.28, D-DD.40, D-DD.51, D-DD.53, D-DD.60, D-DD.61, D-DD.66, D-DD.74 (R890-940: L1.exports passes `--tenant
 <slug>` per definition tenant; DD5.3 places cold and EV by naming their tenants, R921), D-DD.93, D-DD.103, D-DD.140,
-D-DD.141, D-DD.142 (R2436-2445), D-DD.154 (the load call only).
+D-DD.141, D-DD.142 (R2436-2445), D-DD.154 (the load call only), D-DD.160 (C-DD7 mini clause, the fetch), D-DD.161, D-DD.162.
 
 ## Checks that go live or change
 
