@@ -474,3 +474,44 @@ written in the pre-flight, which is then binding with the amendments named.
   - The `siteRangeMatrix` cold and EV `/findings (R)` rows become alias rows: the redirect keeps `from`, `to` and
     `known_at`.
   - Size: absorbed in P5's 1.75. IA-P3 5.0 units, IA-P 15.5.
+
+## IA-P3 review round 1 questions (Architect, Claude, 2026-11-23; `review-IA-P3.md` on `task/IA-P3-sites-site-inbox` at `ee220fd55`)
+
+- **D-IAP.48 A group scope on Findings and Actions filters by the Site directory (review Q1, H1).**
+  - The reviewer's default is accepted. `findingsDef` and `actionsDef` gain `domain`, taken from the Site directory
+    (the provider's `/api/sites`, joined on `site_code`; read only while the scope is a group). Their `scopeWord` is
+    the shared `DOMAIN_WORD` one that `decisionsDef` and `sitesDef` use, so no raw code such as "COLDCHAIN" reaches the
+    page.
+  - While the directory loads, the list shows its loading state. A refused directory shows the list's refusal sentence
+    with its retry. Neither ever shows `def.none`, so an empty list always means empty.
+  - A row whose `site_code` has no directory entry is not in any group. It is still shown at scope all.
+  - Tests first: `/findings?scope=group:COLDCHAIN` and `/actions?scope=group:…`, each with rows; plus the loading and
+    refused cases. Plant `nodomain` (drop `domain`) fails both. Sweep (W6): every `HomeListDef` with `site` and no
+    `domain` (the packet lists the grep; expected none left).
+  - Reason: honest numbers. A top-bar control must never make a list say "none" when rows exist. The backend is
+    unchanged (§11).
+
+- **D-IAP.49 `/results` reads through the shared cache (review Q2, L1).** The default is accepted:
+  `useEstateRead(reads, "portfolio", window)`, as the Portfolio tabs do. The `sr2RequestUrls` `/results` row is
+  re-pinned (b) if it counts the request.
+
+- **D-IAP.50 The every-Site chip is a class rule (review Q3, M1; amends D-IAP.40).**
+  - The default is accepted. While the scope is not all, `EverySiteChip` shows "This page shows every Site" on every
+    operator page that is neither a `HomeList` list (`LIST_PATHS`) nor a Site page (`/sites/{code}…`). That covers the
+    Overview, Demand & capacity, Outcomes (above L1), Results, Evidence & records, Incidents, Maintenance (and
+    Preventive) and Financials. The five-page list is replaced by this test.
+  - R798 (MD-IAP-5, D5) is widened to name the class and these pages; spec §7 MD-IAP-5 says "every non-list,
+    non-Site operator page".
+  - A `scopeSwitch` case covers `/incidents`. Plant `chiplist` (the old five-page list restored) fails it.
+  - Reason: the class, not the instance (W6). The button must never claim a narrowed view that the page does not
+    give.
+
+- **D-IAP.51 Outcomes L2 lists the directory-only Sites too (review M2).**
+  - D-IAP.35 Q1 governs both surfaces, because one def draws them (§6 P4b: "the Outcomes rows = the Sites list rows").
+    `OutcomesSites` passes the directory rows to `siteItems`, so a Site that E1 lacks follows E1's rows on L2 as on
+    `/sites`, and "Show all {n}" equals `/sites`'s count.
+  - The builder's test "L2 gains no directory-only row" is wrong and is flipped (a). The parity case "Outcomes rows
+    are the Sites list rows" gains a directory-only Site.
+  - Reason: a Site never leaves a page. The choice should have been raised, not pinned (`.ai/RULES.md` §7).
+  - Size (D-IAP.48 to D-IAP.51): one fix round of about 0.25 unit, inside IA-P3, which stays at 5.0 nominal
+    (+0.25 fix). IA-P 15.5.

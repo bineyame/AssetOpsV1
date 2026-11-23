@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.47)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.51)
 
 - `D-IAP.35` IA-P3 P4b answers Q1-Q10: directory-only Site rows (Group from site_type, E0 waiting), singular More line · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.36` demo prebuilt routes ask E2/month/E1 (answer check, live-composed) + whole-month Portfolio and Sites links; part IA-PD 0.5 u · live · specs/IA-P-product-shape/rulings.md
@@ -13,3 +13,7 @@
 - `D-IAP.45` sites/SitesIndex.tsx and its test deleted in P5; live exports moved first · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.46` parity pin compares a named projection (envelope + row fields, tokens by episode_start/title); build noise excluded; plants estatedrift, sitedrop · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.47` ColdFindingIndex and EvFindingIndex deleted; 19 tests sorted (b) moved or deleted with content named; siteRangeMatrix rows become alias rows · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.48` group scope on Findings/Actions: domain from Site directory by site_code, DOMAIN_WORD chip, never def.none while loading/refused; plant nodomain · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.49` /results reads through the shared estate cache · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.50` every-Site chip on every non-list, non-Site operator page (class rule; R798/MD-IAP-5 widened); plant chiplist · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.51` Outcomes L2 includes directory-only Sites as /sites does; builder test flipped · live · specs/IA-P-product-shape/rulings.md

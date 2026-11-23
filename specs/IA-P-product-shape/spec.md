@@ -1,11 +1,11 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b built, P5 to P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41; P5 runs 3 and 4 ruled, D-IAP.42 to D-IAP.47). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
+Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b built, P5 to P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41; P5 runs 3 and 4 ruled, D-IAP.42 to D-IAP.47; review round 1 ruled, D-IAP.48 to D-IAP.51). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
 Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.47 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on; IA-P3 pre-flight: D-IAP.35 to D-IAP.41, binding over `IA-P3-preflight.md`'s defaults). **Binding parts:** this file,
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.51 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on; IA-P3 pre-flight: D-IAP.35 to D-IAP.41, binding over `IA-P3-preflight.md`'s defaults). **Binding parts:** this file,
 `spec-period.md` and `handshake.md` "Answers (Architect)". **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
@@ -667,7 +667,8 @@ Each later unit adds its own checks.
     `/sites/{code}`, and a group or all keeps `scope=` in the address.
   - Every `HomeList` surface applies the scope (Outcomes L2 included). The Overview, Demand & capacity, Outcomes (above
     L1), Results and Evidence & records show the chip "This page shows every Site" when scope is not all (MD-IAP-5;
-    D-IAP.40). Site pages keep the parameter and show nothing more.
+    D-IAP.40), and so does every other non-list, non-Site operator page (D-IAP.50). Site pages keep the parameter and
+    show nothing more. Findings and Actions take a group's `domain` from the Site directory (D-IAP.48).
 - **Search:**
   - The button is "Search Sites, decisions and Findings", opened with Ctrl K or ⌘ K, as a dialog with one input.
   - The entries are Sites (`name`, "Site", `/sites/{code}`), Decisions (`title`, "Decision · {Site}"), Findings
@@ -702,7 +703,7 @@ Each later unit adds its own checks.
 | MD-IAP-2 | Decisions list rows (IA-2b §4 `decisions`) | D1 | rows are placed Findings (D-IAP.3). Due and Who decides read "Not available yet"; State has two of the four words. Resolving unit: 6f (on 6a) | P2 |
 | MD-IAP-3 | Demand & capacity L1 `uxChain` | D1 | no portfolio demand-to-capacity read; the region is omitted (an empty slot omits its region); L3 as the mock | P3b |
 | MD-IAP-4 | Inbox "For you", and the plan row | D1 | who decides is not recorded (6a); there is no plan | P6 |
-| MD-IAP-5 | Scope on the Overview, Demand & capacity, Outcomes L1 and L3, Results, Evidence & records (their reads have no scope; D-IAP.40) | D5 | a chip says the page shows every Site. Resolving unit: scoped reads (to be specified) | P7 |
+| MD-IAP-5 | Scope on every non-list, non-Site operator page: the Overview, Demand & capacity, Outcomes L1 and L3, Results, Evidence & records, Incidents, Maintenance, Financials (their reads have no scope; D-IAP.40, D-IAP.50) | D5 | a chip says the page shows every Site. Resolving unit: scoped reads (to be specified) | P7 |
 | MD-IAP-6 | Actions list tiles | D2 | today's four server figures kept as a caption line under the list tiles (extended, not dropped) | P2 |
 | MD-IAP-7 | Outcomes L3 `uxInsight` ("Sites that look alike") | D1 + D2 | no live source (D1); the range category cards and the objectives matrix sit there instead (D2, flagged: Q8) | P3b, P4 |
 | MD-IAP-8 | Site paths `/setup`, `/operations` (IA route names) | D2 | today's segments kept, labels changed (Q5) | P5 |
