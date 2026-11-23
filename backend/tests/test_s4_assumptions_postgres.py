@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -590,6 +591,37 @@ class TestServedTenant:
         assert fresh.revisions(*sites["demo"], KEY) == []  # the same code in another tenant is never written
         fresh.dispose()
         assert counts(engine) == (3, 3)
+
+    def test_the_checker_reads_the_declared_price_in_force(self, sites, prices, engine, capsys, monkeypatch) -> None:  # noqa: F811
+        """C-DD4's own SQL (D-DD.180): the price that covers the Site's whole local month, as known now."""
+        sys.path.insert(0, str(BACKEND.parent / "tools"))
+        import dd_check
+
+        monkeypatch.setenv(TENANT_ENV, SERVED)
+        assert dd_check.stored_diesel_prices(URL, "2026-10") == {}
+        for code in WORLD_PRICES:
+            assert publish_main(["fixture", "--site", code, "--file", str(world_file(code))], store=prices) == 0
+        declared = {(SERVED, "KOBO-001"): Decimal("1.25"), (SERVED, "KISIWA-001"): Decimal("1.30"),
+                    (SERVED, "MTO-001"): Decimal("1.25")}
+        # valid from 1 July 00:00 in the Sites' zone (21:00Z the day before): July is covered, June is not
+        assert dd_check.stored_diesel_prices(URL, "2026-07") == dd_check.stored_diesel_prices(URL, "2026-10") == declared
+        assert dd_check.stored_diesel_prices(URL, "2026-06") == {}
+        # a correction replaces what is known of October, and a price covering part of a month does not cover it
+        (stored,) = prices.revisions(*sites["MTO-001"], KEY)
+        prices.publish(*sites["MTO-001"], pub(stored["id"], "corr", kind="CORRECTION", vf=datetime(2026, 9, 30, 21, tzinfo=UTC),
+                                              vt=datetime(2026, 10, 31, 21, tzinfo=UTC), value="1.40", reason="test"),
+                       SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-10") == {**declared, (SERVED, "MTO-001"): Decimal("1.40")}
+        assert dd_check.stored_diesel_prices(URL, "2026-11") == declared
+        (kobo,) = prices.revisions(*sites["KOBO-001"], KEY)
+        prices.publish(*sites["KOBO-001"], pub(kobo["id"], "half", kind="CORRECTION", vf=_t(2026, 10, 15), vt=None,
+                                               value="1.50", reason="test"), SYSTEM_PUBLISHER)
+        assert (SERVED, "KOBO-001") not in dd_check.stored_diesel_prices(URL, "2026-10")
+        assert dd_check.stored_diesel_prices(URL, "2026-11")[(SERVED, "KOBO-001")] == Decimal("1.50")
+        # the development tenant's own price is its own
+        prices.publish(*sites["demo"], pub(None, "demo", value="9.00"), SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-11") == {
+            **declared, (SERVED, "KOBO-001"): Decimal("1.50"), ("demo", "KOBO-001"): Decimal("9.00")}
 
     @pytest.mark.parametrize(("served", "other"), [(SERVED, "demo"), (SERVED, "harvest-cold"), (None, SERVED)])
     def test_another_tenant_exits_2_before_any_store_is_built(self, sites, engine, capsys, monkeypatch,  # noqa: F811

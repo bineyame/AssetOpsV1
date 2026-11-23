@@ -137,3 +137,138 @@ def test_an_ev_line_without_a_price_in_m_is_a_fail_line(inputs) -> None:
 
 def test_book_months_is_gone() -> None:
     assert not hasattr(dd_check, "BOOK_MONTHS")
+
+
+# --- DD3d.4 (D-DD.180): C-DD4's fuel clause on hand rows ----------------------------------------------------------------
+KOBO, KISIWA, MTO = "KOBO-001", "KISIWA-001", "MTO-001"
+NO_PRICE = "no invoice and no declared price"
+
+
+def _fuel(code: str, kind: str, at: str, litres: str) -> dict:
+    return {"tenant": "lakeside-power", "site": code, "kind": kind, "taken_at_local": at, "litres": Decimal(litres)}
+
+
+def _dip(code: str, month: str, litres: str) -> dict:
+    return _fuel(code, "TANK_DIP", f"{month}-01T00:00", litres)
+
+
+def _bought(code: str, quantity: str, amount: str, month: str = "2026-10") -> dict:
+    return {"tenant": "lakeside-power", "site": code, "kind": "EXPENSE", "month": month, "provenance": "source-emulated",
+            "amount": Decimal(amount), "quantity": Decimal(quantity), "status": None, "body": {"category": "FUEL"}}
+
+
+def october_fuel() -> dict:
+    """Hand records that burn M's litres: Kobo 634.224, Kisiwa 902.600 (both round to M's whole litres), Mto 32.500 (half-even
+    32). A delivery at November's first instant and one the minute before October are other months'."""
+    return {"fuel": [
+        _dip(KOBO, "2026-10", "400.000"), _fuel(KOBO, "FUEL_DELIVERY", "2026-10-01T00:00", "150"),
+        _fuel(KOBO, "FUEL_DELIVERY", "2026-10-19T10:30", "250"), _dip(KOBO, "2026-11", "165.776"),
+        _fuel(KOBO, "FUEL_DELIVERY", "2026-11-01T00:00", "90"), _fuel(KOBO, "FUEL_DELIVERY", "2026-09-30T23:59", "70"),
+        _dip(KISIWA, "2026-10", "710"), _fuel(KISIWA, "FUEL_DELIVERY", "2026-10-12T09:00", "800"),
+        _dip(KISIWA, "2026-11", "607.4"), _fuel(KISIWA, "TANK_DIP", "2026-10-15T00:00", "5"),
+        _dip(MTO, "2026-10", "100"), _dip(MTO, "2026-11", "67.500")],
+        "rows": [_bought(KOBO, "150", "187.50"), _bought(KOBO, "250", "312.50"), _bought(KISIWA, "800", "1040.00")],
+        "prices": {("lakeside-power", MTO): Decimal("1.25")}}
+
+
+def fuel_lines(inputs, given: dict) -> list[str]:
+    return dd_check.judge_october_fuel(inputs, given["rows"], given["fuel"], given["prices"], LAKESIDE)
+
+
+def test_c_dd4_october_fuel_passes_at_all_three_sites(inputs) -> None:
+    assert fuel_lines(inputs, october_fuel()) == []
+    assert not [x for x in dd_check.judge_leaves_and_nodes(inputs, october_fuel()["rows"], LAKESIDE, october_fuel()["fuel"],
+                                                           october_fuel()["prices"]).detail
+                if "diesel_l" in x or "fuel_cost" in x or NO_PRICE in x or "dips at" in x]
+
+
+def test_c_dd4_one_delivery_litre_moved_fails_diesel_l(inputs) -> None:
+    given = october_fuel()
+    given["fuel"][2]["litres"] += 1
+    (line,) = [x for x in fuel_lines(inputs, given) if "diesel_l" in x]
+    assert line == "lakeside-power/KOBO-001 2026-10: diesel_l 635 (635.224 L) != recorded 634"
+    given = october_fuel()  # the same litre moved across the month's end
+    given["fuel"][2]["taken_at_local"] = "2026-11-01T00:00"
+    assert "lakeside-power/KOBO-001 2026-10: diesel_l 384 (384.224 L) != recorded 634" in fuel_lines(inputs, given)
+    given = october_fuel()  # 33.5 is half-even 34, not 33: no tolerance but the rounding
+    given["fuel"][-1]["litres"] = Decimal("66.5")
+    assert "lakeside-power/MTO-001 2026-10: diesel_l 34 (33.5 L) != recorded 32" in fuel_lines(inputs, given)
+
+
+def test_c_dd4_a_wrong_invoice_amount_fails_fuel_cost(inputs) -> None:
+    given = october_fuel()
+    given["rows"][1]["amount"] += Decimal("0.01")
+    assert fuel_lines(inputs, given) == ["lakeside-power/KOBO-001 2026-10: fuel_cost 792.52 (634 L x 500.01 / 400) != recorded 792.5"]
+    given = october_fuel()
+    given["rows"][2]["quantity"] = Decimal(0)  # invoices that state no litres give no price
+    assert fuel_lines(inputs, given) == ["lakeside-power/KISIWA-001 2026-10: fuel invoices with no litres or no amount, no price"]
+    given["rows"][2].update(quantity=None, amount=None)
+    assert fuel_lines(inputs, given) == ["lakeside-power/KISIWA-001 2026-10: fuel invoices with no litres or no amount, no price"]
+
+
+def test_c_dd4_mto_is_judged_on_the_declared_price(inputs) -> None:
+    given = {**october_fuel(), "prices": {("lakeside-power", MTO): Decimal("1.26")}}
+    assert fuel_lines(inputs, given) == ["lakeside-power/MTO-001 2026-10: fuel_cost 40.32 (32 L x 1.26) != recorded 40.0"]
+    # without it, and with another tenant's or Site's only
+    for prices in ({}, {("harvest-cold", MTO): Decimal("1.25"), ("lakeside-power", KOBO): Decimal("1.25")}):
+        assert fuel_lines(inputs, {**given, "prices": prices}) == [f"lakeside-power/MTO-001 2026-10: {NO_PRICE}"]
+    # an invoice governs where there is one: a declared price beside it is not read
+    both = {**october_fuel(), "prices": {("lakeside-power", c): Decimal("1.25") for c in (KOBO, KISIWA, MTO)}}
+    assert fuel_lines(inputs, both) == []
+    # September's invoices and another tenant's are not October's
+    given = october_fuel()
+    given["rows"] += [_bought(MTO, "10", "99.00", month="2026-09"), {**_bought(MTO, "10", "99.00"), "tenant": "harvest-cold"}]
+    assert fuel_lines(inputs, given) == []
+
+
+def test_c_dd4_fails_on_missing_records_and_is_never_pending(inputs) -> None:
+    given = october_fuel()
+    assert fuel_lines(inputs, {**given, "fuel": []}) == [
+        f"lakeside-power/{code} 2026-10: 0 dips at 2026-{m}-01T00:00, not one" for code in (KOBO, KISIWA, MTO)
+        for m in ("10", "11")]
+    given["fuel"].append(_dip(KOBO, "2026-11", "1"))
+    assert fuel_lines(inputs, given) == ["lakeside-power/KOBO-001 2026-10: 2 dips at 2026-11-01T00:00, not one"]
+    result = dd_check.judge_leaves_and_nodes(inputs, [], None, [], {})
+    assert not result.passed and result.pending == [] and len(result.detail) == 40
+    assert result.detail[:9] == [f"lakeside-power/{code} 2026-10: {what}" for code in (KOBO, KISIWA, MTO) for what in (
+        "0 dips at 2026-10-01T00:00, not one", "0 dips at 2026-11-01T00:00, not one", NO_PRICE)]  # before the 40-line cut
+    # only a caller that gives no records at all (the pure tests on books) reads pending
+    assert dd_check.judge_leaves_and_nodes(inputs, [], LAKESIDE).pending == ["mini-grid fuel_cost: no stored records given"]
+    assert dd_check.judge_leaves_and_nodes(inputs, [], {"harvest-cold"}).pending == []
+
+
+def test_c_dd4_the_manifests_figures_judge_never_price(inputs) -> None:
+    """The price is never M's: with M's own price and cost both moved, the stored records still say 1.25."""
+    import copy
+    planted = dd_check.Inputs(manifest=copy.deepcopy(inputs.manifest), history=inputs.history, database_url=inputs.database_url)
+    lake = next(t for t in planted.manifest["tenants"] if t["tenant"] == "lakeside-power")
+    lake["prices"]["diesel_usd_per_l"] = {name: 2.5 for name in lake["prices"]["diesel_usd_per_l"]}
+    assert fuel_lines(planted, october_fuel()) == []
+    mto = next(s for s in lake["sites"] if s["code"] == MTO)["period"]["actual"]
+    mto["diesel_cost"] = 80.0
+    assert fuel_lines(planted, october_fuel()) == ["lakeside-power/MTO-001 2026-10: fuel_cost 40.00 (32 L x 1.25) != recorded 80.0"]
+    del mto["diesel_cost"], mto["diesel_l"]
+    assert fuel_lines(planted, october_fuel()) == ["lakeside-power/MTO-001 2026-10: diesel_l not recorded",
+                                                   "lakeside-power/MTO-001 2026-10: diesel_cost not recorded"]
+
+
+def test_c_dd4_history_months_fuel_is_not_judged_and_says_so(inputs) -> None:
+    given = october_fuel()
+    given["fuel"] += [_dip(KOBO, m, "9999") for m in ("2026-07", "2026-08", "2026-09")]
+    given["rows"] += [_bought(KOBO, "1", "77.00", month=m) for m in ("2026-07", "2026-08", "2026-09")]
+    assert fuel_lines(inputs, given) == []
+    result = dd_check.judge_leaves_and_nodes(inputs, given["rows"], LAKESIDE, given["fuel"], given["prices"])
+    assert not [x for x in result.detail if "diesel_l" in x or "fuel_cost" in x]
+    assert result.info == ["mini-grid July to September litres and fuel cost: not judged here; C-DD8 judges every month's "
+                           "fuel records (D-DD.180)"]
+    assert dd_check.judge_leaves_and_nodes(inputs, [], {"harvest-cold"}).info == []
+
+
+def test_c_dd4_the_live_check_reads_the_stored_records(inputs, monkeypatch) -> None:
+    given, read = october_fuel(), []
+    monkeypatch.setattr(dd_check, "stored_books", lambda url: read.append(("books", url)) or given["rows"])
+    monkeypatch.setattr(dd_check, "stored_fuel_records", lambda url: read.append(("fuel", url)) or given["fuel"])
+    monkeypatch.setattr(dd_check, "stored_diesel_prices", lambda url, month: read.append((month, url)) or {})
+    result = dd_check.LIVE["C-DD4"](inputs)
+    assert read == [(x, inputs.database_url) for x in ("books", "fuel", "2026-10")]
+    assert result.detail[0] == f"lakeside-power/MTO-001 2026-10: {NO_PRICE}"

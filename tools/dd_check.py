@@ -412,6 +412,29 @@ def stored_fuel_records(database_url: str) -> list[dict]:
         engine.dispose()
 
 
+#: The diesel price declared for the whole month, as known now (D-DD.169): the current assignment covering the Site's
+#: local month. The store admits one current assignment at an instant, so at most one row per Site.
+PRICE_QUERY = (
+    "SELECT t.slug AS tenant, s.site_code AS site, r.value FROM financial_assumption_assignment a "
+    "JOIN financial_assumption_revision r ON r.id = a.revision_id JOIN tenant t ON t.id = a.tenant_id "
+    "JOIN site s ON s.id = a.site_id WHERE a.assumption_key = 'diesel_price_per_litre' AND r.currency = 'USD' "
+    "AND a.recorded_to IS NULL AND a.valid_from <= (CAST(:first AS timestamp) AT TIME ZONE s.timezone) "
+    "AND (a.valid_to IS NULL OR a.valid_to >= (CAST(:last AS timestamp) AT TIME ZONE s.timezone))")
+
+
+def stored_diesel_prices(database_url: str, month: str) -> dict[tuple[str, str], Decimal]:
+    """(tenant slug, Site code) -> the stored declared diesel price in force over that local month."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(database_url)
+    try:
+        with engine.connect() as c:
+            return {(r.tenant, r.site): Decimal(r.value) for r in c.execute(
+                text(PRICE_QUERY), {"first": f"{month}-01T00:00", "last": f"{next_month(month)}-01T00:00"})}
+    finally:
+        engine.dispose()
+
+
 def _plain(value: Decimal) -> str:
     return format(value.normalize(), "f")
 
@@ -518,7 +541,7 @@ def _stored_nodes(vertical: str, rows: list[dict], tenant: str, code: str, month
     charges = _by(rows, tenant, code, month, "CHARGE")
     receipts = _by(rows, tenant, code, month, "RECEIPT")
     if vertical == "MINI_GRID":
-        # D-DD.130: fuel rows are purchases, judged by `EMU_FUEL` and C-DD8's balance, not as nodes
+        # D-DD.130: fuel rows are purchases, judged by `EMU_FUEL`, C-DD8's balance and D-DD.180's clause
         return {"billed_kwh": _sum(charges, "quantity"), "revenue": _sum(charges),
                 "collected": _sum([r for r in receipts if r["status"] == "COLLECTED"])}
     if vertical == "COLD_CHAIN":
@@ -535,11 +558,77 @@ _RECORDED_NODE = {"MINI_GRID": {"billed_kwh": "billed_kwh", "revenue": "revenue"
 _STRUCTURE = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}
 
 
-def judge_leaves_and_nodes(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
+def _october_price(rows: list[dict], prices: dict[tuple[str, str], Decimal], tenant: str, code: str, month: str
+                   ) -> tuple[Decimal, Decimal, str] | str:
+    """A Site-month's diesel price as (amount, litres, its words), or why there is none: the stored fuel invoices', else
+    the stored declared price. Never `M`'s (Mto's clause would be vacuous)."""
+    invoices = [r for r in _by(rows, tenant, code, month, "EXPENSE") if r["body"].get("category") == "FUEL"]
+    if not invoices:
+        price = prices.get((tenant, code))
+        return "no invoice and no declared price" if price is None else (price, Decimal(1), _plain(price))
+    if any(r["amount"] is None or r["quantity"] is None for r in invoices) or _sum(invoices, "quantity") == 0:
+        return "fuel invoices with no litres or no amount, no price"
+    amount, litres = _sum(invoices), _sum(invoices, "quantity")
+    return amount, litres, f"{_plain(amount)} / {_plain(litres)}"
+
+
+def judge_october_fuel(inputs: "Inputs", rows: list[dict], fuel: list[dict], prices: dict[tuple[str, str], Decimal],
+                       tenants: set[str] | None = None) -> list[str]:
+    """C-DD4's fuel clause (D-DD.180): October's stored fuel records against `M`, each mini-grid Site. Litres = the dip
+    at the month's start + its deliveries - the dip at the next month's start, half-even to whole litres = `diesel_l`;
+    those litres x the stored price, half-even to the cent = `diesel_cost`. The failing lines."""
+    out: list[str] = []
+    for tenant, vertical, _, code, month, record, _, october, _ in _site_months(inputs, tenants):
+        if vertical != "MINI_GRID" or not october:
+            continue
+        where = f"{tenant}/{code} {month}"
+        first, last = f"{month}-01T00:00", f"{next_month(month)}-01T00:00"
+        mine = [r for r in fuel if (r["tenant"], r["site"]) == (tenant, code)]
+        level: dict[str, Decimal] = {}
+        for at in (first, last):
+            dips = [r["litres"] for r in mine if r["kind"] == "TANK_DIP" and r["taken_at_local"] == at]
+            if len(dips) == 1:
+                level[at] = dips[0]
+            else:
+                out.append(f"{where}: {len(dips)} dips at {at}, not one")
+        litres = None
+        if len(level) == 2:
+            delivered = _sum([r for r in mine if r["kind"] == "FUEL_DELIVERY" and first <= r["taken_at_local"] < last],
+                             "litres")
+            burned = level[first] + delivered - level[last]
+            litres = burned.quantize(Decimal(1), rounding=ROUND_HALF_EVEN)
+            if "diesel_l" not in record:
+                out.append(f"{where}: diesel_l not recorded")
+            elif litres != Decimal(str(record["diesel_l"])):
+                out.append(f"{where}: diesel_l {litres} ({_plain(burned)} L) != recorded {record['diesel_l']}")
+        price = _october_price(rows, prices, tenant, code, month)
+        if isinstance(price, str):
+            out.append(f"{where}: {price}")
+        elif "diesel_cost" not in record:
+            out.append(f"{where}: diesel_cost not recorded")
+        elif litres is not None:
+            amount, per, words = price
+            cost = (litres * amount / per).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+            if cost != Decimal(str(record["diesel_cost"])):
+                out.append(f"{where}: fuel_cost {cost} ({litres} L x {words}) != recorded {record['diesel_cost']}")
+    return out
+
+
+#: D-DD.180: the history months' litres are the generator's scaled family, a different quantity from the run's.
+HISTORY_FUEL = ("mini-grid July to September litres and fuel cost: not judged here; C-DD8 judges every month's fuel "
+                "records (D-DD.180)")
+
+
+def judge_leaves_and_nodes(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None,
+                           fuel: list[dict] | None = None,
+                           diesel_prices: dict[tuple[str, str], Decimal] | None = None) -> Result:
     """C-DD4: each decided leaf equals October's `period.actual` and each history month's `history.json`, to the cent;
     each decided node figure of a history month equals this checker's own evaluation of `structures` and
-    `factor_map` on `history.json`'s leaves, and October's equals what its period records (D-DD.55)."""
-    detail: list[str] = []
+    `factor_map` on `history.json`'s leaves, and October's equals what its period records (D-DD.55).
+    October's mini-grid fuel is judged on the stored fuel records (`fuel`; None: printed pending)."""
+    mini = any(t["vertical"] == "MINI_GRID" and (tenants is None or t["tenant"] in tenants)
+               for t in inputs.manifest["tenants"])
+    detail: list[str] = [] if fuel is None else judge_october_fuel(inputs, rows, fuel, diesel_prices or {}, tenants)
     for tenant, vertical, name, code, month, record, cover, october, prices in _site_months(inputs, tenants):
         where = f"{tenant}/{code} {month}"
         expenses = _by(rows, tenant, code, month, "EXPENSE")
@@ -563,11 +652,17 @@ def judge_leaves_and_nodes(inputs: "Inputs", rows: list[dict], tenants: set[str]
         for node, value in expected.items():
             if cover.get("revenue") == "ESTIMATED" and node in ("billed_kwh", "revenue", "collected", "received"):
                 continue
-            if cover.get("diesel") == "ESTIMATED" and node in ("diesel_l", "fuel_cost"):
-                continue
             if stored_nodes.get(node) != value:
                 detail.append(f"{where}: {node} stored {stored_nodes.get(node)} != {'recorded' if october else 'evaluated'} {value}")
-    return Result("C-DD4", not detail, detail[:40])
+    return Result("C-DD4", not detail, detail[:40],
+                  pending=["mini-grid fuel_cost: no stored records given"] if mini and fuel is None else [],
+                  info=[HISTORY_FUEL] if mini else [])
+
+
+def check_leaves_and_nodes(inputs: "Inputs") -> Result:
+    url = inputs.database_url
+    return judge_leaves_and_nodes(inputs, stored_books(url), None, stored_fuel_records(url),
+                                  stored_diesel_prices(url, inputs.manifest["accounting_period"]))
 
 
 def _judged(judge: Callable[..., Result]) -> Callable[[Inputs], Result]:
@@ -1704,7 +1799,7 @@ LIVE: dict[str, Callable[[Inputs], Result]] = {
     "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
     "C-DD16": check_datasheet,
     "C-DD1": check_cast, "C-DD2": check_kinds, "C-DD3": _judged(judge_identities),
-    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures,
+    "C-DD4": check_leaves_and_nodes, "C-DD13": check_tenant_isolation, "C-DD6": check_failures,
     "C-DD5": check_cadence, "C-DD7": check_meter_books, "C-DD8": check_fuel, "C-DD20": check_story}
 
 
