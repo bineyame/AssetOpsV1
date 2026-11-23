@@ -129,6 +129,17 @@ identical (the run 3 goldens).
   Writer reach set (`test_dd3_telemetry`, `test_dd4_*`, `test_telemetry_join_parity`, plain pytest from
   `simulator/`, at `45afb3992`): 105 passed, 182 s, 153 MB.
 
+### Plants (run 5)
+`world_history.py exports`, `site-inputs`, then `telemetry --site EV-EMB --site EV-RUI --site EV-KAS` (one process,
+the full span), through `tools/heavy-slot.sh`, scratch `/tmp/claude-1001/dd45-plant` (deleted after):
+- Golden: the same plant at `a173abde9` (writer code identical to run 4's `7ea87a2c9`) before the change: 390 day
+  files + `measured.json`, sha256 of each. Its `/usr/bin/time` file was lost (a shared-scratchpad deletion by another
+  session), so the "before" memory is run 4's at the same writer code: **1,619.9 s, 3,818,860 kB**.
+- After (`eeeb62920`): exit 0, **1,567.3 s (26:07), 149,128 kB peak RSS** (25.6x less). All 391 files byte-identical
+  to the golden; `measured.json` identical to `simulator/tests/world/fixtures/measured/metro-bus.measured.json`.
+- Moved EV figures: none in the readings or the measured books (writer parity). The model figures that move are
+  Kasarani November's (above); the depots' October and Embakasi/Ruiru figures do not move (b3: the bound does not bind).
+
 ## Evidence (runs 1-3)
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
   `test_dd4_telemetry_ev, test_dd4_ev_rotation, test_dd4_ev_join, test_telemetry_join_parity, test_dd4_telemetry_cold`:

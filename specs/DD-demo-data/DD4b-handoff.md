@@ -69,6 +69,7 @@ Packet `packet-DD4b.md`.
 ## Risks
 - `meter_billed` EV leaves `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null` and C-DD7's clause for them is
   PENDING (packet deviation 8): `M`'s EV structure reads them.
-- EV writer memory (3.8 GB, 1609 s for three depots): cause and proposed fix in the packet ("Risk for DD6's world
-  build"); not built.
+- EV writer memory: fixed in run 5 (3.8 GB -> 149 MB peak, 1,620 s -> 1,567 s, three depots; bytes identical).
+  `_import` (one Fraction per non-zero minute) is still held for the span.
+- `check_manifest.py` K13 and 3B6 test_4 (seven EV sides) fail until the DD4.5 regeneration (Next 1).
 - `_vertical`'s run is dropped after `_measured_view`; a caller wanting the run must keep its own.
