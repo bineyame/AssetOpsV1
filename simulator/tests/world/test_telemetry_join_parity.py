@@ -59,6 +59,9 @@ def _w1_kobo() -> dict:
     sites = _sites("lakeside-power", ("KISIWA-001", "KOBO-001", "MTO-001"))
     kobo = copy.deepcopy(next(s for s in sites["sites"] if s["code"] == "KOBO-001"))
     for component in kobo["foundation"]["components"]:
+        # D-DD.153: the tank's declared level accuracy is new in `/2` after this golden; it moves the foundation digest only.
+        component["properties"] = [p for p in component["properties"]
+                                   if not p["property_key"].startswith("fuel-level-sensor-accuracy")]
         for key, value, unit in W1_ROWS.get(component["type"], ()):
             component["properties"] = [p for p in component["properties"] if p["property_key"] != key]
             component["properties"].append({"property_key": key, "value": value, "unit": unit})
