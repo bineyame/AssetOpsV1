@@ -42,3 +42,8 @@ Owner answer: "Approve rebuild (Recommended)".
 
 Asked (D-DD.147): accept simulated Kisiwa figures (Oct diesel ~904 L vs story 2,400; fuel cost ~1,175 vs 3,120; result ~+1,695 vs -250; Mto ~32 L vs 320)? Owner: "Accept simulated (Recommended)".
 Asked (D-DD.148): the 30 Oct failure costs backup, not supply (GEN-KS-02 and the battery carry the evening); "nothing avoidable" becomes "nothing material avoidable" (~20 min after sunrise, ~2-3 L)? Owner: "Accept (Recommended)".
+
+## D-DD.150-152 (23 Nov, early)
+
+Asked (D-DD.151/150): Kisiwa ~a tenth of generator time in Aug/Oct charges the battery while the sun could carry the load (~87 in Oct, no longer "nothing avoidable"); GEN-KS-02 evening load ~70 % not 95 %; Mto's 32 L after the trip projected-avoidable (~40); repair beat unchanged. Owner: "Accept (Recommended)".
+Asked (D-DD.152): Kobo may show 12 L unexplained fuel in Jul/Aug (no generator use) until an absolute tolerance floor from a sourced sensor accuracy is built. Owner: "Fix before demo".
