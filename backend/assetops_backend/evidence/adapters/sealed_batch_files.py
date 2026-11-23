@@ -5,6 +5,7 @@ folder is the caller's (a generated world's inputs directory, outside the produc
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Sequence
 
@@ -24,5 +25,10 @@ class SealedBatchFiles:
             path = self.folder / name
             if path.exists():
                 continue
-            self.folder.mkdir(exist_ok=True)
-            path.write_bytes(body)
+            self.folder.mkdir(parents=True, exist_ok=True)
+            # Exclusive create plus fsync, as `legacy_comparison_file`: never an overwrite, never a silent short file.
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(body)
+                handle.flush()
+                os.fsync(handle.fileno())

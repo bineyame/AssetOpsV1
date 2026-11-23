@@ -161,3 +161,24 @@ def test_a_sealed_value_equals_its_reading_and_is_canonical() -> None:
     for text in ("4.000", "0.000", "-0.000", "1250.500"):
         out = world_seal._value(text)
         assert Decimal(out) == Decimal(text)
+
+
+# --- DD5a fix round (L1, L2): a refusal is a named code, never a traceback, and it names the failing day --------------
+
+@pytest.mark.parametrize("row", [
+    _session_event(session_id=None, connector_id=None, correlation=["fault", 1]),
+    _session_event(connector_id=None),
+], ids=["contract-rejection", "missing-connector-id"])
+def test_a_row_the_contract_refuses_is_a_named_refusal_with_its_day(row) -> None:
+    with pytest.raises(world_seal.WorldSealRefused) as raised:
+        seal_readings(_context(), [_day([row], date(2026, 10, 13))])
+    assert raised.value.code in {"WORLD_SEAL_ENVELOPE_INVALID", "WORLD_SEAL_EV_UNCORRELATED"}
+    assert raised.value.day == "2026-10-13"
+
+
+def test_an_unbound_channel_names_its_day() -> None:
+    row = {"source_id": "ghost", "signal_id": "x", "start": "2026-10-12T09:30:00+03:00",
+           "end": "2026-10-12T09:30:00+03:00", "value": "1", "unit": "kW"}
+    with pytest.raises(world_seal.WorldSealRefused) as raised:
+        seal_readings(_context(), [_day([row], date(2026, 10, 14))])
+    assert raised.value.day == "2026-10-14"

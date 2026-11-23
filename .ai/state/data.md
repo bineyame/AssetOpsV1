@@ -738,10 +738,9 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - World cold and EV conversions publish v4 channel metadata (D-DD.138); mini-grid conversions stay v3. Closed world EV
   table generated from each depot's `/2` devices (`world_ev_channel_mappings`); lab tables byte-identical.
 - `evidence/world_seal.seal_readings` seals readings as the gateway would (v3 mini, v4 cold/EV; 256 per batch; one
-  sequence per source over the span; cold ids per D-DD.91); `cold_correlation_id` now in contracts, new
-  `ev_session_id`.
-- Left open: `load_world_inputs` sealing (unit 3), bulk path for cold/EV with parity (unit 4), EV session events
-  (after DD4b); the `site-meter` name and decimal spelling deviations (packet).
+  sequence per source over the span; cold ids per D-DD.91); `cold_correlation_id` now in contracts. (`ev_session_id`
+  was withdrawn by D-DD.161; superseded by the complete entry below.)
+- Superseded by the complete entry below (units 3 and 4 are built there).
 
 ## DD5a complete: sealing at load and the cold and EV bulk path (DD5.1; in_review; `specs/DD-demo-data/packet-DD5a.md`)
 - An EV session has one id, the pack's: the sealer copies `session_id`/`connector_id` from the event or the row's

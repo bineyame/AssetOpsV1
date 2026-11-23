@@ -64,6 +64,11 @@ def world(seed, tmp_path, monkeypatch):
         pg_harness.drop_database(clone)
 
 
+def _folder(tenant):
+    (folder,) = (tenant / "sealed").iterdir()
+    return folder
+
+
 def run(path) -> int:
     return load_world_inputs.main(["--world", str(path), "--submit-as", "s@x", "--accept-as", "a@x"])
 
@@ -73,7 +78,7 @@ def test_two_days_seal_and_load_with_one_sequence_per_source(world, capsys) -> N
     assert run(path) == 0, capsys.readouterr().err
     line = json.loads(capsys.readouterr().out)
     assert (line["readings_files"], line["sealed_batches"], line["batches"], line["envelopes"]) == (2, 2, 2, 6)
-    assert sorted(p.name.split(".")[2] for p in (path / slug / "sealed").iterdir()) == list(DAYS)
+    assert sorted(p.name.split(".")[2] for p in _folder(path / slug).iterdir()) == list(DAYS)
     with engine.connect() as c:
         rows = c.execute(text("SELECT sequence_epoch, sequence, message_id FROM accepted_evidence "
                               "WHERE device_id = 'pv-inverter-controller' ORDER BY sequence")).all()
@@ -85,11 +90,11 @@ def test_a_rerun_loads_nothing_new_and_writes_no_sealed_bytes(world, capsys) -> 
     path, slug, _, _ = world
     assert run(path) == 0
     capsys.readouterr()
-    sealed = {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in (path / slug / "sealed").iterdir()}
+    sealed = {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in _folder(path / slug).iterdir()}
     assert run(path) == 0
     line = json.loads(capsys.readouterr().out)
     assert (line["sealed_batches"], line["already_loaded"]) == (2, 2)
-    assert {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in (path / slug / "sealed").iterdir()} == sealed
+    assert {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in _folder(path / slug).iterdir()} == sealed
 
 
 def test_an_unknown_site_refuses_with_exit_2(world, capsys) -> None:

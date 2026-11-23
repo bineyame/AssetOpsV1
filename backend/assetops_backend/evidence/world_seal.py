@@ -26,6 +26,7 @@ from typing import Any, Iterable, Mapping
 
 from assetops_contracts.gateway_report import cold_correlation_id, cold_event_id
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, seal_batch_v2
+from assetops_contracts.source_envelope import EnvelopeRejected
 from assetops_contracts.source_envelope_v3 import (SourceEnvelopeV3, canonical_envelope_v3_text, is_canonical_decimal,
                                                    v3_message_id)
 from assetops_contracts.source_envelope_v4 import SourceEnvelopeV4, canonical_envelope_v4_text
@@ -36,9 +37,9 @@ DELTA_ROLES = frozenset({"ev_connector_energy"})
 
 
 class WorldSealRefused(Exception):
-    def __init__(self, code: str, detail: str) -> None:
+    def __init__(self, code: str, detail: str, day: str | None = None) -> None:
         super().__init__(f"{code} {detail}")
-        self.code, self.detail = code, detail
+        self.code, self.detail, self.day = code, detail, day
 
 
 @dataclass(frozen=True)
@@ -146,6 +147,8 @@ def _event_correlation(context: SealContext, row: Mapping[str, Any], event: Mapp
     """An event's `correlation_id`, and for an EV event its `session_id` and `connector_id` (D-DD.91, D-DD.161)."""
     ev = event["record_kind"].startswith("EV_")
     if ev and event.get("session_id"):
+        if not event.get("connector_id"):
+            raise WorldSealRefused("WORLD_SEAL_EV_UNCORRELATED", f"{row['source_id']}/{row['signal_id']}")
         return {"correlation_id": event["session_id"], "session_id": event["session_id"],
                 "connector_id": event["connector_id"]}
     if event.get("correlation") is None:
@@ -167,14 +170,21 @@ def seal_readings(context: SealContext, days: Iterable[tuple[date, list[Mapping[
     for day, rows in days:
         by_source: dict[str, list[str]] = {}
         for row in rows:
+            where = f"{row['source_id']}/{row['signal_id']}"
             binding = context.bindings.get((row["source_id"], row["signal_id"]))
             if binding is None:
-                raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED",
-                                       f"{context.site_code} {row['source_id']}/{row['signal_id']}")
+                raise WorldSealRefused("WORLD_TELEMETRY_UNRESOLVED", f"{context.site_code} {where}", day.isoformat())
             source_id = str(binding["source_id"])
             sequence = sequences.get(source_id, 0) + 1
             sequences[source_id] = sequence
-            by_source.setdefault(source_id, []).append(_envelope_text(context, row, binding, sequence))
+            try:
+                text = _envelope_text(context, row, binding, sequence)
+            except WorldSealRefused as refused:
+                raise WorldSealRefused(refused.code, refused.detail, day.isoformat()) from None
+            except EnvelopeRejected as rejected:
+                raise WorldSealRefused("WORLD_SEAL_ENVELOPE_INVALID", f"{where} {rejected.kind} at {rejected.field}",
+                                       day.isoformat()) from None
+            by_source.setdefault(source_id, []).append(text)
         for source_id in sorted(by_source):
             texts = by_source[source_id]
             for n, first in enumerate(range(0, len(texts), MAX_BATCH_ENVELOPES), start=1):

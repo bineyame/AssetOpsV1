@@ -76,7 +76,8 @@ def run(path, resolver) -> int:
 
 
 def _sealed(path) -> dict[str, tuple[bytes, int]]:
-    return {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in sorted((path / "alpha" / "sealed").iterdir())}
+    (folder,) = (path / "alpha" / "sealed").iterdir()
+    return {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in sorted(folder.iterdir())}
 
 
 def test_readings_are_sealed_beside_the_inputs_and_the_sealed_batches_load(world, capsys) -> None:
@@ -105,7 +106,7 @@ def test_a_changed_sealed_byte_refuses_and_loads_nothing(world, capsys) -> None:
     assert run(world, Resolver()) == 0
     capsys.readouterr()
     name = sorted(_sealed(world))[0]
-    target = world / "alpha" / "sealed" / name
+    target = next((world / "alpha" / "sealed").iterdir()) / name
     body = bytearray(target.read_bytes())
     body[len(body) // 2] ^= 1  # one byte changed
     target.write_bytes(bytes(body))
@@ -136,3 +137,69 @@ def test_staged_sealed_and_disorder_folders_are_accepted(world, capsys) -> None:
     for part in ("staged", "sealed", "disorder"):
         (world / "alpha" / part).mkdir(exist_ok=True)
     assert run(world, Resolver()) == 0
+
+
+# --- DD5a fix round: D-DD.167 (sealed/ keyed per database), L1, L2, L3 --------------------------------------------------
+
+def _folders(path) -> list[str]:
+    return sorted(p.name for p in (path / "alpha" / "sealed").iterdir())
+
+
+class OtherDatabase(Resolver):
+    """A rebuilt database: the same Site and inputs under new binding ids."""
+
+    def __call__(self, slug, code, start, end, foundation_digest):
+        context = super().__call__(slug, code, start, end, foundation_digest)
+        source = "99999999-9999-4999-8999-999999999999"
+        return replace(context, binding_set_id="88888888-8888-4888-8888-888888888888",
+                       bindings={k: {**v, "source_id": source} for k, v in context.bindings.items()})
+
+
+def test_a_fresh_database_on_unchanged_inputs_writes_a_new_context_folder_and_exits_0(world, capsys) -> None:
+    assert run(world, Resolver()) == 0
+    (first,) = _folders(world)
+    before = {p.name: p.read_bytes() for p in (world / "alpha" / "sealed" / first).iterdir()}
+    assert len(first) == 12 and int(first, 16) >= 0
+    assert run(world, OtherDatabase()) == 0
+    capsys.readouterr()
+    assert len(_folders(world)) == 2
+    assert {p.name: p.read_bytes() for p in (world / "alpha" / "sealed" / first).iterdir()} == before
+
+
+def test_the_same_database_rerun_uses_the_same_folder_and_writes_no_new_bytes(world) -> None:
+    assert run(world, Resolver()) == 0
+    (folder,) = _folders(world)
+    stamps = {p.name: p.stat().st_mtime_ns for p in (world / "alpha" / "sealed" / folder).iterdir()}
+    assert run(world, Resolver()) == 0
+    assert _folders(world) == [folder]
+    assert {p.name: p.stat().st_mtime_ns for p in (world / "alpha" / "sealed" / folder).iterdir()} == stamps
+
+
+def test_a_stray_file_in_the_context_folder_refuses_stray(world, capsys) -> None:
+    assert run(world, Resolver()) == 0
+    capsys.readouterr()
+    (folder,) = _folders(world)
+    (world / "alpha" / "sealed" / folder / "COLD-X.stray.2026-10-12.1.batch.json").write_text("{}")
+    assert run(world, Resolver()) == 2
+    assert " stray" in capsys.readouterr().err
+
+
+def test_a_row_refusal_names_the_file_that_holds_the_row(world, capsys) -> None:
+    path = world / "alpha" / "telemetry" / "COLD-X.2026-10-13.readings.json"
+    document = json.loads(path.read_bytes())
+    document["readings"][0]["source_id"] = "ghost"
+    path.write_text(json.dumps(document))
+    assert run(world, Resolver()) == 2
+    assert capsys.readouterr().err.startswith("WORLD_TELEMETRY_UNRESOLVED COLD-X.2026-10-13.readings.json ")
+
+
+def test_a_contract_rejection_exits_2_with_a_named_code_and_its_file(world, capsys) -> None:
+    path = world / "alpha" / "telemetry" / "COLD-X.2026-10-13.readings.json"
+    document = json.loads(path.read_bytes())
+    document["readings"][0]["value"] = "1.5E3"
+    document["readings"][0]["event"] = {"record_kind": "COLD_DOOR", "outcome": "OPEN", "actor": "x", "component_id": "c",
+                                        "ordinal": 1, "correlation": ["door", 1], "session_id": None}
+    path.write_text(json.dumps(document))
+    code = run(world, Resolver())
+    err = capsys.readouterr().err
+    assert code == 2 and err.startswith("WORLD_") and "COLD-X.2026-10-13.readings.json" in err, err

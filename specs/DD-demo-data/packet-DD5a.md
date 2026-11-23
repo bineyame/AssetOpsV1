@@ -103,3 +103,21 @@ review per the card).
 1. `test_w205a_ev_foundation_postgres.py::test_legacy_w200_tuples_cannot_bind_under_the_ev_profile` (part 1).
 2. `test_ds3_bulk_load.py` output-line keys (+`readings_files`, `sealed_batches`).
 3. `test_ds3_bulk_load_postgres.py` `case_coldchain_site` -> `case_unknown_site_type` (D-DD.140).
+
+## Fix round (review-DD5a.md round 1 Lows plus D-DD.167; Claude Opus 5.5)
+- D-DD.167 (DD5a part): `load_world_inputs.seal_context_key` = first 12 hex of SHA-256 over the canonical JSON of the
+  sorted `[site_code, gateway_id, source_id, binding_set_id, foundation_digest]` lists of the Sites sealed; sealed files
+  go to `<slug>/sealed/<context12>/`. A re-run against the same database finds the same folder (re-seal and `stray`
+  refusals hold there); a rebuilt database writes a new folder and reads or deletes no sibling.
+- L1: `seal_readings` maps `EnvelopeRejected` to `WORLD_SEAL_ENVELOPE_INVALID <device>/<signal> <kind> at <field>` and a
+  missing `connector_id` beside a `session_id` to `WORLD_SEAL_EV_UNCORRELATED`; both exit 2.
+- L2: `WorldSealRefused` carries `day`; the loader names that day's readings file (Site-level refusals keep the first).
+- L3: `SealedBatchFiles.write_new` uses `O_CREAT|O_EXCL` plus fsync.
+- L4: state entry 212 marked superseded by 213; `ev_session_id` claim removed.
+- Tests (each shown failing first, `/opt/assetecon/evidence/DD5a/fix/red.txt`: 10 failed): new `test_dd5a_sealed_batch_files.py`,
+  additions to `test_dd5a_world_seal.py` and `test_dd5a_load_world_inputs.py`. Existing sealed-dir reads in two tests
+  moved to the context folder (moved pin).
+- Plant: a re-seal in the same context with changed bytes still refuses (`test_a_changed_sealed_byte_refuses...`, green).
+- Run: `--db-lane`, 6 files incl. `test_dd5a_load_world_postgres.py`: 64 passed (`fix/db.txt`). Main baseline:
+  `.agent/main-baseline/23d2cd9f6.md`. Guards: `fix/arch.txt`, `fix/workflow.txt`, `fix/cat.txt`.
+- Not done: the card's `"sealed_dir"` output key was not added (not in this round's list).

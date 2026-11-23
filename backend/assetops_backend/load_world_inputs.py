@@ -12,7 +12,8 @@ operator's), and every selected tenant directory must hold nothing else.
 Readings (DD5a; spec §4.6 as amended by D-DD.139, D-DD.140): each Site's readings files are sealed by
 `evidence/world_seal.seal_readings` against the Site's pinned binding snapshot (the Site resolved by
 `PostgresEvidenceLedger.site_scope`, its `foundation_digest` from `site-inputs.json` beside the tenant folders) and
-written once to `<slug>/sealed/`; a re-run re-seals and refuses `WORLD_SEALED_BYTES_DIFFER` if the bytes differ. The
+written once to `<slug>/sealed/<context12>/` (D-DD.167: keyed by the database's ids); a re-run against the same database
+re-seals and refuses `WORLD_SEALED_BYTES_DIFFER` if the bytes differ; a rebuilt database writes a new folder. The
 sealed batches load after the `/1` batch files. A tenant folder may also hold `staged/`, `sealed/` and `disorder/`.
 
 One JSON line per tenant on stdout: `{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes",
@@ -25,6 +26,7 @@ here is served (D-DS3.7).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -83,6 +85,14 @@ def _digests(world: Path) -> dict[tuple[str, str], str]:
     return {(s["tenant"], s["code"]): s["foundation_digest"] for s in json.loads(path.read_bytes())["sites"]}
 
 
+def seal_context_key(contexts: Sequence[SealContext]) -> str:
+    """D-DD.167: the 12 hex of SHA-256 over the canonical JSON of the sorted `[site_code, gateway_id, source_id,
+    binding_set_id, foundation_digest]` lists of the Sites sealed; it changes when the database is rebuilt."""
+    rows = sorted([c.site_code, c.gateway_id, s, c.binding_set_id, c.foundation_digest]
+                  for c in contexts for s in {str(b["source_id"]) for b in c.bindings.values()})
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:12]
+
+
 def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[int, list[bytes]]:
     """The tenant's readings files sealed (D-DD.139), written to `sealed/` once (D-DD.140); returns the number of
     readings files and the sealed batch bytes in sealing order."""
@@ -93,6 +103,7 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
         by_site.setdefault(document["site_code"], []).append(
             (date.fromisoformat(document["day"]), document["readings"], path.name))
     sealed: list[tuple[str, bytes]] = []
+    contexts: list[SealContext] = []
     for code in sorted(by_site):
         days = sorted(by_site[code], key=lambda d: d[0])
         first = days[0][2]
@@ -107,11 +118,13 @@ def _seal_tenant(tenant: Path, digests: dict, resolve: SealResolver) -> tuple[in
                               max(datetime.fromisoformat(r["end"]) for r in rows), digest)
             batches = seal_readings(context, [(d, day_rows) for d, day_rows, _ in days])
         except WorldSealRefused as refused:
-            raise _Refused(refused.code, first, refused.detail) from None
+            named = next((name for d, _, name in days if d.isoformat() == refused.day), first)
+            raise _Refused(refused.code, named, refused.detail) from None
+        contexts.append(context)
         sealed += [(b.name, b.text.encode("utf-8")) for b in batches]
     from assetops_backend.evidence.composition import build_sealed_batch_files
 
-    files_out = build_sealed_batch_files(tenant / SEALED)
+    files_out = build_sealed_batch_files(tenant / SEALED / seal_context_key(contexts))
     present = files_out.existing()
     names = {name for name, _ in sealed}
     for name, body in sealed:
