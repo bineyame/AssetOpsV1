@@ -57,7 +57,9 @@ In flight (branch, what is left):
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
 7. WK-SC story clock (3.0 u, `specs/DD-demo-data/spec-WK-SC.md`, card `cards/WK-SC.md`) after DD6.
-8. 6f1 U2 and U3, then 6f2 (choice on screen).
+8. 6f1 (5.25 u, spec rev 3): U1 review running, then fix round (D-P6.82/83), U1 merges first; U2 and U3
+   then build in parallel from `specs/6f-decisions-screen/cards/6f1-U2.md` and `6f1-U3.md`; U3 merges
+   before U2. Then 6f2 (choice on screen).
 9. IA-PD demo routes (0.5 u, D-IAP.36) before the next demo build; IA-P: rebuild the world rung
    once before the next WK run.
 10. 0K4f, Q11 (cold/EV monthly figures), Q12 (31-day cap).
@@ -66,6 +68,9 @@ In flight (branch, what is left):
 12. Refresh `.ai/NOW.md` and `owner/SUMMARY.md` to the 23 Nov state (both lag; SUMMARY since 22 Nov).
     Not blocked; may be done any time and must be done before the alignment pass starts.
 Backlog after the demo: `.agent/backlog-post-demo.md`.
+
+Warning: after 6f1 U2 the Decisions list, inbox and waiting columns are empty until WK-SC prepares the
+ten decisions; do not rebuild a demo app from main in that gap without telling the owner.
 
 ## 5. Open owner questions
 
