@@ -229,7 +229,7 @@ def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, st
     row = reg.row(factor_id)
     currency = "USD" if row.unit.has_money_dimension else None
     leaf = LeafValue(Decimal("1.00"), "MEASURED", ("x",), None, None, currency, ())
-    err = _raises("STRUCTURE_ORIGIN", _check_stated, reg, {factor_id: leaf}) if stated else _raises(
+    err = _raises("STRUCTURE_ORIGIN", _check_stated, reg, {factor_id: leaf}, frozenset()) if stated else _raises(
         "STRUCTURE_ORIGIN", _check_leaf, reg, factor_id, leaf)
     assert err.factor_id == factor_id
 
@@ -288,14 +288,13 @@ def test_s7_compose_carries_detail_missing_and_origins():
 
 
 def test_s8_registry_version_and_stated_rows():
-    assert MG.version == 4  # 4a (D-4A.1)
+    assert MG.version == 5  # DD3d.4 (D-DD.163)
     stated = {r.factor_id: r.stated_by for r in MG.rows if r.stated_by is not None}
     assert stated == {
         "metered_kwh": FilledBy("COMMERCIAL_RECORD", "CUSTOMER_METER_READ", "Customer meter reads for the month"),
         "billed_kwh": FilledBy("COMMERCIAL_RECORD", "CHARGE (USAGE kWh)", "Billing export: the month's billed kWh"),
         "revenue": FilledBy("COMMERCIAL_RECORD", "CHARGE", "Billing export: the month's charges"),
-        "fuel_cost": FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"),
-    }
+    }  # DD3d.4 (D-DD.163): fuel cost is no longer stated; the invoices are the `fuel_bought` leaf
     check(MG)
     assert CODES.index("STRUCTURE_STATED") == CODES.index("STRUCTURE_COMPOSES") + 1
 
@@ -371,9 +370,9 @@ def test_s9_the_read_asks_each_stated_node_once():
     leaves = pack_leaves("Kobo")
     fake = _Stated()
     result = StructureRead(_Leaves(leaves), stated=fake).site(KOBO, "2026-10")
-    assert tuple(fake.asked) == ("metered_kwh", "billed_kwh", "revenue", "fuel_cost")  # 4a: two stated kWh nodes
+    assert tuple(fake.asked) == ("metered_kwh", "billed_kwh", "revenue")  # 4a: two stated kWh nodes; DD3d.4: fuel cost is not stated
     assert result.values["revenue"].value == Decimal("3458.00") and result.values["revenue"].stated is True
-    assert result.values["fuel_cost"].value == Decimal("1475.00") and result.values["fuel_cost"].stated is True
+    assert result.values["fuel_cost"].stated is False  # DD3d.4 (D-DD.163): computed from litres, not stated
 
 
 def test_s9_without_a_stated_source_the_read_is_3b3s():
@@ -381,7 +380,7 @@ def test_s9_without_a_stated_source_the_read_is_3b3s():
     fake = _Stated()
     result = StructureRead(_Leaves(leaves)).site(KOBO, "2026-10")
     assert fake.asked == []
-    assert result == SiteStructure("KOBO-001", "2026-10", "MINI_GRID", 4, evaluate(MG, leaves))  # 4a: v4
+    assert result == SiteStructure("KOBO-001", "2026-10", "MINI_GRID", 5, evaluate(MG, leaves))  # 4a: v4
     assert not any(v.stated for v in result.values.values())
 
 

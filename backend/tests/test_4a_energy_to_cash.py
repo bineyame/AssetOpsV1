@@ -455,14 +455,13 @@ def test_2b_notes_list():
 
 
 def test_4_registry_v4_and_stated_rows():
-    assert MG.version == 4
+    assert MG.version == 5  # DD3d.4 (D-DD.163)
     stated = {r.factor_id: r.stated_by for r in MG.rows if r.stated_by is not None}
     assert stated == {
         "metered_kwh": METERED_FB,
         "billed_kwh": BILLED_FB,
         "revenue": FilledBy("COMMERCIAL_RECORD", "CHARGE", "Billing export: the month's charges"),
-        "fuel_cost": FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"),
-    }
+    }  # DD3d.4 (D-DD.163): fuel cost is no longer stated; the invoices are the `fuel_bought` leaf
     check(MG)
 
 

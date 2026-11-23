@@ -43,7 +43,7 @@ CR = "COMMERCIAL_RECORD"
 #: Test 10's own literal of spec §3.4's "Names when absent" column (W2): (record_kind, source_family, words).
 READ_AS = {
     "revenue": ("CHARGE", CR, CHARGE_WORDS),
-    "fuel_cost": ("EXPENSE (FUEL)", CR, FUEL_WORDS),
+    "fuel_bought": ("EXPENSE (FUEL)", CR, FUEL_WORDS),  # DD3d.4 (D-DD.163): the invoices are a leaf, not a node
     "om": ("EXPENSE (OM)", CR, "Service contractor invoice"),
     "staff": ("EXPENSE (STAFF)", CR, "Payroll summary"),
     "productive_kwh": ("CHARGE (productive tariff class)", CR, None),
@@ -64,11 +64,11 @@ STATE_TABLE = {
     "OPTION_ONLY": {"extra_l", "battery_throughput_kwh", "collection_cost"},
     "PROVIDED_ELSE_ASSUMED": {"diesel_price"},
 }
-STATED_TABLE = {"MINI_GRID": {"revenue": "PROVIDED", "fuel_cost": "PROVIDED",
-                              "metered_kwh": "PROVIDED", "billed_kwh": "PROVIDED"}}  # 4a: the stated kWh nodes
+STATED_TABLE = {"MINI_GRID": {"revenue": "PROVIDED",
+                              "metered_kwh": "PROVIDED", "billed_kwh": "PROVIDED"}}  # 4a: the stated kWh nodes; DD3d.4: fuel cost is not stated
 #: 4a: read without the energy source, the stated kWh nodes have nothing to read and no expression value, so each
 #: names itself among the missing (registry v4, D-4A.1).
-MTO_MISSING = ("adjustments_kwh", "billed_kwh", "candidate_l", "delivered_kwh", "fuel_cost", "metered_kwh",
+MTO_MISSING = ("adjustments_kwh", "billed_kwh", "candidate_l", "delivered_kwh", "metered_kwh",
                "necessary_l", "productive_kwh", "productive_tariff", "revenue", "tariff", "technical_loss_kwh",
                "unexplained_l", "unexplained_loss_kwh", "unmapped_kwh")
 REVENUE_NINE = ("adjustments_kwh", "billed_kwh", "delivered_kwh", "metered_kwh", "productive_kwh",
@@ -137,7 +137,30 @@ def reader(w) -> tuple[StructureRead, Recording]:
     from assetops_backend.structure.money import CommercialLeafSource
 
     rec = Recording(CommercialLeafSource(w["months"], w["store"], fallback()))
+    rec.w = w
     return StructureRead(rec, stated=rec), rec
+
+
+LITRES = ("candidate_l", "necessary_l", "unexplained_l")
+
+
+def bought(rec: Recording, code: str, month: str = "2026-10", known_at=None):
+    """The month's fuel invoices (the `fuel_bought` leaf, D-DD.163): the money a figure never takes for fuel cost."""
+    from assetops_backend.structure.sources import ReadContext
+
+    return rec.inner._judge(ReadContext(site(rec.w, code), month, known_at), "fuel_bought")
+
+
+def assert_fuel_not_available(v: dict, rec: Recording, code: str, month: str = "2026-10", also: tuple = ()) -> None:
+    """D-DD.177: a world that states fuel by invoices and holds no litres serves no fuel cost, cost to serve or
+    contribution, names the litre leaves, and never serves the invoice total in their place."""
+    total = bought(rec, code, month).value
+    for node in ("fuel_cost", "cost_to_serve", "contribution"):
+        got = v[node]
+        assert got.value is None and got.evidence == "NOT_AVAILABLE" and not got.stated, node
+        assert set(LITRES) <= set(got.missing_leaves), node
+        assert set(also) <= set(got.missing_leaves) or node == "fuel_cost", node
+        assert total is None or got.value != total, node
 
 
 def site(w, code: str) -> SiteRef:
@@ -201,7 +224,6 @@ def check_kobo_october(w) -> Recording:
     v = read.site(site(w, "KOBO-001"), "2026-10").values
     expect = {  # factor: (text, currency, evidence, sources, origins)
         "revenue": ("3458.00", "USD", "RECORDED", (KV,), (E,)),
-        "fuel_cost": ("792.50", "USD", "RECORDED", (LF,), (OF,)),
         "diesel_price": ("1.25", "USD", "DERIVED", (LF,), (OF,)),
         "om": ("600.00", "USD", "RECORDED", (GEN,), (E,)),
         "staff": ("500.00", "USD", "RECORDED", (GEN,), (E,)),
@@ -209,8 +231,6 @@ def check_kobo_october(w) -> Recording:
         "in_transit": ("0", "USD", "RECORDED", (KV,), (E,)),
         "outstanding": ("278.00", "USD", "DERIVED", (KV,), (E,)),
         "collected": ("3180.00", "USD", "DERIVED", (KV,), (E,)),
-        "cost_to_serve": ("1892.50", "USD", "RECORDED", (GEN, LF, NEUTRAL), (OF, E)),
-        "contribution": ("1565.50", "USD", "RECORDED", (GEN, KV, LF, NEUTRAL), (OF, E)),
     }
     for factor_id, (value, currency, evidence, sources, origins) in expect.items():
         got = v[factor_id]
@@ -218,18 +238,12 @@ def check_kobo_october(w) -> Recording:
             value, Decimal(value), currency, evidence, sources, origins), factor_id
         assert got.missing is None, factor_id
     assert v["revenue"].stated and v["revenue"].computed is None
-    assert v["fuel_cost"].stated and v["fuel_cost"].computed is None
-    assert v["diesel_price"].value != Decimal("1.30")  # not the fallback's
-    assert v["revenue"].detail_missing == ("adjustments_kwh", "delivered_kwh", "productive_tariff", "tariff",
-                                           "technical_loss_kwh", "unexplained_loss_kwh", "unmapped_kwh")
-    assert v["fuel_cost"].detail_missing == ("candidate_l", "necessary_l", "unexplained_l")
-    assert v["contribution"].detail_missing == tuple(sorted(
-        v["revenue"].detail_missing + v["fuel_cost"].detail_missing))
-    assert v["contribution"].missing_leaves == ()
-    assert weakest_origin(v["contribution"].origins) == E
-    # W2's independent check: the pack's own figure.
-    pack = json.loads(PACK.read_text(encoding="utf-8"), parse_float=Decimal)
-    assert v["contribution"].value == pack["sites"]["lakeside-power/Kobo"]["actual"]["nodes"]["contribution"]
+    assert v["fuel_cost"].stated is False and v["fuel_cost"].detail_missing == LITRES
+    assert_fuel_not_available(v, rec, "KOBO-001")
+    assert (text(bought(rec, "KOBO-001").value), bought(rec, "KOBO-001").evidence) == ("792.50", "RECORDED")
+    assert v["contribution"].detail_missing == tuple(sorted(v["revenue"].detail_missing + LITRES))
+    assert v["contribution"].missing_leaves == LITRES
+    assert weakest_origin(v["revenue"].origins) == E
     return rec
 
 
@@ -238,7 +252,6 @@ def check_kisiwa_october(w) -> Recording:
     v = read.site(site(w, "KISIWA-001"), "2026-10").values
     expect = {
         "revenue": ("4070.00", "USD", "RECORDED", (KB,), (E,)),
-        "fuel_cost": ("1173.90", "USD", "RECORDED", (LA,), (E,)),
         "staff": ("500.00", "USD", "RECORDED", (GEN,), (E,)),
         "outstanding": ("270.00", "USD", "DERIVED", (KB,), (E,)),
         "collected": ("3800.00", "USD", "DERIVED", (KB,), (E,)),
@@ -259,8 +272,11 @@ def check_kisiwa_october(w) -> Recording:
             om.missing.blocks, om.missing.record_words, om.missing.assumption, om.missing.note) == (
         "EXPENSE (OM)", CR, "NOT_RECEIVED", None, ("cost_to_serve", "contribution"), "Service contractor invoice",
         None, None)
+    assert_fuel_not_available(v, rec, "KISIWA-001", also=("om",))
+    assert text(bought(rec, "KISIWA-001").value) == "1173.90"
     for node in ("cost_to_serve", "contribution"):
-        assert v[node].value is None and v[node].missing_leaves == ("om",), node
+        assert v[node].value is None and v[node].missing_leaves == ("candidate_l", "necessary_l", "om",
+                                                                    "unexplained_l"), node
     return rec
 
 
@@ -273,8 +289,9 @@ def check_mto_october(w) -> Recording:
             value, "USD", "RECORDED", (GEN,), (E,)), factor_id
     assert v["revenue"].value is None
     assert gap(v["revenue"]) == ("CHARGE", CR, "NOT_CONNECTED", CHARGE_WORDS, None)
-    assert v["fuel_cost"].value is None
-    assert gap(v["fuel_cost"]) == ("EXPENSE (FUEL)", CR, "NOT_RECEIVED", FUEL_WORDS, None)
+    assert v["fuel_cost"].value is None and v["fuel_cost"].missing_leaves == LITRES
+    assert bought(rec, "MTO-001").value is None  # no invoice, no litres: nothing to say, never a zero
+    assert gap(bought(rec, "MTO-001")) == ("EXPENSE (FUEL)", CR, "NOT_RECEIVED", FUEL_WORDS, None)
     price = v["diesel_price"]
     assert (price.value, price.evidence, price.missing.carried_as, price.sources, price.origins) == (
         Decimal("1.30"), "ESTIMATED", "ASSUMPTION", (f"assumption:{PRICE_ID}",), (UNKNOWN,))
@@ -310,7 +327,7 @@ def november_reads() -> tuple[dict, dict, list[Recording]]:
 
 
 def test_2_november_is_open():
-    first, second, _ = november_reads()
+    first, second, (_, rec2) = november_reads()
     revenue = first["revenue"]
     assert revenue.value is None
     m = revenue.missing
@@ -321,10 +338,11 @@ def test_2_november_is_open():
     price = first["diesel_price"]
     assert (price.value, price.evidence) == (Decimal("1.30"), "ESTIMATED")  # no November fuel invoice yet
     # (ii) a November fuel invoice exists: no price and no fuel cost while the month is open, never the fallback's.
-    for factor_id, words in (("diesel_price", None), ("fuel_cost", FUEL_WORDS)):
-        got = second[factor_id]
+    for factor_id, words, got in (("diesel_price", None, second["diesel_price"]),
+                                  ("fuel_bought", FUEL_WORDS, bought(rec2, "KOBO-001", "2026-11"))):
         assert got.value is None and got.evidence == "NOT_AVAILABLE", factor_id
         assert gap(got) == ("EXPENSE (FUEL)", CR, "NOT_RECEIVED", words, "MONTH_OPEN"), factor_id
+    assert second["fuel_cost"].value is None  # D-DD.177: not the invoice
 
 
 # ---------------------------------------------------------------- test 3: the portfolio ("k of n sites")
@@ -336,21 +354,22 @@ def check_portfolio(w) -> None:
     p = read.portfolio(w["tid"], sites, "2026-10")
     expect = {
         "revenue": ("7528.00", 2, (("MTO-001", REVENUE_NINE),)),
-        # D-DD.164 (2026-11-23): M rev 16.23, Kisiwa 1,173.90
-        "fuel_cost": ("1966.40", 2, (("MTO-001", ("candidate_l", "fuel_cost", "necessary_l", "unexplained_l")),)),
+        # D-DD.177: no litres in the world, so no site states a fuel cost; each names its litre leaves (was 1,966.40 of 2)
+        "fuel_cost": (None, 0, tuple((c, LITRES) for c in ("KOBO-001", "KISIWA-001", "MTO-001"))),
         "om": ("1100.00", 2, (("KISIWA-001", ("om",)),)),
         "staff": ("1450.00", 3, ()),
         "outstanding": ("548.00", 2, (("MTO-001", ("outstanding",)),)),
         "collected": ("6980.00", 2, (("MTO-001", tuple(sorted(REVENUE_NINE + ("in_transit", "outstanding")))),)),
-        "contribution": ("1565.50", 1, (("KISIWA-001", ("om",)), ("MTO-001", MTO_MISSING))),
+        "contribution": (None, 0, (("KOBO-001", LITRES), ("KISIWA-001", ("candidate_l", "necessary_l", "om", "unexplained_l")),
+                                   ("MTO-001", MTO_MISSING))),
     }
     for factor_id, (value, k, out) in expect.items():
         got = p.composition.values[factor_id].value
-        assert text(got.value) == value, factor_id
+        assert (got.value is None) if value is None else text(got.value) == value, factor_id
         count = site_count(p, factor_id)
         assert (count.k, count.n, count.out) == (k, 3, out), factor_id
     contribution = p.composition.values["contribution"].value
-    assert (contribution.evidence, contribution.origins) == ("RECORDED", (OF, E))
+    assert contribution.value is None and contribution.evidence == "NOT_AVAILABLE"
 
 
 def test_3_portfolio():
@@ -367,14 +386,17 @@ def test_4_3a4_fixture():
     kobo = site(w, "KOBO-001")
     v = read.site(kobo, "2026-10").values
     after_f = {"revenue": "495.50", "in_transit": "60.00", "outstanding": "335.50", "collected": "100.00",
-               "productive_kwh": "1000", "fuel_cost": "775.00", "om": "275.00", "staff": "450.00",
-               "cost_to_serve": "1500.00", "contribution": "-1004.50"}
+               "productive_kwh": "1000", "om": "275.00", "staff": "450.00"}
     assert {f: text(v[f].value) for f in after_f} == after_f
+    assert_fuel_not_available(v, _, "KOBO-001")  # D-DD.177: no litres, so no fuel cost, cost to serve, contribution
+    assert text(bought(_, "KOBO-001").value) == "775.00"
     assert v["diesel_price"].value == Decimal("1.25") and v["diesel_price"].evidence == "DERIVED"
     early = read.site(kobo, "2026-10", known_at=datetime(2026, 11, 5, tzinfo=timezone.utc)).values
-    known = {"revenue": "505.50", "outstanding": "345.50", "collected": "100.00", "fuel_cost": "762.50",
-             "om": "180.00", "contribution": "-887.00"}
+    known = {"revenue": "505.50", "outstanding": "345.50", "collected": "100.00",
+             "om": "180.00"}
     assert {f: text(early[f].value) for f in known} == known
+    assert text(bought(_, "KOBO-001", known_at=datetime(2026, 11, 5, tzinfo=timezone.utc)).value) == "762.50"
+    assert early["contribution"].value is None  # D-DD.177
     assert early["diesel_price"].value == Decimal("1.25")
 
 
@@ -405,8 +427,8 @@ def test_6_currencies_apart():
     assert om_kes["om"].value is None
     assert gap(om_kes["om"]) == ("EXPENSE (OM)", CR, "NOT_CALCULATED_YET", "Service contractor invoice",
                                  "CURRENCY_MISMATCH:KES,USD")
-    for factor_id, words in (("fuel_cost", FUEL_WORDS), ("diesel_price", None)):
-        got = fuel_kes[factor_id]
+    for factor_id, words in (("fuel_bought", FUEL_WORDS), ("diesel_price", None)):
+        got = bought(_[1], "KOBO-001") if factor_id == "fuel_bought" else fuel_kes[factor_id]
         assert got.value is None and got.evidence == "NOT_AVAILABLE", factor_id  # not the fallback's 1.30
         assert gap(got) == ("EXPENSE (FUEL)", CR, "NOT_CALCULATED_YET", words, "CURRENCY_MISMATCH:KES,USD"), \
             factor_id
@@ -478,9 +500,9 @@ def test_8_a_quote_revised_to_an_invoice_becomes_cost():
     assert quote["source_record_id"] == "KOBO-EX-FUEL-Q1025" and quote["status"] == "QUOTE"
     quote.update(source_version="2", status="INVOICED")
     ingest(w, LATER, envelope(1, [quote]))
-    read, _ = reader(w)
+    read, rec = reader(w)
     v = read.site(site(w, "KOBO-001"), "2026-10").values
-    assert text(v["fuel_cost"].value) == "1152.50"
+    assert text(bought(rec, "KOBO-001").value) == "1152.50" and v["fuel_cost"].value is None
     with decimal.localcontext(Context(prec=34, rounding=decimal.ROUND_HALF_EVEN)):
         expected = Decimal("1152.50") / Decimal("934")
     assert v["diesel_price"].value == expected
@@ -565,10 +587,11 @@ def test_11a_no_float_and_no_structure_import_under_commercial():
 
 def test_11b_sums_ignore_the_ambient_context():
     w = money_world()
-    read, _ = reader(w)
+    read, rec = reader(w)
     with decimal.localcontext(Context(prec=3)):
         v = read.site(site(w, "KOBO-001"), "2026-10").values
-    assert (text(v["revenue"].value), text(v["fuel_cost"].value), text(v["outstanding"].value)) == (
+        total = bought(rec, "KOBO-001").value
+    assert (text(v["revenue"].value), text(total), text(v["outstanding"].value)) == (
         "3458.00", "792.50", "278.00")
     assert v["diesel_price"].value == Decimal("1.25")
 
@@ -585,8 +608,8 @@ def zero_litres_read() -> tuple[dict, Recording]:
 
 
 def test_12_zero_litres_give_no_price():
-    v, _ = zero_litres_read()
-    assert text(v["fuel_cost"].value) == "40.00" and v["fuel_cost"].stated
+    v, rec = zero_litres_read()
+    assert text(bought(rec, "MTO-001").value) == "40.00" and v["fuel_cost"].value is None
     price = v["diesel_price"]
     assert price.value is None and price.evidence == "NOT_AVAILABLE"  # not the fallback's 1.30
     assert gap(price) == ("EXPENSE (FUEL)", CR, "NOT_CALCULATED_YET", None, "ZERO_DENOMINATOR:fuel_litres")

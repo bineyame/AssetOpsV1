@@ -378,7 +378,7 @@ def test_t5_neutral_values_are_the_manifest_literals():
         else:
             assert row.neutral is None
     assert set(OPTION_ONLY) == {"extra_l", "battery_throughput_kwh", "collection_cost"}
-    assert MG.version == 4  # 4a (D-4A.1)
+    assert MG.version == 5  # DD3d.4 (D-DD.163)
 
 
 @pytest.mark.parametrize("target,neutral", [
@@ -666,7 +666,7 @@ def test_t6_the_read_evaluates_today_and_names_what_is_missing():
     priced = PriceSelection("PRICED", None, "rev-1", Decimal("1.30"), "USD", "a-1")
     source = _source([_snap(d) for d in OCT], FakePrices({"diesel_price_per_litre": priced}))
     result = StructureRead(source).site(KOBO, "2026-10")
-    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 4, "KOBO-001")  # 4a: v4
+    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 5, "KOBO-001")  # DD3d.4: v5
     values = result.values
     assert values["unserved_critical_kwh"].value == Decimal("46.5")
     assert values["contribution"].value is None and values["contribution"].evidence == "NOT_AVAILABLE"

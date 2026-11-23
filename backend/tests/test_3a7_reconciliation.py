@@ -431,8 +431,8 @@ def test_r7_the_recorded_figures_are_the_screens() -> None:
     def stated(code: str, factor: str):
         site = SiteRef(w["tid"], w["sites"][code], code, "MINIGRID", "Africa/Nairobi")
         ctx = ReadContext(site, "2026-10", None)
-        # D-DD.163: the invoices are the `fuel_bought` leaf; only `revenue` is a stated node
-        return (leaves.leaf(ctx, factor) if factor == "fuel_bought" else leaves.stated(ctx, factor)).value
+        # D-DD.163: the invoices are the `fuel_bought` money row, judged here; only `revenue` is a stated node
+        return (leaves._judge(ctx, factor) if factor == "fuel_bought" else leaves.stated(ctx, factor)).value
 
     def mine(code: str) -> dict:
         check = w["recon"].check(w["tid"], row(w, uuid4(), fuel="1.00", site_id=w["sites"][code]))
