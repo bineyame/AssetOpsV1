@@ -18,12 +18,23 @@ def url(database: str) -> str:
 
 
 @pytest.mark.parametrize("database", ["assetops_polish_x", "assetops_polish_full_test", "foo_test",
-                                      "assetops_demo3_main_test"])
+                                      "assetops_demo3_main_test",
+                                      # D-DD.168: the world rung names `tools/world.py` makes
+                                      "assetops_world_audit_l0_0123456789ab", "assetops_world_audit_l1_0123456789ab",
+                                      "assetops_world_audit_l2_0123456789ab", "assetops_world_audit_c_dd5b"])
 def test_prepare_databases_pass(database: str) -> None:
     require_prepare_database(url(database))
 
 
-@pytest.mark.parametrize("database", ["assetops", "assetops_polish", "assetops_demo3_x", "assetops_test_x"])
+@pytest.mark.parametrize("database", ["assetops", "assetops_polish", "assetops_demo3_x", "assetops_test_x",
+                                      # D-DD.168: near misses of the rung names
+                                      "assetops_world_audit", "assetops_world_audit_l3_0123456789ab",
+                                      "assetops_world_audit_l2_0123456789a", "assetops_world_audit_l2_0123456789abc",
+                                      "assetops_world_audit_l2_0123456789AB", "assetops_world_audit_c_",
+                                      "assetops_World_audit_c_dd5b", "x_assetops_world_audit_c_dd5b",
+                                      # D-DD.168: an operator's name refuses before any pattern
+                                      "assetops_op_x_test", "ASSETOPS_OP_x_test", "assetops_op_audit_c_dd5b",
+                                      "assetops_operator_audit_c_dd5b"])
 def test_other_databases_refuse_by_name(database: str) -> None:
     with pytest.raises(PrepareClockRefused, match=f"PREPARE_CLOCK_REFUSED.*{database}"):
         require_prepare_database(url(database))

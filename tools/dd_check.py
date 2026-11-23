@@ -37,13 +37,14 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
-    "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
-    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
+    "C-DD9": "DD6.1", "C-DD10": "DD6.1",
+    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD6.1", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3",
 }
 #: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
 #: D-DD.146 (DD3b) and DD4b: Kisiwa's, Mto's and the EV clauses are live (FAILURES_LIVE); C-DD6 has none pending.
 PENDING = {"C-DD6": (),
+           "C-DD8": ("on the store: tank bounds, unserved critical energy and Kisiwa's candidate minutes DD5.1 (pure: --pure)",),
            "C-DD7": ("mini-grid load served + unserved = delivered_kwh: unserved energy is no readings channel (DD3a writes "
                      "it to measured.json only); the readings-side clause lands with DD3b/DD5",
                      "EV kwh_2200_2400, kwh_0000_0500 (D-DD.158): each `measured.json` window is judged exactly "
@@ -390,17 +391,63 @@ def _sum(rows: list[dict], key: str = "amount") -> Decimal:
     return sum((r[key] for r in rows), Decimal(0))
 
 
-def judge_kinds(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
-    """C-DD2: every Site-month July to October holds each decided kind of its Site type, all labelled Emulated."""
+FUEL_QUERY = (
+    "SELECT t.slug AS tenant, s.site_code AS site, r.kind, r.quantity AS litres, "
+    "to_char(r.occurred_at AT TIME ZONE s.timezone, 'YYYY-MM-DD\"T\"HH24:MI') AS taken_at_local "
+    "FROM operational_record r JOIN tenant t ON t.id = r.tenant_id JOIN site s ON s.id = r.site_id "
+    "WHERE r.kind IN ('FUEL_DELIVERY', 'TANK_DIP') "
+    "AND NOT EXISTS (SELECT 1 FROM operational_record n WHERE n.supersedes_record_id = r.id) "
+    "ORDER BY r.occurred_at, r.id")
+
+
+def stored_fuel_records(database_url: str) -> list[dict]:
+    """The latest version of every stored fuel delivery and tank dip, its litres exact, at its Site's local minute."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(database_url)
+    try:
+        with engine.connect() as c:
+            return [{**r._mapping, "litres": Decimal(r.litres)} for r in c.execute(text(FUEL_QUERY))]
+    finally:
+        engine.dispose()
+
+
+def _plain(value: Decimal) -> str:
+    return format(value.normalize(), "f")
+
+
+def _fuel_kinds(rows: list[dict], fuel: list[dict], tenant: str, code: str, month: str) -> list[str]:
+    """C-DD2's fuel clause for one mini-grid Site-month: a tank dip; delivered litres equal the month's fuel expense
+    rows' (a month the books bought no fuel in has no delivery; D-DD.175)."""
+    mine = [r for r in fuel if (r["tenant"], r["site"], r["taken_at_local"][:7]) == (tenant, code, month)]
+    out = [] if any(r["kind"] == "TANK_DIP" for r in mine) else [f"{tenant}/{code} {month}: no TANK_DIP record"]
+    delivered = _sum([r for r in mine if r["kind"] == "FUEL_DELIVERY"], "litres")
+    bought = _sum([r for r in _by(rows, tenant, code, month, "EXPENSE") if r["body"].get("category") == "FUEL"], "quantity")
+    if delivered != bought:
+        out.append(f"{tenant}/{code} {month}: FUEL_DELIVERY {_plain(delivered)} L != fuel expense rows {_plain(bought)} L")
+    return out
+
+
+def judge_kinds(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None,
+                fuel: list[dict] | None = None) -> Result:
+    """C-DD2: every Site-month July to October holds each decided kind of its Site type, all labelled Emulated; a
+    mini-grid Site-month also its fuel records (`fuel`: the stored ones; None: printed pending)."""
     detail: list[str] = []
     for tenant, vertical, _, code, month, _, _, _, _ in _site_months(inputs, tenants):
         for kind in DECIDED_KINDS.get(vertical, ()):
             if not _by(rows, tenant, code, month, kind):
                 detail.append(f"{tenant}/{code} {month}: no {kind} record")
+        if vertical == "MINI_GRID" and fuel is not None:
+            detail += _fuel_kinds(rows, fuel, tenant, code, month)
     for r in rows:
         if (tenants is None or r["tenant"] in tenants) and r["provenance"] != EMULATED:
             detail.append(f"{r['tenant']}/{r['site']} {r['month']} {r['kind']}: source word {r['provenance']}, not Emulated")
-    return Result("C-DD2", not detail, detail[:40] + ([f"... {len(detail) - 40} more"] if len(detail) > 40 else []))
+    return Result("C-DD2", not detail, detail[:40] + ([f"... {len(detail) - 40} more"] if len(detail) > 40 else []),
+                  pending=["FUEL_DELIVERY and TANK_DIP: no stored records given"] if fuel is None else [])
+
+
+def check_kinds(inputs: "Inputs") -> Result:
+    return judge_kinds(inputs, stored_books(inputs.database_url), None, stored_fuel_records(inputs.database_url))
 
 
 #: D-DD.58: an EV invoice line's price class and the key of its price in `M` `tenants.<t>.sites.<s>.tariff.prices`.
@@ -664,6 +711,10 @@ def check_failures(inputs: "Inputs") -> Result:
 
 PURE_CHECKS = ("C-DD8", "C-DD17", "C-DD20")
 ONBOARDING_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
+FUEL_RECORDS_SCHEMA = "assetops.world-fuel-records/1"
+#: D-DD.153: a tank's floor is 2a (two level readings a month, each within its declared accuracy a); the checker's own
+#: figure, never imported from the product (W2).
+TANK_FLOOR_FACTOR = Decimal(2)
 ON_STATES = ("STARTING", "RUNNING")
 CANDIDATE_PV_SHARE = Decimal("1.1")  # dispatch-3.2's candidate rule: PV >= 1.1 x load (domain models §3.4)
 PURE_MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")  # the pure run's span by month
@@ -713,9 +764,11 @@ def pure_steps(rows, roles: dict[tuple[str, str], str] | None = None) -> dict[st
 
 def read_pure(directory: Path) -> dict:
     """The pure run's files: `<tenant>/telemetry/<CODE>.<day>.readings.json`, `<CODE>.manifest.json` and
-    `measured.json`. Returns `{"sites": {code: {"steps", "manifest"}}, "measured": {code: months}}`."""
+    `measured.json`, and `<tenant>/fuel-records.json`. Returns `{"sites": {code: {"steps", "manifest"}}, "measured":
+    {code: months}, "fuel": {code: records}}`."""
     sites: dict[str, dict] = {}
     measured: dict[str, dict] = {}
+    fuel: dict[str, list[dict]] = {}
     for path in sorted(Path(directory).rglob("*.manifest.json")):
         manifest = json.loads(path.read_text(encoding="utf-8"))
         if "site_code" in manifest:
@@ -727,9 +780,14 @@ def read_pure(directory: Path) -> dict:
         site["steps"].update(pure_steps(json.loads(path.read_text(encoding="utf-8"))["readings"], roles))
     for path in sorted(Path(directory).rglob("measured.json")):
         measured.update(json.loads(path.read_text(encoding="utf-8"))["sites"])
+    for path in sorted(Path(directory).rglob("fuel-records.json")):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        if document.get("schema") != FUEL_RECORDS_SCHEMA:
+            raise InputError(f"{path}: schema {document.get('schema')}")
+        fuel.update({site["site_code"]: site["records"] for site in document["sites"]})
     if not sites:
         raise InputError(f"{directory}: no pure-run readings")
-    return {"sites": sites, "measured": measured}
+    return {"sites": sites, "measured": measured, "fuel": fuel}
 
 
 def _components(onboarding: dict, code: str, kind: str) -> list[dict]:
@@ -773,6 +831,24 @@ def tank_outside_bounds(sites: dict[str, dict], onboarding: dict) -> list[str]:
         if bad:
             out.append(f"{code}: tank outside [0, {capacity}] L at {len(bad)} steps, first {bad[0][0]} {bad[0][1]} L")
     return out
+
+
+def declared_accuracy(onboarding: dict, code: str) -> Decimal | None:
+    """The Site's tank's declared level accuracy (litres) in the `/2` file; None unless one tank declares one value."""
+    tanks = _components(onboarding, code, "FUEL_TANK")
+    values = [p["value"] for tank in tanks for p in tank.get("properties", [])
+              if p["property_key"] == "fuel-level-sensor-accuracy"]
+    return Decimal(str(values[0])) if len(tanks) == len(values) == 1 else None
+
+
+def mini_grid_codes(manifest: Path = MANIFEST) -> tuple[str, ...]:
+    doc = yaml.safe_load(Path(manifest).read_text(encoding="utf-8"))
+    return tuple(site["code"] for tenant in doc["tenants"] if tenant["vertical"] == "MINI_GRID" for site in tenant["sites"])
+
+
+def next_month(month: str) -> str:
+    year, number = int(month[:4]), int(month[5:7])
+    return f"{year + number // 12}-{number % 12 + 1:02d}"
 
 
 def fuel_tolerances(manifest: Path = MANIFEST) -> dict[str, Decimal]:
@@ -880,6 +956,50 @@ def litres_per_day_rise(steps: dict[str, dict], kit: dict[str, tuple], at: str,
                                      f"{per_day[1]:.2f} after")
 
 
+def _records_month(code: str, month: str, records: list[dict], steps: dict[str, dict], kit: dict[str, tuple],
+                   draw: Decimal) -> tuple[bool, str]:
+    """One Site-month on its fuel records: opening dip + deliveries - closing dip - burned = the declared draw, to 0.1 L
+    (the dips are the first of this month and of the next; the burn is the readings' over every step between)."""
+    first, last = f"{month}-01T00:00", f"{next_month(month)}-01T00:00"
+    head, level = f"{code} {month} records", {}
+    for at in (first, last):
+        dips = [Decimal(str(r["litres"])) for r in records if r["kind"] == "TANK_DIP" and r["taken_at_local"] == at]
+        if len(dips) != 1:
+            return False, f"{head}: {len(dips)} dips at {at}, not one"
+        level[at] = dips[0]
+    days = (datetime.fromisoformat(last) - datetime.fromisoformat(first)).days
+    span = [m for m in steps if first <= m < last]
+    if len(span) != days * 1440 // STEP:
+        return False, f"{head}: {len(span)} of {days * 1440 // STEP} steps of readings"
+    delivered = sum((Decimal(str(r["litres"])) for r in records if r["kind"] == "FUEL_DELIVERY"
+                     and first <= r["taken_at_local"] < last), Decimal(0))
+    burned = sum((step_litres(steps[m], kit) for m in span), Decimal(0))
+    balance = level[first] + delivered - level[last] - burned
+    tenth = Decimal("0.1")
+    return (balance.quantize(tenth) == draw.quantize(tenth),
+            f"{head} {level[first]:.1f} + {delivered:.1f} - {level[last]:.1f} - burned {burned:.1f} = {balance:.1f} L, "
+            f"declared draw {draw:.0f} L")
+
+
+def judge_fuel_records(fuel: dict[str, list[dict]], sites: dict[str, dict], onboarding: dict
+                       ) -> tuple[list[str], list[str]]:
+    """C-DD8 on the fuel records (D-DD.154): (failing lines, passing lines), every mini-grid Site-month."""
+    failing: list[str] = []
+    lines: list[str] = []
+    for code in mini_grid_codes():
+        if not fuel.get(code):
+            failing.append(f"{code}: no fuel records")
+            continue
+        if code not in sites:
+            failing.append(f"{code}: no readings for the records' balance")
+            continue
+        kit, draws = generator_kit(onboarding, code), declared_draws(code)
+        for month in PURE_MONTHS:
+            good, line = _records_month(code, month, fuel[code], sites[code], kit, draws[month])
+            (lines if good else failing).append(line)
+    return failing, lines
+
+
 def judge_pure_c_dd8(pure: dict, onboarding: dict) -> Result:
     sites = {code: site["steps"] for code, site in pure["sites"].items()}
     failing = tank_outside_bounds(sites, onboarding)
@@ -904,6 +1024,9 @@ def judge_pure_c_dd8(pure: dict, onboarding: dict) -> Result:
     else:
         good, line = judge_candidate_share(kisiwa["steps"])
         (detail if good else failing).append(line)
+    unbalanced, balanced = judge_fuel_records(pure["fuel"], sites, onboarding)
+    failing += unbalanced
+    detail += balanced
     return Result("C-DD8", not failing, [f"FAIL {d}" if d in failing else d for d in dict.fromkeys(detail + failing)])
 
 
@@ -921,49 +1044,44 @@ def declared_draws(code: str, manifest: Path = MANIFEST, history: Path = HISTORY
     raise KeyError(code)
 
 
-def within_tolerance(b: dict[str, Decimal], tolerance: Decimal) -> tuple[bool, Decimal]:
-    """The relative test of the unexplained litres against consumption (D-DD.149's `tolerance_pct`). The one place an
-    absolute floor would join the relative tolerance."""
-    share = b["balance"] / b["consumed"] if b["consumed"] else Decimal(0)
-    return share <= tolerance, share
-
-
-def judge_unexplained_month(month: str, b: dict[str, Decimal], draw: Decimal, tolerance: Decimal,
-                            above_in: str = ACCOUNTING_MONTH) -> tuple[bool, str]:
-    """D-DD.152 for one month: unexplained >= 0 and equal to the declared draw (to 0.1 L, the readings' print); where
-    the generator burned, within the tolerance before `above_in` and above it in `above_in`; where it did not burn,
-    the line states what the product shows."""
-    shown = b["balance"].quantize(Decimal("0.1"))
-    good = b["balance"] >= 0 and shown == draw.quantize(Decimal("0.1"))
-    head = f"{month}: unexplained {b['balance']:.1f} L, declared draw {draw:.0f} L"
-    if b["burned"] <= 0:
-        return good, (f"{'' if good else 'FAIL '}{head}; no burn: {draw:.0f} L unexplained, which the product shows "
-                      f"against a {b['consumed']:.0f} L consumption")
-    inside, share = within_tolerance(b, tolerance)
-    good &= (not inside) if month == above_in else inside
-    return good, (f"{'' if good else 'FAIL '}{head}, consumed {b['consumed']:.1f} ({share * 100:.2f} %, tolerance "
-                  f"{tolerance * 100:.0f} %, M's tolerance_pct, {'above' if month == above_in else 'within'} expected)")
+def judge_unexplained_month(label: str, b: dict[str, Decimal], draw: Decimal, tolerance: Decimal, accuracy: Decimal,
+                            expected: str = "within") -> tuple[bool, str]:
+    """D-DD.153 for one Site-month: unexplained >= 0 and equal to the declared draw (to 0.1 L, the readings' print);
+    tol = max(tolerance x consumption, 2a), consumption = burned + draw; unexplained <= tol where `expected` is
+    "within", > tol where it is "above". The line ends with the state the product's rule gives."""
+    shown, consumption = b["balance"].quantize(Decimal("0.1")), b["burned"] + draw
+    relative, floor = tolerance * consumption, TANK_FLOOR_FACTOR * accuracy
+    band = max(relative, floor)
+    state = "NO_GAP" if shown == 0 else "INSIDE_TOLERANCE" if shown <= band else "RAISED"
+    good = shown >= 0 and shown == draw.quantize(Decimal("0.1")) and (state == "RAISED") == (expected == "above")
+    share = f" ({shown / consumption * 100:.2f} %)" if consumption else ""
+    return good, (f"{'' if good else 'FAIL '}{label}: unexplained {shown} L{share}, declared draw {draw:.0f} L, consumption "
+                  f"{consumption:.2f}, {tolerance * 100:.0f} % {relative:.2f}, 2a {floor:.0f}, band {band:.2f}, "
+                  f"{expected} expected: {state}")
 
 
 def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
-    """C-DD17 pure part (D-DD.152): Kobo's unexplained litres (the balance) >= 0 and equal to the declared draw every
-    month; the tolerance judged only in months the generator burned (within July-September, above in October)."""
-    kobo = pure["sites"].get("KOBO-001")
-    if kobo is None:
-        return Result("C-DD17", False, ["FAIL KOBO-001: no readings"])
-    balances = month_balances(kobo["steps"], kobo["manifest"].get("conditions", {}).get("fuel_notes", []),
-                              generator_kit(onboarding, "KOBO-001"))
-    draws, tolerance = declared_draws("KOBO-001"), fuel_tolerances()["KOBO-001"]
-    detail, ok = [], True
-    for month in PURE_MONTHS:
-        b = balances.get(month)
-        if b is None:
-            detail.append(f"FAIL {month}: no readings")
+    """C-DD17 pure part (D-DD.153): every mini-grid Site-month's unexplained litres (the balance) equal the declared
+    draw and are within the tolerance, except Kobo's October, which is above it."""
+    detail, ok, tolerances = [], True, fuel_tolerances()
+    for code in mini_grid_codes():
+        site, accuracy = pure["sites"].get(code), declared_accuracy(onboarding, code)
+        if site is None or accuracy is None:
+            detail.append(f"FAIL {code}: {'no readings' if site is None else 'no declared level accuracy'}")
             ok = False
             continue
-        good, line = judge_unexplained_month(month, b, draws[month], tolerance)
-        ok &= good
-        detail.append(line)
+        balances = month_balances(site["steps"], site["manifest"].get("conditions", {}).get("fuel_notes", []),
+                                  generator_kit(onboarding, code))
+        draws = declared_draws(code)
+        for month in PURE_MONTHS:
+            good, line = False, f"FAIL {code} {month}: no readings"
+            if month in balances:
+                above = (code, month) == ("KOBO-001", ACCOUNTING_MONTH)
+                good, line = judge_unexplained_month(f"{code} {month}", balances[month], draws[month],
+                                                     tolerances.get(code, Decimal(0)), accuracy,
+                                                     "above" if above else "within")
+            ok &= good
+            detail.append(line)
     return Result("C-DD17", ok, detail)
 
 
@@ -1005,6 +1123,73 @@ def run_pure(directory: Path, only: tuple[str, ...] = PURE_CHECKS) -> list[Resul
         except Exception as error:  # noqa: BLE001 - an unreadable input is a FAIL with its detail
             results.append(Result(check, False, [f"could not be judged: {type(error).__name__}: {error}"]))
     return results
+
+
+# --- C-DD8 on the store (D-DD.154): the stored fuel records and the assessed nights -----------------------------------
+
+NIGHT_QUERY = (
+    "SELECT s.site_code AS site, w.night_date, w.state, w.reason FROM fuel_balance_window w "
+    "JOIN site s ON s.id = w.site_id WHERE NOT EXISTS (SELECT 1 FROM fuel_balance_window n "
+    "WHERE (n.tenant_id, n.site_id, n.tank_asset_id, n.night_date) = (w.tenant_id, w.site_id, w.tank_asset_id, w.night_date) "
+    "AND n.revision > w.revision) ORDER BY w.night_date")
+RAISED_NIGHTS = ("UNEXPLAINED", "EXCESS")
+
+
+def stored_fuel_nights(database_url: str) -> dict[str, list[tuple[str, str, str | None]]]:
+    """Per Site code, each night's latest revision: (night date, state, reason)."""
+    from sqlalchemy import create_engine, text
+
+    out: dict[str, list[tuple[str, str, str | None]]] = {}
+    engine = create_engine(database_url)
+    try:
+        with engine.connect() as c:
+            for r in c.execute(text(NIGHT_QUERY)):
+                out.setdefault(r.site, []).append((r.night_date.isoformat(), r.state, r.reason))
+    finally:
+        engine.dispose()
+    return out
+
+
+def judge_fuel_nights(nights: dict[str, list[tuple[str, str, str | None]]]) -> tuple[list[str], list[str]]:
+    """Every assessed night by state per mini-grid Site; UNEXPLAINED, EXCESS or no assessed night fails."""
+    failing: list[str] = []
+    lines: list[str] = []
+    for code in mini_grid_codes():
+        mine = sorted(nights.get(code, []))
+        assessed = [n for n in mine if n[1] != "NOT_ASSESSED"]
+        failing += [f"{code} night {night} {state}" for night, state, _ in assessed if state in RAISED_NIGHTS]
+        if not assessed:
+            failing.append(f"{code}: no assessed night")
+        for state in sorted({n[1] for n in assessed}):
+            dates = [n[0] for n in assessed if n[1] == state]
+            lines.append(f"{code} nights {state} {len(dates)}: {', '.join(dates)}")
+        reasons = [n[2] for n in mine if n[1] == "NOT_ASSESSED"]
+        if reasons:
+            by = ", ".join(f"{r} {reasons.count(r)}" for r in sorted({str(r) for r in reasons}))
+            lines.append(f"{code} nights NOT_ASSESSED {len(reasons)} ({by})")
+    return failing, lines
+
+
+def judge_store_c_dd8(fuel: dict[str, list[dict]], sites: dict[str, dict],
+                      nights: dict[str, list[tuple[str, str, str | None]]], onboarding: dict) -> Result:
+    failing, lines = judge_fuel_nights(nights)
+    if sites:
+        unbalanced, balanced = judge_fuel_records(fuel, sites, onboarding)
+        failing += unbalanced
+        lines += balanced
+    else:
+        failing += [f"{code}: no fuel records" for code in mini_grid_codes() if not fuel.get(code)]
+        failing.append("no readings stored: the loader is DD5.1's; the records' balance is not judged")
+    return Result("C-DD8", not failing, [f"FAIL {d}" for d in failing] + lines, pending=list(PENDING["C-DD8"]))
+
+
+def check_fuel(inputs: "Inputs") -> Result:
+    fuel: dict[str, list[dict]] = {}
+    for r in stored_fuel_records(inputs.database_url):
+        fuel.setdefault(r["site"], []).append(r)
+    readings = {code: pure_steps(rows) for code, rows in stored_readings(inputs.database_url).items()}
+    return judge_store_c_dd8(fuel, readings, stored_fuel_nights(inputs.database_url),
+                             json.loads(ONBOARDING_FILE.read_text(encoding="utf-8")))
 
 
 # --- C-DD5, C-DD7, C-DD20 (DD4.4; D-DD.55, D-DD.99, D-DD.124): judges on rows -----------------------------------------
@@ -1518,9 +1703,9 @@ def check_datasheet(inputs: Inputs) -> Result:
 LIVE: dict[str, Callable[[Inputs], Result]] = {
     "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
     "C-DD16": check_datasheet,
-    "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
+    "C-DD1": check_cast, "C-DD2": check_kinds, "C-DD3": _judged(judge_identities),
     "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures,
-    "C-DD5": check_cadence, "C-DD7": check_meter_books, "C-DD20": check_story}
+    "C-DD5": check_cadence, "C-DD7": check_meter_books, "C-DD8": check_fuel, "C-DD20": check_story}
 
 
 def run(inputs: Inputs, only: tuple[str, ...] = ORDER) -> list[Result]:

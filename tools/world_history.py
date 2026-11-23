@@ -19,7 +19,8 @@ sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical form
 #   exports  --manifest M --out DIR     3A3/DD2b: write the emulated native CSV exports (mini-grid October; cold
 #                                       and EV July-October in their source profiles' formats) and
 #                                       `unwritten.json` into a new or empty DIR outside the repository; exit 3 with
-#                                       `EMU_*` or `DS1B_*` on stderr
+#                                       `EMU_*` or `DS1B_*` on stderr; with `--telemetry DIR`, also the measured books
+#                                       and each mini-grid tenant's `<slug>/fuel-records.json` (D-DD.168)
 
 import argparse  # noqa: E402
 import json  # noqa: E402
@@ -27,6 +28,7 @@ import json  # noqa: E402
 from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
+from assetops_simulator.world import exports_fuel_records as fuel_records_writer  # noqa: E402
 from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
 from assetops_simulator.world import telemetry_cold as cold_writer  # noqa: E402
 from assetops_simulator.world import telemetry_ev as ev_writer  # noqa: E402
@@ -118,24 +120,51 @@ def _measured_documents(view, dirs: list[Path], tenants: list[str] | None) -> di
     return out
 
 
+def _fuel_readings(view, history, dirs: list[Path], tenants: list[str] | None) -> dict[str, dict]:
+    """D-DD.168: per mini-grid tenant and Site, the readings manifest and the dip days' readings, from the `--telemetry`
+    directory that holds the Site's manifest (one only; none is refused by the writer, at the first dip)."""
+    out: dict[str, dict] = {}
+    for tenant in fuel_records_writer.mini_grid_tenants(view, tenants):
+        slug = tenant["tenant"]
+        out[slug] = {}
+        for site in tenant["sites"]:
+            code = site["code"]
+            found = [d / slug / "telemetry" for d in dirs if (d / slug / "telemetry" / f"{code}.manifest.json").is_file()]
+            if len(found) > 1:
+                raise ValueError(f"EMU_FUEL_RECORDS {code} manifest found in {len(found)} of the --telemetry directories")
+            if not found:
+                continue
+            days = {}
+            for day in fuel_records_writer.dip_days(history, view["accounting_period"]):
+                path = found[0] / f"{code}.{day}.readings.json"
+                if path.is_file():
+                    days[day] = json.loads(path.read_text(encoding="utf-8"))
+            out[slug][code] = {"manifest": json.loads((found[0] / f"{code}.manifest.json").read_text(encoding="utf-8")),
+                               "days": days}
+    return out
+
+
 def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: list[str] | None = None,
              telemetry: list[Path] | None = None) -> int:
     try:
         target = _out_dir(out)
         extra = _out_dir(extras) if extras is not None else None
         view = load_view(manifest)
-        result = build_books(view, generate_history(view))  # mini-grid, cold and EV books (DD2b)
+        history = generate_history(view)
+        result = build_books(view, history)  # mini-grid, cold and EV books (DD2b)
         if tenants:  # D-DD.74: keep only the named tenants' files; build_books is unchanged
             known = {str(t.get("tenant")) for t in view.get("tenants", [])}
             for slug in tenants:
                 if slug not in known:
                     raise ValueError(f"EMU_TENANT_UNKNOWN {slug}")
-        measured = None
+        measured, fuel_records = None, ()
         if telemetry:  # DD4.4 (D-DD.20): the measured books, written after the readings
             from assetops_simulator.world.exports_measured import build_measured_exports
 
-            measured = build_measured_exports(view, generate_history(view), result.files,
+            measured = build_measured_exports(view, history, result.files,
                                               _measured_documents(view, telemetry, tenants))
+            fuel_records = fuel_records_writer.build_fuel_records(
+                view, history, result.files, _fuel_readings(view, history, telemetry, tenants))
     except ValueError as error:
         if not str(error).startswith(("EMU_", "DS1B_", "TEL_")):
             raise
@@ -155,6 +184,9 @@ def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: lis
         for name, data in (*result.staged, *result.statements, *(measured.extras if measured else ())):
             if kept(name):
                 (extra / name).write_bytes(data)
+    for slug, data in fuel_records:  # D-DD.168: the operator's deliveries and dips, for `load_fuel_records`
+        (target / slug).mkdir()
+        (target / slug / fuel_records_writer.FILE_NAME).write_bytes(data)
     (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
     return 0
 

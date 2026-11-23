@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from assetops_backend.structure.observe.floor import StoreFloorRead
 from assetops_backend.structure.observe.service import StructureObserver
 
 
@@ -28,12 +29,18 @@ def _utc_now() -> datetime:
 
 def build_structure_observer(database_url: str) -> Wiring:
     from assetops_backend.analytics.composition import build_finding_store, build_postgres_assessment_store
+    from assetops_backend.fuel_balance.composition import build_fuel_balance_store
     from assetops_backend.structure_snapshot.composition import build_structure_snapshot
 
     snapshot = build_structure_snapshot(database_url)
     try:
         findings = build_finding_store(database_url)
         assessments = build_postgres_assessment_store(database_url)
+        try:
+            fuel = build_fuel_balance_store(database_url)
+        except BaseException:
+            assessments.dispose()
+            raise
     except BaseException:
         snapshot.dispose()
         raise
@@ -42,10 +49,14 @@ def build_structure_observer(database_url: str) -> Wiring:
         try:
             snapshot.dispose()
         finally:
-            assessments.dispose()
+            try:
+                assessments.dispose()
+            finally:
+                fuel.dispose()
 
     try:
-        observer = StructureObserver(snapshot.read, snapshot.store, findings, assessments, _utc_now)
+        observer = StructureObserver(snapshot.read, snapshot.store, findings, assessments, _utc_now,
+                                     StoreFloorRead(fuel))
     except BaseException:
         dispose()
         raise

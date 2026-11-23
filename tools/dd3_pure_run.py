@@ -175,7 +175,7 @@ def dated_notes(code: str, zone) -> list[dict]:
     view = world_history.load_view(MANIFEST)
     names = {(t["tenant"], s["site"]): s["code"] for t in view["tenants"] for s in t.get("sites", [])}
     out = []
-    for test, tenant, site, day, litres in DATED_NOTES:
+    for test, tenant, site, day, litres, _ in DATED_NOTES:
         if names.get((tenant, site)) == code:
             instant = datetime.fromisoformat(day).replace(hour=NOTE_HOUR, tzinfo=zone)
             out.append({"at": instant.isoformat(), "litres": str(litres), "basis": f"STORY:{test}"})

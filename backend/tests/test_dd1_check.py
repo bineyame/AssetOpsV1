@@ -98,10 +98,10 @@ def test_stubs_fail_naming_their_unit(inputs) -> None:
     stubs = tuple(c for c in dd_check.ORDER if c in dd_check.STUBS)
     results = dd_check.run(inputs, stubs)
     assert [r.check for r in results] == list(stubs) and not any(r.passed for r in results)
-    assert set(dd_check.STUBS) | {"C-DD1", "C-DD2", "C-DD3", "C-DD4", "C-DD5", "C-DD6", "C-DD7", "C-DD11", "C-DD12",
+    assert set(dd_check.STUBS) | {"C-DD1", "C-DD2", "C-DD3", "C-DD4", "C-DD5", "C-DD6", "C-DD7", "C-DD8", "C-DD11", "C-DD12",
                                   "C-DD13", "C-DD16", "C-DD20", "C-DD21"} == set(dd_check.ORDER)
     assert not set(dd_check.STUBS) & set(dd_check.LIVE)
-    assert dd_check.stub("C-DD8").detail == ["not live: its unit DD3.3 has not landed"]
+    assert dd_check.stub("C-DD17").detail == ["not live: its unit DD6.1 has not landed"]
 
 
 def test_unknown_check_is_a_usage_error(capsys) -> None:

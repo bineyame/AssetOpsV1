@@ -217,6 +217,9 @@ def _cli(*args: str):
 
 
 def test_e10_exports_telemetry_writes_the_measured_books_after_the_decided(tmp_path) -> None:
+    from .test_dd3d_fuel_records_file import LAKE, write_telemetry  # D-DD.168: the mini-grid dips come from readings
+
+    write_telemetry(tmp_path / "tel-lake")
     for slug, doc in ((COLD, cold_doc()), (EV, ev_doc())):
         target = tmp_path / f"tel-{slug}" / slug / "telemetry"
         target.mkdir(parents=True)
@@ -224,10 +227,12 @@ def test_e10_exports_telemetry_writes_the_measured_books_after_the_decided(tmp_p
     plain, measured = tmp_path / "plain", tmp_path / "measured"
     assert _cli("--out", str(plain / "b"), "--extras", str(plain / "x")).returncode == 0
     done = _cli("--out", str(measured / "b"), "--extras", str(measured / "x"),
-                "--telemetry", str(tmp_path / f"tel-{COLD}"), "--telemetry", str(tmp_path / f"tel-{EV}"))
+                "--telemetry", str(tmp_path / f"tel-{COLD}"), "--telemetry", str(tmp_path / f"tel-{EV}"),
+                "--telemetry", str(tmp_path / "tel-lake"))
     assert done.returncode == 0, done.stderr
     before = {p.name: p.read_bytes() for p in (plain / "b").iterdir()}
-    after = {p.name: p.read_bytes() for p in (measured / "b").iterdir()}
+    after = {p.name: p.read_bytes() for p in (measured / "b").iterdir() if p.is_file()}
+    assert [p.name for p in (measured / "b").iterdir() if p.is_dir()] == [LAKE]
     assert {k: v for k, v in after.items() if k in before} == before  # the decided books are unchanged
     assert set(after) - set(before) == {f"{COLD}.profile.cold-electricity-bill.csv", f"{EV}.profile.ev-utility-invoice.csv",
                                         f"{EV}.profile.ev-departures.csv"}

@@ -812,3 +812,12 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   disjoint from every physical read, guarded for all nine Sites), D-DD.164 re-pins; Kisiwa candidate share printed
   20.67 / 16.05 / 0 / 10.55 % (threshold sensitivity, D-DD.165); world suite 484 passed; `dd_check --pure` exit 0.
 - Open: six H5 history checks; DDR rehearsal x7 and ds4 t12 on the DB side.
+
+## DD3d-a: the fuel floor and the fuel records (in_review; `specs/DD-demo-data/packet-DD3d-a.md`)
+
+- Settled: the unexplained-fuel band is the larger of 2 % and twice the tank's declared level accuracy (Kobo 25, Kisiwa
+  50, Mto 10 L; D-DD.153) in the observer, C-DD17 and H5; Kobo July and August and Kisiwa September and October are
+  inside it, Kobo October is still RAISED (120 L against 50). Fuel deliveries and month-end dips load through the
+  operational entry at their own record time; C-DD2 and C-DD8 judge them. All assessed nights WITHIN_MARGIN.
+- Open: C-DD8 on the store waits for DD5.1's readings; the served floor is asserted in DD6.1 (the Foundation revision must be in
+  force over July); older design documents still say "2 % tolerance".

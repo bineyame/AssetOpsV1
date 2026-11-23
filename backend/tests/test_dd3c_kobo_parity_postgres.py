@@ -36,9 +36,8 @@ Stored digests, and how each is compared:
       assessment_revision.basis_sha256 (the input digest and evidence ids);
       fuel_balance_window.input_sha256 (tank and generator asset ids, evidence ids).
 
-Added to the onboarding copy used in BOTH states (so the compared fuel balance is a real assessment, not
-NOT_ASSESSED NO_SENSOR_ACCURACY): KOBO-001's `fuel-tank` gets `fuel-level-sensor-accuracy` 10 L and
-`fuel-level-sensor-accuracy-basis` GENERIC_DEFAULT (the values the Kisiwa demo config declares). Nothing else.
+Both states publish the onboarding file as it stands: KOBO-001's `fuel-tank` declares its level accuracy (25 L,
+GENERIC_DEFAULT; D-DD.153), so the compared fuel balance is a real assessment, not NOT_ASSESSED NO_SENSOR_ACCURACY.
 
 Requires ASSETOPS_TEST_DATABASE_URL on a routed run (`tools/run-host-tests.ps1`, under `tools/heavy-slot.sh --db`).
 """
@@ -207,19 +206,6 @@ def sealed(kit, rows) -> list[bytes]:
 
 # --- one state ------------------------------------------------------------------------------------------------------
 
-def _onboarding(tmp_path: Path) -> Path:
-    document = json.loads(LAKESIDE.read_text(encoding="utf-8"))
-    site = next(s for s in document["sites"] if s["code"] == CODE)
-    tank = next(c for c in site["components"] if c["id"] == "fuel-tank")
-    tank["properties"] += [
-        {"property_key": "fuel-level-sensor-accuracy", "value": 10, "unit": "L", "source": "SITE", "source_version": 1},
-        {"property_key": "fuel-level-sensor-accuracy-basis", "value": "GENERIC_DEFAULT", "unit": "state",
-         "source": "SITE", "source_version": 1}]
-    out = tmp_path / "lakeside-power.onboarding.json"
-    out.write_text(json.dumps(document, indent=2), encoding="utf-8")
-    return out
-
-
 def _world(tmp_path: Path, role_set: str) -> Path:
     if role_set == "minigrid-roles-5":
         return WORLD
@@ -334,12 +320,11 @@ def _state(url, role_set, onboarding, tmp_path, monkeypatch, capsys) -> dict:
 
 
 def test_kobo_under_roles_4_and_roles_5_computes_byte_equal_outputs(tmp_path, monkeypatch, capsys) -> None:
-    onboarding = _onboarding(tmp_path)
     states = {}
     for tag, role_set in (("dd3c4", "minigrid-roles-4"), ("dd3c5", "minigrid-roles-5")):
         url = pg_harness.clone_database(tag)
         try:
-            states[role_set] = _state(url, role_set, onboarding, tmp_path, monkeypatch, capsys)
+            states[role_set] = _state(url, role_set, LAKESIDE, tmp_path, monkeypatch, capsys)
         finally:
             pg_harness.drop_database(url)
 

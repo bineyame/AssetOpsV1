@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
+from types import MappingProxyType
 from uuid import UUID
 
 from assetops_backend.structure import pins as _pins
@@ -43,6 +44,18 @@ NO_TOLERANCE = ToleranceInForce("NONE", None, None, None)
 
 
 @dataclass(frozen=True)
+class Floor:
+    """D-DD.153: what the tank's two level readings can be out by together, in the leaf's unit."""
+    litres: Decimal                 # TANK_MARGIN_FACTOR x accuracy_l
+    accuracy_l: Decimal
+    basis: str                      # fuel_balance.rules.ACCURACY_BASES
+    revision_id: str                # the Foundation revision that declares it
+
+
+NO_FLOORS: Mapping[str, Floor] = MappingProxyType({})
+
+
+@dataclass(frozen=True)
 class FactorObservation:
     factor_id: str
     direction: str                  # UP or DOWN
@@ -59,6 +72,7 @@ class FactorObservation:
     target_evidence: str
     sources: tuple[str, ...]        # sorted union of the actual's and the target's sources
     origins: tuple[str, ...]        # the actual's origins
+    floor: Floor | None = None      # only when it set the band (D-DD.153)
 
 
 def in_force(registry: _registry.Registry, factor_id: str,
@@ -73,8 +87,10 @@ def in_force(registry: _registry.Registry, factor_id: str,
 
 
 def observe(actual: SiteStructure, target: SiteStructure,
-            declarations: Mapping[str, ToleranceInForce]) -> tuple[FactorObservation, ...]:
-    """Spec §2.2: one observation per leaf of `OBSERVED[key]`, in that order."""
+            declarations: Mapping[str, ToleranceInForce],
+            floors: Mapping[str, Floor] = NO_FLOORS) -> tuple[FactorObservation, ...]:
+    """Spec §2.2: one observation per leaf of `OBSERVED[key]`, in that order. `floors` reaches the leaves of
+    `FLOORED[key]` only (D-DD.153)."""
     key = actual.structure_key
     if (actual.site_code, actual.month, actual.structure_key, actual.structure_version) != (
             target.site_code, target.month, target.structure_key, target.structure_version):
@@ -82,23 +98,26 @@ def observe(actual: SiteStructure, target: SiteStructure,
     if key not in rules.OBSERVED:
         raise StructureError("STRUCTURE_OBSERVE_KEY", key, "-")
     registry = _registry.REGISTRIES[key]
-    return tuple(_one(registry, key, leaf, direction, actual, target, declarations.get(leaf))
+    floored = rules.FLOORED.get(key, ())
+    return tuple(_one(registry, key, leaf, direction, actual, target, declarations.get(leaf),
+                      floors.get(leaf) if leaf in floored else None)
                  for leaf, direction in rules.OBSERVED[key].items())
 
 
 def observe_site(site: SiteMonthSnapshot,
-                 declarations: Mapping[str, ToleranceInForce]) -> tuple[FactorObservation, ...]:
+                 declarations: Mapping[str, ToleranceInForce],
+                 floors: Mapping[str, Floor] = NO_FLOORS) -> tuple[FactorObservation, ...]:
     """D-3B4.26: the one place the actual side is chosen: the un-carried `site.actual` (D-3B4.5)."""
-    return observe(site.actual, site.targets.structure, declarations)
+    return observe(site.actual, site.targets.structure, declarations, floors)
 
 
 def _one(registry, key, leaf, direction, actual: SiteStructure, target: SiteStructure,
-         declaration: ToleranceInForce | None) -> FactorObservation:
+         declaration: ToleranceInForce | None, floor: Floor | None = None) -> FactorObservation:
     row = registry.row(leaf)
     a, t = actual.values[leaf], target.values[leaf]
     tolerance = in_force(registry, leaf, declaration)
     money = rules.money_dimension(row.unit)
-    gap = band = None
+    gap = band = binding = None
     with localcontext(_context()):
         if a.value is None:
             state = "ACTUAL_NOT_AVAILABLE"
@@ -114,6 +133,8 @@ def _one(registry, key, leaf, direction, actual: SiteStructure, target: SiteStru
                 state = "FAVOURABLE"
             else:
                 band = _band(tolerance, actual)
+                if band is not None and tolerance.source != "NONE" and floor is not None and floor.litres > band:
+                    band, binding = floor.litres, floor
                 if band is None:
                     state = "TOLERANCE_NOT_AVAILABLE"
                 elif abs(gap) <= band:
@@ -124,7 +145,7 @@ def _one(registry, key, leaf, direction, actual: SiteStructure, target: SiteStru
         factor_id=leaf, direction=direction, kind=rules.kind_of(registry, key, leaf), state=state,
         unit=str(row.unit), currency=a.currency if money else None, actual=a.value, target=t.value, gap=gap,
         band=band, tolerance=tolerance, actual_evidence=a.evidence, target_evidence=t.evidence,
-        sources=tuple(sorted(set(a.sources) | set(t.sources))), origins=tuple(a.origins))
+        sources=tuple(sorted(set(a.sources) | set(t.sources))), origins=tuple(a.origins), floor=binding)
 
 
 def _band(tolerance: ToleranceInForce, actual: SiteStructure) -> Decimal | None:
@@ -148,8 +169,14 @@ def _pct(d: Decimal | None) -> str | None:
     return None if d is None else format(d.normalize(), "f")
 
 
+def _floor(f: Floor) -> dict:
+    return {"litres": _dec(f.litres), "accuracy_l": _dec(f.accuracy_l), "basis": f.basis}
+
+
 def basis(o: FactorObservation, structure_key: str, month: str) -> str:
-    """Spec §2.2: sha256 hex over the observation's figures; no instant, snapshot id or declaration id."""
+    """Spec §2.2: sha256 hex over the observation's figures; no instant, snapshot id or declaration id. A floor that
+    set the band is part of them (D-DD.153), without its revision id."""
+    floor = {} if o.floor is None else {"floor": _floor(o.floor)}
     return codec.digest(codec.canonical({
         "structure_key": structure_key, "month": month, "factor_id": o.factor_id, "direction": o.direction,
         "kind": o.kind, "state": o.state, "unit": o.unit, "currency": o.currency, "actual": _dec(o.actual),
@@ -157,7 +184,7 @@ def basis(o: FactorObservation, structure_key: str, month: str) -> str:
         "tolerance": {"source": o.tolerance.source, "of_factor": o.tolerance.of_factor,
                       "pct": _pct(o.tolerance.pct)},
         "actual_evidence": o.actual_evidence, "target_evidence": o.target_evidence,
-        "sources": list(o.sources), "origins": list(o.origins),
+        "sources": list(o.sources), "origins": list(o.origins), **floor,
     }))
 
 
@@ -172,6 +199,7 @@ def claim(o: FactorObservation, *, structure_key: str, structure_version: int, m
     """Spec §4.3 (D-3B4.18): the condition in the leaf's unit; no bridge value and no effect of acting."""
     home = _registry.REGISTRIES[structure_key].row(o.factor_id).home
     t = o.tolerance
+    floor = {} if o.floor is None else {"floor": {**_floor(o.floor), "revision_id": o.floor.revision_id}}
     return {
         "format": CLAIM_FORMAT, "structure_key": structure_key, "structure_version": structure_version,
         "factor_id": o.factor_id, "home": None if home is None else home.category,
@@ -184,5 +212,5 @@ def claim(o: FactorObservation, *, structure_key: str, structure_version: int, m
         "sources": list(o.sources), "origins": list(o.origins),
         "also_pinned": list(also_pinned(structure_key, o.factor_id)),
         "snapshot_id": str(snapshot_id), "snapshot_as_of": snapshot_as_of.isoformat(),
-        "tolerance_known_at": tolerance_known_at.isoformat(),
+        "tolerance_known_at": tolerance_known_at.isoformat(), **floor,
     }
