@@ -180,14 +180,21 @@ def _steps(spec: dict[str, tuple]) -> dict[str, dict]:
     return out
 
 
-def test_kisiwa_candidate_time_is_judged_month_by_month_under_one_percent() -> None:
-    running = {f"2026-07-{d:02d}T{h:02d}:{m:02d}": (20, "RUNNING", 0, "STOPPED", 0, 20)
-               for d in range(1, 21) for h in range(18, 23) for m in range(0, 60, 5)}  # 6,000 generator minutes
-    sunny = {f"2026-07-21T10:{m:02d}": (20, "RUNNING", 0, "STOPPED", 30, 20) for m in (0, 5, 10, 15)}  # 20 min
-    good = dd_check.judge_candidate_share(_steps(running | sunny))
-    assert good[0] and "2026-07: 20 of 6020" in good[1]
-    many = {f"2026-07-22T10:{m:02d}": (20, "RUNNING", 0, "STOPPED", 30, 20) for m in range(0, 60, 5)}
-    assert not dd_check.judge_candidate_share(_steps(running | sunny | many))[0]
+def test_kisiwa_candidate_time_is_printed_per_month_with_no_bound() -> None:
+    """D-DD.151: the share is printed, not bounded; only a month without computed minutes fails."""
+    running = {f"2026-{mm}-{d:02d}T{h:02d}:{m:02d}": (20, "RUNNING", 0, "STOPPED", 0, 20)
+               for mm in ("07", "08", "09", "10") for d in range(1, 21) for h in range(18, 23) for m in range(0, 60, 5)}
+    sunny = {f"2026-08-22T10:{m:02d}": (20, "RUNNING", 0, "STOPPED", 30, 20) for m in range(0, 60, 5)}  # 60 min
+    ok, line = dd_check.judge_candidate_share(_steps(running | sunny))
+    assert ok, line
+    assert "2026-08: 60 of 6060 min (0.99 %)" in line and "2026-07: 0 of 6000 min (0.00 %)" in line
+    many = {f"2026-08-23T{h:02d}:{m:02d}": (20, "RUNNING", 0, "STOPPED", 30, 20) for h in (10, 11, 12)
+            for m in range(0, 60, 5)}
+    ok, line = dd_check.judge_candidate_share(_steps(running | sunny | many))
+    assert ok and "2026-08: 240 of 6240 min (3.85 %)" in line and "FAIL" not in line
+    no_october = {m: v for m, v in running.items() if not m.startswith("2026-10")}
+    ok, line = dd_check.judge_candidate_share(_steps(no_october))
+    assert not ok and "FAIL 2026-10: no generator minutes computed" in line
 
 
 def test_c_dd20_kisiwa_holds_on_the_writer_rows_and_fails_on_a_planted_row(kisiwa) -> None:
@@ -212,3 +219,123 @@ def kisiwa():
     history = json.loads((REPOSITORY_ROOT / "Docs/demo-sprint/product-direction-layer4/history.json").read_text())
     books = tel.books_for(load_fixture(), history, {"lakeside-power": ""})
     return _run(books, "KISIWA-001", "2026-10-30", "2026-10-30")[0]
+
+
+# --- D-DD.150: every mini-grid bridge carries the same three fuel lines -----------------------------------------------
+
+MINI = {"KOBO-001": "Kobo", "KISIWA-001": "Kisiwa", "MTO-001": "Mto"}
+FUEL_LEAVES = REPOSITORY_ROOT / "config/world/fuel-leaves.json"
+
+
+def _manifest() -> dict:
+    import yaml
+    return yaml.safe_load(dd_check.MANIFEST.read_text(encoding="utf-8"))
+
+
+def _site(code: str) -> tuple[dict, dict]:
+    doc = _manifest()
+    for tenant in doc["tenants"]:
+        for site in tenant.get("sites", []):
+            if site.get("code") == code:
+                return tenant, site
+    raise AssertionError(code)
+
+
+def test_the_restated_bridge_adds_a_missing_fuel_line_before_the_necessary_line() -> None:
+    lines = [{"driver": "DEMAND_VOLUME", "amount": -55.00}, {"driver": "SOLAR_SHORTFALL_NECESSARY_GEN", "amount": -104.00},
+             {"driver": "UNEXPLAINED_RESIDUAL", "amount": -26.00}]
+    leaves = {"bridge": {"CANDIDATE_RUNNING": Decimal("-87.10"), "NECESSARY": Decimal("1927.90"),
+                         "UNEXPLAINED_RESIDUAL": Decimal("-26.00")}}
+    out = tool.restated_bridge(lines, leaves)
+    assert [d for d, _, _ in out] == ["DEMAND_VOLUME", "CANDIDATE_RUNNING", "SOLAR_SHORTFALL_NECESSARY_GEN",
+                                      "UNEXPLAINED_RESIDUAL"]
+    assert out[1] == ("CANDIDATE_RUNNING", None, Decimal("-87.10"))
+    assert sum(new for _, _, new in out) == Decimal("1759.80")
+    mto = tool.restated_bridge([{"driver": "EVENING_NECESSARY_GEN", "amount": -25.00}],
+                               {"bridge": {"CANDIDATE_RUNNING": Decimal("-40.00"), "NECESSARY": Decimal("375.00"),
+                                           "UNEXPLAINED_RESIDUAL": Decimal("0.00")}})
+    assert [d for d, _, _ in mto] == ["CANDIDATE_RUNNING", "EVENING_NECESSARY_GEN", "UNEXPLAINED_RESIDUAL"]
+
+
+@pytest.mark.parametrize("code", sorted(MINI))
+def test_every_mini_grid_bridge_in_m_has_the_three_fuel_lines_and_closes(code: str) -> None:
+    _, site = _site(code)
+    period = site["period"]
+    fuel = [line for line in period["bridge"] if line["overlap_group"].endswith("-2026-10-FUEL")]
+    drivers = [line["driver"] for line in fuel]
+    assert len(drivers) == 3 and drivers[0] == "CANDIDATE_RUNNING" and drivers[2] == "UNEXPLAINED_RESIDUAL"
+    assert drivers[1] in tool.NECESSARY_DRIVERS
+    total = sum((Decimal(str(line["amount"])) for line in period["bridge"]), Decimal(0))
+    assert total == Decimal(str(period["variance"]))
+    assert MINI[code] in fuel[0]["basis"]
+
+
+@pytest.mark.parametrize("code", sorted(MINI))
+def test_m_october_fuel_leaves_equal_the_tool_output(code: str) -> None:
+    """D-DD.131 (D-DD.93): `M`'s October fuel leaves are the tool's output on the notes run's October ledger."""
+    record = next(s for s in json.loads(FUEL_LEAVES.read_text(encoding="utf-8"))["sites"] if s["site_code"] == code)
+    notes = next(s for s in json.loads(NOTES_FILE.read_text(encoding="utf-8"))["sites"] if s["site_code"] == code)
+    tenant, site = _site(code)
+    price = Decimal(str(tenant["prices"]["diesel_usd_per_l"][site["site"]]))
+    period = site["period"]
+    leaves = tool.october_leaves(tool.ledger_from_record(record), notes["notes"], price, period["plan"],
+                                 period["actual"])
+    for leaf in ("diesel_l", "necessary_l", "candidate_l", "unexplained_l"):
+        assert period["actual"][leaf] == leaves[leaf], leaf
+    for leaf in ("diesel_cost", "contribution"):
+        assert Decimal(str(period["actual"][leaf])).quantize(Decimal("0.01")) == leaves[leaf], leaf
+    assert Decimal(str(period["variance"])).quantize(Decimal("0.01")) == leaves["variance"]
+    balance = {k: v for k, v in period["fuel_balance"].items() if k != "tolerance_pct"}
+    assert balance == leaves["fuel_balance"]
+    by_driver = {("NECESSARY" if line["driver"] in tool.NECESSARY_DRIVERS else line["driver"]): line["amount"]
+                 for line in period["bridge"]}
+    for key, amount in leaves["bridge"].items():
+        assert Decimal(str(by_driver[key])).quantize(Decimal("0.01")) == amount, key
+    candidate = next(f for f in site["findings_expected"] if f.get("mechanism") == "GENERATOR_SUPPORT_CANDIDATE")
+    assert candidate["days"] == f"{record['candidate_days']} of 31"
+    assert candidate["gross_exposure_l"] == [0, leaves["candidate_l"]]
+    assert [Decimal(str(v)).quantize(Decimal("0.01")) for v in candidate["gross_exposure_usd"]] == \
+        [Decimal("0.00"), -leaves["bridge"]["CANDIDATE_RUNNING"]]
+
+
+def test_kisiwa_evening_load_and_or_mg_2_read_from_the_run() -> None:
+    """D-DD.151: GEN-KS-02's evening load prints from the readings; OR-MG-2 prints the share, no negative control."""
+    record = next(s for s in json.loads(FUEL_LEAVES.read_text(encoding="utf-8"))["sites"]
+                  if s["site_code"] == "KISIWA-001")
+    share = round(Fraction(record["peak_evening_generator_kw"]) / 60 * 100)
+    _, site = _site("KISIWA-001")
+    assert share == 70
+    assert f"{share}% load" in site["decision"]["thread"] and "95%" not in site["decision"]["thread"]
+    assert f"({share}%" in site["factor_sources"]["standby_kw"]
+    assert "negative control" not in site["role_in_story"]
+    expect = next(o["expect"] for o in _manifest()["oracle"] if o["id"] == "OR-MG-2")
+    assert expect == "Kisiwa: candidate time printed per month; no fuel-saving option is in M"
+
+
+# --- D-DD.152: C-DD17 judges the tolerance only in months the generator burned -----------------------------------------
+
+def _balance(burned: str, balance: str) -> dict:
+    return {"open": Decimal(1000), "delivered": Decimal(0), "close": Decimal(1000) - Decimal(burned) - Decimal(balance),
+            "burned": Decimal(burned), "consumed": Decimal(burned) + Decimal(balance), "balance": Decimal(balance)}
+
+
+def test_c_dd17_month_with_no_burn_states_what_the_product_shows() -> None:
+    ok, line = dd_check.judge_unexplained_month("2026-07", _balance("0", "12"), Decimal(12), Decimal("0.02"))
+    assert ok, line
+    assert "no burn: 12 L unexplained, which the product shows against a 12 L consumption" in line
+    assert not dd_check.judge_unexplained_month("2026-07", _balance("0", "11"), Decimal(12), Decimal("0.02"))[0]
+
+
+def test_c_dd17_judges_the_tolerance_where_the_generator_burned() -> None:
+    tolerance = Decimal("0.02")
+    assert dd_check.judge_unexplained_month("2026-09", _balance("762.2", "11"), Decimal(11), tolerance)[0]
+    assert not dd_check.judge_unexplained_month("2026-09", _balance("300", "11"), Decimal(11), tolerance)[0]
+    assert dd_check.judge_unexplained_month("2026-10", _balance("514.2", "120"), Decimal(120), tolerance)[0]
+    assert not dd_check.judge_unexplained_month("2026-10", _balance("9000", "120"), Decimal(120), tolerance)[0]
+    assert not dd_check.judge_unexplained_month("2026-09", _balance("762.2", "10"), Decimal(11), tolerance)[0]
+    assert not dd_check.judge_unexplained_month("2026-09", _balance("762.2", "-1"), Decimal(-1), tolerance)[0]
+
+
+def test_c_dd17_reads_the_declared_draws_from_history_and_m() -> None:
+    assert dd_check.declared_draws("KOBO-001") == {"2026-07": Decimal(12), "2026-08": Decimal(12),
+                                                    "2026-09": Decimal(11), "2026-10": Decimal(120)}
