@@ -1,4 +1,4 @@
-# DD4b handoff (PARTIAL: DD4.3, the rejoin, DD4.4 and the writer memory fix done; DD4.5 part built, its M chain next; DD4.6 after)
+# DD4b handoff (PARTIAL: DD4.3, the rejoin, DD4.4, the writer memory fix and DD4.5 done; DD4.6 next)
 
 Branch `task/DD4b-ev-measured`, worktree `/opt/assetecon/AssetOpsV1-dd4b`. Main merged at `0c44ae75b` (`12af8de92`).
 Packet `packet-DD4b.md`.
@@ -35,20 +35,14 @@ Packet `packet-DD4b.md`.
     first); then `rows_ev_depot.py` and `M` `structures` + `home_categories` (`buses_full_by_charger`, Protect P1;
     `buses_short_per_night` = max of the energy and the charger bound), committed with M's header note rev 16.20.
 
+- Run 6 (DD4.5 rest; main merged `2d325b04a`; packet "Run 6"): `bbeaf1c76` M stated fields, D-DD.30 chain, sweep,
+  `check_manifest.py` re-based (6 FAIL = main's 6). 3B6 test_4 and K13 pass; 6h parity unedited (no key moves);
+  6c+6h 199 passed. vNEXT mock JS, gen_docs.cjs, CHANGE-REGISTER, fixture-mapping left for the alignment pass.
+
 ## Next
-1. DD4.5 rest (D-DD.125), one `M` commit: regenerate the D-DD.30 chain as rev 16.19 did (`0c5d5fab7`):
-   `derived-values.json` + `fixtures.js` (`interactive-mockup-vNEXT` gen_fixtures.py), `index.html` (build.mjs),
-   `check_manifest.py` re-based with a dated note, `world_history.py check`; sweep hand-typed Kasarani figures
-   (`grep -rn "240.00\|departures_missed\|spare bus" Docs/demo-sprint/product-direction-layer4`, mock JS, docs).
-   Expected: Kasarani November `buses_short_per_night` 1 -> 2, `departures_missed` 2 -> 7, `penalties` 240.00 -> 840.00,
-   `departures_met` 38 -> 33, cost_to_serve 1027.50 -> 1627.50; KAS-OEM-STOPGAP covered bus-nights and the
-   ruiru cost line, KAS-OEM-WAIT and KAS-LOCAL protect figures move with them; the typed `expected_penalties: 240.00`
-   and "one bus short a night" text follow. A figure that does not follow the readings stops for the Architect.
-   Then `backend/tests/test_6h_parity.py`: list the moved keys (Kasarani from 1 Nov only) and assert the rest; run
-   `test_6c_*`, `test_3b*_structure*`, `test_6h*` and the readers of `6h_parity.json` (`--db-lane`).
-2. DD4.6 (D-DD.144): the cold energy rebuild.
-3. At DD4b's end: spec Status `in_review`, a `.ai/state/` entry and its index line (not written yet: DD4b is not done).
-4. Open for the Architect (packet deviations 8-10): the EV hour sums (C-DD7 pending, question (a)), C-DD5's "on
+1. DD4.6 (D-DD.144): the cold energy rebuild.
+2. At DD4b's end: spec Status `in_review`, a `.ai/state/` entry and its index line (not written yet: DD4b is not done).
+3. Open for the Architect (packet deviations 8-10): the EV hour sums (C-DD7 pending, question (a)), C-DD5's "on
    change" reading, C-DD7's mini clause.
 
 ## Plants (run 3, revision 059f211ad, scratch /tmp/claude-1001/.../ce5c6176.../scratchpad/dd44)
@@ -71,5 +65,5 @@ Packet `packet-DD4b.md`.
   PENDING (packet deviation 8): `M`'s EV structure reads them.
 - EV writer memory: fixed in run 5 (3.8 GB -> 149 MB peak, 1,620 s -> 1,567 s, three depots; bytes identical).
   `_import` (one Fraction per non-zero minute) is still held for the span.
-- `check_manifest.py` K13 and 3B6 test_4 (seven EV sides) fail until the DD4.5 regeneration (Next 1).
+- The vNEXT mock still shows Kasarani's old figures in hand-typed JS text (alignment pass).
 - `_vertical`'s run is dropped after `_measured_view`; a caller wanting the run must keep its own.

@@ -1,4 +1,4 @@
-# DD4b review packet (PARTIAL: DD4.3, the rejoin and DD4.4 done; DD4.5, DD4.6 to come)
+# DD4b review packet (PARTIAL: DD4.3, the rejoin, DD4.4 and DD4.5 done; DD4.6 to come)
 
 Branch `task/DD4b-ev-measured`. Spec `spec.md` §4.5 and §5.6; rulings D-DD.81, D-DD.91, D-DD.98, D-DD.100, D-DD.123;
 pre-flight `DD4b-preflight.md`, `preflight-remaining.md` §DD4b. DD4.4 (D-DD.99, D-DD.123, D-DD.124) is complete and
@@ -139,6 +139,51 @@ the full span), through `tools/heavy-slot.sh`, scratch `/tmp/claude-1001/dd45-pl
   to the golden; `measured.json` identical to `simulator/tests/world/fixtures/measured/metro-bus.measured.json`.
 - Moved EV figures: none in the readings or the measured books (writer parity). The model figures that move are
   Kasarani November's (above); the depots' October and Embakasi/Ruiru figures do not move (b3: the bound does not bind).
+
+## Run 6 (DD4.5 rest, D-DD.125 regeneration; `git merge main` at `2d325b04a`)
+| Commit | What |
+|---|---|
+| `bbeaf1c76` | `M` stated fields restated, D-DD.30 chain regenerated, doc sweep, `check_manifest.py` re-based (dated note) |
+
+- No code changed in this run (data, docs and the check's base digests only), so no new test; the tests that
+  failed at run 5's end now pass: 3B6 `test_4` (seven EV sides) and `check_manifest.py` K13.
+- Regenerated: `derived-values.json` (`evaluate_structure.py`: "evaluator vs stated fields: 0 differences"),
+  `fixtures.js` (`gen_fixtures.py`), `index.html` (`build.mjs`). `history.json` unchanged
+  (`world_history.py check --manifest ... --history ...` exit 0); derived `history` only gains `buses_full_by_charger`
+  (15 keys added, no value changed).
+- Restated (all follow the readings: the departure log's 10 short rows less 3 spare rows met):
+  Kasarani November `buses_short_per_night` 1 -> 2, `departures_missed` 2 -> 7, `departures_met` 38 -> 33,
+  `penalties` 240.00 -> 840.00, `cost_to_serve` 1027.50 -> 1627.50, `cost_per_departure_met` 27.04 -> 49.32.
+  KAS-OEM-STOPGAP 5 bus-nights x 45.00 = 225.00 (was 2, 90.00), horizon change +600.00, value +375.00 (was +150.00);
+  KAS-OEM-WAIT 5 missed, 600.00 penalties (was 2, 240.00; `expected_penalties` typed in `M` follows); KAS-LOCAL 2
+  missed, +360.00, value -20.00 (was 1, +120.00, -260.00). Metro-bus plan: spend 1,725.00, value +95,859.00,
+  downside +375.00 (was 1,590.00, +95,634.00, +150.00). No figure stopped for the Architect.
+- Sweep: 89 anchored figures in ten design documents, and the hand-typed text beside them ("one bus short a night" ->
+  two, "2 missed" -> 7, "5 - 3" -> "2 x 5 - 3", the stopgap's 2 buses -> 5 bus-nights, the WAIT and LOCAL rows).
+  Figures that now coincide with a key option figure (600.00, 225.00: Kobo fuel volume and om, Embakasi maintenance
+  and demand, Mwea energy) are anchored to their own paths (`fig`/`figx`), not left loose.
+- **Left for the alignment pass (not swept):** the vNEXT mock's JS (`loop-core.js`, `loop-decisions.js`, `screens.js`
+  etc.), `tools/gen_docs.cjs` (its typed "1 bus short, 2 departures missed, $240"), `CHANGE-REGISTER.md`,
+  `fixture-mapping.md`, and the `derivation-register.md` rows that quote those mock lines. `REVIEW*.md` are history.
+  `walkthroughs.md` is swept only where `check_manifest` reads its anchors.
+- **6h parity:** `backend/tests/test_6h_parity.py` passes unedited. No key of `golden/6h_parity.json` moves: its
+  6c fixtures are not Kasarani in November, and D-DD.125 *Parity* allows moves only there. So the test holds only
+  D-P6.68's one exception; nothing to list or cite.
+
+### Run 6 evidence (revision `bbeaf1c76`)
+- `check_manifest.py`: exit 1, **6 FAIL = main's 6** (H9 baseline, alignment A1/A2/A3/A5 on `walkthroughs.md`,
+  walkthroughs "3,184"), from 210 before the run; main measured in a temporary worktree at `83a5e577d`.
+  Logs `/opt/assetecon/evidence/DD4b/cm-before.log`, `cm-main.log`, `cm-4.log`.
+- `tools/heavy-slot.sh --db-lane -- pwsh tools/run-host-tests.ps1 -- test_3b6_cold_ev_structures.py test_6h_parity.py`:
+  63 passed, 3.7 s.
+- One `--db-lane` call, all 13 `test_6c*` + `test_6h*` files: **199 passed**, 10 warnings, 42.4 s (53 s wall);
+  log `t-6c-6h.log`. Main: `.agent/main-baseline/23d2cd9f6.md` (partial: no per-test list; its own failures are
+  `test_ch5c2_clock_guard` and `test_w204` TestMigration0023, neither in this set).
+- Guards: `tools/check-architecture.ps1` passed; `tools/checks/statement_catalogue.py` exit 0;
+  `tools/check-agent-workflow.ps1` passed.
+- Plant: `world_history.py exports --manifest M --out --extras` at `2d325b04a` (before) and `bbeaf1c76` (after):
+  16 files each, **byte-identical** (the restated fields are model outputs, not export inputs); after 2.6 s,
+  40,880 kB peak. The EV telemetry plant is run 5's (code unchanged since `eeeb62920`).
 
 ## Evidence (runs 1-3)
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
