@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -32,6 +33,8 @@ if URL:
     from assetops_backend.fuel_balance.service import FuelBalanceService
 
 BACKEND = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BACKEND.parent / "tools"))
+import dd_check  # noqa: E402
 LAKESIDE = BACKEND / "tests" / "fixtures" / "on1" / "lakeside-power.onboarding.json"
 WORLD = BACKEND / "conversions" / "world"
 SLUG, CODE = "lakeside-power", "KOBO-001"
@@ -212,6 +215,22 @@ def late_nights(url: str) -> dict[str, bool]:
 
 def test_only_the_late_notes_night_carries_the_limitation(onboarded) -> None:
     assert late_nights(onboarded) == {"2026-09-24": False, "2026-10-25": True}
+
+
+def test_the_checker_reads_the_stored_records_at_the_sites_local_minute(onboarded) -> None:
+    read = dd_check.stored_fuel_records(onboarded)
+    assert sorted((r["tenant"], r["site"], r["kind"], r["taken_at_local"], r["litres"]) for r in read) == sorted(
+        (SLUG, CODE, r["kind"], r["taken_at_local"], Decimal(r["litres"])) for r in RECORDS)
+
+
+def test_the_checker_reads_each_nights_latest_revision_and_c_dd8_fails_without_readings(onboarded) -> None:
+    late_nights(onboarded)
+    read = dd_check.stored_fuel_nights(onboarded)
+    assert [(n, s) for n, s, _ in read[CODE]] == [("2026-09-24", "NOT_ASSESSED"), ("2026-10-25", "NOT_ASSESSED")]
+    result = dd_check.check_fuel(dd_check.read_inputs(onboarded))
+    assert not result.passed
+    assert {"FAIL KOBO-001: no assessed night", "FAIL KISIWA-001: no fuel records", "FAIL MTO-001: no fuel records",
+            "FAIL no readings stored: the loader is DD5.1's; the records' balance is not judged"} <= set(result.detail)
 
 
 def test_a_re_run_records_nothing_new(onboarded, tmp_path, capsys) -> None:
