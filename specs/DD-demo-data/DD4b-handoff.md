@@ -1,4 +1,4 @@
-# DD4b handoff (PARTIAL: DD4.3, the rejoin, DD4.4, the writer memory fix and DD4.5 done; DD4.6 next)
+# DD4b handoff (PARTIAL: DD4.3-DD4.5 done; DD4.6 built to the doc sweep, re-base and slice end open)
 
 Branch `task/DD4b-ev-measured`, worktree `/opt/assetecon/AssetOpsV1-dd4b`. Main merged at `0c44ae75b` (`12af8de92`).
 Packet `packet-DD4b.md`.
@@ -39,8 +39,25 @@ Packet `packet-DD4b.md`.
   `check_manifest.py` re-based (6 FAIL = main's 6). 3B6 test_4 and K13 pass; 6h parity unedited (no key moves);
   6c+6h 199 passed. vNEXT mock JS, gen_docs.cjs, CHANGE-REGISTER, fixture-mapping left for the alignment pass.
 
+- Run 7 (DD4.6, D-DD.144; main merged `9c7d50156` at 2bedbecf2): `b2c0f98d1` tests first
+  `simulator/tests/world/test_dd46_cold_energy_model.py` (4 failed first, log `/opt/assetecon/evidence/DD4b/t46-first-fail.log`)
+  + golden `golden/efficiency_condition_main.json` (old `_efficiency` over 6e3c02ab5's M); `8acfaab77`
+  `telemetry_cold.EFFICIENCY_CONDITION`; `5ddf77777` + `83e83cbff` M rev 16.21 (1304 + 0.0554, reproduced exactly by the
+  test's OLS), October kwh = meter (Kiri 2113.60 at the checker's 2-decimal precision), plan kwh whole (1716/1785/1854:
+  the budget export refuses non-whole, EMU_QUANTITY), Thika gains an ENERGY_EFFICIENCY bridge row (+2.73, RC2);
+  evaluator vs stated 0 differences; history.json (only cold kwh + digests move), derived-values, fixtures.js, index.html
+  regenerated. Moved: Mwea contribution 202.74 (+2.1 %), Thika 843.73, Kiri 1081.28 (+14 %, -52.01/month), KIRI-REPAIR
+  41.61/month, +149.26 net 12m, KIRI-REPLACE -3,953.50, MWEA-AGG +2,370.56 (energy 49.86/month; not in the ruling's
+  table, follows mechanically), plan +2,519.82, downside 149.26. Bills 315.26 / 354.27 / 422.72.
+  Plant before (8acfaab77): cold measured.json identical to the committed fixture, 91 s, 42,800 kB.
+
 ## Next
-1. DD4.6 (D-DD.144): the cold energy rebuild.
+1. DD4.6 rest: doc sweep (a subagent was sweeping worked-portfolios, domain-and-decision-models, economic-metric...,
+   etc. against `/opt/assetecon/evidence/DD4b/cm46-sweep-todo.log`; check its commit), then re-base check_manifest H8,
+   H10, K8, K13 (sites, portfolio, history) with a dated note as run 6 did, until 6 FAIL = main's 6
+   (main 2bedbecf2: `cm46-main.log`). Compare the after plant (`plant.sh after` in the session scratchpad) with before:
+   telemetry must be byte-identical; exports differ only where M's cold kwh/energy are printed.
+## Next
 2. At DD4b's end: spec Status `in_review`, a `.ai/state/` entry and its index line (not written yet: DD4b is not done).
 3. Open for the Architect (packet deviations 8-10): the EV hour sums (C-DD7 pending, question (a)), C-DD5's "on
    change" reading, C-DD7's mini clause.
